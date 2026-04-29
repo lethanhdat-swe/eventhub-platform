@@ -65,6 +65,24 @@ Instantiation Rules:
 - Services should be instantiated once and reused
 - Controllers should receive service instances via constructor
 
+Listing & Pagination Rules
+
+- Pagination: Always use Offset-based (skip, take).
+
+- Standard Meta: Response must include totalItems, itemCount, itemsPerPage, totalPages, currentPage.
+
+- Performance: Always use Promise.all for findMany and count to optimize latency.
+
+- Search: Use OR with contains for string fields. No mode: 'insensitive' for MySQL.
+
+- Data Minimization: Always use select. Never return unnecessary fields or sensitive data.
+
+- Ordering: Default to createdAt: "desc".
+
+- Validation: Query params must be validated and transformed (string to number) via Zod before reaching Service.
+
+- Total isolation: Services must only receive clean, parsed numbers/strings, never the raw req.query object.
+
 Authentication Rules:
 
 - Always hash password using bcrypt
@@ -73,7 +91,10 @@ Authentication Rules:
 - Implement email verification flow
 - Do not allow login if email is not verified
 - Use JWT for authentication
-- Protect private routes using auth middleware
+- Protect private routes using `isAuth` middleware
+- Use `restrictTo(...roles: string[])` for Role-Based Access Control (RBAC) after `isAuth`
+- User roles supported: `user`, `admin`
+- Authenticated user information is attached to `req.user`
 
 Validation Rules:
 

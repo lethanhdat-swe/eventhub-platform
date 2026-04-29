@@ -425,6 +425,28 @@ class AuthService {
         return { message: "Password reset successful" };
     }
 
+    async getMe(userId: string) {
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+        });
+
+        if (!user) {
+            throw new AppError("User not found", 404);
+        }
+
+        // Filter out sensitive information
+        const {
+            password,
+            role,
+            provider,
+            providerId,
+            isEmailVerified,
+            lastLoginAt,
+            ...userWithoutPassword
+        } = user;
+        return userWithoutPassword;
+    }
+
     private generateAccessToken(user: any) {
         return jwt.sign(
             { id: user.id, email: user.email, role: user.role },
