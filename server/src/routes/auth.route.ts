@@ -1,6 +1,7 @@
 import { Router } from "express";
 import AuthController from "../controllers/auth.controller";
 import { validate } from "../middlewares/validate.middleware";
+import { isAuth, restrictTo } from "../middlewares/auth.middleware";
 import {
     forgotPasswordSchema,
     googleLoginSchema,
@@ -55,5 +56,7 @@ router.post(
 );
 
 router.post("/logout", validate(logoutSchema), AuthController.logout);
+
+router.get("/me", isAuth, AuthController.getMe);
 
 export default router;

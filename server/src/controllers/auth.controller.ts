@@ -104,6 +104,19 @@ class AuthController {
             next(error);
         }
     }
+
+    async getMe(req: Request, res: Response, next: NextFunction) {
+        try {
+            const userId = req.user?.id;
+            const result = await AuthService.getMe(userId!);
+            return res.success({
+                message: "User information retrieved successfully.",
+                data: result,
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 export default new AuthController();
