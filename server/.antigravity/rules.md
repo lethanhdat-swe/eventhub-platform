@@ -18,6 +18,7 @@ Error Handling Rules:
 - Do not use try/catch in services unless necessary
 - Controllers should not handle business errors
 - Use centralized error middleware to handle all errors
+- Always use the custom `AppError` class to throw errors (e.g., `throw new AppError("message", status)`). Do NOT throw raw `Error` objects or manually attach a `status` property to them.
 
 API Response Rules:
 
@@ -74,6 +75,29 @@ Authentication Rules:
 - Use JWT for authentication
 - Protect private routes using auth middleware
 
+Validation Rules:
+
+- All request validation must be handled by dedicated middleware using Zod
+- Controllers must NEVER perform input validation
+- Each endpoint that accepts input (body, params, query) must have a corresponding Zod schema
+- Zod schemas must be stored in /schemas directory and follow feature-based structure
+
+- Validation middleware must run BEFORE controller execution
+- If validation fails, middleware must throw an error and stop request flow
+- Validation errors must be handled by centralized error middleware
+
+- Controllers must assume all incoming data is already validated and sanitized
+- Services must never depend on raw or unvalidated request data
+
+- Reusable validate middleware must accept a Zod schema and validate:
+    - req.body
+    - req.params
+    - req.query
+
+Data Flow Rule (Updated):
+
+Request → Validation Middleware → Auth Middleware → Controller → Service → Prisma
+
 Database Rules:
 
 - Use Prisma for all database operations
@@ -92,3 +116,16 @@ Project Context:
 - Users can browse events and book tickets
 - Users can select seats and receive QR tickets
 - Admin can manage events, users, and orders
+
+Message Language Rules:
+
+- API Response messages (res.success / res.error returned to FE) must always be in English
+    - These messages are used for frontend display, logging, and system communication
+    - Must be clear, short, and professional English
+
+- Email / Notification content sent directly to users (e.g. Gmail, OTP, verification email, system notifications) must be written in Vietnamese
+    - These messages are user-facing and should follow local user language (Vietnamese)
+    - Must be friendly, natural, and easy to understand
+
+- Do NOT mix languages within the same message type
+- Always separate system communication (English) and user communication (Vietnamese)
