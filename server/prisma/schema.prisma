@@ -28,9 +28,34 @@ model User {
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
 
-  orders Order[]
+  orders     Order[]
+  userTokens UserToken[]
 
   @@map("users")
+}
+
+model UserToken {
+  id     String    @id @default(uuid())
+  userId String
+  token  String    @unique
+  type   TokenType
+
+  expiresAt DateTime
+  usedAt    DateTime?
+  isRevoked Boolean   @default(false)
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([type])
+}
+
+enum TokenType {
+  VERIFY_EMAIL
+  FORGOT_PASSWORD
+  REFRESH_TOKEN
 }
 
 ///////////////////////
