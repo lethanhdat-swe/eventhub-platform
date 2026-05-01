@@ -164,6 +164,9 @@ model Order {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  couponId String? @map("coupon_id")
+  coupon   Coupon? @relation(fields: [couponId], references: [id])
+
   tickets Ticket[]
 
   @@map("orders")
@@ -199,11 +202,23 @@ model Ticket {
 ///////////////////////
 
 model Coupon {
-  id              String    @id @default(uuid())
-  code            String    @unique
-  discountPercent Int?      @map("discount_percent")
-  validUntil      DateTime? @map("valid_until")
-  usageLimit      Int?      @map("usage_limit")
+  id              String       @id @default(uuid())
+  status          CouponStatus @default(ACTIVE)
+  code            String       @unique
+  description     String?      @db.Text
+  discountPercent Int          @default(0) @map("discount_percent")
+  validUntil      DateTime?    @map("valid_until")
+  usageLimit      Int?         @map("usage_limit")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  orders Order[]
 
   @@map("coupons")
+}
+
+enum CouponStatus {
+  ACTIVE
+  INACTIVE
 }
