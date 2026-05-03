@@ -4,7 +4,7 @@ import Footer from "@/layouts/PublicLayout/components/Footer";
 
 function PublicLayout() {
     return (
-        <div>
+        <div className="bg-(--background-color)">
             <Header />
             <Outlet />
             <Footer />
