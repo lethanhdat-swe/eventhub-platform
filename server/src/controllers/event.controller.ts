@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import eventService from "../services/event.service";
+import eventSeatService from "../services/event-seat.service";
 
 class EventController {
     create = async (req: Request, res: Response, next: NextFunction) => {
@@ -66,6 +67,38 @@ class EventController {
 
             return res.success({
                 message: "Events deleted successfully.",
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    getEventSeats = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const result = await eventSeatService.listByEvent(
+                req.params.id as string,
+                req.query as any
+            );
+
+            return res.success({
+                message: "Event seats fetched successfully.",
+                data: result,
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    updateEventSeats = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const result = await eventSeatService.updateBulk(
+                req.params.id as string,
+                req.body
+            );
+
+            return res.success({
+                message: "Event seats updated successfully.",
+                data: result,
             });
         } catch (error) {
             next(error);
