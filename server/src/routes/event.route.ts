@@ -9,6 +9,10 @@ import {
     updateEventSchema,
     deleteEventSchema,
 } from "../schema/event.schema";
+import {
+    listEventSeatSchema,
+    updateBulkEventSeatSchema,
+} from "../schema/event-seat.schema";
 
 const router = Router();
 
@@ -22,5 +26,17 @@ router.use(isAuth, restrictTo("admin"));
 router.post("/", validate(createEventSchema), eventController.create);
 router.patch("/:id", validate(updateEventSchema), eventController.update);
 router.delete("/", validate(deleteEventSchema), eventController.delete);
+
+// EventSeats management
+router.get(
+    "/:id/seats",
+    validate(listEventSeatSchema),
+    eventController.getEventSeats
+);
+router.patch(
+    "/:id/seats",
+    validate(updateBulkEventSeatSchema),
+    eventController.updateEventSeats
+);
 
 export default router;
