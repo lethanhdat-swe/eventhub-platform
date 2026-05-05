@@ -1,94 +1,27 @@
+import FeaturedEvents from './components/FeaturedEvents';
+import Hero from './components/Hero';
+import CategoryItem from './components/CategoryItem';
+import SearchSelect from './components/SearchSelect';
+import Limit from './components/Limit/Limit';
+import TrendEvent from './components/TrendEvent';
+import GoToTop from '@/components/GoToTop/GoToTop';
+import HomeTestimonials from './components/HomeTestimonials';
+import HomeNewsletter from './components/HomeNewsletter';
+
 function Home() {
-    return (
-        <div>
-            <h1 className="text-white">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugit
-                quod, reiciendis rerum sint labore veritatis accusantium id
-                veniam delectus officia quibusdam, omnis expedita tempora
-                commodi suscipit voluptate fugiat. Molestias, facere! Lorem
-                ipsum dolor sit amet consectetur adipisicing elit. Fugit quod,
-                reiciendis rerum sint labore veritatis accusantium id veniam
-                delectus officia quibusdam, omnis expedita tempora commodi
-                suscipit voluptate fugiat. Molestias, facere! Lorem ipsum dolor
-                sit amet consectetur adipisicing elit. Fugit quod, reiciendis
-                rerum sint labore veritatis accusantium id veniam delectus
-                officia quibusdam, omnis expedita tempora commodi suscipit
-                voluptate fugiat. Molestias, facere! Lorem ipsum dolor sit amet
-                consectetur adipisicing elit. Fugit quod, reiciendis rerum sint
-                labore veritatis accusantium id veniam delectus officia
-                quibusdam, omnis expedita tempora commodi suscipit voluptate
-                fugiat. Molestias, facere! Lorem ipsum dolor sit amet
-                consectetur adipisicing elit. Fugit quod, reiciendis rerum sint
-                labore veritatis accusantium id veniam delectus officia
-                quibusdam, omnis expedita tempora commodi suscipit voluptate
-                fugiat. Molestias, facere! Lorem ipsum dolor sit amet
-                consectetur adipisicing elit. Fugit quod, reiciendis rerum sint
-                labore veritatis accusantium id veniam delectus officia
-                quibusdam, omnis expedita tempora commodi suscipit voluptate
-                fugiat. Molestias, facere! Lorem ipsum dolor sit amet
-                consectetur adipisicing elit. Fugit quod, reiciendis rerum sint
-                labore veritatis accusantium id veniam delectus officia
-                quibusdam, omnis expedita tempora commodi suscipit voluptate
-                fugiat. Molestias, facere! Lorem ipsum dolor sit amet
-                consectetur adipisicing elit. Fugit quod, reiciendis rerum sint
-                labore veritatis accusantium id veniam delectus officia
-                quibusdam, omnis expedita tempora commodi suscipit voluptate
-                fugiat. Molestias, facere! Lorem ipsum dolor sit amet
-                consectetur adipisicing elit. Fugit quod, reiciendis rerum sint
-                labore veritatis accusantium id veniam delectus officia
-                quibusdam, omnis expedita tempora commodi suscipit voluptate
-                fugiat. Molestias, facere! Lorem ipsum dolor sit amet
-                consectetur adipisicing elit. Fugit quod, reiciendis rerum sint
-                labore veritatis accusantium id veniam delectus officia
-                quibusdam, omnis expedita tempora commodi suscipit voluptate
-                fugiat. Molestias, facere! Lorem ipsum dolor sit amet
-                consectetur adipisicing elit. Fugit quod, reiciendis rerum sint
-                labore veritatis accusantium id veniam delectus officia
-                quibusdam, omnis expedita tempora commodi suscipit voluptate
-                fugiat. Molestias, facere! Lorem ipsum dolor sit amet
-                consectetur adipisicing elit. Fugit quod, reiciendis rerum sint
-                labore veritatis accusantium id veniam delectus officia
-                quibusdam, omnis expedita tempora commodi suscipit voluptate
-                fugiat. Molestias, facere! Lorem ipsum dolor sit amet
-                consectetur adipisicing elit. Fugit quod, reiciendis rerum sint
-                labore veritatis accusantium id veniam delectus officia
-                quibusdam, omnis expedita tempora commodi suscipit voluptate
-                fugiat. Molestias, facere! Lorem ipsum dolor sit amet
-                consectetur adipisicing elit. Fugit quod, reiciendis rerum sint
-                labore veritatis accusantium id veniam delectus officia
-                quibusdam, omnis expedita tempora commodi suscipit voluptate
-                fugiat. Molestias, facere! Lorem ipsum dolor sit amet
-                consectetur adipisicing elit. Fugit quod, reiciendis rerum sint
-                labore veritatis accusantium id veniam delectus officia
-                quibusdam, omnis expedita tempora commodi suscipit voluptate
-                fugiat. Molestias, facere! Lorem ipsum dolor sit amet
-                consectetur adipisicing elit. Fugit quod, reiciendis rerum sint
-                labore veritatis accusantium id veniam delectus officia
-                quibusdam, omnis expedita tempora commodi suscipit voluptate
-                fugiat. Molestias, facere! Lorem ipsum dolor sit amet
-                consectetur adipisicing elit. Fugit quod, reiciendis rerum sint
-                labore veritatis accusantium id veniam delectus officia
-                quibusdam, omnis expedita tempora commodi suscipit voluptate
-                fugiat. Molestias, facere! Lorem ipsum dolor sit amet
-                consectetur adipisicing elit. Fugit quod, reiciendis rerum sint
-                labore veritatis accusantium id veniam delectus officia
-                quibusdam, omnis expedita tempora commodi suscipit voluptate
-                fugiat. Molestias, facere! Lorem ipsum dolor sit amet
-                consectetur adipisicing elit. Fugit quod, reiciendis rerum sint
-                labore veritatis accusantium id veniam delectus officia
-                quibusdam, omnis expedita tempora commodi suscipit voluptate
-                fugiat. Molestias, facere! Lorem ipsum dolor sit amet
-                consectetur adipisicing elit. Fugit quod, reiciendis rerum sint
-                labore veritatis accusantium id veniam delectus officia
-                quibusdam, omnis expedita tempora commodi suscipit voluptate
-                fugiat. Molestias, facere! Lorem ipsum dolor sit amet
-                consectetur adipisicing elit. Fugit quod, reiciendis rerum sint
-                labore veritatis accusantium id veniam delectus officia
-                quibusdam, omnis expedita tempora commodi suscipit voluptate
-                fugiat. Molestias, facere!
-            </h1>
-        </div>
-    );
+  return (
+    <div>
+      <Hero />
+      <SearchSelect />
+      <CategoryItem />
+      <FeaturedEvents />
+      <Limit />
+      <TrendEvent />
+      <HomeTestimonials />
+      <HomeNewsletter />
+      <GoToTop />
+    </div>
+  );
 }
 
 export default Home;
