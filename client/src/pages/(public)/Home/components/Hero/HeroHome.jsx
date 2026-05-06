@@ -1,8 +1,8 @@
 import { images } from '@/assets';
-import HeroTitle from './components/HeroTitle';
-import HappyCustomers from './components/HappyCustomers';
+import HeroTitle from './components/HeroTitle/HeroTitle';
+import HappyCustomers from './components/HappyCustomers/HappyCustomers';
 
-function Hero() {
+function HeroHome() {
   return (
     <div className="relative">
       <img src={images.home} alt="" className="object-cover w-full h-150" />
@@ -16,4 +16,4 @@ function Hero() {
   );
 }
 
-export default Hero;
+export default HeroHome;

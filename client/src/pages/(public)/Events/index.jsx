@@ -3,7 +3,7 @@ import EventsTitle from './components/EventsTitle';
 
 function Events() {
   return (
-    <div className="pt-22.5">
+    <div className="pt-(--header-height)">
       <EventsTitle />
       <EventExplorer />
     </div>

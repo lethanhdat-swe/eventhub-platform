@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/carousel';
 import { useCallback, useState } from 'react';
 import { events } from '../../data';
-import EvenItem from '@/components/EventItem/EvenItem';
+import EvenItem from '@/components/EventItem/EventItem';
 
 function FeaturedEvents() {
   const [api, setApi] = useState(null);

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { eventData } from '../../data';
 import EventFilterBar from './components/EventFilterBar/EventFilterBar';
 import EventFilters from './components/EventFilters/EventFilters';
-import EvenItem from '@/components/EventItem/EvenItem';
+import EvenItem from '@/components/EventItem/EventItem';
 import Pagination from '@/components/Pagination/Pagination';
 
 function EventExplorer() {
@@ -30,7 +30,7 @@ function EventExplorer() {
           {currentEvents.map((event) => (
             <EvenItem key={event.id} event={event} />
           ))}
-        </div>
+        </div>  
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}

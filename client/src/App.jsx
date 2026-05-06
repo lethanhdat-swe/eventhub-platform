@@ -5,6 +5,8 @@ import Events from '@/pages/(public)/Events';
 import AuthLayout from '@/layouts/AuthLayout';
 import Login from '@/pages/(auth)/Login';
 import Register from '@/pages/(auth)/Register';
+import Blog from './pages/(public)/Blog';
+import EventDetail from './pages/(public)/Events/EventDetail/EventDetail';
 
 function App() {
   return (
@@ -12,6 +14,8 @@ function App() {
       <Route path="/" element={<PublicLayout />}>
         <Route index element={<Home />} />
         <Route path="events" element={<Events />} />
+        <Route path="events/:id" element={<EventDetail />} />
+        <Route path="blog" element={<Blog />} />
       </Route>
 
       <Route path="/auth" element={<AuthLayout />}>

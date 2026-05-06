@@ -12,12 +12,12 @@ function EventFilterBar({ value, onChange }) {
       </div>
       <div>
         <div className="flex items-center gap-2">
-          <label className="text-sm font-medium text-gray-300">Sort by:</label>
+          <label className="text-sm font-medium text-(--text-primary)">Sort by:</label>
           <div className="flex items-center gap-2 rounded-xl px-3 py-2.5 border border-gray-700 hover:border-(--primary-color) transition-colors cursor-pointer bg-(--background-color)/70">
             <select
               value={value}
               onChange={(e) => onChange(e.target.value)}
-              className="w-full text-sm text-gray-300 bg-transparent outline-none appearance-none cursor-pointer"
+              className="w-full text-sm text-(--text-primary) bg-transparent outline-none appearance-none cursor-pointer"
             >
               {event.map((loc) => (
                 <option key={loc} value={loc} className="bg-gray-800">

@@ -1,9 +1,16 @@
 :root {
-  /* Colors */
-  --primary-color: #8b5cf6;
+ --primary-color: #7c3aed;
   --text-primary: #ffffff;
   --background-color: #09090b;
-
-  /* Layout */
+  --bg-overlay:  #030712;
+ --surface-color: #1c1e23;
   --header-height: 120px;
+}
+
+[data-theme='light'] {
+   --background-color: #f4f4f5;
+  --text-primary: #09090b;
+  --primary-color: #6d28d9;
+  --bg-overlay: #ffffff;
+  --surface-color: #ffffff;
 }

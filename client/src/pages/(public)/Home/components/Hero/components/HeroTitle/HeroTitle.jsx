@@ -9,7 +9,7 @@ function HeroTitle() {
         </span>
       </div>
 
-      <h1 className="mb-4 text-5xl font-black leading-tight text-(--text-primary)">
+      <h1 className="mb-4 text-5xl font-black leading-tight text-white">
         Discover Epic <br />
         Events & {''}
         <span className=" text-(--primary-color)">Unforgettable</span>

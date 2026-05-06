@@ -1,7 +1,7 @@
 import { ArrowRight, Flame } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { events } from '../../data';
-import EventCard from './components/EventCard';
+import EventCard from './components/EventCard/EventCard';
 
 function TrendEvent() {
   return (

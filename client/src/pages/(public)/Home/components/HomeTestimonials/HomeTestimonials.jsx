@@ -3,7 +3,7 @@ import {
   CarouselContent,
   CarouselItem,
 } from '@/components/ui/carousel';
-import TestimonialItem from './components/TestimonialItem';
+import TestimonialItem from './components/TestimonialItem/TestimonialItem';
 import { testimonials } from './data';
 import { useCallback, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -15,8 +15,8 @@ function HomeTestimonials() {
   const scrollNext = useCallback(() => api?.scrollNext(), [api]);
 
   return (
-    <section className="container mt-10 border-t py-15 border-white/10">
-      <h2 className="mb-8 text-2xl font-bold text-white">
+    <section className="container mt-10 border-t py-15 border-(--text-primary)/10">
+      <h2 className="mb-8 text-2xl font-bold text-(--text-primary)">
         What People Are Saying 🎉
       </h2>
 
