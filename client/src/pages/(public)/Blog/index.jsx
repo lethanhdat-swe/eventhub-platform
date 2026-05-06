@@ -1,6 +1,12 @@
+import BlogFilter from "./components/BlogFilter/BlogFilter";
+import BlogHero from "./components/BlogHero/BlogHero";
+
 function Blog() {
     return ( 
-        <div><h1>s</h1></div>
+        <div className="pt-(--header-height)">
+            <BlogHero />
+            <BlogFilter />
+        </div>
      );
 }
 

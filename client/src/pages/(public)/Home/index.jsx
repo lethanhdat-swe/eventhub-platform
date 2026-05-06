@@ -1,5 +1,5 @@
 import FeaturedEvents from './components/FeaturedEvents/FeaturedEvents';
-import Hero from './components/Hero/HeroHome';
+import HeroHome from './components/HeroHome/HeroHome';
 import CategoryItem from './components/CategoryItem/CategoryItem';
 import SearchSelect from './components/SearchSelect/SearchSelect';
 import Limit from './components/Limit/Limit';
@@ -11,7 +11,7 @@ import HomeNewsletter from './components/HomeNewsletter/HomeNewsletter';
 function Home() {
   return (
     <div>
-      <Hero />
+      <HeroHome />
       <SearchSelect />
       <CategoryItem />
       <FeaturedEvents />

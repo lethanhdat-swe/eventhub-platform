@@ -33,8 +33,8 @@ function CategoryItem() {
               transition-all duration-300
               ${
                 active
-                  ? 'text-white scale-105 shadow-lg shadow-purple-500/30 bg-(--primary-color)'
-                  : 'bg-(--background-color)/70 border border-white/10 text-gray-400 hover:bg-white/10 hover:text-white hover:scale-105'
+                  ? 'text-(--text-primary) scale-105 shadow-lg shadow-purple-500/30 bg-(--primary-color)'
+                  : 'bg-(--background-color)/70 border border-(--text-primary)/10 text-gray-400 hover:bg-(--text-primary)/10 hover:text-(--text-primary) hover:scale-105'
               }`}
           >
             {icon}
@@ -44,7 +44,7 @@ function CategoryItem() {
             className={`text-xs font-medium transition-colors duration-300
               ${
                 active
-                  ? 'text-white'
+                  ? 'text-(--text-primary)'
                   : 'text-gray-500 group-hover:text-gray-300'
               }`}
           >

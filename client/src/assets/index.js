@@ -4,7 +4,7 @@ import avatar2 from './images/store/avatar2.jpg';
 import avatar3 from './images/store/avatar3.jpg';
 import avatar4 from './images/store/avatar4.jpg';
 import avatar5 from './images/store/avatar5.png';
-
+import Pornhub from './images/store/Pornhub-logo.svg.png';
 export const images = {
   home,
   avatar1,
@@ -12,4 +12,5 @@ export const images = {
   avatar3,
   avatar4,
   avatar5,
+  Pornhub
 };
