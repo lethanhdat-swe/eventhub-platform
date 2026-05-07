@@ -6,7 +6,8 @@ import AuthLayout from '@/layouts/AuthLayout';
 import Login from '@/pages/(auth)/Login';
 import Register from '@/pages/(auth)/Register';
 import Blog from './pages/(public)/Blog';
-import EventDetail from './pages/(public)/Events/EventDetail/EventDetail';
+import BlogDetail from './pages/(public)/Blog/BlogDetail';
+import EventDetail from './pages/(public)/Events/EventDetail';
 
 function App() {
   return (
@@ -15,7 +16,8 @@ function App() {
         <Route index element={<Home />} />
         <Route path="events" element={<Events />} />
         <Route path="events/:id" element={<EventDetail />} />
-        <Route path="blog" element={<Blog />} />
+        <Route path="blogs" element={<Blog />} />
+        <Route path="blog/:id" element={<BlogDetail />} />
       </Route>
 
       <Route path="/auth" element={<AuthLayout />}>

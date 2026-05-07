@@ -9,7 +9,7 @@ function Header() {
   const navItems = [
     { label: 'Home', path: '/' },
     { label: 'Events', path: '/events' },
-    { label: 'Blog', path: '/blog' },
+    { label: 'Blog', path: '/blogs' },
     { label: 'Contact', path: '/contact' },
   ];
 
