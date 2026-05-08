@@ -8,6 +8,7 @@ import Register from '@/pages/(auth)/Register';
 import Blog from './pages/(public)/Blog';
 import BlogDetail from './pages/(public)/Blog/BlogDetail';
 import EventDetail from './pages/(public)/Events/EventDetail';
+import Contact from './pages/(public)/Contact';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="events/:id" element={<EventDetail />} />
         <Route path="blogs" element={<Blog />} />
         <Route path="blog/:id" element={<BlogDetail />} />
+        <Route path="contact" element={<Contact />} />
       </Route>
 
       <Route path="/auth" element={<AuthLayout />}>

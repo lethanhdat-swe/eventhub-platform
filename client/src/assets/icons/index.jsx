@@ -384,3 +384,75 @@ export const FireworksIcon = ({ size = 24, ...props }) => (
     />
   </svg>
 );
+
+
+export const SendIcon = ({ size = 24, ...props }) => {
+  return (
+   <div className="flex items-center justify-center col-span-2">
+     <svg width={size} viewBox="0 0 680 480" role="img" xmlns="http://www.w3.org/2000/svg">
+    <title>Animated email icon purple theme</title>
+    <desc>An envelope icon with a paper plane flying around it in a circular orbit, purple theme</desc>
+
+    <style>{`
+      @keyframes orbitAngle {
+        0%   { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50%       { transform: translateY(-8px); }
+      }
+      @keyframes pulse1 {
+        0%, 100% { opacity: 0.25; r: 130; }
+        50%       { opacity: 0.55; r: 138; }
+      }
+      @keyframes pulse2 {
+        0%, 100% { opacity: 0.15; r: 165; }
+        50%       { opacity: 0.35; r: 173; }
+      }
+      .envelope-group {
+        animation: float 3.5s ease-in-out infinite;
+        transform-origin: 340px 235px;
+      }
+      .pulse-ring1 { animation: pulse1 3.5s ease-in-out infinite; }
+      .pulse-ring2 { animation: pulse2 3.5s ease-in-out infinite 0.5s; }
+    `}</style>
+
+    <circle cx="340" cy="235" r="200" fill="#12102b"/>
+    <circle className="pulse-ring2" cx="340" cy="235" r="165" fill="none" stroke="#7c3aed" strokeWidth="1"/>
+    <circle className="pulse-ring1" cx="340" cy="235" r="130" fill="none" stroke="#8b5cf6" strokeWidth="1.5"/>
+    <circle cx="340" cy="235" r="100" fill="#1a1535"/>
+
+    <g className="envelope-group">
+      <rect x="250" y="185" width="180" height="120" rx="8" fill="#3b1fa8"/>
+      <polygon points="250,185 340,245 430,185" fill="#4c1d95"/>
+      <polygon points="250,185 340,248 430,185 430,178 340,238 250,178" fill="#6d28d9"/>
+      <polygon points="250,185 250,305 310,245" fill="#4c1d95"/>
+      <polygon points="430,185 430,305 370,245" fill="#4c1d95"/>
+
+      <circle cx="307" cy="245" r="20" fill="#2e1065" stroke="#a78bfa" strokeWidth="2"/>
+      <text x="307" y="253" textAnchor="middle" fill="#a78bfa" fontFamily="sans-serif" fontSize="22" fontWeight="bold">@</text>
+
+      <rect x="345" y="232" width="55" height="36" rx="4" fill="#ede9fe"/>
+      <rect x="351" y="239" width="35" height="5" rx="2" fill="#a78bfa"/>
+      <rect x="351" y="248" width="25" height="4" rx="2" fill="#c4b5fd"/>
+      <rect x="351" y="256" width="30" height="4" rx="2" fill="#c4b5fd"/>
+    </g>
+
+    <g id="plane-real">
+      <polygon points="0,-10 18,0 0,6" fill="white" opacity="0.95"/>
+      <polygon points="0,-10 -6,0 0,6" fill="#ddd6fe" opacity="0.85"/>
+      <polygon points="-6,0 0,6 2,2" fill="#a78bfa" opacity="0.8"/>
+    </g>
+
+    <animateMotion
+      xlinkHref="#plane-real"
+      dur="4s"
+      repeatCount="indefinite"
+      path="M 340,90 A 145,145 0 1,1 339.9,90"
+      rotate="auto"
+    />
+  </svg>
+   </div>
+  )
+}

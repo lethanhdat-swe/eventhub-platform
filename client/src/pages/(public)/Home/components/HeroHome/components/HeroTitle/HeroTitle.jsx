@@ -1,4 +1,5 @@
 import { ArrowRight, PlayCircle } from 'lucide-react';
+import Typewriter from "typewriter-effect";
 
 function HeroTitle() {
   return (
@@ -17,9 +18,20 @@ function HeroTitle() {
         <span className="text-(--primary-color) ">Experiences</span>
       </h1>
 
-      <p className="max-w-xl mb-8 text-sm leading-relaxed text-gray-400">
-        Find the best concerts, festivals, and live experiences <br />
-        happening near you and around the world.
+      <p className="max-w-md mb-8 text-sm leading-relaxed text-gray-400">
+
+        <Typewriter
+            options={{
+              strings: [
+                "Find the best concerts, festivals, and live experiences happening near you and around the world.",
+              ],
+              autoStart: true,
+              loop: true,
+              delay: 70,
+              deleteSpeed: 50,
+              cursor: "|",
+            }}
+            />
       </p>
 
       <div className="flex items-center gap-4">

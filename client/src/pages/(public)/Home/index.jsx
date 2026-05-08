@@ -10,7 +10,7 @@ import HomeNewsletter from './components/HomeNewsletter/HomeNewsletter';
 
 function Home() {
   return (
-    <div>
+    <div className='mb-10'>
       <HeroHome />
       <SearchSelect />
       <CategoryItem />

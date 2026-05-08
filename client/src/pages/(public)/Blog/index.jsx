@@ -17,7 +17,7 @@ function Blog() {
         setCurrentPage(page);
     };
     return ( 
-        <div className="pt-(--header-height)">
+        <div className="pt-(--header-height) mb-10">
             <BlogHero />
             <BlogFilter />
             {currentBlogs.map((blog) => (

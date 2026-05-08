@@ -19,7 +19,7 @@ function EventDetail() {
   const relatedEvents = events.filter((e) => e.id !== Number(id));
 
   return (
-        <div className="pt-(--header-height) px-5">
+        <div className="pt-(--header-height) px-5 mb-10">
         <div className="grid grid-cols-12 gap-8 mt-10">
             <div className="col-span-8">
                 <EventHero event={event} />

@@ -5,7 +5,7 @@ import PaymentMethods from './components/PaymentMethods';
 
 function Footer() {
   return (
-    <footer className="p-10 mt-10 border-t-2 border-[#29282a]">
+    <footer className="p-10 border-t-2 border-[#29282a]">
       <div className="flex items-start justify-between">
         <BrandLogo />
         <NavColumn />

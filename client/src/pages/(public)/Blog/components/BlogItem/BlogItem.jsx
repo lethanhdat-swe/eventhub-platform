@@ -5,7 +5,7 @@ function BlogItem({blog}) {
     const navigate = useNavigate();
 
     return ( 
-        <div onClick={() => navigate(`/blog/${blog.id}`)} className="container mt-5">
+        <div onClick={() => navigate(`/blog/${blog.id}`)} className="mt-5">
             <div className="grid grid-cols-12 gap-5 p-5 border-2 border-white/10 rounded-3xl transition-all duration-500 ease-in-out
                       hover:border-(--primary-color) 
                       group cursor-pointer">
