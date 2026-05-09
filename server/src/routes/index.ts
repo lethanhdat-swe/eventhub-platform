@@ -11,6 +11,8 @@ import seatRouter from "./seat.route";
 import orderRouter from "./order.route";
 import artistRouter from "./artist.route";
 import searchRouter from "./search.route";
+import blogCategoryRouter from "./blog_category.route";
+import blogRouter from "./blog.route";
 
 const router = Router();
 
@@ -26,5 +28,7 @@ router.use("/seats", seatRouter);
 router.use("/orders", orderRouter);
 router.use("/artists", artistRouter);
 router.use("/search", searchRouter);
+router.use("/blog-categories", blogCategoryRouter);
+router.use("/blogs", blogRouter);
 
 export default router;
