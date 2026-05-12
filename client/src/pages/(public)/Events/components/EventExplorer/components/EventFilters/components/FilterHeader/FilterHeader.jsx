@@ -1,7 +1,7 @@
 function FilterHeader({ onClearAll }) {
   return (
     <div className="flex items-center justify-between">
-      <span className="text-lg font-semibold tracking-wide text-white">
+      <span className="text-lg font-semibold tracking-wide text-(--text-primary)">
         Filter Events
       </span>
       <button

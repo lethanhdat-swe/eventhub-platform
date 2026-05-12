@@ -55,7 +55,7 @@ function ContactInfo() {
                         <div className="flex flex-col gap-1">
                             <p className="text-(--text-primary) font-medium transition-colors duration-300 group-hover:text-(--primary-color)">{title}</p>
                             {lines.map((line, i) => (
-                                <p key={i} className="text-sm text-gray-400 transition-colors duration-300 group-hover:text-gray-300">{line}</p>
+                                <p key={i} className="text-sm text-(--text-primary)/70 transition-colors duration-300 group-hover:text-(--text-primary)/50">{line}</p>
                             ))}
                         </div>
                     </div>

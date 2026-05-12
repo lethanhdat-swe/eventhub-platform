@@ -4,10 +4,12 @@
   --background-color: #09090b;
   --bg-overlay:  #030712;
  --surface-color: #1c1e23;
-  --header-height: 120px;
+  --header-height: 80px;
+  --color-scheme: dark;
 }
 
 [data-theme='light'] {
+  --color-scheme: light;
    --background-color: #f4f4f5;
   --text-primary: #09090b;
   --primary-color: #6d28d9;

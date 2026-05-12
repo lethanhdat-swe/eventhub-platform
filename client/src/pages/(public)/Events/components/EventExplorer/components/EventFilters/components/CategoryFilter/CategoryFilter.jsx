@@ -22,7 +22,7 @@ function CategoryFilter({ selected, onChange }) {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-gray-300">Categories</span>
+        <span className="text-sm font-medium text-(--text-primary)">Categories</span>
         <button
           onClick={() => setShowAll(!showAll)}
           className="text-sm font-medium text-(--primary-color) transition-colors hover:text-(--primary-color)/90"

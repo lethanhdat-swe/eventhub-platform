@@ -1,5 +1,4 @@
 import { events } from '@/pages/(public)/Events/data';
-import { ChevronDown } from 'lucide-react';
 
 const event = ['Featured', 'Trending', 'New'];
 
@@ -17,15 +16,15 @@ function EventFilterBar({ value, onChange }) {
             <select
               value={value}
               onChange={(e) => onChange(e.target.value)}
-              className="w-full text-sm text-(--text-primary) bg-transparent outline-none appearance-none cursor-pointer"
+              className="w-full text-sm outline-none"
+              style={{ background: 'var(--surface-color)', color: 'var(--text-primary)' }}
             >
               {event.map((loc) => (
-                <option key={loc} value={loc} className="bg-gray-800">
+                <option key={loc} value={loc} className='bg-transparent'>
                   {loc}
                 </option>
               ))}
             </select>
-            <ChevronDown color="gray" />
           </div>
         </div>
       </div>

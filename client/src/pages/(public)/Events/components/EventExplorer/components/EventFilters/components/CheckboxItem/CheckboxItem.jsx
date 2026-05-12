@@ -18,7 +18,7 @@ function CheckboxItem({ label, count, checked, onChange }) {
         </div>
         <span
           className={`text-sm transition-colors ${
-            checked ? 'text-white' : 'text-gray-400 group-hover:text-gray-300'
+            checked ? 'text-(--text-primary)' : 'text-gray-400 group-hover:text-gray-300'
           }`}
         >
           {label}

@@ -1,4 +1,5 @@
 import { ArrowRight, PlayCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import Typewriter from "typewriter-effect";
 
 function HeroTitle() {
@@ -35,9 +36,9 @@ function HeroTitle() {
       </p>
 
       <div className="flex items-center gap-4">
-        <button className="flex items-center gap-2 px-6 py-3 text-sm font-semibold text-white transition-all duration-300 rounded-full hover:opacity-90 hover:scale-105 bg-(--primary-color)">
+        <Link to={'/events'} className="flex items-center gap-2 px-6 py-3 text-sm font-semibold text-white transition-all duration-300 rounded-full hover:opacity-90 hover:scale-105 bg-(--primary-color)">
           Explore Events <ArrowRight size={16} />
-        </button>
+        </Link>
         <button className="flex items-center gap-2 px-6 py-3 text-sm font-semibold text-white transition-all duration-300 border rounded-full border-white/20 hover:border-white/40 hover:bg-white/5 bg-(--background-color)/70">
           How It Works <PlayCircle size={16} />
         </button>

@@ -2,9 +2,12 @@ import { useTheme } from '@/hooks/useTheme';
 import { Search, ShoppingCart, Sparkle } from 'lucide-react';
 import { Link, NavLink } from 'react-router-dom';
 import { Sun, Moon } from 'lucide-react';
+import { useHeaderVisibility } from '@/hooks/useHeaderVisibility';
+import { HeaderSearch } from './components/HeaderSearch/HeaderSearch';
 
 function Header() {
   const { theme, toggleTheme } = useTheme();
+  const visible = useHeaderVisibility();
 
   const navItems = [
     { label: 'Home', path: '/' },
@@ -14,7 +17,10 @@ function Header() {
   ];
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between p-10 shadow-md bg-(--background-color)/50">
+    <header className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-10 py-5 shadow-md bg-(--background-color)/50
+        transition-transform duration-300
+        ${visible ? 'translate-y-0' : '-translate-y-full'}
+      `}>
       <div className="flex items-center gap-2">
         <Sparkle color="var(--primary-color)" />
         <Link to={'/'} className="text-xl font-bold text-(--text-primary)">
@@ -28,7 +34,7 @@ function Header() {
               <NavLink
                 to={item.path}
                 className={({ isActive }) =>
-                  `group relative py-2 text-xl font-medium transition-colors duration-300 
+                  `group relative py-2 text-[18px] font-medium transition-colors duration-300 
                                      ${isActive ? 'text-(--primary-color) is-active' : 'text-(--text-primary) hover:text-(--primary-color)'}`
                 }
               >
@@ -47,7 +53,7 @@ function Header() {
       </nav>
 
       <div className="flex items-center gap-8 cursor-pointer">
-        <Search color="var(--text-primary)" />
+        <HeaderSearch />
         <ShoppingCart color="var(--text-primary)" />
 
         <div className="flex items-center gap-4">

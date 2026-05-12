@@ -20,7 +20,7 @@ function ContactForm() {
                         type="text"
                         id="username"
                         placeholder="Nhập họ và tên của bạn"
-                        className="w-full text-sm text-white bg-transparent outline-none placeholder:text-gray-600"
+                        className="w-full text-sm text-(--text-primary) bg-transparent outline-none placeholder:text-gray-600"
                     />
                 </div>
             </div>
@@ -36,7 +36,7 @@ function ContactForm() {
                         type="text"
                         id="email"
                         placeholder="Nhập email của bạn"
-                        className="w-full text-sm text-white bg-transparent outline-none placeholder:text-gray-600"
+                        className="w-full text-sm text-text-(--text-primary) bg-transparent outline-none placeholder:text-gray-600"
                     />
                 </div>
             </div>
@@ -52,7 +52,7 @@ function ContactForm() {
                         type="text"
                         id="phone"
                         placeholder="Nhập số điện thoại của bạn"
-                        className="w-full text-sm text-white bg-transparent outline-none placeholder:text-gray-600"
+                        className="w-full text-sm text-text-(--text-primary) bg-transparent outline-none placeholder:text-gray-600"
                     />
                 </div>
             </div>
@@ -65,7 +65,7 @@ function ContactForm() {
                 <textarea
                     id="content"
                     placeholder="Bạn cần hỗ trợ vấn đề gì?"
-                    className="w-full text-sm text-white bg-transparent outline-none placeholder:text-gray-600 border border-(--text-primary)/10 px-4 py-3 rounded-lg transition-all duration-300 hover:border-(--text-primary)/30 focus:border-(--primary-color) focus:shadow-[0_0_0_3px_rgba(var(--primary-rgb),0.15)] h-40 resize-none"
+                    className="w-full text-sm text-text-(--text-primary) bg-transparent outline-none placeholder:text-gray-600 border border-(--text-primary)/10 px-4 py-3 rounded-lg transition-all duration-300 hover:border-(--text-primary)/30 focus:border-(--primary-color) focus:shadow-[0_0_0_3px_rgba(var(--primary-rgb),0.15)] h-40 resize-none"
                 />
             </div>
 
@@ -74,8 +74,8 @@ function ContactForm() {
                 type="submit"
                 className="uppercase bg-(--primary-color) flex items-center justify-center gap-2 p-4 rounded-lg w-full transition-all duration-300 hover:brightness-110 hover:shadow-[0_4px_20px_rgba(var(--primary-rgb),0.4)] active:scale-[0.98]"
             >
-                <p className="text-(--text-primary) font-medium">gửi liên hệ</p>
-                <Send size={18} color="var(--text-primary)"/>
+                <p className="font-medium text-white">gửi liên hệ</p>
+                <Send size={18} color="white"/>
             </button>
         </form>
 

@@ -33,7 +33,7 @@ function CategoryItem() {
               transition-all duration-300
               ${
                 active
-                  ? 'text-(--text-primary) scale-105 shadow-lg shadow-purple-500/30 bg-(--primary-color)'
+                  ? 'text-white scale-105 shadow-lg shadow-purple-500/30 bg-(--primary-color)'
                   : 'bg-(--background-color)/70 border border-(--text-primary)/10 text-gray-400 hover:bg-(--text-primary)/10 hover:text-(--text-primary) hover:scale-105'
               }`}
           >

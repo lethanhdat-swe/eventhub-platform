@@ -8,7 +8,7 @@ const EVENT_TYPES = [
 function EventTypeFilter({ selected, onChange }) {
   return (
     <div className="flex flex-col gap-3">
-      <span className="text-sm font-medium text-gray-300">Event Type</span>
+      <span className="text-sm font-medium text-(--text-primary)">Event Type</span>
       <div className="flex flex-col gap-2.5">
         {EVENT_TYPES.map(({ label, count }) => (
           <CheckboxItem

@@ -11,7 +11,7 @@ function PriceRangeSlider({ value, onChange }) {
 
   return (
     <div className="flex flex-col gap-3">
-      <span className="text-sm font-medium text-gray-300">Price Range</span>
+      <span className="text-sm font-medium text-(--text-primary)">Price Range</span>
       <div className="relative flex items-center">
         <input
           type="range"

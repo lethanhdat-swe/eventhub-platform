@@ -49,7 +49,7 @@ function EventFilters() {
 
   return (
     <div className="flex items-center justify-center h-full">
-      <div className="flex flex-col w-full gap-5 p-5 bg-gray-900 shadow-2xl rounded-l-2xl">
+      <div className="flex flex-col w-full gap-5 p-5 bg-(--surface-color) shadow-2xl rounded-l-2xl">
         <FilterHeader onClearAll={clearAll} />
         <SearchInput value={search} onChange={setSearch} />
         <LocationSelect value={location} onChange={setLocation} />

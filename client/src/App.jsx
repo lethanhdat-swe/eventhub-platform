@@ -9,6 +9,7 @@ import Blog from './pages/(public)/Blog';
 import BlogDetail from './pages/(public)/Blog/BlogDetail';
 import EventDetail from './pages/(public)/Events/EventDetail';
 import Contact from './pages/(public)/Contact';
+import Search from './pages/(public)/Search';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="blogs" element={<Blog />} />
         <Route path="blog/:id" element={<BlogDetail />} />
         <Route path="contact" element={<Contact />} />
+        <Route path="/search" element={<Search />} />
       </Route>
 
       <Route path="/auth" element={<AuthLayout />}>
