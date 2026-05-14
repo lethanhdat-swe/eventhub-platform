@@ -456,3 +456,137 @@ export const SendIcon = ({ size = 24, ...props }) => {
    </div>
   )
 }
+
+export const SecurityIcon = ({ size = 24, animated = true, ...props }) => {
+  const id = Math.random().toString(36).slice(2, 7);
+  const s = size;
+  const cx = s / 2, cy = s / 2;
+  const r = s * 0.3;
+
+  // Shield path scale theo size
+  const shieldPath = `M${cx} ${s*0.1} L${s*0.77} ${s*0.2} L${s*0.77} ${s*0.48} C${s*0.77} ${s*0.65} ${s*0.64} ${s*0.76} ${cx} ${s*0.83} C${s*0.36} ${s*0.76} ${s*0.23} ${s*0.65} ${s*0.23} ${s*0.48} L${s*0.23} ${s*0.2} Z`;
+
+  // Lock
+  const lx = s * 0.406, ly = s * 0.448, lw = s * 0.188, lh = s * 0.135;
+  const lockPath = `M${lx} ${ly} L${lx} ${ly-s*0.055} C${lx} ${ly-s*0.11} ${lx+lw} ${ly-s*0.11} ${lx+lw} ${ly-s*0.055} L${lx+lw} ${ly}`;
+
+  // Center của lock body
+  const lcx = lx + lw / 2;   // = s * 0.5
+  const lcy = ly + lh / 2;   // ≈ s * 0.515
+
+  // Check
+  const ckLeft  = lcx - lw * 0.38;
+  const ckMid   = lcx - lw * 0.08;
+  const ckRight = lcx + lw * 0.44;
+  const ckOffset = lh * 0.25;
+  const checkPath = [
+      `M${ckLeft}  ${lcy + ckOffset * 0.2}`,
+      `L${ckMid}   ${lcy + ckOffset}`,
+      `L${ckRight} ${lcy - ckOffset * 1.4}`
+    ].join(' ');
+
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ overflow: 'visible', display: 'block' }}
+      {...props}
+    >
+      <defs>
+        <radialGradient id={`sf-${id}`} cx="50%" cy="35%" r="65%">
+          <stop offset="0%" stopColor="#4c2aa0" stopOpacity="0.7"/>
+          <stop offset="100%" stopColor="#1a0a4a" stopOpacity="0.95"/>
+        </radialGradient>
+        <linearGradient id={`sg-${id}`} x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#d8b4fe"/>
+          <stop offset="50%" stopColor="#8b5cf6"/>
+          <stop offset="100%" stopColor="#4f46e5"/>
+        </linearGradient>
+        <linearGradient id={`lg-${id}`} x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#ede9fe"/>
+          <stop offset="100%" stopColor="#c4b5fd"/>
+        </linearGradient>
+        <linearGradient id={`cg-${id}`} x1="0%" y1="100%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#a78bfa"/>
+          <stop offset="100%" stopColor="#f5d0fe"/>
+        </linearGradient>
+        <filter id={`gw-${id}`} x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation={size * 0.04} result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id={`ck-${id}`} x="-60%" y="-60%" width="220%" height="220%">
+          <feGaussianBlur stdDeviation={size * 0.025} result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+
+        {animated && (
+          <style>{`
+            @keyframes secFloat-${id} {
+              0%, 100% { transform: translateY(0); }
+              50% { transform: translateY(-${size*0.03}px); }
+            }
+            @keyframes secPulse-${id} {
+              0% { r: ${r*0.5}px; opacity: 0.7; stroke-width: 1.5; }
+              100% { r: ${r*1.3}px; opacity: 0; stroke-width: 0.3; }
+            }
+            @keyframes secGlow-${id} {
+              0%, 100% { filter: url(#gw-${id}); }
+              50% { filter: url(#gw-${id}) brightness(1.3); }
+            }
+            .sec-float-${id} { animation: secFloat-${id} 3s ease-in-out infinite; }
+            .sec-shield-${id} { animation: secGlow-${id} 2.5s ease-in-out infinite; }
+            .sec-pulse1-${id} { animation: secPulse-${id} 2.5s ease-out infinite; }
+            .sec-pulse2-${id} { animation: secPulse-${id} 2.5s ease-out infinite; animation-delay: 0.85s; }
+            .sec-pulse3-${id} { animation: secPulse-${id} 2.5s ease-out infinite; animation-delay: 1.7s; }
+          `}</style>
+        )}
+      </defs>
+
+      <g className={animated ? `sec-float-${id}` : ''}>
+        {animated && <>
+          <circle className={`sec-pulse1-${id}`} cx={cx} cy={cy} r={r*0.5} fill="none" stroke="#7c5cfc"/>
+          <circle className={`sec-pulse2-${id}`} cx={cx} cy={cy} r={r*0.5} fill="none" stroke="#7c5cfc"/>
+          <circle className={`sec-pulse3-${id}`} cx={cx} cy={cy} r={r*0.5} fill="none" stroke="#7c5cfc"/>
+        </>}
+
+        <path
+          d={shieldPath}
+          fill={`url(#sf-${id})`}
+          stroke={`url(#sg-${id})`}
+          strokeWidth={size * 0.026}
+          filter={`url(#gw-${id})`}
+          className={animated ? `sec-shield-${id}` : ''}
+        />
+
+        <rect
+          x={lx} y={ly} width={lw} height={lh}
+          rx={size * 0.03}
+          stroke={`url(#lg-${id})`}
+          strokeWidth={size * 0.023}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          filter={`url(#gw-${id})`}
+        />
+        <path
+          d={lockPath}
+          stroke={`url(#lg-${id})`}
+          strokeWidth={size * 0.023}
+          strokeLinecap="round"
+          filter={`url(#gw-${id})`}
+        />
+
+        <path
+          d={checkPath}
+          stroke={`url(#cg-${id})`}
+          strokeWidth={size * 0.026}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          filter={`url(#ck-${id})`}
+        />
+      </g>
+    </svg>
+  );
+};

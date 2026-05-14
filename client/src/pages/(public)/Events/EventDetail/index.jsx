@@ -3,11 +3,12 @@ import { events } from "../data";
 import EventHero from "./components/EventHero/EventHero";
 import EventInfoBar from "./components/EventInfoBar/EventInfoBar";
 import EventAbout from "./components/EventAbout/EventAbout.jsx";
-import EventSeat from "./components/EventSeat/EventSeat";
+import EventSeat from "../../Booking/components/EventSeat/EventSeat";
 import EventOrganizer from "./components/EventOrganizer/EventOrganizer";
 import EventTickets from "./components/EventTickets/EventTickets";
 import EventInformation from "./components/EventInformation/EventInformation";
 import EventRelated from "./components/EventRelated/EventRelated";
+import EventBooking from "./components/EventBooking/EventBooking";
 
 
 function EventDetail() {
@@ -25,7 +26,7 @@ function EventDetail() {
                 <EventHero event={event} />
                 <EventInfoBar event={event} />
                 <EventAbout event={event} />
-                <EventSeat />
+                <EventBooking />
             </div>
 
             <div className="col-span-4">
