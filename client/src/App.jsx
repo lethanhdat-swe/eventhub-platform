@@ -12,6 +12,7 @@ import Contact from './pages/(public)/Contact';
 import Search from './pages/(public)/Search';
 import Booking from './pages/(public)/Booking';
 import Payment from './pages/(public)/Payment';
+import Profile from './pages/(public)/Profile';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
         <Route path="/search" element={<Search />} />
         <Route path="/booking" element={<Booking />} />
         <Route path="/payment" element={<Payment />} />
+        <Route path="/profile" element={<Profile />} />
       </Route>
 
       <Route path="/auth" element={<AuthLayout />}>

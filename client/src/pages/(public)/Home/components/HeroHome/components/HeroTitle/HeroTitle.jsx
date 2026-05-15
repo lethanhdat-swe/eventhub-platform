@@ -19,7 +19,7 @@ function HeroTitle() {
         <span className="text-(--primary-color) ">Experiences</span>
       </h1>
 
-      <p className="max-w-md mb-8 text-sm leading-relaxed text-gray-400">
+      <div className="max-w-md mb-8 text-sm leading-relaxed text-gray-400">
 
         <Typewriter
             options={{
@@ -33,7 +33,7 @@ function HeroTitle() {
               cursor: "|",
             }}
             />
-      </p>
+      </div>
 
       <div className="flex items-center gap-4">
         <Link to={'/events'} className="flex items-center gap-2 px-6 py-3 text-sm font-semibold text-white transition-all duration-300 rounded-full hover:opacity-90 hover:scale-105 bg-(--primary-color)">
