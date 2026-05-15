@@ -13,6 +13,24 @@ import Search from './pages/(public)/Search';
 import Booking from './pages/(public)/Booking';
 import Payment from './pages/(public)/Payment';
 import Profile from './pages/(public)/Profile';
+import AdminLayout from '@/layouts/AdminLayout';
+import Dashboard from '@/pages/(admin)/Dashboard';
+import AdminEvents from '@/pages/(admin)/Events';
+import CreateEvent from '@/pages/(admin)/Events/CreateEvent';
+import AdminEventDetail from '@/pages/(admin)/Events/EventDetail';
+import EditEvent from '@/pages/(admin)/Events/EditEvent';
+import EventCategories from '@/pages/(admin)/EventCategories';
+import Artists from '@/pages/(admin)/Artists';
+import DefaultSeats from '@/pages/(admin)/DefaultSeats';
+import TicketTypes from '@/pages/(admin)/TicketTypes';
+import Orders from '@/pages/(admin)/Orders';
+import Tickets from '@/pages/(admin)/Tickets';
+import Coupons from '@/pages/(admin)/Coupons';
+import CheckIn from '@/pages/(admin)/CheckIn';
+import CheckInLogs from '@/pages/(admin)/CheckInLogs';
+import Users from '@/pages/(admin)/Users';
+import Notifications from '@/pages/(admin)/Notifications';
+import Settings from '@/pages/(admin)/Settings';
 
 function App() {
   return (
@@ -33,6 +51,26 @@ function App() {
       <Route path="/auth" element={<AuthLayout />}>
         <Route index element={<Login />} />
         <Route path="register" element={<Register />} />
+      </Route>
+
+      <Route path="/admin" element={<AdminLayout />}>
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="events/create" element={<CreateEvent />} />
+        <Route path="events/:id/edit" element={<EditEvent />} />
+        <Route path="events/:id" element={<AdminEventDetail />} />
+        <Route path="events" element={<AdminEvents />} />
+        <Route path="event-categories" element={<EventCategories />} />
+        <Route path="artists" element={<Artists />} />
+        <Route path="default-seats" element={<DefaultSeats />} />
+        <Route path="ticket-types" element={<TicketTypes />} />
+        <Route path="orders" element={<Orders />} />
+        <Route path="tickets" element={<Tickets />} />
+        <Route path="coupons" element={<Coupons />} />
+        <Route path="check-in" element={<CheckIn />} />
+        <Route path="check-in-logs" element={<CheckInLogs />} />
+        <Route path="users" element={<Users />} />
+        <Route path="notifications" element={<Notifications />} />
+        <Route path="settings" element={<Settings />} />
       </Route>
     </Routes>
   );

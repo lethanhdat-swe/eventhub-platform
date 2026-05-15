@@ -1,0 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap');
+
+.admin-font {
+  --font-sans: 'Be Vietnam Pro', 'Inter', system-ui, sans-serif;
+  font-family: var(--font-sans);
+}

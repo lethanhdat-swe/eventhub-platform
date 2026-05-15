@@ -1,0 +1,104 @@
+---
+alwaysApply: true
+---
+
+ROUTING RULES
+
+- Use plural route naming.
+- Examples:
+  /admin/events
+  /admin/users
+  /admin/orders
+  /admin/ticket-types
+
+TECH STACK
+
+- React Vite
+- TailwindCSS
+- Shadcn UI preferred
+- Zustand
+- Axios
+- JavaScript JSX (no TypeScript)
+
+PROJECT STRUCTURE
+
+- Shared reusable components:
+  src/components
+
+- Shared admin layout components:
+  src/layouts/AdminLayout/components
+
+- Page-specific components:
+  inside that page/feature components folder
+
+LAYOUT STRUCTURE
+src/layouts
+├── AdminLayout
+├── AuthLayout
+└── PublicLayout
+
+COMPONENT RULES
+
+- Use PascalCase for component names.
+- Page root uses index.jsx.
+- Components use direct PascalCase file naming.
+
+Examples:
+
+Events/
+├── index.jsx
+
+components/
+├── AdminSidebar.jsx
+├── EventTable.jsx
+
+UI STYLE
+
+- Minimal SaaS dashboard style.
+- Vibe similar to Shadcn UI dashboard kits.
+- Clean spacing and soft borders.
+- Support dark theme.
+- Avoid flashy UI and overdesigned gradients.
+
+RESPONSIVE RULES
+
+- Fully responsive for all screen sizes.
+- Desktop sidebar fixed/collapsible.
+- Mobile sidebar uses drawer/sheet.
+- Tables use horizontal scroll if needed.
+- Forms stack vertically on mobile.
+
+PAGE STRUCTURE
+
+1. PageHeader
+2. StatsCards (optional)
+3. Toolbar
+4. MainContent/Table/Form
+5. Pagination
+
+CRUD RULES
+
+- Create/Edit use separate pages.
+- Detail uses separate pages.
+- Delete uses confirm dialog.
+- Tables support checkbox row selection.
+- Support bulk actions when appropriate.
+
+ICON RULES
+
+- Use lucide-react only.
+
+ANIMATION RULES
+
+- Minimal animation only.
+- Use subtle hover/fade interactions.
+- Follow Shadcn UI interaction style.
+- Avoid heavy motion effects.
+
+CODING STYLE
+
+- Prioritize reusable components.
+- Keep pages clean and compositional.
+- Avoid huge JSX files.
+- Split reusable UI logically.
+- Avoid over-splitting tiny UI parts.
