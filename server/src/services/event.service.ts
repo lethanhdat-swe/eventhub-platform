@@ -1,6 +1,7 @@
 import { prisma } from "../utils/prisma";
 import { AppError } from "../utils/AppError";
 import { getPaginationMetadata } from "../utils/pagination";
+import { EventSeatStatus } from "@prisma/client";
 
 const eventSelect = {
     id: true,
@@ -82,7 +83,7 @@ class EventService {
                         eventId: event.id,
                         seatId: seat.id,
                         ticketTypeId: seat.defaultTicketTypeId,
-                        status: "AVAILABLE",
+                        status: EventSeatStatus.AVAILABLE,
                     })),
                 });
             }

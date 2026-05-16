@@ -160,12 +160,12 @@ function EventTable({
                         className="cursor-pointer"
                         onClick={() => onToggleStatus(event)}
                       >
-                        {event.status === 'active' ? (
+                        {event.status === 'PUBLISHED' ? (
                           <EyeOff className="size-4" />
                         ) : (
                           <Eye className="size-4" />
                         )}
-                        {event.status === 'active' ? 'Ẩn' : 'Hiển thị'}
+                        {event.status === 'PUBLISHED' ? 'Ẩn' : 'Hiển thị'}
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem

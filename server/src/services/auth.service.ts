@@ -239,6 +239,7 @@ class AuthService {
                 id: userToken.user.id,
                 email: userToken.user.email,
                 fullName: userToken.user.fullName,
+                role: userToken.user.role,
             },
             accessToken,
             refreshToken,

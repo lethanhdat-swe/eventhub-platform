@@ -17,7 +17,7 @@ router.get("/", validate(listArtistSchema), artistController.list);
 router.get("/:id", validate(getArtistSchema), artistController.getDetail);
 
 // admin only
-router.use(isAuth, restrictTo("admin"));
+router.use(isAuth, restrictTo("ADMIN"));
 
 router.post("/", validate(createArtistSchema), artistController.create);
 router.patch("/:id", validate(updateArtistSchema), artistController.update);

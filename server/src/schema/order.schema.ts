@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { PaymentMethod } from "@prisma/client";
 
 const paramsIdSchema = z.object({
     id: z.string().uuid("Invalid order ID format"),
@@ -11,7 +12,7 @@ export const createOrderSchema = z.object({
         customerName: z.string().min(1, "Customer name is required"),
         eventSeatIds: z.array(z.string().uuid()).min(1, "At least one seat must be selected"),
         couponId: z.string().uuid().optional(),
-        paymentMethod: z.string().default("SEPAY"),
+        paymentMethod: z.nativeEnum(PaymentMethod).default(PaymentMethod.SEPAY),
     }),
 });
 

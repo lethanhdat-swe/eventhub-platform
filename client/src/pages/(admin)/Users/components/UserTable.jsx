@@ -1,11 +1,4 @@
-import {
-  Eye,
-  Lock,
-  MoreHorizontal,
-  Pencil,
-  Trash2,
-  Unlock,
-} from 'lucide-react';
+import { Eye, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -26,7 +19,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { cn } from '@/lib/utils';
 import UserEmailVerifiedBadge from '@/pages/(admin)/Users/components/UserEmailVerifiedBadge';
 import {
   formatCreatedAt,
@@ -72,7 +64,6 @@ function UserTable({
   onSelectRow,
   onView,
   onEdit,
-  onToggleLock,
   onDelete,
 }) {
   const selectedCount = selectedIds.size;
@@ -109,112 +100,100 @@ function UserTable({
         </TableHeader>
         <TableBody>
           {users.map((user) => (
-              <TableRow
-                key={user.id}
-                data-state={selectedIds.has(user.id) ? 'selected' : undefined}
-                className={cn(user.isLocked && 'opacity-70')}
-              >
-                <TableCell className="px-2 py-1.5">
-                  <Checkbox
-                    checked={selectedIds.has(user.id)}
-                    onCheckedChange={(checked) =>
-                      onSelectRow(user.id, Boolean(checked))
-                    }
-                    aria-label={`Chọn ${user.fullName}`}
+            <TableRow
+              key={user.id}
+              data-state={selectedIds.has(user.id) ? 'selected' : undefined}
+            >
+              <TableCell className="px-2 py-1.5">
+                <Checkbox
+                  checked={selectedIds.has(user.id)}
+                  onCheckedChange={(checked) =>
+                    onSelectRow(user.id, Boolean(checked))
+                  }
+                  aria-label={`Chọn ${user.fullName}`}
+                />
+              </TableCell>
+              <TableCell className="px-2 py-1.5">
+                <div className="flex items-center gap-2.5">
+                  <UserAvatar
+                    fullName={user.fullName}
+                    avatarUrl={user.avatarUrl}
                   />
-                </TableCell>
-                <TableCell className="px-2 py-1.5">
-                  <div className="flex items-center gap-2.5">
-                    <UserAvatar
-                      fullName={user.fullName}
-                      avatarUrl={user.avatarUrl}
-                    />
-                    <div className="min-w-0">
-                      <p className="truncate font-medium">{user.fullName}</p>
-                      <p className="truncate text-xs text-muted-foreground">
-                        {user.email}
-                      </p>
-                    </div>
+                  <div className="min-w-0">
+                    <p className="truncate font-medium">{user.fullName}</p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {user.email}
+                    </p>
                   </div>
-                </TableCell>
-                <TableCell className="px-2 py-1.5 tabular-nums text-muted-foreground">
-                  {user.phoneNumber ?? '—'}
-                </TableCell>
-                <TableCell className="px-2 py-1.5">
-                  <Badge
-                    variant="outline"
-                    className="h-5 rounded-md px-1.5 text-xs font-medium"
-                  >
-                    {formatRoleLabel(user.role)}
-                  </Badge>
-                </TableCell>
-                <TableCell className="px-2 py-1.5 text-muted-foreground">
-                  {formatProviderLabel(user.provider)}
-                </TableCell>
-                <TableCell className="px-2 py-1.5">
-                  <UserEmailVerifiedBadge
-                    isEmailVerified={user.isEmailVerified}
+                </div>
+              </TableCell>
+              <TableCell className="px-2 py-1.5 tabular-nums text-muted-foreground">
+                {user.phoneNumber ?? '—'}
+              </TableCell>
+              <TableCell className="px-2 py-1.5">
+                <Badge
+                  variant="outline"
+                  className="h-5 rounded-md px-1.5 text-xs font-medium"
+                >
+                  {formatRoleLabel(user.role)}
+                </Badge>
+              </TableCell>
+              <TableCell className="px-2 py-1.5 text-muted-foreground">
+                {formatProviderLabel(user.provider)}
+              </TableCell>
+              <TableCell className="px-2 py-1.5">
+                <UserEmailVerifiedBadge
+                  isEmailVerified={user.isEmailVerified}
+                />
+              </TableCell>
+              <TableCell className="px-2 py-1.5 text-muted-foreground">
+                {formatLastLogin(user.lastLoginAt)}
+              </TableCell>
+              <TableCell className="px-2 py-1.5 text-muted-foreground">
+                {formatCreatedAt(user.createdAt)}
+              </TableCell>
+              <TableCell className="px-2 py-1.5 text-right">
+                <DropdownMenu>
+                  <DropdownMenuTrigger
+                    render={
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        className="cursor-pointer"
+                        aria-label={`Hành động cho ${user.fullName}`}
+                      >
+                        <MoreHorizontal className="size-4" />
+                      </Button>
+                    }
                   />
-                </TableCell>
-                <TableCell className="px-2 py-1.5 text-muted-foreground">
-                  {formatLastLogin(user.lastLoginAt)}
-                </TableCell>
-                <TableCell className="px-2 py-1.5 text-muted-foreground">
-                  {formatCreatedAt(user.createdAt)}
-                </TableCell>
-                <TableCell className="px-2 py-1.5 text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger
-                      render={
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          className="cursor-pointer"
-                          aria-label={`Hành động cho ${user.fullName}`}
-                        >
-                          <MoreHorizontal className="size-4" />
-                        </Button>
-                      }
-                    />
-                    <DropdownMenuContent align="end" className="w-48">
-                      <DropdownMenuItem
-                        className="cursor-pointer"
-                        onClick={() => onView(user)}
-                      >
-                        <Eye className="size-4" />
-                        Xem chi tiết
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="cursor-pointer"
-                        onClick={() => onEdit(user)}
-                      >
-                        <Pencil className="size-4" />
-                        Chỉnh sửa
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="cursor-pointer"
-                        onClick={() => onToggleLock(user)}
-                      >
-                        {user.isLocked ? (
-                          <Unlock className="size-4" />
-                        ) : (
-                          <Lock className="size-4" />
-                        )}
-                        {user.isLocked ? 'Mở khóa tài khoản' : 'Khóa tài khoản'}
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        variant="destructive"
-                        className="cursor-pointer"
-                        onClick={() => onDelete(user)}
-                      >
-                        <Trash2 className="size-4" />
-                        Xóa
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem
+                      className="cursor-pointer"
+                      onClick={() => onView(user)}
+                    >
+                      <Eye className="size-4" />
+                      Xem chi tiết
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="cursor-pointer"
+                      onClick={() => onEdit(user)}
+                    >
+                      <Pencil className="size-4" />
+                      Chỉnh sửa
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      variant="destructive"
+                      className="cursor-pointer"
+                      onClick={() => onDelete(user)}
+                    >
+                      <Trash2 className="size-4" />
+                      Xóa
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </TableCell>
+            </TableRow>
           ))}
         </TableBody>
       </Table>

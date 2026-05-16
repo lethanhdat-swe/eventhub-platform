@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { EventStatus } from "@prisma/client";
 
 const paramsIdSchema = z.object({
     id: z.string().uuid("Invalid event ID format"),
@@ -31,7 +32,7 @@ export const createEventSchema = z.object({
             .optional()
             .or(z.literal("")),
         categoryId: z.string().uuid("Invalid category ID format").optional(),
-        status: z.enum(["draft", "published", "cancelled"]).default("draft"),
+        status: z.nativeEnum(EventStatus).default(EventStatus.DRAFT),
 
         // 👇 NEW
         artists: z.array(artistItemSchema).optional(),
@@ -51,7 +52,7 @@ export const updateEventSchema = z.object({
             endDate: z.string().datetime().optional(),
             thumbnailUrl: z.string().url().optional().or(z.literal("")),
             categoryId: z.string().uuid().optional(),
-            status: z.enum(["draft", "published", "cancelled"]).optional(),
+            status: z.nativeEnum(EventStatus).optional(),
 
             // 👇 NEW (replace toàn bộ artists khi update)
             artists: z.array(artistItemSchema).optional(),

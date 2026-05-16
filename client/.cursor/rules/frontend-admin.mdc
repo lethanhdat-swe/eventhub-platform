@@ -102,3 +102,14 @@ CODING STYLE
 - Avoid huge JSX files.
 - Split reusable UI logically.
 - Avoid over-splitting tiny UI parts.
+
+PROJECT LANGUAGE RULES
+
+- The project was originally initialized with Vite TypeScript template.
+- However, the team uses JavaScript only.
+- From now on:
+  - Use .js and .jsx only.
+  - Do not create new .ts or .tsx files.
+  - Do not write TypeScript types/interfaces.
+- Existing tsconfig/vite-env.d.ts files can remain untouched.
+- Do not migrate the project setup.

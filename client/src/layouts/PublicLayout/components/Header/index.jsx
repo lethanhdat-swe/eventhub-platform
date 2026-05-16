@@ -1,4 +1,5 @@
 import { useHeaderVisibility } from '@/hooks/useHeaderVisibility';
+import { useAuthStore } from '@/stores/authStore';
 import { HeaderSearch } from './components/HeaderSearch/HeaderSearch';
 import HeaderLogo from './components/HeaderLogo/HeaderLogo';
 import HeaderNav from './components/HeaderNav/HeaderNav';
@@ -9,6 +10,7 @@ import HeaderProfileButton from './components/HeaderProfileButton/HeaderProfileB
 
 function Header() {
   const visible = useHeaderVisibility();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   return (
    <header
@@ -23,10 +25,7 @@ function Header() {
       <div className="flex items-center gap-8 cursor-pointer">
         <HeaderSearch />
         <ShoppingCart color="var(--text-primary)" />
-        <HeaderProfileButton />
-        
-        {/* Khi login thì hiện */}
-        {/* <HeaderAuth /> */}
+        {isAuthenticated ? <HeaderProfileButton /> : <HeaderAuth />}
 
         <HeaderThemeToggle />
       </div>

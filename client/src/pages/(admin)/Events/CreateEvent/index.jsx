@@ -35,7 +35,7 @@ const INITIAL_FORM = {
   startDate: '',
   endDate: '',
   thumbnailUrl: '',
-  status: 'draft',
+  status: 'DRAFT',
   categoryId: '',
 };
 
@@ -70,12 +70,12 @@ function CreateEvent() {
   };
 
   const handleSaveDraft = () => {
-    logPayload({ ...form, status: 'draft' });
+    logPayload({ ...form, status: 'DRAFT' });
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    logPayload({ ...form, status: form.status || 'active' });
+    logPayload({ ...form, status: form.status || 'PUBLISHED' });
   };
 
   return (

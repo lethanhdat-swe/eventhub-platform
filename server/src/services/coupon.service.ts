@@ -1,7 +1,7 @@
 import { prisma } from "../utils/prisma";
 import { AppError } from "../utils/AppError";
+import { CouponStatus, OrderStatus } from "@prisma/client";
 import { getPaginationMetadata } from "../utils/pagination";
-import { CouponStatus } from "@prisma/client";
 
 class CouponService {
     async create(body: any) {
@@ -91,7 +91,9 @@ class CouponService {
             const usageCount = await prisma.order.count({
                 where: {
                     couponId: coupon.id,
-                    status: { notIn: ["cancelled", "failed"] }, // Count only successful or pending orders
+                    status: {
+                        in: [OrderStatus.PENDING, OrderStatus.PAID],
+                    },
                 },
             });
 

@@ -14,7 +14,7 @@ const router = Router();
 
 router.post("/verify", validate(verifyCouponSchema), couponController.verify);
 
-router.use(isAuth, restrictTo("admin"));
+router.use(isAuth, restrictTo("ADMIN"));
 
 router.get("/", validate(listCouponSchema), couponController.list);
 

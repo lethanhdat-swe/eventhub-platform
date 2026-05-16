@@ -36,10 +36,17 @@ class UserController {
 
     getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
         try {
+            const role = req.query.role as string | undefined;
+            const emailVerified = req.query.emailVerified as string | undefined;
+
             const result = await userService.getAllUsers({
                 search: req.query.search as string,
                 page: Number(req.query.page) || 1,
                 limit: Number(req.query.limit) || 10,
+                ...(role && role !== "all" ? { role } : {}),
+                ...(emailVerified && emailVerified !== "all"
+                    ? { emailVerified }
+                    : {}),
             });
 
             return res.success({
@@ -65,11 +72,13 @@ class UserController {
             next(error);
         }
     };
+
     changeRole = async (req: Request, res: Response, next: NextFunction) => {
         try {
             await userService.changeRole({
-                userId: req?.user?.id as string,
-                role: req.body.role,
+                actorId: req.user!.id,
+                userId: req.body.userId as string,
+                role: req.body.role as string,
             });
 
             return res.success({
@@ -82,7 +91,7 @@ class UserController {
 
     deleteUsers = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            await userService.deleteUsers(req.body.userIds);
+            await userService.deleteUsers(req.user!.id, req.body.userIds);
 
             return res.success({
                 message: "Users deleted successfully.",

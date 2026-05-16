@@ -1,10 +1,13 @@
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import PublicLayout from '@/layouts/PublicLayout';
 import Home from '@/pages/(public)/Home';
 import Events from '@/pages/(public)/Events';
 import AuthLayout from '@/layouts/AuthLayout';
-import Login from '@/pages/(auth)/Login';
-import Register from '@/pages/(auth)/Register';
+import LoginPage from '@/pages/(auth)/Login/LoginPage';
+import RegisterPage from '@/pages/(auth)/Register/RegisterPage';
+import VerifyEmailPage from '@/pages/(auth)/VerifyEmail/VerifyEmailPage';
+import ForgotPasswordPage from '@/pages/(auth)/ForgotPassword/ForgotPasswordPage';
+import ResetPasswordPage from '@/pages/(auth)/ResetPassword/ResetPasswordPage';
 import Blog from './pages/(public)/Blog';
 import BlogDetail from './pages/(public)/Blog/BlogDetail';
 import EventDetail from './pages/(public)/Events/EventDetail';
@@ -14,6 +17,8 @@ import Booking from './pages/(public)/Booking';
 import Payment from './pages/(public)/Payment';
 import Profile from './pages/(public)/Profile';
 import AdminLayout from '@/layouts/AdminLayout';
+import AuthGuestRoute from '@/routes/AuthGuestRoute';
+import ProtectedRoute from '@/routes/ProtectedRoute';
 import Dashboard from '@/pages/(admin)/Dashboard';
 import AdminEvents from '@/pages/(admin)/Events';
 import CreateEvent from '@/pages/(admin)/Events/CreateEvent';
@@ -48,29 +53,43 @@ function App() {
         <Route path="/profile" element={<Profile />} />
       </Route>
 
-      <Route path="/auth" element={<AuthLayout />}>
-        <Route index element={<Login />} />
-        <Route path="register" element={<Register />} />
+      <Route path="/auth" element={<Navigate replace to="/login" />} />
+      <Route
+        path="/auth/register"
+        element={<Navigate replace to="/register" />}
+      />
+
+      <Route element={<AuthGuestRoute />}>
+        <Route element={<AuthLayout />}>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+        </Route>
       </Route>
 
-      <Route path="/admin" element={<AdminLayout />}>
-        <Route path="dashboard" element={<Dashboard />} />
-        <Route path="events/create" element={<CreateEvent />} />
-        <Route path="events/:id/edit" element={<EditEvent />} />
-        <Route path="events/:id" element={<AdminEventDetail />} />
-        <Route path="events" element={<AdminEvents />} />
-        <Route path="event-categories" element={<EventCategories />} />
-        <Route path="artists" element={<Artists />} />
-        <Route path="default-seats" element={<DefaultSeats />} />
-        <Route path="ticket-types" element={<TicketTypes />} />
-        <Route path="orders" element={<Orders />} />
-        <Route path="tickets" element={<Tickets />} />
-        <Route path="coupons" element={<Coupons />} />
-        <Route path="check-in" element={<CheckIn />} />
-        <Route path="check-in-logs" element={<CheckInLogs />} />
-        <Route path="users" element={<Users />} />
-        <Route path="notifications" element={<Notifications />} />
-        <Route path="settings" element={<Settings />} />
+      <Route path="/admin" element={<ProtectedRoute />}>
+        <Route element={<AdminLayout />}>
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="events/create" element={<CreateEvent />} />
+          <Route path="events/:id/edit" element={<EditEvent />} />
+          <Route path="events/:id" element={<AdminEventDetail />} />
+          <Route path="events" element={<AdminEvents />} />
+          <Route path="event-categories" element={<EventCategories />} />
+          <Route path="artists" element={<Artists />} />
+          <Route path="default-seats" element={<DefaultSeats />} />
+          <Route path="ticket-types" element={<TicketTypes />} />
+          <Route path="orders" element={<Orders />} />
+          <Route path="tickets" element={<Tickets />} />
+          <Route path="coupons" element={<Coupons />} />
+          <Route path="check-in" element={<CheckIn />} />
+          <Route path="check-in-logs" element={<CheckInLogs />} />
+          <Route path="users" element={<Users />} />
+          <Route path="notifications" element={<Notifications />} />
+          <Route path="settings" element={<Settings />} />
+        </Route>
       </Route>
     </Routes>
   );

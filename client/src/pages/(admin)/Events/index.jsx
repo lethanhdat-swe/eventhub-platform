@@ -119,7 +119,7 @@ function AdminEvents() {
 
   const handleToggleStatus = (event) => {
     const nextStatus =
-      event.status === 'active' ? 'draft' : 'active';
+      event.status === 'PUBLISHED' ? 'DRAFT' : 'PUBLISHED';
     setEvents((prev) =>
       prev.map((item) =>
         item.id === event.id

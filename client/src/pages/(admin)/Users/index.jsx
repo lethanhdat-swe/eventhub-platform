@@ -1,6 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { getErrorMessage } from '@/lib/http/apiError';
+import { userService } from '@/lib/services/admin/userService';
 import AdminFilterDropdown from '@/pages/(admin)/components/AdminFilterDropdown';
 import AdminToolbar from '@/pages/(admin)/components/AdminToolbar';
 import {
@@ -13,13 +15,10 @@ import {
 
 import PageHeader from '@/pages/(admin)/components/PageHeader';
 import DeleteUserDialog from '@/pages/(admin)/Users/components/DeleteUserDialog';
+import UserDetailDialog from '@/pages/(admin)/Users/components/UserDetailDialog';
 import UserRoleDialog from '@/pages/(admin)/Users/components/UserRoleDialog';
 import UserTable from '@/pages/(admin)/Users/components/UserTable';
-import {
-  filterUsers,
-  MOCK_USERS,
-  USER_ROLE_OPTIONS,
-} from '@/pages/(admin)/Users/data';
+import { USER_ROLE_OPTIONS } from '@/pages/(admin)/Users/data';
 
 const USER_EMAIL_FILTER_OPTIONS = [
   { value: 'all', label: 'Tất cả' },
@@ -27,21 +26,29 @@ const USER_EMAIL_FILTER_OPTIONS = [
   { value: 'unverified', label: 'Chưa xác thực' },
 ];
 
-const USER_PROVIDER_FILTER_OPTIONS = [
-  { value: 'all', label: 'Tất cả' },
-  { value: 'google', label: 'Google' },
-  { value: 'credentials', label: 'Email' },
-];
+const PAGE_SIZE = 10;
 
 function Users() {
-  const [users, setUsers] = useState(MOCK_USERS);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [users, setUsers] = useState([]);
+  const [searchInput, setSearchInput] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [emailFilter, setEmailFilter] = useState('all');
-  const [providerFilter, setProviderFilter] = useState('all');
+  const [page, setPage] = useState(1);
+  const [meta, setMeta] = useState({
+    totalItems: 0,
+    totalPages: 1,
+    currentPage: 1,
+    itemsPerPage: PAGE_SIZE,
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selectedIds, setSelectedIds] = useState(() => new Set());
   const [roleDialogUser, setRoleDialogUser] = useState(null);
   const [deleteDialog, setDeleteDialog] = useState(null);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [detailUser, setDetailUser] = useState(null);
+  const [detailLoading, setDetailLoading] = useState(false);
 
   const userRoleFilterOptions = useMemo(
     () => [
@@ -51,22 +58,51 @@ function Users() {
     []
   );
 
-  const filteredUsers = useMemo(
-    () =>
-      filterUsers(users, searchQuery, {
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setDebouncedSearch(searchInput.trim());
+    }, 300);
+    return () => clearTimeout(t);
+  }, [searchInput]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch, roleFilter, emailFilter]);
+
+  const loadUsers = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const payload = await userService.list({
+        page,
+        limit: PAGE_SIZE,
+        search: debouncedSearch,
         role: roleFilter,
         emailVerified: emailFilter,
-        provider: providerFilter,
-      }),
-    [users, searchQuery, roleFilter, emailFilter, providerFilter]
-  );
+      });
+      setUsers(payload.data ?? []);
+      const m = payload.meta ?? {};
+      setMeta({
+        totalItems: m.totalItems ?? 0,
+        totalPages: Math.max(1, m.totalPages ?? 1),
+        currentPage: m.currentPage ?? page,
+        itemsPerPage: m.itemsPerPage ?? PAGE_SIZE,
+      });
+    } catch (e) {
+      setError(getErrorMessage(e));
+      setUsers([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [page, debouncedSearch, roleFilter, emailFilter]);
 
-  const isLoading = false;
-  const isEmpty = !isLoading && filteredUsers.length === 0;
+  useEffect(() => {
+    loadUsers();
+  }, [loadUsers]);
 
   const handleSelectAll = (checked) => {
     if (checked) {
-      setSelectedIds(new Set(filteredUsers.map((user) => user.id)));
+      setSelectedIds(new Set(users.map((user) => user.id)));
     } else {
       setSelectedIds(new Set());
     }
@@ -84,60 +120,61 @@ function Users() {
     });
   };
 
-  const handleSaveRole = (role) => {
+  const handleSaveRole = async (role) => {
     if (!roleDialogUser) return;
 
-    setUsers((prev) =>
-      prev.map((user) =>
-        user.id === roleDialogUser.id
-          ? { ...user, role, updatedAt: new Date().toISOString() }
-          : user
-      )
-    );
-    setRoleDialogUser(null);
+    setError(null);
+    try {
+      await userService.changeRole({ userId: roleDialogUser.id, role });
+      setRoleDialogUser(null);
+      await loadUsers();
+    } catch (e) {
+      setError(getErrorMessage(e));
+      throw e;
+    }
   };
 
-  const handleToggleLock = (user) => {
-    setUsers((prev) =>
-      prev.map((item) =>
-        item.id === user.id
-          ? {
-              ...item,
-              isLocked: !item.isLocked,
-              updatedAt: new Date().toISOString(),
-            }
-          : item
-      )
-    );
-  };
-
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     if (!deleteDialog) return;
 
-    if (deleteDialog.type === 'bulk') {
-      setUsers((prev) => prev.filter((user) => !selectedIds.has(user.id)));
-      setSelectedIds(new Set());
+    try {
+      setError(null);
+      if (deleteDialog.type === 'bulk') {
+        await userService.deleteMany([...selectedIds]);
+        setSelectedIds(new Set());
+      } else {
+        await userService.deleteMany([deleteDialog.user.id]);
+        setSelectedIds((prev) => {
+          const next = new Set(prev);
+          next.delete(deleteDialog.user.id);
+          return next;
+        });
+      }
       setDeleteDialog(null);
-      return;
+      await loadUsers();
+    } catch (e) {
+      setError(getErrorMessage(e));
     }
-
-    setUsers((prev) =>
-      prev.filter((user) => user.id !== deleteDialog.user.id)
-    );
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      next.delete(deleteDialog.user.id);
-      return next;
-    });
-    setDeleteDialog(null);
   };
 
   const handleNotifySelected = () => {
     console.log('Gửi thông báo cho users:', [...selectedIds]);
   };
 
-  const handleView = (user) => {
-    console.log('[User detail]', user);
+  const handleView = async (user) => {
+    setDetailOpen(true);
+    setDetailUser(null);
+    setDetailLoading(true);
+    setError(null);
+    try {
+      const u = await userService.getById(user.id);
+      setDetailUser(u);
+    } catch (e) {
+      setDetailOpen(false);
+      setError(getErrorMessage(e));
+    } finally {
+      setDetailLoading(false);
+    }
   };
 
   const handleEdit = (user) => {
@@ -159,9 +196,28 @@ function Users() {
         description="Quản lý tài khoản khách hàng, quyền truy cập và trạng thái xác thực email."
       />
 
+      {error && users.length > 0 ? (
+        <div
+          className="flex flex-col gap-2 rounded-lg border border-destructive/25 bg-destructive/5 px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
+          role="alert"
+        >
+          <p className="text-sm text-destructive">{error}</p>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-8 shrink-0"
+            onClick={() => loadUsers()}
+          >
+            Thử lại
+          </Button>
+        </div>
+      ) : null}
+
       <AdminToolbar
         searchPlaceholder="Tìm kiếm tên, email, số điện thoại..."
-        onSearchChange={setSearchQuery}
+        searchValue={searchInput}
+        onSearchChange={setSearchInput}
       >
         <AdminFilterDropdown
           label="Vai trò"
@@ -175,65 +231,65 @@ function Users() {
           value={emailFilter}
           onChange={setEmailFilter}
         />
-        <AdminFilterDropdown
-          label="Provider"
-          options={USER_PROVIDER_FILTER_OPTIONS}
-          value={providerFilter}
-          onChange={setProviderFilter}
-        />
       </AdminToolbar>
 
-            <AdminBulkActions
+      <AdminBulkActions
         selectedCount={selectedIds.size}
         label={`Đã chọn ${selectedIds.size} người dùng`}
       >
         <div className="flex flex-wrap gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              className="h-9 px-3"
-              onClick={handleNotifySelected}
-            >
-              Gửi thông báo
-            </Button>
-            <Button
-              type="button"
-              variant="destructive"
-              className="h-9 px-3"
-              onClick={() => setDeleteDialog({ type: 'bulk' })}
-            >
-              Xóa đã chọn
-            </Button>
-          </div>
+          <Button
+            type="button"
+            variant="outline"
+            className="h-9 px-3"
+            onClick={handleNotifySelected}
+          >
+            Gửi thông báo
+          </Button>
+          <Button
+            type="button"
+            variant="destructive"
+            className="h-9 px-3"
+            onClick={() => setDeleteDialog({ type: 'bulk' })}
+          >
+            Xóa đã chọn
+          </Button>
+        </div>
       </AdminBulkActions>
 
       {isLoading ? (
         <AdminLoadingState rows={6} columns={9} minWidth="min-w-[1100px]" />
-      ) : isEmpty ? (
+      ) : users.length === 0 ? (
         <AdminEmptyState
-          {...ADMIN_EMPTY_STATES.users}
+          {...(error
+            ? {
+                title: 'Không tải được danh sách',
+                description: error,
+                actionLabel: 'Thử lại',
+                onAction: () => loadUsers(),
+              }
+            : ADMIN_EMPTY_STATES.users)}
         />
       ) : (
         <>
           <UserTable
-                  users={filteredUsers}
-                  selectedIds={selectedIds}
-                  onSelectAll={handleSelectAll}
-                  onSelectRow={handleSelectRow}
-                  onView={handleView}
-                  onEdit={handleEdit}
-                  onToggleLock={handleToggleLock}
-                  onDelete={handleDelete}
-                />
+            users={users}
+            selectedIds={selectedIds}
+            onSelectAll={handleSelectAll}
+            onSelectRow={handleSelectRow}
+            onView={handleView}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
           <AdminPagination
-            currentPage={1}
-            totalPages={1}
-            totalItems={filteredUsers.length}
-            pageSize={10}
+            currentPage={meta.currentPage}
+            totalPages={meta.totalPages}
+            totalItems={meta.totalItems}
+            pageSize={meta.itemsPerPage}
+            onPageChange={setPage}
           />
         </>
       )}
-
 
       <UserRoleDialog
         open={Boolean(roleDialogUser)}
@@ -242,6 +298,18 @@ function Users() {
           if (!isOpen) setRoleDialogUser(null);
         }}
         onSave={handleSaveRole}
+      />
+
+      <UserDetailDialog
+        open={detailOpen}
+        onOpenChange={(isOpen) => {
+          setDetailOpen(isOpen);
+          if (!isOpen) {
+            setDetailUser(null);
+          }
+        }}
+        user={detailUser}
+        loading={detailLoading}
       />
 
       <DeleteUserDialog

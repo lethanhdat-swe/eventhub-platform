@@ -23,7 +23,7 @@ router.get("/", validate(listEventSchema), eventController.list);
 router.get("/:id", validate(getEventSchema), eventController.getDetail);
 
 // Admin routes
-router.use(isAuth, restrictTo("admin"));
+router.use(isAuth, restrictTo("ADMIN"));
 
 router.post("/", validate(createEventSchema), eventController.create);
 router.patch("/:id", validate(updateEventSchema), eventController.update);
@@ -32,7 +32,7 @@ router.delete("/", validate(deleteEventSchema), eventController.delete);
 router.delete(
     "/:eventId/artists",
     isAuth,
-    restrictTo("admin"),
+    restrictTo("ADMIN"),
     validate(deleteBulkEventArtistSchema),
     eventArtistController.removeArtists
 );

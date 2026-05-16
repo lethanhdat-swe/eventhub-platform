@@ -86,19 +86,31 @@ class UserService {
         page: number;
         limit: number;
         search?: string;
+        role?: string;
+        emailVerified?: string;
     }): Promise<PaginatedResult<any>> {
-        const { page, limit, search } = params;
+        const { page, limit, search, role, emailVerified } = params;
         const skip = (page - 1) * limit;
 
         const where: any = {
-            ...(search && {
+            ...(search && String(search).trim() && {
                 OR: [
-                    { fullName: { contains: search } },
-                    { email: { contains: search } },
-                    { phoneNumber: { contains: search } },
+                    { fullName: { contains: search.trim() } },
+                    { email: { contains: search.trim() } },
+                    { phoneNumber: { contains: search.trim() } },
                 ],
             }),
         };
+
+        if (role && role !== "all") {
+            where.role = role;
+        }
+
+        if (emailVerified === "verified") {
+            where.isEmailVerified = true;
+        } else if (emailVerified === "unverified") {
+            where.isEmailVerified = false;
+        }
 
         const [users, totalItems] = await Promise.all([
             prisma.user.findMany({
@@ -111,8 +123,11 @@ class UserService {
                     email: true,
                     fullName: true,
                     phoneNumber: true,
+                    avatarUrl: true,
                     role: true,
+                    provider: true,
                     isEmailVerified: true,
+                    lastLoginAt: true,
                     createdAt: true,
                 },
             }),
@@ -135,6 +150,7 @@ class UserService {
                 phoneNumber: true,
                 avatarUrl: true,
                 role: true,
+                provider: true,
                 isEmailVerified: true,
                 createdAt: true,
                 lastLoginAt: true,
@@ -147,7 +163,12 @@ class UserService {
 
         return user;
     }
-    async changeRole(data: { userId: string; role: string }) {
+
+    async changeRole(data: { actorId: string; userId: string; role: string }) {
+        if (data.userId === data.actorId) {
+            throw new AppError("Cannot change your own role", 400);
+        }
+
         const user = await prisma.user.findUnique({
             where: { id: data.userId },
         });
@@ -164,7 +185,11 @@ class UserService {
         return true;
     }
 
-    async deleteUsers(userIds: string[]) {
+    async deleteUsers(actorId: string, userIds: string[]) {
+        if (userIds.includes(actorId)) {
+            throw new AppError("Cannot delete your own account", 400);
+        }
+
         await prisma.user.deleteMany({
             where: {
                 id: { in: userIds },

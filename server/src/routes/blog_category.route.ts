@@ -25,7 +25,7 @@ router.get(
 );
 
 // Admin only routes
-router.use(isAuth, restrictTo("admin"));
+router.use(isAuth, restrictTo("ADMIN"));
 
 router.post(
     "/",
@@ -42,7 +42,7 @@ router.patch(
 router.delete(
     "/",
     isAuth,
-    restrictTo("admin"),
+    restrictTo("ADMIN"),
     validate(deleteBlogCategoriesSchema),
     blogCategoryController.delete
 );

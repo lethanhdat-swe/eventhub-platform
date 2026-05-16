@@ -17,7 +17,7 @@ router.get("/", validate(listCategorySchema), categoryController.list);
 router.get("/:id", validate(getCategorySchema), categoryController.getDetail);
 
 // Admin routes
-router.use(isAuth, restrictTo("admin"));
+router.use(isAuth, restrictTo("ADMIN"));
 
 router.post("/", validate(createCategorySchema), categoryController.create);
 router.patch("/:id", validate(updateCategorySchema), categoryController.update);

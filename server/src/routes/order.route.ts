@@ -22,7 +22,7 @@ router.post("/", validate(createOrderSchema), orderController.create);
 router.get("/:id", validate(getOrderSchema), orderController.getDetail);
 
 // Admin routes
-router.get("/", restrictTo("admin"), validate(listOrderSchema), orderController.list);
-router.delete("/", restrictTo("admin"), validate(deleteOrderSchema), orderController.delete);
+router.get("/", restrictTo("ADMIN"), validate(listOrderSchema), orderController.list);
+router.delete("/", restrictTo("ADMIN"), validate(deleteOrderSchema), orderController.delete);
 
 export default router;

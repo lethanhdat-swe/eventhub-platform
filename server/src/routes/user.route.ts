@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { isAuth } from "../middlewares/auth.middleware";
+import { isAuth, restrictTo } from "../middlewares/auth.middleware";
 import UserController from "../controllers/user.controller";
 import { validate } from "../middlewares/validate.middleware";
 import {
@@ -7,8 +7,8 @@ import {
     updateMeSchema,
     changeRoleSchema,
     deleteUsersSchema,
+    listUsersQuerySchema,
 } from "../schema/user.schema";
-import { paginationQuerySchema } from "../schema/pagination.schema";
 
 const router = Router();
 
@@ -22,17 +22,31 @@ router.patch(
     UserController.changePassword
 );
 
-// Admin
-router.get("/", validate(paginationQuerySchema), UserController.getAllUsers);
-
-router.get("/:id", UserController.getUserById);
+router.get(
+    "/",
+    restrictTo("ADMIN"),
+    validate(listUsersQuerySchema),
+    UserController.getAllUsers
+);
 
 router.patch(
     "/change-role",
+    restrictTo("ADMIN"),
     validate(changeRoleSchema),
     UserController.changeRole
 );
 
-router.delete("/", validate(deleteUsersSchema), UserController.deleteUsers);
+router.get(
+    "/:id",
+    restrictTo("ADMIN"),
+    UserController.getUserById
+);
+
+router.delete(
+    "/",
+    restrictTo("ADMIN"),
+    validate(deleteUsersSchema),
+    UserController.deleteUsers
+);
 
 export default router;

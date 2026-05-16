@@ -13,7 +13,7 @@ import {
 const router = Router();
 
 // Toàn bộ route seat yêu cầu admin quản lý
-router.use(isAuth, restrictTo("admin"));
+router.use(isAuth, restrictTo("ADMIN"));
 
 router.get("/", validate(listSeatSchema), seatController.list);
 router.get("/:id", validate(getSeatSchema), seatController.getDetail);

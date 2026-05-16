@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import { prisma } from "../utils/prisma";
 import { AppError } from "../utils/AppError";
-
+import { EventSeatStatus, OrderStatus } from "@prisma/client";
 class PaymentService {
     static buildSepayPaymentInfo(orderCode: string, amount: number) {
         return {
@@ -25,14 +25,14 @@ class PaymentService {
                 throw new AppError("Order not found", 404);
             }
 
-            if (order.status === "PAID" || order.status === "SUCCESS") {
+            if (order.status === OrderStatus.PAID) {
                 return tx.order.findUnique({
                     where: { id: order.id },
                     include: { orderSeats: true, tickets: true },
                 });
             }
 
-            if (order.status !== "PENDING") {
+            if (order.status !== OrderStatus.PENDING) {
                 throw new AppError("Order is not pending payment", 400);
             }
 
@@ -45,9 +45,9 @@ class PaymentService {
             const seatUpdate = await tx.eventSeat.updateMany({
                 where: {
                     id: { in: eventSeatIds },
-                    status: "RESERVING",
+                    status: EventSeatStatus.RESERVING,
                 },
-                data: { status: "BOOKED" },
+                data: { status: EventSeatStatus.BOOKED },
             });
 
             if (seatUpdate.count !== order.orderSeats.length) {
@@ -60,7 +60,7 @@ class PaymentService {
             await tx.order.update({
                 where: { id: order.id },
                 data: {
-                    status: "PAID",
+                    status: OrderStatus.PAID,
                     sepayTransactionId,
                 },
             });

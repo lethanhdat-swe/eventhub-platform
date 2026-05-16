@@ -6,10 +6,12 @@ import { cn } from '@/lib/utils';
 function AdminToolbar({
   searchPlaceholder = 'Tìm kiếm...',
   onSearchChange,
+  searchValue,
   children,
   className,
 }) {
   const showSearch = searchPlaceholder || onSearchChange;
+  const isControlledSearch = typeof searchValue === 'string';
 
   return (
     <div
@@ -24,7 +26,14 @@ function AdminToolbar({
           <Input
             type="search"
             placeholder={searchPlaceholder}
-            onChange={(event) => onSearchChange?.(event.target.value)}
+            {...(isControlledSearch
+              ? {
+                  value: searchValue,
+                  onChange: (event) => onSearchChange?.(event.target.value),
+                }
+              : {
+                  onChange: (event) => onSearchChange?.(event.target.value),
+                })}
             className="h-9 pl-9"
           />
         </div>

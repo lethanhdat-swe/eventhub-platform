@@ -16,6 +16,7 @@ import blogRouter from "./blog.route";
 import paymentRouter from "./payment.route";
 import likeEventRouter from "./like-event.routes";
 import saveEventRouter from "./save-event.routes";
+import uploadRouter from "./upload.route";
 
 const router = Router();
 
@@ -36,5 +37,6 @@ router.use("/blog-categories", blogCategoryRouter);
 router.use("/blogs", blogRouter);
 router.use("/like-events", likeEventRouter);
 router.use("/save-events", saveEventRouter);
+router.use("/uploads", uploadRouter);
 
 export default router;

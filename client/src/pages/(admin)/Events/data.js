@@ -7,9 +7,9 @@ export const MOCK_CATEGORIES = [
 ];
 
 export const EVENT_STATUS_OPTIONS = [
-  { value: 'draft', label: 'Bản nháp' },
-  { value: 'active', label: 'Đang hoạt động' },
-  { value: 'cancelled', label: 'Đã hủy' },
+  { value: 'DRAFT', label: 'Bản nháp' },
+  { value: 'PUBLISHED', label: 'Đã xuất bản' },
+  { value: 'CANCELLED', label: 'Đã hủy' },
 ];
 
 export const MOCK_EVENTS = [
@@ -22,7 +22,7 @@ export const MOCK_EVENTS = [
     startDate: '2026-06-15T19:00:00.000Z',
     endDate: '2026-06-15T23:00:00.000Z',
     thumbnailUrl: 'https://picsum.photos/seed/anh-trai-say-hi/80/80',
-    status: 'active',
+    status: 'PUBLISHED',
     categoryId: 'cat-001',
     category: { id: 'cat-001', name: 'Âm nhạc', slug: 'am-nhac' },
     createdAt: '2026-01-10T08:00:00.000Z',
@@ -37,7 +37,7 @@ export const MOCK_EVENTS = [
     startDate: '2026-04-20T09:00:00.000Z',
     endDate: '2026-04-20T17:00:00.000Z',
     thumbnailUrl: 'https://picsum.photos/seed/ui-ux-workshop/80/80',
-    status: 'draft',
+    status: 'DRAFT',
     categoryId: 'cat-002',
     category: { id: 'cat-002', name: 'Workshop', slug: 'workshop' },
     createdAt: '2026-02-05T14:20:00.000Z',
@@ -52,7 +52,7 @@ export const MOCK_EVENTS = [
     startDate: '2026-05-08T18:30:00.000Z',
     endDate: '2026-05-08T22:00:00.000Z',
     thumbnailUrl: 'https://picsum.photos/seed/acoustic-dalat/80/80',
-    status: 'active',
+    status: 'PUBLISHED',
     categoryId: 'cat-001',
     category: { id: 'cat-001', name: 'Âm nhạc', slug: 'am-nhac' },
     createdAt: '2026-01-22T11:00:00.000Z',
@@ -67,7 +67,7 @@ export const MOCK_EVENTS = [
     startDate: '2026-08-01T08:00:00.000Z',
     endDate: '2026-08-02T18:00:00.000Z',
     thumbnailUrl: null,
-    status: 'cancelled',
+    status: 'CANCELLED',
     categoryId: 'cat-003',
     category: { id: 'cat-003', name: 'Hội thảo', slug: 'hoi-thao' },
     createdAt: '2025-12-01T07:30:00.000Z',
@@ -82,7 +82,7 @@ export const MOCK_EVENTS = [
     startDate: '2026-09-14T05:00:00.000Z',
     endDate: '2026-09-14T11:00:00.000Z',
     thumbnailUrl: 'https://picsum.photos/seed/marathon-run/80/80',
-    status: 'draft',
+    status: 'DRAFT',
     categoryId: 'cat-004',
     category: { id: 'cat-004', name: 'Thể thao', slug: 'the-thao' },
     createdAt: '2026-03-01T09:00:00.000Z',
@@ -97,7 +97,7 @@ export const MOCK_EVENTS = [
     startDate: '2026-10-03T10:00:00.000Z',
     endDate: '2026-10-05T22:00:00.000Z',
     thumbnailUrl: 'https://picsum.photos/seed/food-festival/80/80',
-    status: 'active',
+    status: 'PUBLISHED',
     categoryId: 'cat-005',
     category: { id: 'cat-005', name: 'Lễ hội', slug: 'le-hoi' },
     createdAt: '2026-02-18T13:40:00.000Z',
@@ -157,8 +157,8 @@ export function filterEvents(events, searchQuery, facets = {}) {
 export function getEventStats(events) {
   return {
     total: events.length,
-    active: events.filter((e) => e.status === 'active').length,
-    draft: events.filter((e) => e.status === 'draft').length,
-    cancelled: events.filter((e) => e.status === 'cancelled').length,
+    published: events.filter((e) => e.status === 'PUBLISHED').length,
+    draft: events.filter((e) => e.status === 'DRAFT').length,
+    cancelled: events.filter((e) => e.status === 'CANCELLED').length,
   };
 }

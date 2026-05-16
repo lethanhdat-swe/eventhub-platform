@@ -1,14 +1,46 @@
-import { Bell, ChevronDown, Menu } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
+import { useState } from 'react';
+import { Bell, ChevronDown, Loader2, LogOut, Menu, Settings, User } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { authStorage } from '@/lib/auth/authStorage';
+import { authService } from '@/lib/services/auth/authService';
 import { cn } from '@/lib/utils';
+import { useAuthStore } from '@/stores/authStore';
 
 import { getAdminBreadcrumbs } from './AdminNavConfig';
 
 function AdminHeader({ onMenuToggle }) {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const breadcrumbs = getAdminBreadcrumbs(pathname);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  async function handleLogout() {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
+    try {
+      const refreshToken =
+        useAuthStore.getState().refreshToken ?? authStorage.getRefreshToken();
+      if (refreshToken) {
+        try {
+          await authService.logout({ refreshToken });
+        } catch {
+          /* vẫn xóa auth local dù API lỗi */
+        }
+      }
+    } finally {
+      useAuthStore.getState().clearAuth();
+      navigate('/login');
+    }
+  }
 
   return (
     <header className="flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background px-4 md:px-6">
@@ -58,17 +90,54 @@ function AdminHeader({ onMenuToggle }) {
           />
         </Button>
 
-        <button
-          type="button"
-          className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted"
-          aria-label="Menu tài khoản quản trị"
-        >
-          <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
-            Q
-          </span>
-          <span className="hidden font-medium sm:inline">Quản trị viên</span>
-          <ChevronDown className="size-4 shrink-0 text-muted-foreground" />
-        </button>
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            disabled={isLoggingOut}
+            render={
+              <button
+                type="button"
+                className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 data-popup-open:bg-muted"
+                aria-label="Menu tài khoản quản trị"
+              >
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
+                  Q
+                </span>
+                <span className="hidden font-medium sm:inline">Quản trị viên</span>
+                <ChevronDown className="size-4 shrink-0 text-muted-foreground" />
+              </button>
+            }
+          />
+          <DropdownMenuContent align="end" className="w-52">
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={() => navigate('/profile')}
+            >
+              <User className="size-4" />
+              Hồ sơ cá nhân
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={() => navigate('/admin/settings')}
+            >
+              <Settings className="size-4" />
+              Cài đặt
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              variant="destructive"
+              className="cursor-pointer"
+              disabled={isLoggingOut}
+              onClick={() => void handleLogout()}
+            >
+              {isLoggingOut ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <LogOut className="size-4" />
+              )}
+              Đăng xuất
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   );

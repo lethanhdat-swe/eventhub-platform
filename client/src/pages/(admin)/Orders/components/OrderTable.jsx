@@ -49,8 +49,7 @@ function OrderTable({
       ? 'indeterminate'
       : false;
 
-  const canRefund = (order) =>
-    order.status !== 'refunded' && order.status !== 'cancelled';
+  const canRefund = (order) => order.status === 'PAID';
 
   return (
     <AdminTableWrapper>

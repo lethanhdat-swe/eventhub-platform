@@ -2,6 +2,12 @@ import { prisma } from "../utils/prisma";
 import { AppError } from "../utils/AppError";
 import { getPaginationMetadata } from "../utils/pagination";
 import PaymentService from "./payment.service";
+import {
+    CouponStatus,
+    EventSeatStatus,
+    OrderStatus,
+    PaymentMethod,
+} from "@prisma/client";
 import crypto from "crypto";
 
 class OrderService {
@@ -28,7 +34,7 @@ class OrderService {
             }
 
             const unavailableSeats = seats.filter(
-                (s) => s.status !== "AVAILABLE"
+                (s) => s.status !== EventSeatStatus.AVAILABLE
             );
             if (unavailableSeats.length > 0) {
                 throw new AppError(
@@ -49,7 +55,7 @@ class OrderService {
                     where: { id: couponId },
                 });
 
-                if (!coupon || coupon.status !== "ACTIVE") {
+                if (!coupon || coupon.status !== CouponStatus.ACTIVE) {
                     throw new AppError("Coupon is invalid or inactive", 400);
                 }
 
@@ -76,8 +82,8 @@ class OrderService {
                     customerPhone,
                     customerName,
                     totalAmount,
-                    status: "PENDING",
-                    paymentMethod: paymentMethod ?? "SEPAY",
+                    status: OrderStatus.PENDING,
+                    paymentMethod: paymentMethod ?? PaymentMethod.SEPAY,
                     orderCode,
                     couponId,
                 },
@@ -95,9 +101,9 @@ class OrderService {
             const updateResult = await tx.eventSeat.updateMany({
                 where: {
                     id: { in: seats.map((s) => s.id) },
-                    status: "AVAILABLE",
+                    status: EventSeatStatus.AVAILABLE,
                 },
-                data: { status: "RESERVING" },
+                data: { status: EventSeatStatus.RESERVING },
             });
 
             if (updateResult.count !== seats.length) {
@@ -167,7 +173,7 @@ class OrderService {
 
         const ordersWithTickets = await Promise.all(
             orders.map(async (order) => {
-                if (order.status === "PAID" || order.status === "SUCCESS") {
+                if (order.status === OrderStatus.PAID) {
                     const tickets = await prisma.ticket.findMany({
                         where: { orderId: order.id },
                         include: {
@@ -213,7 +219,7 @@ class OrderService {
             throw new AppError("Order not found", 404);
         }
 
-        if (order.status === "PAID" || order.status === "SUCCESS") {
+        if (order.status === OrderStatus.PAID) {
             const tickets = await prisma.ticket.findMany({
                 where: { orderId: order.id },
                 include: {
@@ -249,7 +255,7 @@ class OrderService {
             }
 
             const reservingSeatIds = orders
-                .filter((order) => order.status === "PENDING")
+                .filter((order) => order.status === OrderStatus.PENDING)
                 .flatMap((order) =>
                     order.orderSeats.map((orderSeat) => orderSeat.eventSeatId)
                 );
@@ -258,10 +264,10 @@ class OrderService {
                 await tx.eventSeat.updateMany({
                     where: {
                         id: { in: reservingSeatIds },
-                        status: "RESERVING",
+                        status: EventSeatStatus.RESERVING,
                     },
                     data: {
-                        status: "AVAILABLE",
+                        status: EventSeatStatus.AVAILABLE,
                     },
                 });
             }

@@ -12,7 +12,7 @@ import {
 const router = Router();
 
 // Toàn bộ route ticket yêu cầu admin quản lý
-router.use(isAuth, restrictTo("admin"));
+router.use(isAuth, restrictTo("ADMIN"));
 
 router.get("/", validate(listTicketSchema), ticketController.list);
 router.get("/:id", validate(getTicketSchema), ticketController.getDetail);

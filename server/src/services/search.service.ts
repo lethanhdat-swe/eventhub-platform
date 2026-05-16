@@ -1,5 +1,6 @@
 import { prisma } from "../utils/prisma";
 import { AppError } from "../utils/AppError";
+import { EventStatus } from "@prisma/client";
 
 class SearchService {
     async search(
@@ -19,7 +20,7 @@ class SearchService {
                         { title: { contains: query } },
                         { slug: { contains: query } },
                     ],
-                    status: "published", // chỉ lấy event public
+                    status: EventStatus.PUBLISHED, // chỉ lấy event public
                 },
                 take: eventLimit,
                 orderBy: { createdAt: "desc" },

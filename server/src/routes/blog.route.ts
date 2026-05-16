@@ -16,7 +16,7 @@ router.get("/", validate(listBlogSchema), blogController.getAll);
 router.get("/:id", validate(getBlogSchema), blogController.getOne);
 
 // Admin only routes
-router.use(isAuth, restrictTo("admin"));
+router.use(isAuth, restrictTo("ADMIN"));
 
 router.post("/", validate(createBlogSchema), blogController.create);
 router.patch("/:id", validate(updateBlogSchema), blogController.update);

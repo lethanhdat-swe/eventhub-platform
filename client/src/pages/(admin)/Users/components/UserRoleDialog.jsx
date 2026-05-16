@@ -21,18 +21,22 @@ import {
 import { USER_ROLE_OPTIONS } from '@/pages/(admin)/Users/data';
 
 function UserRoleDialog({ open, user, onOpenChange, onSave }) {
-  const [role, setRole] = useState('user');
+  const [role, setRole] = useState('USER');
 
   useEffect(() => {
     if (open && user) {
-      setRole(user.role ?? 'user');
+      setRole(user.role ?? 'USER');
     }
   }, [open, user]);
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    onSave(role);
-    onOpenChange(false);
+    try {
+      await Promise.resolve(onSave(role));
+      onOpenChange(false);
+    } catch {
+      /* lỗi do parent xử lý; giữ dialog mở */
+    }
   };
 
   if (!user) return null;
@@ -62,7 +66,7 @@ function UserRoleDialog({ open, user, onOpenChange, onSave }) {
               <Label htmlFor="user-role">Vai trò</Label>
               <Select
                 value={role}
-                onValueChange={(value) => setRole(value ?? 'user')}
+                onValueChange={(value) => setRole(value ?? 'USER')}
               >
                 <SelectTrigger id="user-role" className="h-9 w-full">
                   <SelectValue placeholder="Chọn vai trò" />

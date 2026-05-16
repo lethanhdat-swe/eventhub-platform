@@ -1,6 +1,5 @@
-import { Eye, EyeOff, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import AdminTableWrapper from '@/pages/(admin)/components/table/AdminTableWrapper';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -19,14 +18,15 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import StatusBadge from '@/pages/(admin)/components/StatusBadge';
+import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
 import { formatCreatedAt } from '@/pages/(admin)/Artists/data';
 
 function ArtistAvatar({ name, avatarUrl }) {
-  if (avatarUrl) {
+  const src = resolvePublicAssetUrl(avatarUrl);
+  if (src) {
     return (
       <img
-        src={avatarUrl}
+        src={src}
         alt=""
         className="size-10 shrink-0 rounded-full object-cover"
       />
@@ -48,9 +48,7 @@ function ArtistTable({
   selectedIds,
   onSelectAll,
   onSelectRow,
-  onView,
   onEdit,
-  onToggleStatus,
   onDelete,
 }) {
   const selectedCount = selectedIds.size;
@@ -65,7 +63,7 @@ function ArtistTable({
 
   return (
     <AdminTableWrapper>
-      <Table className="min-w-[800px]">
+      <Table className="min-w-[720px]">
         <TableHeader>
           <TableRow className="bg-muted/40 hover:bg-muted/40">
             <TableHead className="h-9 w-10 px-2">
@@ -76,112 +74,81 @@ function ArtistTable({
               />
             </TableHead>
             <TableHead className="h-9 px-2">Nghệ sĩ</TableHead>
-            <TableHead className="h-9 px-2">Vai trò</TableHead>
             <TableHead className="h-9 px-2">Số sự kiện tham gia</TableHead>
             <TableHead className="h-9 px-2">Ngày tạo</TableHead>
-            <TableHead className="h-9 px-2">Trạng thái</TableHead>
             <TableHead className="h-9 w-12 px-2 text-right">Hành động</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {artists.map((artist) => (
-              <TableRow
-                key={artist.id}
-                data-state={selectedIds.has(artist.id) ? 'selected' : undefined}
-              >
-                <TableCell className="px-2 py-1.5">
-                  <Checkbox
-                    checked={selectedIds.has(artist.id)}
-                    onCheckedChange={(checked) =>
-                      onSelectRow(artist.id, Boolean(checked))
-                    }
-                    aria-label={`Chọn ${artist.name}`}
+            <TableRow
+              key={artist.id}
+              data-state={selectedIds.has(artist.id) ? 'selected' : undefined}
+            >
+              <TableCell className="px-2 py-1.5">
+                <Checkbox
+                  checked={selectedIds.has(artist.id)}
+                  onCheckedChange={(checked) =>
+                    onSelectRow(artist.id, Boolean(checked))
+                  }
+                  aria-label={`Chọn ${artist.name}`}
+                />
+              </TableCell>
+              <TableCell className="px-2 py-1.5">
+                <div className="flex items-center gap-2.5">
+                  <ArtistAvatar
+                    name={artist.name}
+                    avatarUrl={artist.avatarUrl}
                   />
-                </TableCell>
-                <TableCell className="px-2 py-1.5">
-                  <div className="flex items-center gap-2.5">
-                    <ArtistAvatar
-                      name={artist.name}
-                      avatarUrl={artist.avatarUrl}
-                    />
-                    <div className="min-w-0">
-                      <p className="truncate font-medium">{artist.name}</p>
-                      <p className="truncate text-xs text-muted-foreground">
-                        /{artist.slug}
-                      </p>
-                    </div>
+                  <div className="min-w-0">
+                    <p className="truncate font-medium">{artist.name}</p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      /{artist.slug}
+                    </p>
                   </div>
-                </TableCell>
-                <TableCell className="px-2 py-1.5">
-                  <Badge
-                    variant="outline"
-                    className="h-5 rounded-md px-1.5 text-xs font-medium"
-                  >
-                    {artist.roleLabel}
-                  </Badge>
-                </TableCell>
-                <TableCell className="px-2 py-1.5 tabular-nums text-muted-foreground">
-                  {artist.eventCount}
-                </TableCell>
-                <TableCell className="px-2 py-1.5 text-muted-foreground">
-                  {formatCreatedAt(artist.createdAt)}
-                </TableCell>
-                <TableCell className="px-2 py-1.5">
-                  <StatusBadge status={artist.status} />
-                </TableCell>
-                <TableCell className="px-2 py-1.5 text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger
-                      render={
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          className="cursor-pointer"
-                          aria-label={`Hành động cho ${artist.name}`}
-                        >
-                          <MoreHorizontal className="size-4" />
-                        </Button>
-                      }
-                    />
-                    <DropdownMenuContent align="end" className="w-44">
-                      <DropdownMenuItem
+                </div>
+              </TableCell>
+              <TableCell className="px-2 py-1.5 tabular-nums text-muted-foreground">
+                {artist.eventCount ?? 0}
+              </TableCell>
+              <TableCell className="px-2 py-1.5 text-muted-foreground">
+                {formatCreatedAt(artist.createdAt)}
+              </TableCell>
+              <TableCell className="px-2 py-1.5 text-right">
+                <DropdownMenu>
+                  <DropdownMenuTrigger
+                    render={
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
                         className="cursor-pointer"
-                        onClick={() => onView(artist)}
+                        aria-label={`Hành động cho ${artist.name}`}
                       >
-                        <Eye className="size-4" />
-                        Xem chi tiết
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="cursor-pointer"
-                        onClick={() => onEdit(artist)}
-                      >
-                        <Pencil className="size-4" />
-                        Chỉnh sửa
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="cursor-pointer"
-                        onClick={() => onToggleStatus(artist)}
-                      >
-                        {artist.status === 'active' ? (
-                          <EyeOff className="size-4" />
-                        ) : (
-                          <Eye className="size-4" />
-                        )}
-                        {artist.status === 'active' ? 'Ẩn' : 'Hiển thị'}
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        variant="destructive"
-                        className="cursor-pointer"
-                        onClick={() => onDelete(artist)}
-                      >
-                        <Trash2 className="size-4" />
-                        Xóa
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
+                        <MoreHorizontal className="size-4" />
+                      </Button>
+                    }
+                  />
+                  <DropdownMenuContent align="end" className="w-44">
+                    <DropdownMenuItem
+                      className="cursor-pointer"
+                      onClick={() => onEdit(artist)}
+                    >
+                      <Pencil className="size-4" />
+                      Chỉnh sửa
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      variant="destructive"
+                      className="cursor-pointer"
+                      onClick={() => onDelete(artist)}
+                    >
+                      <Trash2 className="size-4" />
+                      Xóa
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </TableCell>
+            </TableRow>
           ))}
         </TableBody>
       </Table>

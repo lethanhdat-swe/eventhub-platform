@@ -13,17 +13,36 @@ const artistSelect = {
     updatedAt: true,
 };
 
+const artistSelectWithCount = {
+    ...artistSelect,
+    _count: {
+        select: { events: true },
+    },
+};
+
+function mapArtistRow<
+    T extends { _count?: { events: number } }
+>(row: T) {
+    const { _count, ...rest } = row;
+    return {
+        ...rest,
+        eventCount: _count?.events ?? 0,
+    };
+}
+
 class ArtistService {
     async create(body: {
         name: string;
+        slug?: string;
         avatarUrl?: string;
         description?: string;
     }) {
         const { name, avatarUrl, description } = body;
 
-        let slug = slugify(name, { lower: true, strict: true });
+        let slug = body.slug
+            ? slugify(body.slug.trim(), { lower: true, strict: true })
+            : slugify(name, { lower: true, strict: true });
 
-        // handle duplicate slug
         const existed = await prisma.artist.findUnique({ where: { slug } });
         if (existed) {
             slug = `${slug}-${Date.now()}`;
@@ -36,17 +55,17 @@ class ArtistService {
                 avatarUrl,
                 description,
             },
-            select: artistSelect,
+            select: artistSelectWithCount,
         });
 
-        return artist;
+        return mapArtistRow(artist);
     }
 
     async list(query: { page: number; limit: number; search?: string }) {
         const { page = 1, limit = 10, search } = query;
         const skip = (page - 1) * limit;
 
-        const where: any = {};
+        const where: Record<string, unknown> = {};
 
         if (search) {
             where.OR = [
@@ -55,19 +74,19 @@ class ArtistService {
             ];
         }
 
-        const [artists, total] = await Promise.all([
+        const [rows, total] = await Promise.all([
             prisma.artist.findMany({
                 where,
                 skip,
                 take: Number(limit),
                 orderBy: { createdAt: "desc" },
-                select: artistSelect,
+                select: artistSelectWithCount,
             }),
             prisma.artist.count({ where }),
         ]);
 
         return {
-            data: artists,
+            data: rows.map(mapArtistRow),
             meta: getPaginationMetadata(total, page, limit),
         };
     }
@@ -75,19 +94,24 @@ class ArtistService {
     async getDetail(id: string) {
         const artist = await prisma.artist.findUnique({
             where: { id },
-            select: artistSelect,
+            select: artistSelectWithCount,
         });
 
         if (!artist) {
             throw new AppError("Artist not found", 404);
         }
 
-        return artist;
+        return mapArtistRow(artist);
     }
 
     async update(
         id: string,
-        body: { name?: string; avatarUrl?: string; description?: string }
+        body: {
+            name?: string;
+            slug?: string;
+            avatarUrl?: string | null;
+            description?: string;
+        }
     ) {
         const existing = await prisma.artist.findUnique({ where: { id } });
 
@@ -97,9 +121,14 @@ class ArtistService {
 
         let slug = existing.slug;
 
-        if (body.name) {
+        const trimmedSlug = body.slug?.trim();
+        if (trimmedSlug) {
+            slug = slugify(trimmedSlug, { lower: true, strict: true });
+        } else if (body.name !== undefined) {
             slug = slugify(body.name, { lower: true, strict: true });
+        }
 
+        if (slug !== existing.slug) {
             const duplicate = await prisma.artist.findFirst({
                 where: {
                     slug,
@@ -112,16 +141,26 @@ class ArtistService {
             }
         }
 
+        const data: {
+            name?: string;
+            slug: string;
+            avatarUrl?: string | null;
+            description?: string | null;
+        } = { slug };
+
+        if (body.name !== undefined) data.name = body.name;
+        if (body.avatarUrl !== undefined) {
+            data.avatarUrl = body.avatarUrl;
+        }
+        if (body.description !== undefined) data.description = body.description;
+
         const updated = await prisma.artist.update({
             where: { id },
-            data: {
-                ...body,
-                slug,
-            },
-            select: artistSelect,
+            data,
+            select: artistSelectWithCount,
         });
 
-        return updated;
+        return mapArtistRow(updated);
     }
 
     async delete(ids: string[]) {
