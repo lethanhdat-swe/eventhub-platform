@@ -60,3 +60,5 @@ export const restrictTo = (...roles: string[]) => {
         next();
     };
 };
+
+export const isAdmin = restrictTo("admin");

@@ -246,6 +246,19 @@ model Comment {
   @@index([rootId])
   @@map("comments")
 }
+
+model Contact {
+  id          String   @id @default(uuid())
+  fullName    String   @map("full_name")
+  email       String
+  phoneNumber String   @map("phone_number")
+  message     String   @db.Text
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("contacts")
+}
+
 ///////////////////////
 // COMMERCE
 ///////////////////////
