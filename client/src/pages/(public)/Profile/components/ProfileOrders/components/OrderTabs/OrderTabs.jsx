@@ -12,7 +12,7 @@ function OrderTabs() {
       value: "ticket",
     },
     {
-      label: "Thẻ thành viên",
+      label: "Sự kiện đã lưu",
       value: "membership",
     },
   ];

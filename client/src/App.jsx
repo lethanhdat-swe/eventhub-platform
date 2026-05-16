@@ -36,6 +36,7 @@ import CheckInLogs from '@/pages/(admin)/CheckInLogs';
 import Users from '@/pages/(admin)/Users';
 import Notifications from '@/pages/(admin)/Notifications';
 import Settings from '@/pages/(admin)/Settings';
+import EventCheckInPage from './pages/(public)/EventCheckInPage';
 
 function App() {
   return (
@@ -51,6 +52,7 @@ function App() {
         <Route path="/booking" element={<Booking />} />
         <Route path="/payment" element={<Payment />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/event-checkin/:id" element={<EventCheckInPage />} />
       </Route>
 
       <Route path="/auth" element={<Navigate replace to="/login" />} />
