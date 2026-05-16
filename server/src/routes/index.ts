@@ -14,6 +14,8 @@ import searchRouter from "./search.route";
 import blogCategoryRouter from "./blog_category.route";
 import blogRouter from "./blog.route";
 import paymentRouter from "./payment.route";
+import likeEventRouter from "./like-event.routes";
+import saveEventRouter from "./save-event.routes";
 
 const router = Router();
 
@@ -32,5 +34,7 @@ router.use("/artists", artistRouter);
 router.use("/search", searchRouter);
 router.use("/blog-categories", blogCategoryRouter);
 router.use("/blogs", blogRouter);
+router.use("/like-events", likeEventRouter);
+router.use("/save-events", saveEventRouter);
 
 export default router;

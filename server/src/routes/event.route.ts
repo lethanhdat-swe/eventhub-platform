@@ -2,6 +2,7 @@ import { Router } from "express";
 import { isAuth, restrictTo } from "../middlewares/auth.middleware";
 import { validate } from "../middlewares/validate.middleware";
 import eventController from "../controllers/event.controller";
+import eventArtistController from "../controllers/event-artist.controller"; // Import mới
 import {
     listEventSchema,
     getEventSchema,
@@ -13,6 +14,7 @@ import {
     listEventSeatSchema,
     updateBulkEventSeatSchema,
 } from "../schema/event-seat.schema";
+import { deleteBulkEventArtistSchema } from "../schema/event-artist.schema"; // Schema mới
 
 const router = Router();
 
@@ -26,6 +28,14 @@ router.use(isAuth, restrictTo("admin"));
 router.post("/", validate(createEventSchema), eventController.create);
 router.patch("/:id", validate(updateEventSchema), eventController.update);
 router.delete("/", validate(deleteEventSchema), eventController.delete);
+
+router.delete(
+    "/:eventId/artists",
+    isAuth,
+    restrictTo("admin"),
+    validate(deleteBulkEventArtistSchema),
+    eventArtistController.removeArtists
+);
 
 // EventSeats management
 router.get(
