@@ -17,6 +17,8 @@ import paymentRouter from "./payment.route";
 import likeEventRouter from "./like-event.routes";
 import saveEventRouter from "./save-event.routes";
 import uploadRouter from "./upload.route";
+import commentRoute from "./comment.routes";
+import contactRouter from "./contact.routes";
 
 const router = Router();
 
@@ -38,5 +40,7 @@ router.use("/blogs", blogRouter);
 router.use("/like-events", likeEventRouter);
 router.use("/save-events", saveEventRouter);
 router.use("/uploads", uploadRouter);
+router.use("/comments", commentRoute);
+router.use("/contacts", contactRouter);
 
 export default router;
