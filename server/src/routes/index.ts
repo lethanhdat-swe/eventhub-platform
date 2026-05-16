@@ -13,6 +13,7 @@ import artistRouter from "./artist.route";
 import searchRouter from "./search.route";
 import blogCategoryRouter from "./blog_category.route";
 import blogRouter from "./blog.route";
+import paymentRouter from "./payment.route";
 
 const router = Router();
 
@@ -26,6 +27,7 @@ router.use("/tickets", ticketRouter);
 router.use("/ticket-types", ticketTypeRouter);
 router.use("/seats", seatRouter);
 router.use("/orders", orderRouter);
+router.use("/payment", paymentRouter);
 router.use("/artists", artistRouter);
 router.use("/search", searchRouter);
 router.use("/blog-categories", blogCategoryRouter);

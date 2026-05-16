@@ -2,6 +2,7 @@ import { Plus } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import AdminFilterDropdown from '@/pages/(admin)/components/AdminFilterDropdown';
 import AdminToolbar from '@/pages/(admin)/components/AdminToolbar';
 import PageHeader from '@/pages/(admin)/components/PageHeader';
 import {
@@ -15,10 +16,18 @@ import ArtistFormDialog from '@/pages/(admin)/Artists/components/ArtistFormDialo
 import ArtistTable from '@/pages/(admin)/Artists/components/ArtistTable';
 import DeleteArtistDialog from '@/pages/(admin)/Artists/components/DeleteArtistDialog';
 import {
+  ARTIST_ROLE_OPTIONS,
   filterArtists,
   getRoleLabel,
   MOCK_ARTISTS,
 } from '@/pages/(admin)/Artists/data';
+
+const ARTIST_STATUS_FILTER_OPTIONS = [
+  { value: 'all', label: 'Tất cả' },
+  { value: 'active', label: 'Đang hoạt động' },
+  { value: 'draft', label: 'Bản nháp' },
+  { value: 'cancelled', label: 'Đã ẩn' },
+];
 
 function createArtistId() {
   return `art-${crypto.randomUUID().slice(0, 8)}`;
@@ -27,13 +36,27 @@ function createArtistId() {
 function Artists() {
   const [artists, setArtists] = useState(MOCK_ARTISTS);
   const [searchQuery, setSearchQuery] = useState('');
+  const [roleFilter, setRoleFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [selectedIds, setSelectedIds] = useState(() => new Set());
   const [formDialog, setFormDialog] = useState(null);
   const [deleteDialog, setDeleteDialog] = useState(null);
 
+  const roleFilterOptions = useMemo(
+    () => [
+      { value: 'all', label: 'Tất cả' },
+      ...ARTIST_ROLE_OPTIONS.map((o) => ({ value: o.value, label: o.label })),
+    ],
+    []
+  );
+
   const filteredArtists = useMemo(
-    () => filterArtists(artists, searchQuery),
-    [artists, searchQuery]
+    () =>
+      filterArtists(artists, searchQuery, {
+        role: roleFilter,
+        status: statusFilter,
+      }),
+    [artists, searchQuery, roleFilter, statusFilter]
   );
 
   const isLoading = false;
@@ -134,8 +157,32 @@ function Artists() {
     setDeleteDialog(null);
   };
 
-  const handleViewArtist = (artist) => {
+  const handleView = (artist) => {
     console.log('[Artist detail]', artist.id);
+  };
+
+  const handleEdit = (artist) => {
+    setFormDialog({ mode: 'edit', artist });
+  };
+
+  const handleToggleStatus = (artist) => {
+    const nextStatus =
+      artist.status === 'active' ? 'draft' : 'active';
+    setArtists((prev) =>
+      prev.map((item) =>
+        item.id === artist.id
+          ? {
+              ...item,
+              status: nextStatus,
+              updatedAt: new Date().toISOString(),
+            }
+          : item
+      )
+    );
+  };
+
+  const handleDelete = (artist) => {
+    setDeleteDialog({ type: 'single', artist });
   };
 
   const formDialogOpen = Boolean(formDialog);
@@ -174,12 +221,18 @@ function Artists() {
         searchPlaceholder="Tìm kiếm nghệ sĩ..."
         onSearchChange={setSearchQuery}
       >
-        <Button type="button" variant="outline" className="h-9 px-3 text-sm">
-          Vai trò
-        </Button>
-        <Button type="button" variant="outline" className="h-9 px-3 text-sm">
-          Trạng thái
-        </Button>
+        <AdminFilterDropdown
+          label="Vai trò"
+          options={roleFilterOptions}
+          value={roleFilter}
+          onChange={setRoleFilter}
+        />
+        <AdminFilterDropdown
+          label="Trạng thái"
+          options={ARTIST_STATUS_FILTER_OPTIONS}
+          value={statusFilter}
+          onChange={setStatusFilter}
+        />
       </AdminToolbar>
 
       <AdminBulkActions
@@ -210,9 +263,10 @@ function Artists() {
             selectedIds={selectedIds}
             onSelectAll={handleSelectAll}
             onSelectRow={handleSelectRow}
-            onView={handleViewArtist}
-            onEdit={(artist) => setFormDialog({ mode: 'edit', artist })}
-            onDelete={(artist) => setDeleteDialog({ type: 'single', artist })}
+            onView={handleView}
+            onEdit={handleEdit}
+            onToggleStatus={handleToggleStatus}
+            onDelete={handleDelete}
           />
           <AdminPagination
             currentPage={1}

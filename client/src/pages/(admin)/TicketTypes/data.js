@@ -62,11 +62,25 @@ export function formatPriceVnd(price) {
   return priceFormatter.format(price);
 }
 
-export function filterTicketTypes(ticketTypes, searchQuery) {
-  const query = searchQuery.trim().toLowerCase();
-  if (!query) return ticketTypes;
+const PRICE_BUCKET = {
+  all: () => true,
+  lt1m: (price) => price < 1_000_000,
+  mid: (price) => price >= 1_000_000 && price < 2_000_000,
+  gte2m: (price) => price >= 2_000_000,
+};
 
-  return ticketTypes.filter((type) =>
-    type.name.toLowerCase().includes(query)
-  );
+export function filterTicketTypes(ticketTypes, searchQuery, facets = {}) {
+  let list = ticketTypes;
+  const query = (searchQuery ?? '').trim().toLowerCase();
+  if (query) {
+    list = list.filter((type) => type.name.toLowerCase().includes(query));
+  }
+
+  const { priceBucket } = facets;
+  if (priceBucket && priceBucket !== 'all' && PRICE_BUCKET[priceBucket]) {
+    const match = PRICE_BUCKET[priceBucket];
+    list = list.filter((type) => match(type.price));
+  }
+
+  return list;
 }

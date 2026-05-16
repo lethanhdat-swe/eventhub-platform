@@ -1,4 +1,4 @@
-import { Eye, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { Eye, EyeOff, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import AdminTableWrapper from '@/pages/(admin)/components/table/AdminTableWrapper';
@@ -53,6 +53,7 @@ function EventTable({
   onSelectRow,
   onView,
   onEdit,
+  onToggleStatus,
   onDelete,
 }) {
   const selectedCount = selectedIds.size;
@@ -140,20 +141,31 @@ function EventTable({
                         </Button>
                       }
                     />
-                    <DropdownMenuContent align="end" className="w-40">
+                    <DropdownMenuContent align="end" className="w-44">
                       <DropdownMenuItem
                         className="cursor-pointer"
-                        onClick={() => onView(event.id)}
+                        onClick={() => onView(event)}
                       >
                         <Eye className="size-4" />
                         Xem chi tiết
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className="cursor-pointer"
-                        onClick={() => onEdit(event.id)}
+                        onClick={() => onEdit(event)}
                       >
                         <Pencil className="size-4" />
                         Chỉnh sửa
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="cursor-pointer"
+                        onClick={() => onToggleStatus(event)}
+                      >
+                        {event.status === 'active' ? (
+                          <EyeOff className="size-4" />
+                        ) : (
+                          <Eye className="size-4" />
+                        )}
+                        {event.status === 'active' ? 'Ẩn' : 'Hiển thị'}
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem

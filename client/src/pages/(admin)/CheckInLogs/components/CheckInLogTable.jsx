@@ -1,4 +1,11 @@
-import { AlertTriangle, Eye, MoreHorizontal, Ticket } from 'lucide-react';
+import {
+  AlertTriangle,
+  Eye,
+  MoreHorizontal,
+  Pencil,
+  Ticket,
+  Trash2,
+} from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import AdminTableWrapper from '@/pages/(admin)/components/table/AdminTableWrapper';
@@ -7,6 +14,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
@@ -26,8 +34,10 @@ function CheckInLogTable({
   onSelectAll,
   onSelectRow,
   onView,
+  onEdit,
   onViewTicket,
   onMarkInvalid,
+  onDelete,
 }) {
   const selectedCount = selectedIds.size;
   const allSelected = logs.length > 0 && selectedCount === logs.length;
@@ -109,13 +119,20 @@ function CheckInLogTable({
                         </Button>
                       }
                     />
-                    <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuContent align="end" className="w-52">
                       <DropdownMenuItem
                         className="cursor-pointer"
                         onClick={() => onView(log)}
                       >
                         <Eye className="size-4" />
                         Xem chi tiết
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="cursor-pointer"
+                        onClick={() => onEdit(log)}
+                      >
+                        <Pencil className="size-4" />
+                        Chỉnh sửa
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className="cursor-pointer"
@@ -130,6 +147,15 @@ function CheckInLogTable({
                       >
                         <AlertTriangle className="size-4" />
                         Đánh dấu lỗi
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        variant="destructive"
+                        className="cursor-pointer"
+                        onClick={() => onDelete(log)}
+                      >
+                        <Trash2 className="size-4" />
+                        Xóa
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

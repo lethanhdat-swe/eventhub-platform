@@ -161,12 +161,13 @@ model EventSeat {
   eventId      String @map("event_id")
   seatId       String @map("seat_id")
   ticketTypeId String @map("ticket_type_id")
-  status       String @default("AVAILABLE") // AVAILABLE, DISABLED, BOOKED
+  status       String @default("AVAILABLE") 
 
   event      Event      @relation(fields: [eventId], references: [id])
   seat       Seat       @relation(fields: [seatId], references: [id])
   ticketType TicketType @relation(fields: [ticketTypeId], references: [id])
   ticket     Ticket?
+  orderSeats OrderSeat[]
 
   @@unique([eventId, seatId])
   @@map("event_seats")
@@ -194,8 +195,21 @@ model Order {
   couponId String?  @map("coupon_id")
   coupon   Coupon?  @relation(fields: [couponId], references: [id])
   tickets  Ticket[]
+  orderSeats OrderSeat[]
 
   @@map("orders")
+}
+
+model OrderSeat {
+  id          String @id @default(uuid())
+  orderId     String @map("order_id")
+  eventSeatId String @map("event_seat_id")
+
+  order     Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  eventSeat EventSeat @relation(fields: [eventSeatId], references: [id])
+
+  @@unique([orderId, eventSeatId])
+  @@map("order_seats")
 }
 
 model Ticket {

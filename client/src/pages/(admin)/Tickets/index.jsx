@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import AdminFilterDropdown from '@/pages/(admin)/components/AdminFilterDropdown';
 import AdminToolbar from '@/pages/(admin)/components/AdminToolbar';
 import {
   AdminBulkActions,
@@ -19,13 +20,36 @@ import { filterTickets, MOCK_TICKETS } from '@/pages/(admin)/Tickets/data';
 function Tickets() {
   const [tickets, setTickets] = useState(MOCK_TICKETS);
   const [searchQuery, setSearchQuery] = useState('');
+  const [checkInFilter, setCheckInFilter] = useState('all');
+  const [eventFilter, setEventFilter] = useState('all');
   const [selectedIds, setSelectedIds] = useState(() => new Set());
   const [deleteDialog, setDeleteDialog] = useState(null);
   const [qrDialog, setQrDialog] = useState(null);
 
+  const checkInFilterOptions = useMemo(
+    () => [
+      { value: 'all', label: 'Tất cả' },
+      { value: 'checked', label: 'Đã check-in' },
+      { value: 'unchecked', label: 'Chưa check-in' },
+    ],
+    []
+  );
+
+  const ticketEventFilterOptions = useMemo(() => {
+    const titles = [...new Set(tickets.map((t) => t.eventTitle))].sort();
+    return [
+      { value: 'all', label: 'Tất cả' },
+      ...titles.map((title) => ({ value: title, label: title })),
+    ];
+  }, [tickets]);
+
   const filteredTickets = useMemo(
-    () => filterTickets(tickets, searchQuery),
-    [tickets, searchQuery]
+    () =>
+      filterTickets(tickets, searchQuery, {
+        checkIn: checkInFilter,
+        eventTitle: eventFilter,
+      }),
+    [tickets, searchQuery, checkInFilter, eventFilter]
   );
 
   const isLoading = false;
@@ -88,8 +112,16 @@ function Tickets() {
     setDeleteDialog(null);
   };
 
-  const handleViewTicket = (ticket) => {
+  const handleView = (ticket) => {
     console.log('[Ticket detail]', ticket.id);
+  };
+
+  const handleEdit = (ticket) => {
+    console.log('[Edit ticket]', ticket.id);
+  };
+
+  const handleDelete = (ticket) => {
+    setDeleteDialog({ type: 'single', ticket });
   };
 
   const deleteDialogOpen = Boolean(deleteDialog);
@@ -107,12 +139,18 @@ function Tickets() {
         searchPlaceholder="Tìm kiếm mã vé, đơn hàng, khách hàng..."
         onSearchChange={setSearchQuery}
       >
-        <Button type="button" variant="outline" className="h-9 px-3 text-sm">
-          Trạng thái check-in
-        </Button>
-        <Button type="button" variant="outline" className="h-9 px-3 text-sm">
-          Sự kiện
-        </Button>
+        <AdminFilterDropdown
+          label="Trạng thái check-in"
+          options={checkInFilterOptions}
+          value={checkInFilter}
+          onChange={setCheckInFilter}
+        />
+        <AdminFilterDropdown
+          label="Sự kiện"
+          options={ticketEventFilterOptions}
+          value={eventFilter}
+          onChange={setEventFilter}
+        />
       </AdminToolbar>
 
             <AdminBulkActions
@@ -142,10 +180,11 @@ function Tickets() {
                   selectedIds={selectedIds}
                   onSelectAll={handleSelectAll}
                   onSelectRow={handleSelectRow}
-                  onView={handleViewTicket}
+                  onView={handleView}
+                  onEdit={handleEdit}
                   onViewQr={(ticket) => setQrDialog(ticket)}
                   onCheckIn={handleCheckIn}
-                  onDelete={(ticket) => setDeleteDialog({ type: 'single', ticket })}
+                  onDelete={handleDelete}
                 />
           <AdminPagination
             currentPage={1}

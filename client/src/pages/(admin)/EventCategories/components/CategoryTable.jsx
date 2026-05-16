@@ -1,4 +1,11 @@
-import { CalendarDays, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import {
+  CalendarDays,
+  Eye,
+  EyeOff,
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+} from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import AdminTableWrapper from '@/pages/(admin)/components/table/AdminTableWrapper';
@@ -26,7 +33,9 @@ function CategoryTable({
   selectedIds,
   onSelectAll,
   onSelectRow,
+  onView,
   onEdit,
+  onToggleStatus,
   onViewEvents,
   onDelete,
 }) {
@@ -105,13 +114,31 @@ function CategoryTable({
                         </Button>
                       }
                     />
-                    <DropdownMenuContent align="end" className="w-44">
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuItem
+                        className="cursor-pointer"
+                        onClick={() => onView(category)}
+                      >
+                        <Eye className="size-4" />
+                        Xem chi tiết
+                      </DropdownMenuItem>
                       <DropdownMenuItem
                         className="cursor-pointer"
                         onClick={() => onEdit(category)}
                       >
                         <Pencil className="size-4" />
                         Chỉnh sửa
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="cursor-pointer"
+                        onClick={() => onToggleStatus(category)}
+                      >
+                        {category.status === 'active' ? (
+                          <EyeOff className="size-4" />
+                        ) : (
+                          <Eye className="size-4" />
+                        )}
+                        {category.status === 'active' ? 'Ẩn' : 'Hiển thị'}
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className="cursor-pointer"

@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
+import AdminFilterDropdown from '@/pages/(admin)/components/AdminFilterDropdown';
 import AdminToolbar from '@/pages/(admin)/components/AdminToolbar';
 import PageHeader from '@/pages/(admin)/components/PageHeader';
 import {
@@ -15,18 +16,48 @@ import {
 
 import DeleteEventDialog from '@/pages/(admin)/Events/components/DeleteEventDialog';
 import EventTable from '@/pages/(admin)/Events/components/EventTable';
-import { filterEvents, MOCK_EVENTS } from '@/pages/(admin)/Events/data';
+import {
+  EVENT_STATUS_OPTIONS,
+  filterEvents,
+  MOCK_CATEGORIES,
+  MOCK_EVENTS,
+} from '@/pages/(admin)/Events/data';
 
 function AdminEvents() {
   const navigate = useNavigate();
   const [events, setEvents] = useState(MOCK_EVENTS);
   const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('all');
   const [selectedIds, setSelectedIds] = useState(() => new Set());
   const [deleteDialog, setDeleteDialog] = useState(null);
 
+  const eventStatusFilterOptions = useMemo(
+    () => [
+      { value: 'all', label: 'Tất cả' },
+      ...EVENT_STATUS_OPTIONS.map((o) => ({
+        value: o.value,
+        label: o.label,
+      })),
+    ],
+    []
+  );
+
+  const eventCategoryFilterOptions = useMemo(
+    () => [
+      { value: 'all', label: 'Tất cả' },
+      ...MOCK_CATEGORIES.map((c) => ({ value: c.id, label: c.name })),
+    ],
+    []
+  );
+
   const filteredEvents = useMemo(
-    () => filterEvents(events, searchQuery),
-    [events, searchQuery]
+    () =>
+      filterEvents(events, searchQuery, {
+        status: statusFilter,
+        categoryId: categoryFilter,
+      }),
+    [events, searchQuery, statusFilter, categoryFilter]
   );
 
   const isLoading = false;
@@ -78,6 +109,34 @@ function AdminEvents() {
       ? `${selectedIds.size} sự kiện đã chọn`
       : deleteDialog?.event?.title ?? '';
 
+  const handleView = (event) => {
+    navigate(`/admin/events/${event.id}`);
+  };
+
+  const handleEdit = (event) => {
+    navigate(`/admin/events/${event.id}/edit`);
+  };
+
+  const handleToggleStatus = (event) => {
+    const nextStatus =
+      event.status === 'active' ? 'draft' : 'active';
+    setEvents((prev) =>
+      prev.map((item) =>
+        item.id === event.id
+          ? {
+              ...item,
+              status: nextStatus,
+              updatedAt: new Date().toISOString(),
+            }
+          : item
+      )
+    );
+  };
+
+  const handleDelete = (event) => {
+    setDeleteDialog({ type: 'single', event });
+  };
+
   return (
     <div className="space-y-4">
       <PageHeader
@@ -92,12 +151,18 @@ function AdminEvents() {
         searchPlaceholder="Tìm kiếm sự kiện..."
         onSearchChange={setSearchQuery}
       >
-        <Button type="button" variant="outline" className="h-9 px-3 text-sm">
-          Trạng thái
-        </Button>
-        <Button type="button" variant="outline" className="h-9 px-3 text-sm">
-          Danh mục
-        </Button>
+        <AdminFilterDropdown
+          label="Trạng thái"
+          options={eventStatusFilterOptions}
+          value={statusFilter}
+          onChange={setStatusFilter}
+        />
+        <AdminFilterDropdown
+          label="Danh mục"
+          options={eventCategoryFilterOptions}
+          value={categoryFilter}
+          onChange={setCategoryFilter}
+        />
       </AdminToolbar>
 
       <AdminBulkActions
@@ -128,9 +193,10 @@ function AdminEvents() {
             selectedIds={selectedIds}
             onSelectAll={handleSelectAll}
             onSelectRow={handleSelectRow}
-            onView={(id) => navigate(`/admin/events/${id}`)}
-            onEdit={(id) => navigate(`/admin/events/${id}/edit`)}
-            onDelete={(event) => setDeleteDialog({ type: 'single', event })}
+            onView={handleView}
+            onEdit={handleEdit}
+            onToggleStatus={handleToggleStatus}
+            onDelete={handleDelete}
           />
           <AdminPagination
             currentPage={1}

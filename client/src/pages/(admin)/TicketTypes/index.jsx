@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
+import AdminFilterDropdown from '@/pages/(admin)/components/AdminFilterDropdown';
 import AdminToolbar from '@/pages/(admin)/components/AdminToolbar';
 import {
   AdminBulkActions,
@@ -21,6 +22,13 @@ import {
   MOCK_TICKET_TYPES,
 } from '@/pages/(admin)/TicketTypes/data';
 
+const TICKET_TYPE_PRICE_FILTER_OPTIONS = [
+  { value: 'all', label: 'Tất cả' },
+  { value: 'lt1m', label: 'Dưới 1.000.000đ' },
+  { value: 'mid', label: '1.000.000đ – 2.000.000đ' },
+  { value: 'gte2m', label: 'Từ 2.000.000đ' },
+];
+
 function createTicketTypeId() {
   return `tt-${crypto.randomUUID().slice(0, 8)}`;
 }
@@ -29,13 +37,17 @@ function TicketTypes() {
   const navigate = useNavigate();
   const [ticketTypes, setTicketTypes] = useState(MOCK_TICKET_TYPES);
   const [searchQuery, setSearchQuery] = useState('');
+  const [priceFilter, setPriceFilter] = useState('all');
   const [selectedIds, setSelectedIds] = useState(() => new Set());
   const [formDialog, setFormDialog] = useState(null);
   const [deleteDialog, setDeleteDialog] = useState(null);
 
   const filteredTicketTypes = useMemo(
-    () => filterTicketTypes(ticketTypes, searchQuery),
-    [ticketTypes, searchQuery]
+    () =>
+      filterTicketTypes(ticketTypes, searchQuery, {
+        priceBucket: priceFilter,
+      }),
+    [ticketTypes, searchQuery, priceFilter]
   );
 
   const isLoading = false;
@@ -134,6 +146,28 @@ function TicketTypes() {
   const deleteIsBulk = deleteDialog?.type === 'bulk';
   const deleteTypeName = deleteDialog?.ticketType?.name ?? '';
 
+  const handleView = (ticketType) => {
+    console.log('[Ticket type detail]', ticketType);
+  };
+
+  const handleEdit = (ticketType) => {
+    setFormDialog({ mode: 'edit', ticketType });
+  };
+
+  const handleToggleStatus = (ticketType) => {
+    const nextStatus =
+      ticketType.status === 'active' ? 'draft' : 'active';
+    setTicketTypes((prev) =>
+      prev.map((item) =>
+        item.id === ticketType.id ? { ...item, status: nextStatus } : item
+      )
+    );
+  };
+
+  const handleDelete = (ticketType) => {
+    setDeleteDialog({ type: 'single', ticketType });
+  };
+
   return (
     <div className="space-y-4">
       <PageHeader
@@ -148,9 +182,12 @@ function TicketTypes() {
         searchPlaceholder="Tìm kiếm loại vé..."
         onSearchChange={setSearchQuery}
       >
-        <Button type="button" variant="outline" className="h-9 px-3 text-sm">
-          Khoảng giá
-        </Button>
+        <AdminFilterDropdown
+          label="Khoảng giá"
+          options={TICKET_TYPE_PRICE_FILTER_OPTIONS}
+          value={priceFilter}
+          onChange={setPriceFilter}
+        />
       </AdminToolbar>
 
             <AdminBulkActions
@@ -181,11 +218,11 @@ function TicketTypes() {
                   selectedIds={selectedIds}
                   onSelectAll={handleSelectAll}
                   onSelectRow={handleSelectRow}
-                  onEdit={(ticketType) => setFormDialog({ mode: 'edit', ticketType })}
+                  onView={handleView}
+                  onEdit={handleEdit}
+                  onToggleStatus={handleToggleStatus}
                   onViewSeats={() => navigate('/admin/default-seats')}
-                  onDelete={(ticketType) =>
-                    setDeleteDialog({ type: 'single', ticketType })
-                  }
+                  onDelete={handleDelete}
                 />
           <AdminPagination
             currentPage={1}

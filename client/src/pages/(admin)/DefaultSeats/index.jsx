@@ -2,6 +2,7 @@ import { Plus } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import AdminFilterDropdown from '@/pages/(admin)/components/AdminFilterDropdown';
 import AdminToolbar from '@/pages/(admin)/components/AdminToolbar';
 import {
   AdminBulkActions,
@@ -20,6 +21,7 @@ import {
   filterSeats,
   getTicketTypeById,
   MOCK_SEATS,
+  TICKET_TYPE_OPTIONS,
 } from '@/pages/(admin)/DefaultSeats/data';
 
 function createSeatId() {
@@ -44,13 +46,35 @@ function buildSeatFromForm({ rowLabel, seatNumber, defaultTicketTypeId, status }
 function DefaultSeats() {
   const [seats, setSeats] = useState(MOCK_SEATS);
   const [searchQuery, setSearchQuery] = useState('');
+  const [rowFilter, setRowFilter] = useState('all');
+  const [ticketTypeFilter, setTicketTypeFilter] = useState('all');
   const [selectedIds, setSelectedIds] = useState(() => new Set());
   const [formDialog, setFormDialog] = useState(null);
   const [deleteDialog, setDeleteDialog] = useState(null);
 
+  const rowFilterOptions = useMemo(() => {
+    const rows = [...new Set(seats.map((s) => s.rowLabel))].sort();
+    return [
+      { value: 'all', label: 'Tất cả' },
+      ...rows.map((row) => ({ value: row, label: `Hàng ${row}` })),
+    ];
+  }, [seats]);
+
+  const ticketTypeFilterOptions = useMemo(
+    () => [
+      { value: 'all', label: 'Tất cả' },
+      ...TICKET_TYPE_OPTIONS.map((t) => ({ value: t.id, label: t.name })),
+    ],
+    []
+  );
+
   const filteredSeats = useMemo(
-    () => filterSeats(seats, searchQuery),
-    [seats, searchQuery]
+    () =>
+      filterSeats(seats, searchQuery, {
+        rowLabel: rowFilter,
+        ticketTypeId: ticketTypeFilter,
+      }),
+    [seats, searchQuery, rowFilter, ticketTypeFilter]
   );
 
   const isLoading = false;
@@ -145,6 +169,28 @@ function DefaultSeats() {
   const deleteIsBulk = deleteDialog?.type === 'bulk';
   const deleteSeatLabel = deleteDialog?.seat?.seatLabel ?? '';
 
+  const handleView = (seat) => {
+    console.log('[Seat detail]', seat);
+  };
+
+  const handleEdit = (seat) => {
+    setFormDialog({ mode: 'edit', seat });
+  };
+
+  const handleToggleStatus = (seat) => {
+    const nextStatus =
+      seat.status === 'active' ? 'draft' : 'active';
+    setSeats((prev) =>
+      prev.map((item) =>
+        item.id === seat.id ? { ...item, status: nextStatus } : item
+      )
+    );
+  };
+
+  const handleDelete = (seat) => {
+    setDeleteDialog({ type: 'single', seat });
+  };
+
   return (
     <div className="space-y-4">
       <PageHeader
@@ -159,12 +205,18 @@ function DefaultSeats() {
         searchPlaceholder="Tìm kiếm ghế..."
         onSearchChange={setSearchQuery}
       >
-        <Button type="button" variant="outline" className="h-9 px-3 text-sm">
-          Hàng ghế
-        </Button>
-        <Button type="button" variant="outline" className="h-9 px-3 text-sm">
-          Loại vé
-        </Button>
+        <AdminFilterDropdown
+          label="Hàng ghế"
+          options={rowFilterOptions}
+          value={rowFilter}
+          onChange={setRowFilter}
+        />
+        <AdminFilterDropdown
+          label="Loại vé"
+          options={ticketTypeFilterOptions}
+          value={ticketTypeFilter}
+          onChange={setTicketTypeFilter}
+        />
       </AdminToolbar>
 
             <AdminBulkActions
@@ -195,9 +247,11 @@ function DefaultSeats() {
                   selectedIds={selectedIds}
                   onSelectAll={handleSelectAll}
                   onSelectRow={handleSelectRow}
-                  onEdit={(seat) => setFormDialog({ mode: 'edit', seat })}
+                  onView={handleView}
+                  onEdit={handleEdit}
+                  onToggleStatus={handleToggleStatus}
                   onDuplicate={handleDuplicate}
-                  onDelete={(seat) => setDeleteDialog({ type: 'single', seat })}
+                  onDelete={handleDelete}
                 />
           <AdminPagination
             currentPage={1}

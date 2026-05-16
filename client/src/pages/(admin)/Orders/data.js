@@ -122,21 +122,36 @@ export function formatCreatedAt(date) {
   return dateFormatter.format(new Date(date));
 }
 
-export function filterOrders(orders, searchQuery) {
-  const query = searchQuery.trim().toLowerCase();
-  if (!query) return orders;
+export const ORDER_PAYMENT_LABELS = {
+  SEPAY: 'SePay',
+};
 
-  return orders.filter((order) => {
-    const haystack = [
-      order.orderCode,
-      order.customerName,
-      order.customerEmail,
-      order.customerPhone,
-    ]
-      .filter(Boolean)
-      .join(' ')
-      .toLowerCase();
+export function filterOrders(orders, searchQuery, facets = {}) {
+  let list = orders;
+  const query = (searchQuery ?? '').trim().toLowerCase();
+  if (query) {
+    list = list.filter((order) => {
+      const haystack = [
+        order.orderCode,
+        order.customerName,
+        order.customerEmail,
+        order.customerPhone,
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
 
-    return haystack.includes(query);
-  });
+      return haystack.includes(query);
+    });
+  }
+
+  const { status, paymentMethod } = facets;
+  if (status && status !== 'all') {
+    list = list.filter((order) => order.status === status);
+  }
+  if (paymentMethod && paymentMethod !== 'all') {
+    list = list.filter((order) => order.paymentMethod === paymentMethod);
+  }
+
+  return list;
 }

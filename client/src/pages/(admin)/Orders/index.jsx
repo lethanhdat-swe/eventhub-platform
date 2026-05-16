@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
+import AdminFilterDropdown from '@/pages/(admin)/components/AdminFilterDropdown';
 import AdminToolbar from '@/pages/(admin)/components/AdminToolbar';
 import {
   AdminBulkActions,
@@ -14,18 +15,51 @@ import {
 import PageHeader from '@/pages/(admin)/components/PageHeader';
 import DeleteOrderDialog from '@/pages/(admin)/Orders/components/DeleteOrderDialog';
 import OrderTable from '@/pages/(admin)/Orders/components/OrderTable';
-import { filterOrders, MOCK_ORDERS } from '@/pages/(admin)/Orders/data';
+import {
+  filterOrders,
+  MOCK_ORDERS,
+  ORDER_PAYMENT_LABELS,
+  ORDER_STATUS_LABELS,
+} from '@/pages/(admin)/Orders/data';
 
 function Orders() {
   const navigate = useNavigate();
   const [orders, setOrders] = useState(MOCK_ORDERS);
   const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [paymentFilter, setPaymentFilter] = useState('all');
   const [selectedIds, setSelectedIds] = useState(() => new Set());
   const [deleteDialog, setDeleteDialog] = useState(null);
 
+  const orderStatusFilterOptions = useMemo(
+    () => [
+      { value: 'all', label: 'Tất cả' },
+      ...Object.entries(ORDER_STATUS_LABELS).map(([value, label]) => ({
+        value,
+        label,
+      })),
+    ],
+    []
+  );
+
+  const orderPaymentFilterOptions = useMemo(() => {
+    const methods = [...new Set(orders.map((o) => o.paymentMethod))];
+    return [
+      { value: 'all', label: 'Tất cả' },
+      ...methods.map((m) => ({
+        value: m,
+        label: ORDER_PAYMENT_LABELS[m] ?? m,
+      })),
+    ];
+  }, [orders]);
+
   const filteredOrders = useMemo(
-    () => filterOrders(orders, searchQuery),
-    [orders, searchQuery]
+    () =>
+      filterOrders(orders, searchQuery, {
+        status: statusFilter,
+        paymentMethod: paymentFilter,
+      }),
+    [orders, searchQuery, statusFilter, paymentFilter]
   );
 
   const isLoading = false;
@@ -88,6 +122,18 @@ function Orders() {
   const deleteIsBulk = deleteDialog?.type === 'bulk';
   const deleteOrderCode = deleteDialog?.order?.orderCode ?? '';
 
+  const handleView = (order) => {
+    console.log('[Order detail]', order.id);
+  };
+
+  const handleEdit = (order) => {
+    console.log('[Edit order]', order.id);
+  };
+
+  const handleDelete = (order) => {
+    setDeleteDialog({ type: 'single', order });
+  };
+
   return (
     <div className="space-y-4">
       <PageHeader
@@ -99,12 +145,18 @@ function Orders() {
         searchPlaceholder="Tìm kiếm mã đơn, khách hàng, email..."
         onSearchChange={setSearchQuery}
       >
-        <Button type="button" variant="outline" className="h-9 px-3 text-sm">
-          Trạng thái
-        </Button>
-        <Button type="button" variant="outline" className="h-9 px-3 text-sm">
-          Thanh toán
-        </Button>
+        <AdminFilterDropdown
+          label="Trạng thái"
+          options={orderStatusFilterOptions}
+          value={statusFilter}
+          onChange={setStatusFilter}
+        />
+        <AdminFilterDropdown
+          label="Thanh toán"
+          options={orderPaymentFilterOptions}
+          value={paymentFilter}
+          onChange={setPaymentFilter}
+        />
       </AdminToolbar>
 
             <AdminBulkActions
@@ -134,10 +186,11 @@ function Orders() {
                   selectedIds={selectedIds}
                   onSelectAll={handleSelectAll}
                   onSelectRow={handleSelectRow}
-                  onView={(order) => console.log('[Order detail]', order.id)}
+                  onView={handleView}
+                  onEdit={handleEdit}
                   onViewTickets={() => navigate('/admin/tickets')}
                   onRefund={handleRefund}
-                  onDelete={(order) => setDeleteDialog({ type: 'single', order })}
+                  onDelete={handleDelete}
                 />
           <AdminPagination
             currentPage={1}

@@ -108,16 +108,27 @@ export function formatCreatedAt(date) {
   return dateTimeFormatter.format(new Date(date));
 }
 
-export function filterNotifications(notifications, searchQuery) {
-  const query = searchQuery.trim().toLowerCase();
-  if (!query) return notifications;
+export function filterNotifications(notifications, searchQuery, facets = {}) {
+  let list = notifications;
+  const query = (searchQuery ?? '').trim().toLowerCase();
+  if (query) {
+    list = list.filter((item) => {
+      const haystack = [item.title, item.shortContent]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
 
-  return notifications.filter((item) => {
-    const haystack = [item.title, item.shortContent]
-      .filter(Boolean)
-      .join(' ')
-      .toLowerCase();
+      return haystack.includes(query);
+    });
+  }
 
-    return haystack.includes(query);
-  });
+  const { audience, status } = facets;
+  if (audience && audience !== '__all__') {
+    list = list.filter((item) => item.audience === audience);
+  }
+  if (status && status !== 'all') {
+    list = list.filter((item) => item.status === status);
+  }
+
+  return list;
 }

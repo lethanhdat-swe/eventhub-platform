@@ -129,18 +129,29 @@ export function formatCreatedAt(date) {
   return dateFormatter.format(new Date(date));
 }
 
-export function filterEvents(events, searchQuery) {
-  const query = searchQuery.trim().toLowerCase();
-  if (!query) return events;
+export function filterEvents(events, searchQuery, facets = {}) {
+  let list = events;
+  const query = (searchQuery ?? '').trim().toLowerCase();
+  if (query) {
+    list = list.filter((event) => {
+      const haystack = [event.title, event.slug, event.location]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
 
-  return events.filter((event) => {
-    const haystack = [event.title, event.slug, event.location]
-      .filter(Boolean)
-      .join(' ')
-      .toLowerCase();
+      return haystack.includes(query);
+    });
+  }
 
-    return haystack.includes(query);
-  });
+  const { status, categoryId } = facets;
+  if (status && status !== 'all') {
+    list = list.filter((event) => event.status === status);
+  }
+  if (categoryId && categoryId !== 'all') {
+    list = list.filter((event) => event.categoryId === categoryId);
+  }
+
+  return list;
 }
 
 export function getEventStats(events) {

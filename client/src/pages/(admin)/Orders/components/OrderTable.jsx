@@ -1,6 +1,7 @@
 import {
   Eye,
   MoreHorizontal,
+  Pencil,
   RotateCcw,
   Ticket,
   Trash2,
@@ -33,6 +34,7 @@ function OrderTable({
   onSelectAll,
   onSelectRow,
   onView,
+  onEdit,
   onViewTickets,
   onRefund,
   onDelete,
@@ -133,6 +135,13 @@ function OrderTable({
                       >
                         <Eye className="size-4" />
                         Xem chi tiết
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="cursor-pointer"
+                        onClick={() => onEdit(order)}
+                      >
+                        <Pencil className="size-4" />
+                        Chỉnh sửa
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className="cursor-pointer"

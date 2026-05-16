@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
+import AdminFilterDropdown from '@/pages/(admin)/components/AdminFilterDropdown';
 import AdminToolbar from '@/pages/(admin)/components/AdminToolbar';
 import {
   AdminBulkActions,
@@ -29,13 +30,25 @@ function EventCategories() {
   const navigate = useNavigate();
   const [categories, setCategories] = useState(MOCK_CATEGORIES);
   const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [selectedIds, setSelectedIds] = useState(() => new Set());
   const [formDialog, setFormDialog] = useState(null);
   const [deleteDialog, setDeleteDialog] = useState(null);
 
+  const categoryStatusFilterOptions = useMemo(
+    () => [
+      { value: 'all', label: 'Tất cả' },
+      { value: 'active', label: 'Đang hoạt động' },
+      { value: 'draft', label: 'Bản nháp' },
+      { value: 'cancelled', label: 'Đã hủy' },
+    ],
+    []
+  );
+
   const filteredCategories = useMemo(
-    () => filterCategories(categories, searchQuery),
-    [categories, searchQuery]
+    () =>
+      filterCategories(categories, searchQuery, { status: statusFilter }),
+    [categories, searchQuery, statusFilter]
   );
 
   const isLoading = false;
@@ -123,6 +136,28 @@ function EventCategories() {
   const deleteIsBulk = deleteDialog?.type === 'bulk';
   const deleteCategoryName = deleteDialog?.category?.name ?? '';
 
+  const handleView = (category) => {
+    console.log('[Category detail]', category);
+  };
+
+  const handleEdit = (category) => {
+    setFormDialog({ mode: 'edit', category });
+  };
+
+  const handleToggleStatus = (category) => {
+    const nextStatus =
+      category.status === 'active' ? 'draft' : 'active';
+    setCategories((prev) =>
+      prev.map((item) =>
+        item.id === category.id ? { ...item, status: nextStatus } : item
+      )
+    );
+  };
+
+  const handleDelete = (category) => {
+    setDeleteDialog({ type: 'single', category });
+  };
+
   return (
     <div className="space-y-4">
       <PageHeader
@@ -137,9 +172,12 @@ function EventCategories() {
         searchPlaceholder="Tìm kiếm danh mục..."
         onSearchChange={setSearchQuery}
       >
-        <Button type="button" variant="outline" className="h-9 px-3 text-sm">
-          Trạng thái
-        </Button>
+        <AdminFilterDropdown
+          label="Trạng thái"
+          options={categoryStatusFilterOptions}
+          value={statusFilter}
+          onChange={setStatusFilter}
+        />
       </AdminToolbar>
 
             <AdminBulkActions
@@ -170,9 +208,11 @@ function EventCategories() {
                   selectedIds={selectedIds}
                   onSelectAll={handleSelectAll}
                   onSelectRow={handleSelectRow}
-                  onEdit={(category) => setFormDialog({ mode: 'edit', category })}
+                  onView={handleView}
+                  onEdit={handleEdit}
+                  onToggleStatus={handleToggleStatus}
                   onViewEvents={() => navigate('/admin/events')}
-                  onDelete={(category) => setDeleteDialog({ type: 'single', category })}
+                  onDelete={handleDelete}
                 />
           <AdminPagination
             currentPage={1}

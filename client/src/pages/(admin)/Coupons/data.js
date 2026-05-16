@@ -76,16 +76,36 @@ export function formatDiscount(percent) {
   return `${percent}%`;
 }
 
-export function filterCoupons(coupons, searchQuery) {
-  const query = searchQuery.trim().toLowerCase();
-  if (!query) return coupons;
+export function filterCoupons(coupons, searchQuery, facets = {}) {
+  let list = coupons;
+  const query = (searchQuery ?? '').trim().toLowerCase();
+  if (query) {
+    list = list.filter((coupon) => {
+      const haystack = [coupon.code, coupon.description]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
 
-  return coupons.filter((coupon) => {
-    const haystack = [coupon.code, coupon.description]
-      .filter(Boolean)
-      .join(' ')
-      .toLowerCase();
+      return haystack.includes(query);
+    });
+  }
 
-    return haystack.includes(query);
-  });
+  const { status, validity } = facets;
+  if (status && status !== 'all') {
+    list = list.filter((coupon) => coupon.status === status);
+  }
+  if (validity && validity !== 'all') {
+    const now = Date.now();
+    if (validity === 'valid') {
+      list = list.filter(
+        (coupon) => !coupon.validUntil || new Date(coupon.validUntil) >= now
+      );
+    } else if (validity === 'expired') {
+      list = list.filter(
+        (coupon) => coupon.validUntil && new Date(coupon.validUntil) < now
+      );
+    }
+  }
+
+  return list;
 }

@@ -60,16 +60,24 @@ export function formatCreatedAt(date) {
   return dateFormatter.format(new Date(date));
 }
 
-export function filterCategories(categories, searchQuery) {
-  const query = searchQuery.trim().toLowerCase();
-  if (!query) return categories;
+export function filterCategories(categories, searchQuery, facets = {}) {
+  let list = categories;
+  const query = (searchQuery ?? '').trim().toLowerCase();
+  if (query) {
+    list = list.filter((category) => {
+      const haystack = [category.name, category.slug]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
 
-  return categories.filter((category) => {
-    const haystack = [category.name, category.slug]
-      .filter(Boolean)
-      .join(' ')
-      .toLowerCase();
+      return haystack.includes(query);
+    });
+  }
 
-    return haystack.includes(query);
-  });
+  const { status } = facets;
+  if (status && status !== 'all') {
+    list = list.filter((category) => category.status === status);
+  }
+
+  return list;
 }

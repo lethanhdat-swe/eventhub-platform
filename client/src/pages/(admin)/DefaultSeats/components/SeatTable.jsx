@@ -1,4 +1,4 @@
-import { Copy, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { Copy, Eye, EyeOff, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import AdminTableWrapper from '@/pages/(admin)/components/table/AdminTableWrapper';
@@ -26,7 +26,9 @@ function SeatTable({
   selectedIds,
   onSelectAll,
   onSelectRow,
+  onView,
   onEdit,
+  onToggleStatus,
   onDuplicate,
   onDelete,
 }) {
@@ -108,13 +110,31 @@ function SeatTable({
                         </Button>
                       }
                     />
-                    <DropdownMenuContent align="end" className="w-44">
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuItem
+                        className="cursor-pointer"
+                        onClick={() => onView(seat)}
+                      >
+                        <Eye className="size-4" />
+                        Xem chi tiết
+                      </DropdownMenuItem>
                       <DropdownMenuItem
                         className="cursor-pointer"
                         onClick={() => onEdit(seat)}
                       >
                         <Pencil className="size-4" />
                         Chỉnh sửa
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="cursor-pointer"
+                        onClick={() => onToggleStatus(seat)}
+                      >
+                        {seat.status === 'active' ? (
+                          <EyeOff className="size-4" />
+                        ) : (
+                          <Eye className="size-4" />
+                        )}
+                        {seat.status === 'active' ? 'Ẩn' : 'Hiển thị'}
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className="cursor-pointer"

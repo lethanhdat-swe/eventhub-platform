@@ -80,22 +80,53 @@ export function formatCheckInTime(date) {
   return checkInTimeFormatter.format(new Date(date));
 }
 
-export function filterCheckInLogs(logs, searchQuery) {
-  const query = searchQuery.trim().toLowerCase();
-  if (!query) return logs;
+function startOfDayMs(daysAgo) {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() - daysAgo);
+  return d.getTime();
+}
 
-  return logs.filter((log) => {
-    const haystack = [
-      log.ticketCode,
-      log.customerName,
-      log.eventTitle,
-      log.seatLabel,
-      log.scannedBy,
-    ]
-      .filter(Boolean)
-      .join(' ')
-      .toLowerCase();
+export function filterCheckInLogs(logs, searchQuery, facets = {}) {
+  let list = logs;
+  const query = (searchQuery ?? '').trim().toLowerCase();
+  if (query) {
+    list = list.filter((log) => {
+      const haystack = [
+        log.ticketCode,
+        log.customerName,
+        log.eventTitle,
+        log.seatLabel,
+        log.scannedBy,
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
 
-    return haystack.includes(query);
-  });
+      return haystack.includes(query);
+    });
+  }
+
+  const { eventTitle, status, timeRange } = facets;
+  if (eventTitle && eventTitle !== 'all') {
+    list = list.filter((log) => log.eventTitle === eventTitle);
+  }
+  if (status && status !== 'all') {
+    list = list.filter((log) => log.status === status);
+  }
+  if (timeRange && timeRange !== 'all') {
+    const cutoff =
+      timeRange === '7d'
+        ? startOfDayMs(7)
+        : timeRange === '30d'
+          ? startOfDayMs(30)
+          : null;
+    if (cutoff != null) {
+      list = list.filter(
+        (log) => log.checkedInAt && new Date(log.checkedInAt).getTime() >= cutoff
+      );
+    }
+  }
+
+  return list;
 }

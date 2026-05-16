@@ -98,23 +98,38 @@ export function formatCheckedInAt(date) {
   return dateTimeFormatter.format(new Date(date));
 }
 
-export function filterTickets(tickets, searchQuery) {
-  const query = searchQuery.trim().toLowerCase();
-  if (!query) return tickets;
+export function filterTickets(tickets, searchQuery, facets = {}) {
+  let list = tickets;
+  const query = (searchQuery ?? '').trim().toLowerCase();
+  if (query) {
+    list = list.filter((ticket) => {
+      const haystack = [
+        ticket.ticketCode,
+        ticket.orderId,
+        ticket.customerName,
+        ticket.customerEmail,
+        ticket.eventTitle,
+        ticket.seatLabel,
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
 
-  return tickets.filter((ticket) => {
-    const haystack = [
-      ticket.ticketCode,
-      ticket.orderId,
-      ticket.customerName,
-      ticket.customerEmail,
-      ticket.eventTitle,
-      ticket.seatLabel,
-    ]
-      .filter(Boolean)
-      .join(' ')
-      .toLowerCase();
+      return haystack.includes(query);
+    });
+  }
 
-    return haystack.includes(query);
-  });
+  const { checkIn, eventTitle } = facets;
+  if (checkIn && checkIn !== 'all') {
+    if (checkIn === 'checked') {
+      list = list.filter((t) => t.isCheckedIn);
+    } else if (checkIn === 'unchecked') {
+      list = list.filter((t) => !t.isCheckedIn);
+    }
+  }
+  if (eventTitle && eventTitle !== 'all') {
+    list = list.filter((t) => t.eventTitle === eventTitle);
+  }
+
+  return list;
 }

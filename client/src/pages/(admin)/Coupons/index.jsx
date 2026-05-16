@@ -2,6 +2,7 @@ import { Plus } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import AdminFilterDropdown from '@/pages/(admin)/components/AdminFilterDropdown';
 import AdminToolbar from '@/pages/(admin)/components/AdminToolbar';
 import {
   AdminBulkActions,
@@ -15,7 +16,11 @@ import PageHeader from '@/pages/(admin)/components/PageHeader';
 import CouponFormDialog from '@/pages/(admin)/Coupons/components/CouponFormDialog';
 import CouponTable from '@/pages/(admin)/Coupons/components/CouponTable';
 import DeleteCouponDialog from '@/pages/(admin)/Coupons/components/DeleteCouponDialog';
-import { filterCoupons, MOCK_COUPONS } from '@/pages/(admin)/Coupons/data';
+import {
+  COUPON_STATUS_OPTIONS,
+  filterCoupons,
+  MOCK_COUPONS,
+} from '@/pages/(admin)/Coupons/data';
 
 function createCouponId() {
   return `cpn-${crypto.randomUUID().slice(0, 8)}`;
@@ -24,13 +29,39 @@ function createCouponId() {
 function Coupons() {
   const [coupons, setCoupons] = useState(MOCK_COUPONS);
   const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [validityFilter, setValidityFilter] = useState('all');
   const [selectedIds, setSelectedIds] = useState(() => new Set());
   const [formDialog, setFormDialog] = useState(null);
   const [deleteDialog, setDeleteDialog] = useState(null);
 
+  const couponStatusFilterOptions = useMemo(
+    () => [
+      { value: 'all', label: 'Tất cả' },
+      ...COUPON_STATUS_OPTIONS.map((o) => ({
+        value: o.value,
+        label: o.label,
+      })),
+    ],
+    []
+  );
+
+  const couponValidityFilterOptions = useMemo(
+    () => [
+      { value: 'all', label: 'Tất cả' },
+      { value: 'valid', label: 'Còn hạn' },
+      { value: 'expired', label: 'Đã hết hạn' },
+    ],
+    []
+  );
+
   const filteredCoupons = useMemo(
-    () => filterCoupons(coupons, searchQuery),
-    [coupons, searchQuery]
+    () =>
+      filterCoupons(coupons, searchQuery, {
+        status: statusFilter,
+        validity: validityFilter,
+      }),
+    [coupons, searchQuery, statusFilter, validityFilter]
   );
 
   const isLoading = false;
@@ -160,6 +191,18 @@ function Coupons() {
   const deleteIsBulk = deleteDialog?.type === 'bulk';
   const deleteCouponCode = deleteDialog?.coupon?.code ?? '';
 
+  const handleView = (coupon) => {
+    console.log('[Coupon detail]', coupon);
+  };
+
+  const handleEdit = (coupon) => {
+    setFormDialog({ mode: 'edit', coupon });
+  };
+
+  const handleDelete = (coupon) => {
+    setDeleteDialog({ type: 'single', coupon });
+  };
+
   return (
     <div className="space-y-4">
       <PageHeader
@@ -174,12 +217,18 @@ function Coupons() {
         searchPlaceholder="Tìm kiếm mã giảm giá..."
         onSearchChange={setSearchQuery}
       >
-        <Button type="button" variant="outline" className="h-9 px-3 text-sm">
-          Trạng thái
-        </Button>
-        <Button type="button" variant="outline" className="h-9 px-3 text-sm">
-          Hạn sử dụng
-        </Button>
+        <AdminFilterDropdown
+          label="Trạng thái"
+          options={couponStatusFilterOptions}
+          value={statusFilter}
+          onChange={setStatusFilter}
+        />
+        <AdminFilterDropdown
+          label="Hạn sử dụng"
+          options={couponValidityFilterOptions}
+          value={validityFilter}
+          onChange={setValidityFilter}
+        />
       </AdminToolbar>
 
             <AdminBulkActions
@@ -210,9 +259,10 @@ function Coupons() {
                   selectedIds={selectedIds}
                   onSelectAll={handleSelectAll}
                   onSelectRow={handleSelectRow}
-                  onEdit={(coupon) => setFormDialog({ mode: 'edit', coupon })}
+                  onView={handleView}
+                  onEdit={handleEdit}
                   onToggleStatus={handleToggleStatus}
-                  onDelete={(coupon) => setDeleteDialog({ type: 'single', coupon })}
+                  onDelete={handleDelete}
                 />
           <AdminPagination
             currentPage={1}

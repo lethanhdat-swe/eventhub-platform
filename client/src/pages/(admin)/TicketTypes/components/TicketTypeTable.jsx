@@ -1,4 +1,11 @@
-import { Armchair, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import {
+  Armchair,
+  Eye,
+  EyeOff,
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+} from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import AdminTableWrapper from '@/pages/(admin)/components/table/AdminTableWrapper';
@@ -26,7 +33,9 @@ function TicketTypeTable({
   selectedIds,
   onSelectAll,
   onSelectRow,
+  onView,
   onEdit,
+  onToggleStatus,
   onViewSeats,
   onDelete,
 }) {
@@ -105,13 +114,31 @@ function TicketTypeTable({
                         </Button>
                       }
                     />
-                    <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuContent align="end" className="w-52">
+                      <DropdownMenuItem
+                        className="cursor-pointer"
+                        onClick={() => onView(type)}
+                      >
+                        <Eye className="size-4" />
+                        Xem chi tiết
+                      </DropdownMenuItem>
                       <DropdownMenuItem
                         className="cursor-pointer"
                         onClick={() => onEdit(type)}
                       >
                         <Pencil className="size-4" />
                         Chỉnh sửa
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="cursor-pointer"
+                        onClick={() => onToggleStatus(type)}
+                      >
+                        {type.status === 'active' ? (
+                          <EyeOff className="size-4" />
+                        ) : (
+                          <Eye className="size-4" />
+                        )}
+                        {type.status === 'active' ? 'Ẩn' : 'Hiển thị'}
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className="cursor-pointer"

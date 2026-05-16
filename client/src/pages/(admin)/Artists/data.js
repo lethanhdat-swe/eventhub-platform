@@ -92,6 +92,19 @@ export const MOCK_ARTISTS = [
     updatedAt: '2026-03-12T08:10:00.000Z',
     status: 'active',
   },
+  {
+    id: 'art-007',
+    name: 'Nghệ sĩ ẩn danh',
+    slug: 'nghe-si-an-danh',
+    avatarUrl: null,
+    description: 'Đã ẩn khỏi danh sách công khai.',
+    role: 'HOST',
+    roleLabel: 'MC',
+    eventCount: 0,
+    createdAt: '2026-01-01T10:00:00.000Z',
+    updatedAt: '2026-04-01T12:00:00.000Z',
+    status: 'cancelled',
+  },
 ];
 
 const dateFormatter = new Intl.DateTimeFormat('vi-VN', {
@@ -105,16 +118,27 @@ export function formatCreatedAt(date) {
   return dateFormatter.format(new Date(date));
 }
 
-export function filterArtists(artists, searchQuery) {
-  const query = searchQuery.trim().toLowerCase();
-  if (!query) return artists;
+export function filterArtists(artists, searchQuery, facets = {}) {
+  let list = artists;
+  const query = (searchQuery ?? '').trim().toLowerCase();
+  if (query) {
+    list = list.filter((artist) => {
+      const haystack = [artist.name, artist.slug]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
 
-  return artists.filter((artist) => {
-    const haystack = [artist.name, artist.slug]
-      .filter(Boolean)
-      .join(' ')
-      .toLowerCase();
+      return haystack.includes(query);
+    });
+  }
 
-    return haystack.includes(query);
-  });
+  const { role, status } = facets;
+  if (role && role !== 'all') {
+    list = list.filter((artist) => artist.role === role);
+  }
+  if (status && status !== 'all') {
+    list = list.filter((artist) => artist.status === status);
+  }
+
+  return list;
 }

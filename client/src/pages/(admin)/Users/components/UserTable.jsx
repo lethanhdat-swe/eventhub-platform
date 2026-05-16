@@ -71,7 +71,7 @@ function UserTable({
   onSelectAll,
   onSelectRow,
   onView,
-  onEditRole,
+  onEdit,
   onToggleLock,
   onDelete,
 }) {
@@ -186,10 +186,10 @@ function UserTable({
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className="cursor-pointer"
-                        onClick={() => onEditRole(user)}
+                        onClick={() => onEdit(user)}
                       >
                         <Pencil className="size-4" />
-                        Chỉnh sửa vai trò
+                        Chỉnh sửa
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className="cursor-pointer"

@@ -56,22 +56,33 @@ export function formatPriceVnd(price) {
   return priceFormatter.format(price);
 }
 
-export function filterSeats(seats, searchQuery) {
-  const query = searchQuery.trim().toLowerCase();
-  if (!query) return seats;
+export function filterSeats(seats, searchQuery, facets = {}) {
+  let list = seats;
+  const query = (searchQuery ?? '').trim().toLowerCase();
+  if (query) {
+    list = list.filter((seat) => {
+      const haystack = [
+        seat.seatLabel,
+        seat.rowLabel,
+        seat.defaultTicketType?.name,
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
 
-  return seats.filter((seat) => {
-    const haystack = [
-      seat.seatLabel,
-      seat.rowLabel,
-      seat.defaultTicketType?.name,
-    ]
-      .filter(Boolean)
-      .join(' ')
-      .toLowerCase();
+      return haystack.includes(query);
+    });
+  }
 
-    return haystack.includes(query);
-  });
+  const { rowLabel, ticketTypeId } = facets;
+  if (rowLabel && rowLabel !== 'all') {
+    list = list.filter((seat) => seat.rowLabel === rowLabel);
+  }
+  if (ticketTypeId && ticketTypeId !== 'all') {
+    list = list.filter((seat) => seat.defaultTicketTypeId === ticketTypeId);
+  }
+
+  return list;
 }
 
 export function getTicketTypeById(id) {

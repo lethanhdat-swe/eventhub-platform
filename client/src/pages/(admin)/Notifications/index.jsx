@@ -2,6 +2,7 @@ import { Plus } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import AdminFilterDropdown from '@/pages/(admin)/components/AdminFilterDropdown';
 import AdminToolbar from '@/pages/(admin)/components/AdminToolbar';
 import {
   AdminBulkActions,
@@ -18,6 +19,8 @@ import NotificationTable from '@/pages/(admin)/Notifications/components/Notifica
 import {
   filterNotifications,
   MOCK_NOTIFICATIONS,
+  NOTIFICATION_AUDIENCE_OPTIONS,
+  NOTIFICATION_STATUS_OPTIONS,
 } from '@/pages/(admin)/Notifications/data';
 
 function createNotificationId() {
@@ -27,13 +30,41 @@ function createNotificationId() {
 function Notifications() {
   const [notifications, setNotifications] = useState(MOCK_NOTIFICATIONS);
   const [searchQuery, setSearchQuery] = useState('');
+  const [audienceFilter, setAudienceFilter] = useState('__all__');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [selectedIds, setSelectedIds] = useState(() => new Set());
   const [formDialog, setFormDialog] = useState(null);
   const [deleteDialog, setDeleteDialog] = useState(null);
 
+  const notificationAudienceFilterOptions = useMemo(
+    () => [
+      { value: '__all__', label: 'Tất cả' },
+      ...NOTIFICATION_AUDIENCE_OPTIONS.map((o) => ({
+        value: o.value,
+        label: o.label,
+      })),
+    ],
+    []
+  );
+
+  const notificationStatusFilterOptions = useMemo(
+    () => [
+      { value: 'all', label: 'Tất cả' },
+      ...NOTIFICATION_STATUS_OPTIONS.map((o) => ({
+        value: o.value,
+        label: o.label,
+      })),
+    ],
+    []
+  );
+
   const filteredNotifications = useMemo(
-    () => filterNotifications(notifications, searchQuery),
-    [notifications, searchQuery]
+    () =>
+      filterNotifications(notifications, searchQuery, {
+        audience: audienceFilter,
+        status: statusFilter,
+      }),
+    [notifications, searchQuery, audienceFilter, statusFilter]
   );
 
   const isLoading = false;
@@ -162,6 +193,18 @@ function Notifications() {
   const deleteIsBulk = deleteDialog?.type === 'bulk';
   const deleteNotificationTitle = deleteDialog?.notification?.title ?? '';
 
+  const handleView = (notification) => {
+    console.log('[Notification detail]', notification);
+  };
+
+  const handleEdit = (notification) => {
+    setFormDialog({ mode: 'edit', notification });
+  };
+
+  const handleDelete = (notification) => {
+    setDeleteDialog({ type: 'single', notification });
+  };
+
   return (
     <div className="space-y-4">
       <PageHeader
@@ -176,12 +219,18 @@ function Notifications() {
         searchPlaceholder="Tìm kiếm tiêu đề thông báo..."
         onSearchChange={setSearchQuery}
       >
-        <Button type="button" variant="outline" className="h-9 px-3 text-sm">
-          Đối tượng
-        </Button>
-        <Button type="button" variant="outline" className="h-9 px-3 text-sm">
-          Trạng thái
-        </Button>
+        <AdminFilterDropdown
+          label="Đối tượng"
+          options={notificationAudienceFilterOptions}
+          value={audienceFilter}
+          onChange={setAudienceFilter}
+        />
+        <AdminFilterDropdown
+          label="Trạng thái"
+          options={notificationStatusFilterOptions}
+          value={statusFilter}
+          onChange={setStatusFilter}
+        />
       </AdminToolbar>
 
             <AdminBulkActions
@@ -212,12 +261,10 @@ function Notifications() {
                   selectedIds={selectedIds}
                   onSelectAll={handleSelectAll}
                   onSelectRow={handleSelectRow}
-                  onView={(item) => console.log('Xem chi tiết thông báo:', item)}
-                  onEdit={(item) => setFormDialog({ mode: 'edit', notification: item })}
+                  onView={handleView}
+                  onEdit={handleEdit}
                   onResend={handleResend}
-                  onDelete={(item) =>
-                    setDeleteDialog({ type: 'single', notification: item })
-                  }
+                  onDelete={handleDelete}
                 />
           <AdminPagination
             currentPage={1}

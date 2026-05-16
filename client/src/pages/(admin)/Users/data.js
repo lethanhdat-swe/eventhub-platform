@@ -117,16 +117,34 @@ export function formatCreatedAt(date) {
   return dateTimeFormatter.format(new Date(date));
 }
 
-export function filterUsers(users, searchQuery) {
-  const query = searchQuery.trim().toLowerCase();
-  if (!query) return users;
+export function filterUsers(users, searchQuery, facets = {}) {
+  let list = users;
+  const query = (searchQuery ?? '').trim().toLowerCase();
+  if (query) {
+    list = list.filter((user) => {
+      const haystack = [user.fullName, user.email, user.phoneNumber]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
 
-  return users.filter((user) => {
-    const haystack = [user.fullName, user.email, user.phoneNumber]
-      .filter(Boolean)
-      .join(' ')
-      .toLowerCase();
+      return haystack.includes(query);
+    });
+  }
 
-    return haystack.includes(query);
-  });
+  const { role, emailVerified, provider } = facets;
+  if (role && role !== 'all') {
+    list = list.filter((user) => user.role === role);
+  }
+  if (emailVerified && emailVerified !== 'all') {
+    if (emailVerified === 'verified') {
+      list = list.filter((user) => user.isEmailVerified);
+    } else if (emailVerified === 'unverified') {
+      list = list.filter((user) => !user.isEmailVerified);
+    }
+  }
+  if (provider && provider !== 'all') {
+    list = list.filter((user) => user.provider === provider);
+  }
+
+  return list;
 }

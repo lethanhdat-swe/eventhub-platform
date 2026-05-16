@@ -2,6 +2,7 @@ import {
   CheckCircle2,
   Eye,
   MoreHorizontal,
+  Pencil,
   QrCode,
   Trash2,
 } from 'lucide-react';
@@ -50,6 +51,7 @@ function TicketTable({
   onSelectAll,
   onSelectRow,
   onView,
+  onEdit,
   onViewQr,
   onCheckIn,
   onDelete,
@@ -148,6 +150,13 @@ function TicketTable({
                       >
                         <Eye className="size-4" />
                         Xem chi tiết
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="cursor-pointer"
+                        onClick={() => onEdit(ticket)}
+                      >
+                        <Pencil className="size-4" />
+                        Chỉnh sửa
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className="cursor-pointer"

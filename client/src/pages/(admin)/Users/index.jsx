@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import AdminFilterDropdown from '@/pages/(admin)/components/AdminFilterDropdown';
 import AdminToolbar from '@/pages/(admin)/components/AdminToolbar';
 import {
   AdminBulkActions,
@@ -14,18 +15,50 @@ import PageHeader from '@/pages/(admin)/components/PageHeader';
 import DeleteUserDialog from '@/pages/(admin)/Users/components/DeleteUserDialog';
 import UserRoleDialog from '@/pages/(admin)/Users/components/UserRoleDialog';
 import UserTable from '@/pages/(admin)/Users/components/UserTable';
-import { filterUsers, MOCK_USERS } from '@/pages/(admin)/Users/data';
+import {
+  filterUsers,
+  MOCK_USERS,
+  USER_ROLE_OPTIONS,
+} from '@/pages/(admin)/Users/data';
+
+const USER_EMAIL_FILTER_OPTIONS = [
+  { value: 'all', label: 'Tất cả' },
+  { value: 'verified', label: 'Đã xác thực' },
+  { value: 'unverified', label: 'Chưa xác thực' },
+];
+
+const USER_PROVIDER_FILTER_OPTIONS = [
+  { value: 'all', label: 'Tất cả' },
+  { value: 'google', label: 'Google' },
+  { value: 'credentials', label: 'Email' },
+];
 
 function Users() {
   const [users, setUsers] = useState(MOCK_USERS);
   const [searchQuery, setSearchQuery] = useState('');
+  const [roleFilter, setRoleFilter] = useState('all');
+  const [emailFilter, setEmailFilter] = useState('all');
+  const [providerFilter, setProviderFilter] = useState('all');
   const [selectedIds, setSelectedIds] = useState(() => new Set());
   const [roleDialogUser, setRoleDialogUser] = useState(null);
   const [deleteDialog, setDeleteDialog] = useState(null);
 
+  const userRoleFilterOptions = useMemo(
+    () => [
+      { value: 'all', label: 'Tất cả' },
+      ...USER_ROLE_OPTIONS.map((o) => ({ value: o.value, label: o.label })),
+    ],
+    []
+  );
+
   const filteredUsers = useMemo(
-    () => filterUsers(users, searchQuery),
-    [users, searchQuery]
+    () =>
+      filterUsers(users, searchQuery, {
+        role: roleFilter,
+        emailVerified: emailFilter,
+        provider: providerFilter,
+      }),
+    [users, searchQuery, roleFilter, emailFilter, providerFilter]
   );
 
   const isLoading = false;
@@ -103,6 +136,18 @@ function Users() {
     console.log('Gửi thông báo cho users:', [...selectedIds]);
   };
 
+  const handleView = (user) => {
+    console.log('[User detail]', user);
+  };
+
+  const handleEdit = (user) => {
+    setRoleDialogUser(user);
+  };
+
+  const handleDelete = (user) => {
+    setDeleteDialog({ type: 'single', user });
+  };
+
   const deleteDialogOpen = Boolean(deleteDialog);
   const deleteIsBulk = deleteDialog?.type === 'bulk';
   const deleteUserName = deleteDialog?.user?.fullName ?? '';
@@ -118,15 +163,24 @@ function Users() {
         searchPlaceholder="Tìm kiếm tên, email, số điện thoại..."
         onSearchChange={setSearchQuery}
       >
-        <Button type="button" variant="outline" className="h-9 px-3 text-sm">
-          Vai trò
-        </Button>
-        <Button type="button" variant="outline" className="h-9 px-3 text-sm">
-          Xác thực email
-        </Button>
-        <Button type="button" variant="outline" className="h-9 px-3 text-sm">
-          Provider
-        </Button>
+        <AdminFilterDropdown
+          label="Vai trò"
+          options={userRoleFilterOptions}
+          value={roleFilter}
+          onChange={setRoleFilter}
+        />
+        <AdminFilterDropdown
+          label="Xác thực email"
+          options={USER_EMAIL_FILTER_OPTIONS}
+          value={emailFilter}
+          onChange={setEmailFilter}
+        />
+        <AdminFilterDropdown
+          label="Provider"
+          options={USER_PROVIDER_FILTER_OPTIONS}
+          value={providerFilter}
+          onChange={setProviderFilter}
+        />
       </AdminToolbar>
 
             <AdminBulkActions
@@ -166,10 +220,10 @@ function Users() {
                   selectedIds={selectedIds}
                   onSelectAll={handleSelectAll}
                   onSelectRow={handleSelectRow}
-                  onView={(user) => console.log('Xem chi tiết user:', user)}
-                  onEditRole={setRoleDialogUser}
+                  onView={handleView}
+                  onEdit={handleEdit}
                   onToggleLock={handleToggleLock}
-                  onDelete={(user) => setDeleteDialog({ type: 'single', user })}
+                  onDelete={handleDelete}
                 />
           <AdminPagination
             currentPage={1}

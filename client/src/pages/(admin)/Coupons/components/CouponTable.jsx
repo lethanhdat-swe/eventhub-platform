@@ -1,4 +1,10 @@
-import { MoreHorizontal, Pencil, Power, Trash2 } from 'lucide-react';
+import {
+  Eye,
+  EyeOff,
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+} from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import AdminTableWrapper from '@/pages/(admin)/components/table/AdminTableWrapper';
@@ -29,6 +35,7 @@ function CouponTable({
   selectedIds,
   onSelectAll,
   onSelectRow,
+  onView,
   onEdit,
   onToggleStatus,
   onDelete,
@@ -114,6 +121,13 @@ function CouponTable({
                     <DropdownMenuContent align="end" className="w-48">
                       <DropdownMenuItem
                         className="cursor-pointer"
+                        onClick={() => onView(coupon)}
+                      >
+                        <Eye className="size-4" />
+                        Xem chi tiết
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="cursor-pointer"
                         onClick={() => onEdit(coupon)}
                       >
                         <Pencil className="size-4" />
@@ -123,10 +137,12 @@ function CouponTable({
                         className="cursor-pointer"
                         onClick={() => onToggleStatus(coupon)}
                       >
-                        <Power className="size-4" />
-                        {coupon.status === 'ACTIVE'
-                          ? 'Tạm dừng'
-                          : 'Kích hoạt'}
+                        {coupon.status === 'ACTIVE' ? (
+                          <EyeOff className="size-4" />
+                        ) : (
+                          <Eye className="size-4" />
+                        )}
+                        {coupon.status === 'ACTIVE' ? 'Ẩn' : 'Hiển thị'}
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem

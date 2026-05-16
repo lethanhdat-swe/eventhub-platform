@@ -1,4 +1,4 @@
-import { Eye, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { Eye, EyeOff, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -50,6 +50,7 @@ function ArtistTable({
   onSelectRow,
   onView,
   onEdit,
+  onToggleStatus,
   onDelete,
 }) {
   const selectedCount = selectedIds.size;
@@ -156,6 +157,17 @@ function ArtistTable({
                       >
                         <Pencil className="size-4" />
                         Chỉnh sửa
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="cursor-pointer"
+                        onClick={() => onToggleStatus(artist)}
+                      >
+                        {artist.status === 'active' ? (
+                          <EyeOff className="size-4" />
+                        ) : (
+                          <Eye className="size-4" />
+                        )}
+                        {artist.status === 'active' ? 'Ẩn' : 'Hiển thị'}
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
