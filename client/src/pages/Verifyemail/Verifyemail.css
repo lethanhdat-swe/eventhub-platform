@@ -1,0 +1,192 @@
+/* ===================== VERIFY EMAIL ===================== */
+
+.verify-root {
+  min-height: 100vh;
+  background: #09091a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Inter', -apple-system, sans-serif;
+  color: #f1f5f9;
+  position: relative;
+}
+
+.verify-bg {
+  position: fixed;
+  inset: 0;
+  background: #09091a;
+  z-index: 0;
+}
+.verify-bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(9,9,26,0.82);
+}
+
+.verify-logo {
+  position: fixed;
+  top: 24px;
+  left: 40px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  z-index: 20;
+}
+.verify-logo-icon { font-size: 22px; color: #a855f7; }
+.verify-logo-text { font-size: 20px; font-weight: 700; color: #fff; }
+
+.verify-center {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 440px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.verify-card {
+  width: 100%;
+  background: none !important;
+  backdrop-filter: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  text-align: center;
+}
+.verify-panel {
+  width: 100%;
+  background: none !important;
+  backdrop-filter: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 48px 36px;
+}
+
+.verify-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Icon wrapper */
+.verify-icon-wrap {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+.verify-icon-wrap.loading {
+  background: rgba(168,85,247,0.15);
+  color: #a855f7;
+  border: 1px solid rgba(168,85,247,0.3);
+}
+.verify-icon-wrap.success {
+  background: rgba(34,197,94,0.15);
+  color: #22c55e;
+  border: 1px solid rgba(34,197,94,0.3);
+}
+.verify-icon-wrap.error {
+  background: rgba(239,68,68,0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239,68,68,0.3);
+}
+
+.verify-spinner {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.verify-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+.verify-sub {
+  font-size: 14px;
+  color: rgba(241,245,249,0.5);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Progress bar for auto redirect */
+.verify-progress {
+  width: 100%;
+  height: 3px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 99px;
+  overflow: hidden;
+  margin: 8px 0;
+}
+.verify-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #7c3aed, #a855f7);
+  border-radius: 99px;
+  animation: progress 3s linear forwards;
+}
+@keyframes progress {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+/* Buttons */
+.verify-btn-primary {
+  display: inline-block;
+  padding: 12px 28px;
+  background: linear-gradient(90deg, #7c3aed, #a855f7);
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  text-decoration: none;
+  transition: opacity 0.2s, transform 0.15s;
+  box-shadow: 0 6px 20px rgba(124,58,237,0.35);
+  margin-top: 8px;
+}
+.verify-btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+
+.verify-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  margin-top: 8px;
+}
+.verify-btn-ghost {
+  display: inline-block;
+  padding: 12px 28px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  color: rgba(241,245,249,0.7);
+  text-decoration: none;
+  text-align: center;
+  transition: background 0.2s;
+}
+.verify-btn-ghost:hover { background: rgba(255,255,255,0.09); }
+
+/* Info box */
+.verify-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: rgba(241,245,249,0.35);
+  text-align: center;
+}
+.verify-info strong { color: rgba(241,245,249,0.55); }
