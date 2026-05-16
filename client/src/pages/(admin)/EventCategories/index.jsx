@@ -1,10 +1,11 @@
 import { Plus } from 'lucide-react';
-import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import AdminFilterDropdown from '@/pages/(admin)/components/AdminFilterDropdown';
+import { getErrorMessage } from '@/lib/http/apiError';
+import { categoryService } from '@/lib/services/admin/categoryService';
 import AdminToolbar from '@/pages/(admin)/components/AdminToolbar';
+import PageHeader from '@/pages/(admin)/components/PageHeader';
 import {
   AdminBulkActions,
   AdminEmptyState,
@@ -13,50 +14,75 @@ import {
   ADMIN_EMPTY_STATES,
 } from '@/pages/(admin)/components/table';
 
-import PageHeader from '@/pages/(admin)/components/PageHeader';
 import CategoryFormDialog from '@/pages/(admin)/EventCategories/components/CategoryFormDialog';
 import CategoryTable from '@/pages/(admin)/EventCategories/components/CategoryTable';
 import DeleteCategoryDialog from '@/pages/(admin)/EventCategories/components/DeleteCategoryDialog';
-import {
-  filterCategories,
-  MOCK_CATEGORIES,
-} from '@/pages/(admin)/EventCategories/data';
+import { mapCategoryRow } from '@/pages/(admin)/EventCategories/data';
 
-function createCategoryId() {
-  return `cat-${crypto.randomUUID().slice(0, 8)}`;
-}
+const PAGE_SIZE = 10;
 
 function EventCategories() {
-  const navigate = useNavigate();
-  const [categories, setCategories] = useState(MOCK_CATEGORIES);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [categories, setCategories] = useState([]);
+  const [searchInput, setSearchInput] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [meta, setMeta] = useState({
+    totalItems: 0,
+    totalPages: 1,
+    currentPage: 1,
+    itemsPerPage: PAGE_SIZE,
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selectedIds, setSelectedIds] = useState(() => new Set());
   const [formDialog, setFormDialog] = useState(null);
   const [deleteDialog, setDeleteDialog] = useState(null);
+  const [deleteSubmitting, setDeleteSubmitting] = useState(false);
 
-  const categoryStatusFilterOptions = useMemo(
-    () => [
-      { value: 'all', label: 'Tất cả' },
-      { value: 'active', label: 'Đang hoạt động' },
-      { value: 'draft', label: 'Bản nháp' },
-      { value: 'cancelled', label: 'Đã hủy' },
-    ],
-    []
-  );
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setDebouncedSearch(searchInput.trim());
+    }, 300);
+    return () => clearTimeout(t);
+  }, [searchInput]);
 
-  const filteredCategories = useMemo(
-    () =>
-      filterCategories(categories, searchQuery, { status: statusFilter }),
-    [categories, searchQuery, statusFilter]
-  );
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch]);
 
-  const isLoading = false;
-  const isEmpty = !isLoading && filteredCategories.length === 0;
+  const loadCategories = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const payload = await categoryService.list({
+        page,
+        limit: PAGE_SIZE,
+        search: debouncedSearch,
+      });
+      const rows = payload.data ?? [];
+      setCategories(rows.map(mapCategoryRow));
+      const m = payload.meta ?? {};
+      setMeta({
+        totalItems: m.totalItems ?? 0,
+        totalPages: Math.max(1, m.totalPages ?? 1),
+        currentPage: m.currentPage ?? page,
+        itemsPerPage: m.itemsPerPage ?? PAGE_SIZE,
+      });
+    } catch (e) {
+      setError(getErrorMessage(e));
+      setCategories([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [page, debouncedSearch]);
+
+  useEffect(() => {
+    void loadCategories();
+  }, [loadCategories]);
 
   const handleSelectAll = (checked) => {
     if (checked) {
-      setSelectedIds(new Set(filteredCategories.map((category) => category.id)));
+      setSelectedIds(new Set(categories.map((category) => category.id)));
     } else {
       setSelectedIds(new Set());
     }
@@ -74,56 +100,55 @@ function EventCategories() {
     });
   };
 
-  const handleSaveCategory = ({ name, slug }) => {
+  const handleSaveCategory = async ({ name, slug }) => {
+    setError(null);
+
     if (formDialog?.mode === 'create') {
-      setCategories((prev) => [
-        ...prev,
-        {
-          id: createCategoryId(),
-          name,
-          slug,
-          eventCount: 0,
-          createdAt: new Date().toISOString(),
-          status: 'draft',
-        },
-      ]);
+      await categoryService.create({ name, slug });
       setFormDialog(null);
+      await loadCategories();
       return;
     }
 
     if (formDialog?.mode === 'edit' && formDialog.category) {
-      setCategories((prev) =>
-        prev.map((category) =>
-          category.id === formDialog.category.id
-            ? { ...category, name, slug }
-            : category
-        )
-      );
+      await categoryService.update(formDialog.category.id, { name, slug });
       setFormDialog(null);
+      await loadCategories();
     }
   };
 
-  const handleDeleteConfirm = () => {
-    if (!deleteDialog) return;
+  const handleDeleteConfirm = async () => {
+    if (!deleteDialog || deleteSubmitting) return;
 
-    if (deleteDialog.type === 'bulk') {
-      setCategories((prev) =>
-        prev.filter((category) => !selectedIds.has(category.id))
-      );
-      setSelectedIds(new Set());
+    setDeleteSubmitting(true);
+    setError(null);
+    try {
+      if (deleteDialog.type === 'bulk') {
+        await categoryService.deleteMany([...selectedIds]);
+        setSelectedIds(new Set());
+      } else {
+        await categoryService.deleteMany([deleteDialog.category.id]);
+        setSelectedIds((prev) => {
+          const next = new Set(prev);
+          next.delete(deleteDialog.category.id);
+          return next;
+        });
+      }
       setDeleteDialog(null);
-      return;
+      await loadCategories();
+    } catch (e) {
+      setError(getErrorMessage(e));
+    } finally {
+      setDeleteSubmitting(false);
     }
+  };
 
-    setCategories((prev) =>
-      prev.filter((category) => category.id !== deleteDialog.category.id)
-    );
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      next.delete(deleteDialog.category.id);
-      return next;
-    });
-    setDeleteDialog(null);
+  const handleEdit = (category) => {
+    setFormDialog({ mode: 'edit', category });
+  };
+
+  const handleDelete = (category) => {
+    setDeleteDialog({ type: 'single', category });
   };
 
   const formDialogOpen = Boolean(formDialog);
@@ -136,27 +161,7 @@ function EventCategories() {
   const deleteIsBulk = deleteDialog?.type === 'bulk';
   const deleteCategoryName = deleteDialog?.category?.name ?? '';
 
-  const handleView = (category) => {
-    console.log('[Category detail]', category);
-  };
-
-  const handleEdit = (category) => {
-    setFormDialog({ mode: 'edit', category });
-  };
-
-  const handleToggleStatus = (category) => {
-    const nextStatus =
-      category.status === 'active' ? 'draft' : 'active';
-    setCategories((prev) =>
-      prev.map((item) =>
-        item.id === category.id ? { ...item, status: nextStatus } : item
-      )
-    );
-  };
-
-  const handleDelete = (category) => {
-    setDeleteDialog({ type: 'single', category });
-  };
+  const isEmpty = !isLoading && categories.length === 0;
 
   return (
     <div className="space-y-4">
@@ -168,61 +173,79 @@ function EventCategories() {
         onAction={() => setFormDialog({ mode: 'create' })}
       />
 
+      {error && categories.length > 0 ? (
+        <div
+          className="flex flex-col gap-2 rounded-lg border border-destructive/25 bg-destructive/5 px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
+          role="alert"
+        >
+          <p className="text-sm text-destructive">{error}</p>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-8 shrink-0 cursor-pointer"
+            onClick={() => void loadCategories()}
+          >
+            Thử lại
+          </Button>
+        </div>
+      ) : null}
+
       <AdminToolbar
         searchPlaceholder="Tìm kiếm danh mục..."
-        onSearchChange={setSearchQuery}
-      >
-        <AdminFilterDropdown
-          label="Trạng thái"
-          options={categoryStatusFilterOptions}
-          value={statusFilter}
-          onChange={setStatusFilter}
-        />
-      </AdminToolbar>
+        searchValue={searchInput}
+        onSearchChange={setSearchInput}
+      />
 
-            <AdminBulkActions
+      <AdminBulkActions
         selectedCount={selectedIds.size}
         label={`Đã chọn ${selectedIds.size} danh mục`}
       >
         <Button
-            type="button"
-            variant="destructive"
-            className="h-9 px-3"
-            onClick={() => setDeleteDialog({ type: 'bulk' })}
-          >
-            Xóa đã chọn
-          </Button>
+          type="button"
+          variant="destructive"
+          className="h-9 px-3"
+          onClick={() => setDeleteDialog({ type: 'bulk' })}
+        >
+          Xóa đã chọn
+        </Button>
       </AdminBulkActions>
 
       {isLoading ? (
-        <AdminLoadingState rows={6} columns={6} minWidth="min-w-[720px]" />
+        <AdminLoadingState rows={6} columns={5} minWidth="min-w-[720px]" />
       ) : isEmpty ? (
         <AdminEmptyState
-          {...ADMIN_EMPTY_STATES.eventCategories}
-          onAction={() => setFormDialog({ mode: 'create' })}
+          {...(error
+            ? {
+                title: 'Không tải được danh sách',
+                description: error,
+                actionLabel: 'Thử lại',
+                onAction: () => void loadCategories(),
+              }
+            : {
+                ...ADMIN_EMPTY_STATES.eventCategories,
+                onAction: () => setFormDialog({ mode: 'create' }),
+              })}
         />
       ) : (
         <>
           <CategoryTable
-                  categories={filteredCategories}
-                  selectedIds={selectedIds}
-                  onSelectAll={handleSelectAll}
-                  onSelectRow={handleSelectRow}
-                  onView={handleView}
-                  onEdit={handleEdit}
-                  onToggleStatus={handleToggleStatus}
-                  onViewEvents={() => navigate('/admin/events')}
-                  onDelete={handleDelete}
-                />
+            categories={categories}
+            selectedIds={selectedIds}
+            onSelectAll={handleSelectAll}
+            onSelectRow={handleSelectRow}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
           <AdminPagination
-            currentPage={1}
-            totalPages={1}
-            totalItems={filteredCategories.length}
-            pageSize={10}
+            currentPage={meta.currentPage}
+            totalPages={meta.totalPages}
+            totalItems={meta.totalItems}
+            pageSize={meta.itemsPerPage}
+            onPageChange={setPage}
           />
         </>
       )}
-
 
       <CategoryFormDialog
         open={formDialogOpen}
@@ -239,8 +262,11 @@ function EventCategories() {
         isBulk={deleteIsBulk}
         categoryName={deleteCategoryName}
         selectedCount={selectedIds.size}
-        onConfirm={handleDeleteConfirm}
-        onCancel={() => setDeleteDialog(null)}
+        isDeleting={deleteSubmitting}
+        onConfirm={() => void handleDeleteConfirm()}
+        onCancel={() => {
+          if (!deleteSubmitting) setDeleteDialog(null);
+        }}
       />
     </div>
   );

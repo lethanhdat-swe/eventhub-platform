@@ -15,6 +15,7 @@ const eventSelect = {
     thumbnailUrl: true,
     status: true,
     createdAt: true,
+    updatedAt: true,
     category: {
         select: {
             id: true,

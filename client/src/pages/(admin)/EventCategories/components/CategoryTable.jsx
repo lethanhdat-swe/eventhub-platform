@@ -1,11 +1,4 @@
-import {
-  CalendarDays,
-  Eye,
-  EyeOff,
-  MoreHorizontal,
-  Pencil,
-  Trash2,
-} from 'lucide-react';
+import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import AdminTableWrapper from '@/pages/(admin)/components/table/AdminTableWrapper';
@@ -25,18 +18,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import StatusBadge from '@/pages/(admin)/components/StatusBadge';
-import { formatCreatedAt } from '@/pages/(admin)/EventCategories/data';
 
 function CategoryTable({
   categories,
   selectedIds,
   onSelectAll,
   onSelectRow,
-  onView,
   onEdit,
-  onToggleStatus,
-  onViewEvents,
   onDelete,
 }) {
   const selectedCount = selectedIds.size;
@@ -65,8 +53,6 @@ function CategoryTable({
             <TableHead className="h-9 px-2">Tên danh mục</TableHead>
             <TableHead className="h-9 px-2">Slug</TableHead>
             <TableHead className="h-9 px-2">Số sự kiện</TableHead>
-            <TableHead className="h-9 px-2">Ngày tạo</TableHead>
-            <TableHead className="h-9 px-2">Trạng thái</TableHead>
             <TableHead className="h-9 w-12 px-2 text-right">Hành động</TableHead>
           </TableRow>
         </TableHeader>
@@ -94,12 +80,6 @@ function CategoryTable({
                 <TableCell className="px-2 py-1.5 tabular-nums text-muted-foreground">
                   {category.eventCount}
                 </TableCell>
-                <TableCell className="px-2 py-1.5 text-muted-foreground">
-                  {formatCreatedAt(category.createdAt)}
-                </TableCell>
-                <TableCell className="px-2 py-1.5">
-                  <StatusBadge status={category.status} />
-                </TableCell>
                 <TableCell className="px-2 py-1.5 text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger
@@ -117,35 +97,10 @@ function CategoryTable({
                     <DropdownMenuContent align="end" className="w-48">
                       <DropdownMenuItem
                         className="cursor-pointer"
-                        onClick={() => onView(category)}
-                      >
-                        <Eye className="size-4" />
-                        Xem chi tiết
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="cursor-pointer"
                         onClick={() => onEdit(category)}
                       >
                         <Pencil className="size-4" />
                         Chỉnh sửa
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="cursor-pointer"
-                        onClick={() => onToggleStatus(category)}
-                      >
-                        {category.status === 'active' ? (
-                          <EyeOff className="size-4" />
-                        ) : (
-                          <Eye className="size-4" />
-                        )}
-                        {category.status === 'active' ? 'Ẩn' : 'Hiển thị'}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="cursor-pointer"
-                        onClick={() => onViewEvents(category)}
-                      >
-                        <CalendarDays className="size-4" />
-                        Xem sự kiện
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem

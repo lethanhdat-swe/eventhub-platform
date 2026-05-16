@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { getErrorMessage } from '@/lib/http/apiError';
+import { orderService } from '@/lib/services/admin/orderService';
 import AdminFilterDropdown from '@/pages/(admin)/components/AdminFilterDropdown';
 import AdminToolbar from '@/pages/(admin)/components/AdminToolbar';
 import {
@@ -14,22 +15,32 @@ import {
 
 import PageHeader from '@/pages/(admin)/components/PageHeader';
 import DeleteOrderDialog from '@/pages/(admin)/Orders/components/DeleteOrderDialog';
+import OrderDetailDialog from '@/pages/(admin)/Orders/components/OrderDetailDialog';
 import OrderTable from '@/pages/(admin)/Orders/components/OrderTable';
-import {
-  filterOrders,
-  MOCK_ORDERS,
-  ORDER_PAYMENT_LABELS,
-  ORDER_STATUS_LABELS,
-} from '@/pages/(admin)/Orders/data';
+import { mapOrderRow, ORDER_STATUS_LABELS } from '@/pages/(admin)/Orders/data';
+
+const PAGE_SIZE = 10;
 
 function Orders() {
-  const navigate = useNavigate();
-  const [orders, setOrders] = useState(MOCK_ORDERS);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [orders, setOrders] = useState([]);
+  const [searchInput, setSearchInput] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [paymentFilter, setPaymentFilter] = useState('all');
+  const [page, setPage] = useState(1);
+  const [meta, setMeta] = useState({
+    totalItems: 0,
+    totalPages: 1,
+    currentPage: 1,
+    itemsPerPage: PAGE_SIZE,
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selectedIds, setSelectedIds] = useState(() => new Set());
   const [deleteDialog, setDeleteDialog] = useState(null);
+  const [deleteSubmitting, setDeleteSubmitting] = useState(false);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [detailOrder, setDetailOrder] = useState(null);
+  const [detailLoading, setDetailLoading] = useState(false);
 
   const orderStatusFilterOptions = useMemo(
     () => [
@@ -42,32 +53,51 @@ function Orders() {
     []
   );
 
-  const orderPaymentFilterOptions = useMemo(() => {
-    const methods = [...new Set(orders.map((o) => o.paymentMethod))];
-    return [
-      { value: 'all', label: 'Tất cả' },
-      ...methods.map((m) => ({
-        value: m,
-        label: ORDER_PAYMENT_LABELS[m] ?? m,
-      })),
-    ];
-  }, [orders]);
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setDebouncedSearch(searchInput.trim());
+    }, 300);
+    return () => clearTimeout(t);
+  }, [searchInput]);
 
-  const filteredOrders = useMemo(
-    () =>
-      filterOrders(orders, searchQuery, {
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch, statusFilter]);
+
+  const loadOrders = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const payload = await orderService.list({
+        page,
+        limit: PAGE_SIZE,
+        search: debouncedSearch,
         status: statusFilter,
-        paymentMethod: paymentFilter,
-      }),
-    [orders, searchQuery, statusFilter, paymentFilter]
-  );
+      });
+      const rows = payload.data ?? [];
+      setOrders(rows.map(mapOrderRow));
+      const m = payload.meta ?? {};
+      setMeta({
+        totalItems: m.totalItems ?? 0,
+        totalPages: Math.max(1, m.totalPages ?? 1),
+        currentPage: m.currentPage ?? page,
+        itemsPerPage: m.itemsPerPage ?? PAGE_SIZE,
+      });
+    } catch (e) {
+      setError(getErrorMessage(e));
+      setOrders([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [page, debouncedSearch, statusFilter]);
 
-  const isLoading = false;
-  const isEmpty = !isLoading && filteredOrders.length === 0;
+  useEffect(() => {
+    void loadOrders();
+  }, [loadOrders]);
 
   const handleSelectAll = (checked) => {
     if (checked) {
-      setSelectedIds(new Set(filteredOrders.map((order) => order.id)));
+      setSelectedIds(new Set(orders.map((order) => order.id)));
     } else {
       setSelectedIds(new Set());
     }
@@ -85,54 +115,57 @@ function Orders() {
     });
   };
 
-  const handleRefund = (order) => {
-    setOrders((prev) =>
-      prev.map((item) =>
-        item.id === order.id
-          ? {
-              ...item,
-              status: 'refunded',
-              updatedAt: new Date().toISOString(),
-            }
-          : item
-      )
-    );
-  };
+  const handleDeleteConfirm = async () => {
+    if (!deleteDialog || deleteSubmitting) return;
 
-  const handleDeleteConfirm = () => {
-    if (!deleteDialog) return;
-
-    if (deleteDialog.type === 'bulk') {
-      setOrders((prev) => prev.filter((order) => !selectedIds.has(order.id)));
-      setSelectedIds(new Set());
+    setDeleteSubmitting(true);
+    setError(null);
+    try {
+      if (deleteDialog.type === 'bulk') {
+        await orderService.deleteMany([...selectedIds]);
+        setSelectedIds(new Set());
+      } else {
+        await orderService.deleteMany([deleteDialog.order.id]);
+        setSelectedIds((prev) => {
+          const next = new Set(prev);
+          next.delete(deleteDialog.order.id);
+          return next;
+        });
+      }
       setDeleteDialog(null);
-      return;
+      await loadOrders();
+    } catch (e) {
+      setError(getErrorMessage(e));
+    } finally {
+      setDeleteSubmitting(false);
     }
-
-    setOrders((prev) => prev.filter((order) => order.id !== deleteDialog.order.id));
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      next.delete(deleteDialog.order.id);
-      return next;
-    });
-    setDeleteDialog(null);
   };
 
   const deleteDialogOpen = Boolean(deleteDialog);
   const deleteIsBulk = deleteDialog?.type === 'bulk';
   const deleteOrderCode = deleteDialog?.order?.orderCode ?? '';
 
-  const handleView = (order) => {
-    console.log('[Order detail]', order.id);
-  };
-
-  const handleEdit = (order) => {
-    console.log('[Edit order]', order.id);
+  const handleView = async (order) => {
+    setDetailOpen(true);
+    setDetailOrder(null);
+    setDetailLoading(true);
+    setError(null);
+    try {
+      const full = await orderService.getById(order.id);
+      setDetailOrder(full);
+    } catch (e) {
+      setDetailOpen(false);
+      setError(getErrorMessage(e));
+    } finally {
+      setDetailLoading(false);
+    }
   };
 
   const handleDelete = (order) => {
     setDeleteDialog({ type: 'single', order });
   };
+
+  const isEmpty = !isLoading && orders.length === 0;
 
   return (
     <div className="space-y-4">
@@ -141,9 +174,28 @@ function Orders() {
         description="Theo dõi đơn đặt vé, trạng thái thanh toán và thông tin khách hàng."
       />
 
+      {error && orders.length > 0 ? (
+        <div
+          className="flex flex-col gap-2 rounded-lg border border-destructive/25 bg-destructive/5 px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
+          role="alert"
+        >
+          <p className="text-sm text-destructive">{error}</p>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-8 shrink-0"
+            onClick={() => void loadOrders()}
+          >
+            Thử lại
+          </Button>
+        </div>
+      ) : null}
+
       <AdminToolbar
-        searchPlaceholder="Tìm kiếm mã đơn, khách hàng, email..."
-        onSearchChange={setSearchQuery}
+        searchPlaceholder="Tìm kiếm mã đơn, khách hàng, email, SĐT..."
+        searchValue={searchInput}
+        onSearchChange={setSearchInput}
       >
         <AdminFilterDropdown
           label="Trạng thái"
@@ -151,64 +203,76 @@ function Orders() {
           value={statusFilter}
           onChange={setStatusFilter}
         />
-        <AdminFilterDropdown
-          label="Thanh toán"
-          options={orderPaymentFilterOptions}
-          value={paymentFilter}
-          onChange={setPaymentFilter}
-        />
       </AdminToolbar>
 
-            <AdminBulkActions
+      <AdminBulkActions
         selectedCount={selectedIds.size}
         label={`Đã chọn ${selectedIds.size} đơn hàng`}
       >
         <Button
-            type="button"
-            variant="destructive"
-            className="h-9 px-3"
-            onClick={() => setDeleteDialog({ type: 'bulk' })}
-          >
-            Xóa đã chọn
-          </Button>
+          type="button"
+          variant="destructive"
+          className="h-9 px-3"
+          disabled={selectedIds.size === 0}
+          onClick={() => setDeleteDialog({ type: 'bulk' })}
+        >
+          Xóa đã chọn
+        </Button>
       </AdminBulkActions>
 
       {isLoading ? (
         <AdminLoadingState rows={6} columns={10} minWidth="min-w-[1100px]" />
       ) : isEmpty ? (
         <AdminEmptyState
-          {...ADMIN_EMPTY_STATES.orders}
+          {...(error
+            ? {
+                title: 'Không tải được danh sách',
+                description: error,
+                actionLabel: 'Thử lại',
+                onAction: () => void loadOrders(),
+              }
+            : ADMIN_EMPTY_STATES.orders)}
         />
       ) : (
         <>
           <OrderTable
-                  orders={filteredOrders}
-                  selectedIds={selectedIds}
-                  onSelectAll={handleSelectAll}
-                  onSelectRow={handleSelectRow}
-                  onView={handleView}
-                  onEdit={handleEdit}
-                  onViewTickets={() => navigate('/admin/tickets')}
-                  onRefund={handleRefund}
-                  onDelete={handleDelete}
-                />
+            orders={orders}
+            selectedIds={selectedIds}
+            onSelectAll={handleSelectAll}
+            onSelectRow={handleSelectRow}
+            onView={handleView}
+            onDelete={handleDelete}
+          />
           <AdminPagination
-            currentPage={1}
-            totalPages={1}
-            totalItems={filteredOrders.length}
-            pageSize={10}
+            currentPage={meta.currentPage}
+            totalPages={meta.totalPages}
+            totalItems={meta.totalItems}
+            pageSize={meta.itemsPerPage}
+            onPageChange={setPage}
           />
         </>
       )}
 
+      <OrderDetailDialog
+        open={detailOpen}
+        onOpenChange={(isOpen) => {
+          setDetailOpen(isOpen);
+          if (!isOpen) setDetailOrder(null);
+        }}
+        order={detailOrder}
+        loading={detailLoading}
+      />
 
       <DeleteOrderDialog
         open={deleteDialogOpen}
         isBulk={deleteIsBulk}
         orderCode={deleteOrderCode}
         selectedCount={selectedIds.size}
-        onConfirm={handleDeleteConfirm}
-        onCancel={() => setDeleteDialog(null)}
+        isDeleting={deleteSubmitting}
+        onConfirm={() => void handleDeleteConfirm()}
+        onCancel={() => {
+          if (!deleteSubmitting) setDeleteDialog(null);
+        }}
       />
     </div>
   );

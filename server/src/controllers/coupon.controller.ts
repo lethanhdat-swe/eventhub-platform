@@ -71,6 +71,18 @@ class CouponController {
         }
     };
 
+    deleteMany = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            await couponService.deleteMany(req.body.ids);
+
+            return res.success({
+                message: "Coupons deleted successfully.",
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
     verify = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const result = await couponService.verify(req.body);

@@ -5,6 +5,34 @@ const paramsIdSchema = z.object({
     id: z.string().uuid("Invalid event ID format"),
 });
 
+/** URL đầy đủ, path `/uploads/...`, hoặc filename sau upload */
+const optionalThumbnailSchema = z.preprocess(
+    (val) => (val === "" || val === undefined ? undefined : val),
+    z
+        .union([
+            z.string().url(),
+            z.string().regex(/^\/uploads\/.+/),
+            z.string().regex(/^[^/\\]+$/),
+        ])
+        .optional()
+);
+
+const optionalThumbnailUpdateSchema = z.preprocess(
+    (val) => {
+        if (val === "" || val === undefined) return undefined;
+        if (val === null) return null;
+        return val;
+    },
+    z
+        .union([
+            z.string().url(),
+            z.string().regex(/^\/uploads\/.+/),
+            z.string().regex(/^[^/\\]+$/),
+            z.null(),
+        ])
+        .optional()
+);
+
 // 👇 thêm schema cho artist pivot
 const artistItemSchema = z.object({
     artistId: z.string().uuid("Invalid artist ID format"),
@@ -26,11 +54,7 @@ export const createEventSchema = z.object({
         location: z.string().optional(),
         startDate: z.string().datetime("Invalid start date format").optional(),
         endDate: z.string().datetime("Invalid end date format").optional(),
-        thumbnailUrl: z
-            .string()
-            .url("Invalid thumbnail URL format")
-            .optional()
-            .or(z.literal("")),
+        thumbnailUrl: optionalThumbnailSchema,
         categoryId: z.string().uuid("Invalid category ID format").optional(),
         status: z.nativeEnum(EventStatus).default(EventStatus.DRAFT),
 
@@ -50,7 +74,7 @@ export const updateEventSchema = z.object({
             location: z.string().optional(),
             startDate: z.string().datetime().optional(),
             endDate: z.string().datetime().optional(),
-            thumbnailUrl: z.string().url().optional().or(z.literal("")),
+            thumbnailUrl: optionalThumbnailUpdateSchema,
             categoryId: z.string().uuid().optional(),
             status: z.nativeEnum(EventStatus).optional(),
 

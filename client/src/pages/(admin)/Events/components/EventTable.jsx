@@ -1,4 +1,4 @@
-import { Eye, EyeOff, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { Eye, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import AdminTableWrapper from '@/pages/(admin)/components/table/AdminTableWrapper';
@@ -20,16 +20,18 @@ import {
 } from '@/components/ui/table';
 import StatusBadge from '@/pages/(admin)/components/StatusBadge';
 
+import { getUploadPreviewSrc } from '@/lib/upload/uploadAsset';
 import {
   formatCreatedAt,
   formatEventDateRange,
 } from '@/pages/(admin)/Events/data';
 
 function EventThumbnail({ title, thumbnailUrl }) {
-  if (thumbnailUrl) {
+  const src = getUploadPreviewSrc(thumbnailUrl);
+  if (src) {
     return (
       <img
-        src={thumbnailUrl}
+        src={src}
         alt=""
         className="size-10 shrink-0 rounded-md object-cover"
       />
@@ -53,7 +55,6 @@ function EventTable({
   onSelectRow,
   onView,
   onEdit,
-  onToggleStatus,
   onDelete,
 }) {
   const selectedCount = selectedIds.size;
@@ -155,17 +156,6 @@ function EventTable({
                       >
                         <Pencil className="size-4" />
                         Chỉnh sửa
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="cursor-pointer"
-                        onClick={() => onToggleStatus(event)}
-                      >
-                        {event.status === 'PUBLISHED' ? (
-                          <EyeOff className="size-4" />
-                        ) : (
-                          <Eye className="size-4" />
-                        )}
-                        {event.status === 'PUBLISHED' ? 'Ẩn' : 'Hiển thị'}
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem

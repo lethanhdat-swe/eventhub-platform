@@ -4,99 +4,6 @@ export const ORDER_STATUS_LABELS = {
   CANCELLED: 'Đã hủy',
 };
 
-export const MOCK_ORDERS = [
-  {
-    id: 'ord-001',
-    userId: 'user-001',
-    orderCode: 'EH-2026-0001',
-    customerName: 'Nguyễn Văn An',
-    customerEmail: 'an.nguyen@email.com',
-    customerPhone: '0901234567',
-    totalAmount: 2_500_000,
-    status: 'PAID',
-    paymentMethod: 'SEPAY',
-    sepayTransactionId: 'SEPAY-TX-88421',
-    couponId: null,
-    createdAt: '2026-06-10T14:30:00.000Z',
-    updatedAt: '2026-06-10T14:32:00.000Z',
-  },
-  {
-    id: 'ord-002',
-    userId: 'user-002',
-    orderCode: 'EH-2026-0002',
-    customerName: 'Trần Thị Bình',
-    customerEmail: 'binh.tran@email.com',
-    customerPhone: '0912345678',
-    totalAmount: 800_000,
-    status: 'PENDING',
-    paymentMethod: 'SEPAY',
-    sepayTransactionId: null,
-    couponId: 'cpn-001',
-    createdAt: '2026-06-12T09:15:00.000Z',
-    updatedAt: '2026-06-12T09:15:00.000Z',
-  },
-  {
-    id: 'ord-003',
-    userId: 'user-003',
-    orderCode: 'EH-2026-0003',
-    customerName: 'Lê Minh Châu',
-    customerEmail: 'chau.le@email.com',
-    customerPhone: '0923456789',
-    totalAmount: 500_000,
-    status: 'PAID',
-    paymentMethod: 'SEPAY',
-    sepayTransactionId: 'SEPAY-TX-88455',
-    couponId: 'cpn-002',
-    createdAt: '2026-05-05T11:00:00.000Z',
-    updatedAt: '2026-05-05T11:02:00.000Z',
-  },
-  {
-    id: 'ord-004',
-    userId: 'user-004',
-    orderCode: 'EH-2026-0004',
-    customerName: 'Phạm Hoàng Dũng',
-    customerEmail: 'dung.pham@email.com',
-    customerPhone: '0934567890',
-    totalAmount: 2_500_000,
-    status: 'CANCELLED',
-    paymentMethod: 'SEPAY',
-    sepayTransactionId: null,
-    couponId: null,
-    createdAt: '2026-06-01T16:45:00.000Z',
-    updatedAt: '2026-06-02T08:00:00.000Z',
-  },
-  {
-    id: 'ord-005',
-    userId: 'user-005',
-    orderCode: 'EH-2026-0005',
-    customerName: 'Võ Thị Em',
-    customerEmail: 'em.vo@email.com',
-    customerPhone: '0945678901',
-    totalAmount: 800_000,
-    status: 'CANCELLED',
-    paymentMethod: 'SEPAY',
-    sepayTransactionId: 'SEPAY-TX-88301',
-    couponId: null,
-    createdAt: '2026-05-20T10:20:00.000Z',
-    updatedAt: '2026-05-22T15:00:00.000Z',
-  },
-  {
-    id: 'ord-006',
-    userId: 'user-006',
-    orderCode: 'EH-2026-0006',
-    customerName: 'Đặng Quốc Phong',
-    customerEmail: 'phong.dang@email.com',
-    customerPhone: '0956789012',
-    totalAmount: 1_200_000,
-    status: 'PAID',
-    paymentMethod: 'SEPAY',
-    sepayTransactionId: 'SEPAY-TX-88512',
-    couponId: 'cpn-003',
-    createdAt: '2026-06-08T13:10:00.000Z',
-    updatedAt: '2026-06-08T13:12:00.000Z',
-  },
-];
-
 const priceFormatter = new Intl.NumberFormat('vi-VN', {
   style: 'currency',
   currency: 'VND',
@@ -125,32 +32,60 @@ export const ORDER_PAYMENT_LABELS = {
   SEPAY: 'SePay',
 };
 
-export function filterOrders(orders, searchQuery, facets = {}) {
-  let list = orders;
-  const query = (searchQuery ?? '').trim().toLowerCase();
-  if (query) {
-    list = list.filter((order) => {
-      const haystack = [
-        order.orderCode,
-        order.customerName,
-        order.customerEmail,
-        order.customerPhone,
-      ]
-        .filter(Boolean)
-        .join(' ')
-        .toLowerCase();
+export function formatPaymentMethod(method) {
+  if (!method) return '—';
+  return ORDER_PAYMENT_LABELS[method] ?? method;
+}
 
-      return haystack.includes(query);
+export function formatCouponLabel(coupon) {
+  if (!coupon) return '—';
+  if (typeof coupon === 'string') return coupon;
+  return coupon.code ?? coupon.id ?? '—';
+}
+
+export function mapOrderRow(row) {
+  return {
+    id: row.id,
+    userId: row.userId,
+    orderCode: row.orderCode ?? '—',
+    customerName: row.customerName,
+    customerEmail: row.customerEmail,
+    customerPhone: row.customerPhone,
+    totalAmount: row.totalAmount,
+    status: row.status,
+    paymentMethod: row.paymentMethod,
+    sepayTransactionId: row.sepayTransactionId,
+    couponId: row.couponId,
+    couponCode: row.coupon?.code ?? null,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+  };
+}
+
+export function formatOrderSeatLines(order) {
+  if (order.tickets?.length) {
+    return order.tickets.map((ticket) => {
+      const seat = ticket.eventSeat?.seat;
+      const type = ticket.eventSeat?.ticketType;
+      const label = seat
+        ? [seat.rowLabel, seat.seatNumber].filter((v) => v != null && v !== '').join('') ||
+          seat.id?.slice(0, 8)
+        : '—';
+      return `${label} · ${type?.name ?? '—'}`;
     });
   }
 
-  const { status, paymentMethod } = facets;
-  if (status && status !== 'all') {
-    list = list.filter((order) => order.status === status);
-  }
-  if (paymentMethod && paymentMethod !== 'all') {
-    list = list.filter((order) => order.paymentMethod === paymentMethod);
+  if (order.orderSeats?.length) {
+    return order.orderSeats.map((os) => {
+      const seat = os.eventSeat?.seat;
+      const type = os.eventSeat?.ticketType;
+      const label = seat
+        ? [seat.rowLabel, seat.seatNumber].filter((v) => v != null && v !== '').join('') ||
+          seat.id?.slice(0, 8)
+        : '—';
+      return `${label} · ${type?.name ?? '—'}`;
+    });
   }
 
-  return list;
+  return [];
 }

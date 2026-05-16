@@ -145,6 +145,7 @@ class OrderService {
                 { orderCode: { contains: search } },
                 { customerEmail: { contains: search } },
                 { customerName: { contains: search } },
+                { customerPhone: { contains: search } },
             ];
         }
 
@@ -212,6 +213,16 @@ class OrderService {
                     },
                 },
                 coupon: true,
+                orderSeats: {
+                    include: {
+                        eventSeat: {
+                            include: {
+                                seat: true,
+                                ticketType: true,
+                            },
+                        },
+                    },
+                },
             },
         });
 

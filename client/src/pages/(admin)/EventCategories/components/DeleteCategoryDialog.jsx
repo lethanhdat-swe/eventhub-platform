@@ -14,6 +14,7 @@ function DeleteCategoryDialog({
   isBulk,
   categoryName,
   selectedCount,
+  isDeleting = false,
   onConfirm,
   onCancel,
 }) {
@@ -26,7 +27,7 @@ function DeleteCategoryDialog({
     <AlertDialog
       open={open}
       onOpenChange={(isOpen) => {
-        if (!isOpen) onCancel();
+        if (!isOpen && !isDeleting) onCancel();
       }}
     >
       <AlertDialogContent className="sm:max-w-md">
@@ -35,13 +36,19 @@ function DeleteCategoryDialog({
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel className="cursor-pointer">Hủy</AlertDialogCancel>
+          <AlertDialogCancel className="cursor-pointer" disabled={isDeleting}>
+            Hủy
+          </AlertDialogCancel>
           <AlertDialogAction
             variant="destructive"
             className="cursor-pointer"
-            onClick={onConfirm}
+            disabled={isDeleting}
+            onClick={(event) => {
+              event.preventDefault();
+              onConfirm?.();
+            }}
           >
-            Xóa
+            {isDeleting ? 'Đang xóa…' : 'Xóa'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -1,6 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { getErrorMessage } from '@/lib/http/apiError';
+import { axiosInstance } from '@/lib/http/axiosInstance';
+import { getApiData } from '@/lib/http/unwrapApiSuccess';
+import { ticketService } from '@/lib/services/admin/ticketService';
 import AdminFilterDropdown from '@/pages/(admin)/components/AdminFilterDropdown';
 import AdminToolbar from '@/pages/(admin)/components/AdminToolbar';
 import {
@@ -13,18 +17,42 @@ import {
 
 import PageHeader from '@/pages/(admin)/components/PageHeader';
 import DeleteTicketDialog from '@/pages/(admin)/Tickets/components/DeleteTicketDialog';
-import TicketQrDialog from '@/pages/(admin)/Tickets/components/TicketQrDialog';
+import TicketDetailDialog from '@/pages/(admin)/Tickets/components/TicketDetailDialog';
 import TicketTable from '@/pages/(admin)/Tickets/components/TicketTable';
-import { filterTickets, MOCK_TICKETS } from '@/pages/(admin)/Tickets/data';
+import { mapTicketRow } from '@/pages/(admin)/Tickets/data';
+
+const PAGE_SIZE = 10;
+
+function buildCheckInQuery(filter) {
+  if (filter === 'checked') return true;
+  if (filter === 'unchecked') return false;
+  return undefined;
+}
 
 function Tickets() {
-  const [tickets, setTickets] = useState(MOCK_TICKETS);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [tickets, setTickets] = useState([]);
+  const [searchInput, setSearchInput] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [checkInFilter, setCheckInFilter] = useState('all');
   const [eventFilter, setEventFilter] = useState('all');
+  const [eventFilterOptions, setEventFilterOptions] = useState([
+    { value: 'all', label: 'Tất cả' },
+  ]);
+  const [page, setPage] = useState(1);
+  const [meta, setMeta] = useState({
+    totalItems: 0,
+    totalPages: 1,
+    currentPage: 1,
+    itemsPerPage: PAGE_SIZE,
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selectedIds, setSelectedIds] = useState(() => new Set());
   const [deleteDialog, setDeleteDialog] = useState(null);
-  const [qrDialog, setQrDialog] = useState(null);
+  const [deleteSubmitting, setDeleteSubmitting] = useState(false);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [detailTicket, setDetailTicket] = useState(null);
+  const [detailLoading, setDetailLoading] = useState(false);
 
   const checkInFilterOptions = useMemo(
     () => [
@@ -35,29 +63,74 @@ function Tickets() {
     []
   );
 
-  const ticketEventFilterOptions = useMemo(() => {
-    const titles = [...new Set(tickets.map((t) => t.eventTitle))].sort();
-    return [
-      { value: 'all', label: 'Tất cả' },
-      ...titles.map((title) => ({ value: title, label: title })),
-    ];
-  }, [tickets]);
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setDebouncedSearch(searchInput.trim());
+    }, 300);
+    return () => clearTimeout(t);
+  }, [searchInput]);
 
-  const filteredTickets = useMemo(
-    () =>
-      filterTickets(tickets, searchQuery, {
-        checkIn: checkInFilter,
-        eventTitle: eventFilter,
-      }),
-    [tickets, searchQuery, checkInFilter, eventFilter]
-  );
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch, checkInFilter, eventFilter]);
 
-  const isLoading = false;
-  const isEmpty = !isLoading && filteredTickets.length === 0;
+  useEffect(() => {
+    async function loadEventOptions() {
+      try {
+        const body = await axiosInstance.get('/api/events', {
+          params: { page: 1, limit: 100 },
+        });
+        const payload = getApiData(body);
+        const events = payload.data ?? [];
+        setEventFilterOptions([
+          { value: 'all', label: 'Tất cả' },
+          ...events.map((event) => ({
+            value: event.id,
+            label: event.title,
+          })),
+        ]);
+      } catch {
+        setEventFilterOptions([{ value: 'all', label: 'Tất cả' }]);
+      }
+    }
+    void loadEventOptions();
+  }, []);
+
+  const loadTickets = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const payload = await ticketService.list({
+        page,
+        limit: PAGE_SIZE,
+        search: debouncedSearch,
+        isCheckedIn: buildCheckInQuery(checkInFilter),
+        eventId: eventFilter,
+      });
+      const rows = payload.data ?? [];
+      setTickets(rows.map(mapTicketRow));
+      const m = payload.meta ?? {};
+      setMeta({
+        totalItems: m.totalItems ?? 0,
+        totalPages: Math.max(1, m.totalPages ?? 1),
+        currentPage: m.currentPage ?? page,
+        itemsPerPage: m.itemsPerPage ?? PAGE_SIZE,
+      });
+    } catch (e) {
+      setError(getErrorMessage(e));
+      setTickets([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [page, debouncedSearch, checkInFilter, eventFilter]);
+
+  useEffect(() => {
+    void loadTickets();
+  }, [loadTickets]);
 
   const handleSelectAll = (checked) => {
     if (checked) {
-      setSelectedIds(new Set(filteredTickets.map((ticket) => ticket.id)));
+      setSelectedIds(new Set(tickets.map((ticket) => ticket.id)));
     } else {
       setSelectedIds(new Set());
     }
@@ -75,49 +148,59 @@ function Tickets() {
     });
   };
 
-  const handleCheckIn = (ticket) => {
-    setTickets((prev) =>
-      prev.map((item) =>
-        item.id === ticket.id
-          ? {
-              ...item,
-              isCheckedIn: true,
-              checkedInAt: new Date().toISOString(),
-            }
-          : item
-      )
-    );
-  };
-
-  const handleDeleteConfirm = () => {
-    if (!deleteDialog) return;
-
-    if (deleteDialog.type === 'bulk') {
-      setTickets((prev) =>
-        prev.filter((ticket) => !selectedIds.has(ticket.id))
-      );
-      setSelectedIds(new Set());
-      setDeleteDialog(null);
-      return;
+  const handleCheckIn = async (ticket) => {
+    setError(null);
+    try {
+      await ticketService.update(ticket.id, {
+        isCheckedIn: true,
+        checkedInAt: new Date().toISOString(),
+      });
+      await loadTickets();
+    } catch (e) {
+      setError(getErrorMessage(e));
     }
-
-    setTickets((prev) =>
-      prev.filter((ticket) => ticket.id !== deleteDialog.ticket.id)
-    );
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      next.delete(deleteDialog.ticket.id);
-      return next;
-    });
-    setDeleteDialog(null);
   };
 
-  const handleView = (ticket) => {
-    console.log('[Ticket detail]', ticket.id);
+  const handleDeleteConfirm = async () => {
+    if (!deleteDialog || deleteSubmitting) return;
+
+    setDeleteSubmitting(true);
+    setError(null);
+    try {
+      if (deleteDialog.type === 'bulk') {
+        await ticketService.deleteMany([...selectedIds]);
+        setSelectedIds(new Set());
+      } else {
+        await ticketService.deleteOne(deleteDialog.ticket.id);
+        setSelectedIds((prev) => {
+          const next = new Set(prev);
+          next.delete(deleteDialog.ticket.id);
+          return next;
+        });
+      }
+      setDeleteDialog(null);
+      await loadTickets();
+    } catch (e) {
+      setError(getErrorMessage(e));
+    } finally {
+      setDeleteSubmitting(false);
+    }
   };
 
-  const handleEdit = (ticket) => {
-    console.log('[Edit ticket]', ticket.id);
+  const handleView = async (ticket) => {
+    setDetailOpen(true);
+    setDetailTicket(null);
+    setDetailLoading(true);
+    setError(null);
+    try {
+      const full = await ticketService.getById(ticket.id);
+      setDetailTicket(full);
+    } catch (e) {
+      setDetailOpen(false);
+      setError(getErrorMessage(e));
+    } finally {
+      setDetailLoading(false);
+    }
   };
 
   const handleDelete = (ticket) => {
@@ -128,6 +211,8 @@ function Tickets() {
   const deleteIsBulk = deleteDialog?.type === 'bulk';
   const deleteTicketCode = deleteDialog?.ticket?.ticketCode ?? '';
 
+  const isEmpty = !isLoading && tickets.length === 0;
+
   return (
     <div className="space-y-4">
       <PageHeader
@@ -135,9 +220,28 @@ function Tickets() {
         description="Theo dõi vé đã phát hành, trạng thái check-in và thông tin ghế."
       />
 
+      {error && tickets.length > 0 ? (
+        <div
+          className="flex flex-col gap-2 rounded-lg border border-destructive/25 bg-destructive/5 px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
+          role="alert"
+        >
+          <p className="text-sm text-destructive">{error}</p>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-8 shrink-0"
+            onClick={() => void loadTickets()}
+          >
+            Thử lại
+          </Button>
+        </div>
+      ) : null}
+
       <AdminToolbar
         searchPlaceholder="Tìm kiếm mã vé, đơn hàng, khách hàng..."
-        onSearchChange={setSearchQuery}
+        searchValue={searchInput}
+        onSearchChange={setSearchInput}
       >
         <AdminFilterDropdown
           label="Trạng thái check-in"
@@ -147,61 +251,69 @@ function Tickets() {
         />
         <AdminFilterDropdown
           label="Sự kiện"
-          options={ticketEventFilterOptions}
+          options={eventFilterOptions}
           value={eventFilter}
           onChange={setEventFilter}
         />
       </AdminToolbar>
 
-            <AdminBulkActions
+      <AdminBulkActions
         selectedCount={selectedIds.size}
         label={`Đã chọn ${selectedIds.size} vé`}
       >
         <Button
-            type="button"
-            variant="destructive"
-            className="h-9 px-3"
-            onClick={() => setDeleteDialog({ type: 'bulk' })}
-          >
-            Xóa đã chọn
-          </Button>
+          type="button"
+          variant="destructive"
+          className="h-9 px-3"
+          disabled={selectedIds.size === 0}
+          onClick={() => setDeleteDialog({ type: 'bulk' })}
+        >
+          Xóa đã chọn
+        </Button>
       </AdminBulkActions>
 
       {isLoading ? (
         <AdminLoadingState rows={6} columns={8} minWidth="min-w-[1000px]" />
       ) : isEmpty ? (
         <AdminEmptyState
-          {...ADMIN_EMPTY_STATES.tickets}
+          {...(error
+            ? {
+                title: 'Không tải được danh sách',
+                description: error,
+                actionLabel: 'Thử lại',
+                onAction: () => void loadTickets(),
+              }
+            : ADMIN_EMPTY_STATES.tickets)}
         />
       ) : (
         <>
           <TicketTable
-                  tickets={filteredTickets}
-                  selectedIds={selectedIds}
-                  onSelectAll={handleSelectAll}
-                  onSelectRow={handleSelectRow}
-                  onView={handleView}
-                  onEdit={handleEdit}
-                  onViewQr={(ticket) => setQrDialog(ticket)}
-                  onCheckIn={handleCheckIn}
-                  onDelete={handleDelete}
-                />
+            tickets={tickets}
+            selectedIds={selectedIds}
+            onSelectAll={handleSelectAll}
+            onSelectRow={handleSelectRow}
+            onView={handleView}
+            onCheckIn={handleCheckIn}
+            onDelete={handleDelete}
+          />
           <AdminPagination
-            currentPage={1}
-            totalPages={1}
-            totalItems={filteredTickets.length}
-            pageSize={10}
+            currentPage={meta.currentPage}
+            totalPages={meta.totalPages}
+            totalItems={meta.totalItems}
+            pageSize={meta.itemsPerPage}
+            onPageChange={setPage}
           />
         </>
       )}
 
-
-      <TicketQrDialog
-        open={Boolean(qrDialog)}
-        ticket={qrDialog}
+      <TicketDetailDialog
+        open={detailOpen}
         onOpenChange={(isOpen) => {
-          if (!isOpen) setQrDialog(null);
+          setDetailOpen(isOpen);
+          if (!isOpen) setDetailTicket(null);
         }}
+        ticket={detailTicket}
+        loading={detailLoading}
       />
 
       <DeleteTicketDialog
@@ -209,8 +321,11 @@ function Tickets() {
         isBulk={deleteIsBulk}
         ticketCode={deleteTicketCode}
         selectedCount={selectedIds.size}
-        onConfirm={handleDeleteConfirm}
-        onCancel={() => setDeleteDialog(null)}
+        isDeleting={deleteSubmitting}
+        onConfirm={() => void handleDeleteConfirm()}
+        onCancel={() => {
+          if (!deleteSubmitting) setDeleteDialog(null);
+        }}
       />
     </div>
   );

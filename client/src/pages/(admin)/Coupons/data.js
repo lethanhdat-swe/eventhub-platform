@@ -3,64 +3,6 @@ export const COUPON_STATUS_OPTIONS = [
   { value: 'INACTIVE', label: 'Tạm dừng' },
 ];
 
-export const MOCK_COUPONS = [
-  {
-    id: 'cpn-001',
-    code: 'EVENTHUB10',
-    description: 'Giảm 10% cho đơn đầu tiên trên EventHub.',
-    discountPercent: 10,
-    usageLimit: 500,
-    validUntil: '2026-12-31T23:59:00.000Z',
-    status: 'ACTIVE',
-    createdAt: '2026-01-15T08:00:00.000Z',
-    updatedAt: '2026-03-01T10:00:00.000Z',
-  },
-  {
-    id: 'cpn-002',
-    code: 'SUMMER20',
-    description: 'Ưu đãi mùa hè — giảm 20% tối đa cho sự kiện ngoài trời.',
-    discountPercent: 20,
-    usageLimit: 200,
-    validUntil: '2026-08-31T23:59:00.000Z',
-    status: 'ACTIVE',
-    createdAt: '2026-04-01T09:00:00.000Z',
-    updatedAt: '2026-04-01T09:00:00.000Z',
-  },
-  {
-    id: 'cpn-003',
-    code: 'STUDENT15',
-    description: 'Dành cho sinh viên có mã xác thực.',
-    discountPercent: 15,
-    usageLimit: 1000,
-    validUntil: '2026-06-30T23:59:00.000Z',
-    status: 'ACTIVE',
-    createdAt: '2026-02-10T11:30:00.000Z',
-    updatedAt: '2026-05-12T14:00:00.000Z',
-  },
-  {
-    id: 'cpn-004',
-    code: 'VIP30',
-    description: 'Giảm 30% cho khách VIP và thành viên premium.',
-    discountPercent: 30,
-    usageLimit: 50,
-    validUntil: '2026-12-31T23:59:00.000Z',
-    status: 'INACTIVE',
-    createdAt: '2025-12-20T16:00:00.000Z',
-    updatedAt: '2026-06-01T08:00:00.000Z',
-  },
-  {
-    id: 'cpn-005',
-    code: 'WELCOME5',
-    description: 'Chào mừng thành viên mới — giảm 5%.',
-    discountPercent: 5,
-    usageLimit: null,
-    validUntil: null,
-    status: 'ACTIVE',
-    createdAt: '2026-03-08T10:00:00.000Z',
-    updatedAt: '2026-03-08T10:00:00.000Z',
-  },
-];
-
 const dateFormatter = new Intl.DateTimeFormat('vi-VN', {
   day: '2-digit',
   month: '2-digit',
@@ -73,39 +15,46 @@ export function formatValidUntil(date) {
 }
 
 export function formatDiscount(percent) {
+  if (percent == null) return '—';
   return `${percent}%`;
 }
 
-export function filterCoupons(coupons, searchQuery, facets = {}) {
-  let list = coupons;
-  const query = (searchQuery ?? '').trim().toLowerCase();
-  if (query) {
-    list = list.filter((coupon) => {
-      const haystack = [coupon.code, coupon.description]
-        .filter(Boolean)
-        .join(' ')
-        .toLowerCase();
+export function mapCouponRow(row) {
+  return {
+    id: row.id,
+    code: row.code,
+    description: row.description ?? '',
+    discountPercent: row.discountPercent,
+    usageLimit: row.usageLimit,
+    validUntil: row.validUntil,
+    status: row.status,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+  };
+}
 
-      return haystack.includes(query);
-    });
-  }
+export function toDatetimeLocalValue(iso) {
+  if (!iso) return '';
+  const date = new Date(iso);
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
 
-  const { status, validity } = facets;
-  if (status && status !== 'all') {
-    list = list.filter((coupon) => coupon.status === status);
-  }
-  if (validity && validity !== 'all') {
-    const now = Date.now();
-    if (validity === 'valid') {
-      list = list.filter(
-        (coupon) => !coupon.validUntil || new Date(coupon.validUntil) >= now
-      );
-    } else if (validity === 'expired') {
-      list = list.filter(
-        (coupon) => coupon.validUntil && new Date(coupon.validUntil) < now
-      );
-    }
-  }
-
-  return list;
+export function buildCouponPayload({
+  code,
+  description,
+  discountPercent,
+  usageLimit,
+  validUntil,
+  status,
+}) {
+  const payload = {
+    code,
+    discountPercent,
+    status,
+  };
+  if (description) payload.description = description;
+  if (usageLimit != null) payload.usageLimit = usageLimit;
+  if (validUntil) payload.validUntil = validUntil;
+  return payload;
 }

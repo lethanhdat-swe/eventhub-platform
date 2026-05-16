@@ -1,11 +1,4 @@
-import {
-  CheckCircle2,
-  Eye,
-  MoreHorizontal,
-  Pencil,
-  QrCode,
-  Trash2,
-} from 'lucide-react';
+import { CheckCircle2, Eye, MoreHorizontal, Trash2 } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -51,8 +44,6 @@ function TicketTable({
   onSelectAll,
   onSelectRow,
   onView,
-  onEdit,
-  onViewQr,
   onCheckIn,
   onDelete,
 }) {
@@ -103,7 +94,7 @@ function TicketTable({
                     aria-label={`Chọn vé ${ticket.ticketCode}`}
                   />
                 </TableCell>
-                <TableCell className="px-2 py-1.5 font-medium tabular-nums">
+                <TableCell className="max-w-[140px] truncate px-2 py-1.5 font-medium font-mono text-xs">
                   {ticket.ticketCode}
                 </TableCell>
                 <TableCell className="px-2 py-1.5">
@@ -137,7 +128,7 @@ function TicketTable({
                           variant="ghost"
                           size="icon-sm"
                           className="cursor-pointer"
-                          aria-label={`Hành động cho vé ${ticket.ticketCode}`}
+                          aria-label={`Hành động cho vé`}
                         >
                           <MoreHorizontal className="size-4" />
                         </Button>
@@ -150,20 +141,6 @@ function TicketTable({
                       >
                         <Eye className="size-4" />
                         Xem chi tiết
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="cursor-pointer"
-                        onClick={() => onEdit(ticket)}
-                      >
-                        <Pencil className="size-4" />
-                        Chỉnh sửa
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="cursor-pointer"
-                        onClick={() => onViewQr(ticket)}
-                      >
-                        <QrCode className="size-4" />
-                        Xem QR
                       </DropdownMenuItem>
                       {!ticket.isCheckedIn ? (
                         <DropdownMenuItem

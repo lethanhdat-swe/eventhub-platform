@@ -42,6 +42,17 @@ export const listTicketSchema = z.object({
         isCheckedIn: z
             .enum(["true", "false"])
             .optional()
-            .transform((val) => val === "true"),
+            .transform((val) =>
+                val === undefined ? undefined : val === "true"
+            ),
+        eventId: z.string().uuid("Invalid event ID format").optional(),
+    }),
+});
+
+export const deleteBulkTicketSchema = z.object({
+    body: z.object({
+        ids: z
+            .array(z.string().uuid("Invalid ID format"))
+            .min(1, "At least one ID is required"),
     }),
 });

@@ -1,10 +1,4 @@
-import {
-  Eye,
-  EyeOff,
-  MoreHorizontal,
-  Pencil,
-  Trash2,
-} from 'lucide-react';
+import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import AdminTableWrapper from '@/pages/(admin)/components/table/AdminTableWrapper';
@@ -35,9 +29,7 @@ function CouponTable({
   selectedIds,
   onSelectAll,
   onSelectRow,
-  onView,
   onEdit,
-  onToggleStatus,
   onDelete,
 }) {
   const selectedCount = selectedIds.size;
@@ -90,7 +82,7 @@ function CouponTable({
                   {coupon.code}
                 </TableCell>
                 <TableCell className="max-w-[200px] truncate px-2 py-1.5 text-muted-foreground">
-                  {coupon.description ?? '—'}
+                  {coupon.description || '—'}
                 </TableCell>
                 <TableCell className="px-2 py-1.5 tabular-nums">
                   {formatDiscount(coupon.discountPercent)}
@@ -121,28 +113,10 @@ function CouponTable({
                     <DropdownMenuContent align="end" className="w-48">
                       <DropdownMenuItem
                         className="cursor-pointer"
-                        onClick={() => onView(coupon)}
-                      >
-                        <Eye className="size-4" />
-                        Xem chi tiết
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="cursor-pointer"
                         onClick={() => onEdit(coupon)}
                       >
                         <Pencil className="size-4" />
                         Chỉnh sửa
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="cursor-pointer"
-                        onClick={() => onToggleStatus(coupon)}
-                      >
-                        {coupon.status === 'ACTIVE' ? (
-                          <EyeOff className="size-4" />
-                        ) : (
-                          <Eye className="size-4" />
-                        )}
-                        {coupon.status === 'ACTIVE' ? 'Ẩn' : 'Hiển thị'}
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem

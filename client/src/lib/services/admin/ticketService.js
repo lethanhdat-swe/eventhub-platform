@@ -1,24 +1,24 @@
 import { axiosInstance } from '@/lib/http/axiosInstance';
 import { getApiData } from '@/lib/http/unwrapApiSuccess';
 
-const resourceBase = '/api/events';
+const resourceBase = '/api/tickets';
 
 /**
- * @param {{ page?: number, limit?: number, search?: string, status?: string, categoryId?: string }} query
+ * @param {{ page?: number, limit?: number, search?: string, isCheckedIn?: boolean, eventId?: string }} query
  */
 function buildListParams(query) {
-  const { page = 1, limit = 10, search, status, categoryId } = query;
+  const { page = 1, limit = 10, search, isCheckedIn, eventId } = query;
   const params = { page, limit };
   const q = typeof search === 'string' ? search.trim() : '';
   if (q) params.search = q;
-  if (status && status !== 'all') params.status = status;
-  if (categoryId && categoryId !== 'all') params.categoryId = categoryId;
+  if (isCheckedIn !== undefined) params.isCheckedIn = String(isCheckedIn);
+  if (eventId && eventId !== 'all') params.eventId = eventId;
   return params;
 }
 
-export const eventService = {
+export const ticketService = {
   /**
-   * @param {{ page?: number, limit?: number, search?: string, status?: string, categoryId?: string }} query
+   * @param {{ page?: number, limit?: number, search?: string, isCheckedIn?: boolean, eventId?: string }} query
    */
   list: async (query = {}) => {
     const body = await axiosInstance.get(resourceBase, {
@@ -36,20 +36,19 @@ export const eventService = {
   },
 
   /**
-   * @param {Record<string, unknown>} data
+   * @param {string} id
+   * @param {{ isCheckedIn?: boolean, checkedInAt?: string | null }} data
    */
-  create: async (data) => {
-    const body = await axiosInstance.post(resourceBase, data);
+  update: async (id, data) => {
+    const body = await axiosInstance.patch(`${resourceBase}/${id}`, data);
     return getApiData(body);
   },
 
   /**
    * @param {string} id
-   * @param {Record<string, unknown>} data
    */
-  update: async (id, data) => {
-    const body = await axiosInstance.patch(`${resourceBase}/${id}`, data);
-    return getApiData(body);
+  deleteOne: async (id) => {
+    await axiosInstance.delete(`${resourceBase}/${id}`);
   },
 
   /**

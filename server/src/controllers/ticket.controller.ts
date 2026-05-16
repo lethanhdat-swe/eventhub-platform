@@ -70,6 +70,18 @@ class TicketController {
             next(error);
         }
     };
+
+    deleteMany = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            await ticketService.deleteMany(req.body.ids);
+
+            return res.success({
+                message: "Tickets deleted successfully.",
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
 }
 
 export default new TicketController();

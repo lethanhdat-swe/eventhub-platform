@@ -8,6 +8,7 @@ import {
     getCouponSchema,
     createCouponSchema,
     updateCouponSchema,
+    deleteBulkCouponSchema,
 } from "../schema/coupon.schema";
 
 const router = Router();
@@ -24,6 +25,7 @@ router.post("/", validate(createCouponSchema), couponController.create);
 
 router.patch("/:id", validate(updateCouponSchema), couponController.update);
 
+router.delete("/", validate(deleteBulkCouponSchema), couponController.deleteMany);
 router.delete("/:id", couponController.delete);
 
 export default router;

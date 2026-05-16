@@ -23,28 +23,39 @@ class TicketService {
         page: number;
         limit: number;
         isCheckedIn?: boolean;
+        eventId?: string;
     }) {
-        const { page = 1, limit = 10, search, isCheckedIn } = query;
+        const { page = 1, limit = 10, search, isCheckedIn, eventId } = query;
         const skip = (page - 1) * limit;
 
-        const where: any = {};
+        const where: Record<string, unknown> = {};
 
         if (isCheckedIn !== undefined) {
             where.isCheckedIn = isCheckedIn;
         }
 
+        if (eventId) {
+            where.eventSeat = { eventId };
+        }
+
         if (search) {
             where.OR = [
                 { qrSecureToken: { contains: search } },
-                { orderId: { contains: search } },
-                { eventSeatId: { contains: search } },
                 {
                     order: {
                         OR: [
                             { customerEmail: { contains: search } },
                             { customerName: { contains: search } },
+                            { customerPhone: { contains: search } },
                             { orderCode: { contains: search } },
                         ],
+                    },
+                },
+                {
+                    eventSeat: {
+                        event: {
+                            title: { contains: search },
+                        },
                     },
                 },
             ];
@@ -61,10 +72,11 @@ class TicketService {
                         include: {
                             event: true,
                             seat: true,
+                            ticketType: true,
                         },
                     },
                 },
-                orderBy: { id: "desc" }, // No createdAt in Ticket model, using id or could add createdAt
+                orderBy: { id: "desc" },
             }),
             prisma.ticket.count({ where }),
         ]);
@@ -84,6 +96,7 @@ class TicketService {
                     include: {
                         event: true,
                         seat: true,
+                        ticketType: true,
                     },
                 },
             },
@@ -102,6 +115,18 @@ class TicketService {
         return await prisma.ticket.delete({
             where: { id },
         });
+    }
+
+    async deleteMany(ids: string[]) {
+        const result = await prisma.ticket.deleteMany({
+            where: { id: { in: ids } },
+        });
+
+        if (result.count === 0) {
+            throw new AppError("No tickets found to delete", 404);
+        }
+
+        return result;
     }
 }
 

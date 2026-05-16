@@ -1,11 +1,4 @@
-import {
-  Eye,
-  MoreHorizontal,
-  Pencil,
-  RotateCcw,
-  Ticket,
-  Trash2,
-} from 'lucide-react';
+import { Eye, MoreHorizontal, Trash2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import AdminTableWrapper from '@/pages/(admin)/components/table/AdminTableWrapper';
@@ -26,7 +19,11 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import OrderStatusBadge from '@/pages/(admin)/Orders/components/OrderStatusBadge';
-import { formatCreatedAt, formatPriceVnd } from '@/pages/(admin)/Orders/data';
+import {
+  formatCreatedAt,
+  formatPaymentMethod,
+  formatPriceVnd,
+} from '@/pages/(admin)/Orders/data';
 
 function OrderTable({
   orders,
@@ -34,9 +31,6 @@ function OrderTable({
   onSelectAll,
   onSelectRow,
   onView,
-  onEdit,
-  onViewTickets,
-  onRefund,
   onDelete,
 }) {
   const selectedCount = selectedIds.size;
@@ -48,8 +42,6 @@ function OrderTable({
     : someSelected
       ? 'indeterminate'
       : false;
-
-  const canRefund = (order) => order.status === 'PAID';
 
   return (
     <AdminTableWrapper>
@@ -105,7 +97,7 @@ function OrderTable({
                   {formatPriceVnd(order.totalAmount)}
                 </TableCell>
                 <TableCell className="px-2 py-1.5 text-muted-foreground">
-                  {order.paymentMethod}
+                  {formatPaymentMethod(order.paymentMethod)}
                 </TableCell>
                 <TableCell className="px-2 py-1.5">
                   <OrderStatusBadge status={order.status} />
@@ -135,29 +127,6 @@ function OrderTable({
                         <Eye className="size-4" />
                         Xem chi tiết
                       </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="cursor-pointer"
-                        onClick={() => onEdit(order)}
-                      >
-                        <Pencil className="size-4" />
-                        Chỉnh sửa
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="cursor-pointer"
-                        onClick={() => onViewTickets(order)}
-                      >
-                        <Ticket className="size-4" />
-                        Xem vé
-                      </DropdownMenuItem>
-                      {canRefund(order) ? (
-                        <DropdownMenuItem
-                          className="cursor-pointer"
-                          onClick={() => onRefund(order)}
-                        >
-                          <RotateCcw className="size-4" />
-                          Hoàn tiền
-                        </DropdownMenuItem>
-                      ) : null}
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
                         variant="destructive"

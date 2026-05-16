@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { PaymentMethod } from "@prisma/client";
+import { OrderStatus, PaymentMethod } from "@prisma/client";
 
 const paramsIdSchema = z.object({
     id: z.string().uuid("Invalid order ID format"),
@@ -29,7 +29,7 @@ export const listOrderSchema = z.object({
             .default("10")
             .transform((val) => Math.max(1, parseInt(val))),
         search: z.string().optional(),
-        status: z.string().optional(),
+        status: z.nativeEnum(OrderStatus).optional(),
     }),
 });
 

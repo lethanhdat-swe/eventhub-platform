@@ -7,6 +7,7 @@ import {
     getTicketSchema,
     createTicketSchema,
     updateTicketSchema,
+    deleteBulkTicketSchema,
 } from "../schema/ticket.schema";
 
 const router = Router();
@@ -18,6 +19,7 @@ router.get("/", validate(listTicketSchema), ticketController.list);
 router.get("/:id", validate(getTicketSchema), ticketController.getDetail);
 router.post("/", validate(createTicketSchema), ticketController.create);
 router.patch("/:id", validate(updateTicketSchema), ticketController.update);
+router.delete("/", validate(deleteBulkTicketSchema), ticketController.deleteMany);
 router.delete("/:id", ticketController.delete);
 
 export default router;

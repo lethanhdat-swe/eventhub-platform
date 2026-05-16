@@ -1,7 +1,9 @@
 import { Plus } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { getErrorMessage } from '@/lib/http/apiError';
+import { couponService } from '@/lib/services/admin/couponService';
 import AdminFilterDropdown from '@/pages/(admin)/components/AdminFilterDropdown';
 import AdminToolbar from '@/pages/(admin)/components/AdminToolbar';
 import {
@@ -17,23 +19,32 @@ import CouponFormDialog from '@/pages/(admin)/Coupons/components/CouponFormDialo
 import CouponTable from '@/pages/(admin)/Coupons/components/CouponTable';
 import DeleteCouponDialog from '@/pages/(admin)/Coupons/components/DeleteCouponDialog';
 import {
+  buildCouponPayload,
   COUPON_STATUS_OPTIONS,
-  filterCoupons,
-  MOCK_COUPONS,
+  mapCouponRow,
 } from '@/pages/(admin)/Coupons/data';
 
-function createCouponId() {
-  return `cpn-${crypto.randomUUID().slice(0, 8)}`;
-}
+const PAGE_SIZE = 10;
 
 function Coupons() {
-  const [coupons, setCoupons] = useState(MOCK_COUPONS);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [coupons, setCoupons] = useState([]);
+  const [searchInput, setSearchInput] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [validityFilter, setValidityFilter] = useState('all');
+  const [page, setPage] = useState(1);
+  const [meta, setMeta] = useState({
+    totalItems: 0,
+    totalPages: 1,
+    currentPage: 1,
+    itemsPerPage: PAGE_SIZE,
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selectedIds, setSelectedIds] = useState(() => new Set());
   const [formDialog, setFormDialog] = useState(null);
   const [deleteDialog, setDeleteDialog] = useState(null);
+  const [deleteSubmitting, setDeleteSubmitting] = useState(false);
 
   const couponStatusFilterOptions = useMemo(
     () => [
@@ -55,21 +66,52 @@ function Coupons() {
     []
   );
 
-  const filteredCoupons = useMemo(
-    () =>
-      filterCoupons(coupons, searchQuery, {
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setDebouncedSearch(searchInput.trim());
+    }, 300);
+    return () => clearTimeout(t);
+  }, [searchInput]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch, statusFilter, validityFilter]);
+
+  const loadCoupons = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const payload = await couponService.list({
+        page,
+        limit: PAGE_SIZE,
+        search: debouncedSearch,
         status: statusFilter,
         validity: validityFilter,
-      }),
-    [coupons, searchQuery, statusFilter, validityFilter]
-  );
+      });
+      const rows = payload.data ?? [];
+      setCoupons(rows.map(mapCouponRow));
+      const m = payload.meta ?? {};
+      setMeta({
+        totalItems: m.totalItems ?? 0,
+        totalPages: Math.max(1, m.totalPages ?? 1),
+        currentPage: m.currentPage ?? page,
+        itemsPerPage: m.itemsPerPage ?? PAGE_SIZE,
+      });
+    } catch (e) {
+      setError(getErrorMessage(e));
+      setCoupons([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [page, debouncedSearch, statusFilter, validityFilter]);
 
-  const isLoading = false;
-  const isEmpty = !isLoading && filteredCoupons.length === 0;
+  useEffect(() => {
+    void loadCoupons();
+  }, [loadCoupons]);
 
   const handleSelectAll = (checked) => {
     if (checked) {
-      setSelectedIds(new Set(filteredCoupons.map((coupon) => coupon.id)));
+      setSelectedIds(new Set(coupons.map((coupon) => coupon.id)));
     } else {
       setSelectedIds(new Set());
     }
@@ -87,97 +129,63 @@ function Coupons() {
     });
   };
 
-  const handleSaveCoupon = ({
-    code,
-    description,
-    discountPercent,
-    usageLimit,
-    validUntil,
-    status,
-  }) => {
-    const now = new Date().toISOString();
+  const handleSaveCoupon = async (values) => {
+    setError(null);
+    const body = buildCouponPayload(values);
 
     if (formDialog?.mode === 'create') {
-      setCoupons((prev) => [
-        ...prev,
-        {
-          id: createCouponId(),
-          code,
-          description,
-          discountPercent,
-          usageLimit,
-          validUntil,
-          status,
-          createdAt: now,
-          updatedAt: now,
-        },
-      ]);
+      await couponService.create(body);
       setFormDialog(null);
+      await loadCoupons();
       return;
     }
 
     if (formDialog?.mode === 'edit' && formDialog.coupon) {
-      setCoupons((prev) =>
-        prev.map((coupon) =>
-          coupon.id === formDialog.coupon.id
-            ? {
-                ...coupon,
-                code,
-                description,
-                discountPercent,
-                usageLimit,
-                validUntil,
-                status,
-                updatedAt: now,
-              }
-            : coupon
-        )
-      );
+      const updateBody = {
+        ...body,
+        description: values.description || undefined,
+        validUntil: values.validUntil,
+        usageLimit: values.usageLimit,
+      };
+      await couponService.update(formDialog.coupon.id, updateBody);
       setFormDialog(null);
+      await loadCoupons();
     }
   };
 
-  const handleToggleStatus = (coupon) => {
-    setCoupons((prev) =>
-      prev.map((item) =>
-        item.id === coupon.id
-          ? {
-              ...item,
-              status: item.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE',
-              updatedAt: new Date().toISOString(),
-            }
-          : item
-      )
-    );
-  };
+  const handleDeleteConfirm = async () => {
+    if (!deleteDialog || deleteSubmitting) return;
 
-  const handleDeleteConfirm = () => {
-    if (!deleteDialog) return;
-
-    if (deleteDialog.type === 'bulk') {
-      setCoupons((prev) =>
-        prev.filter((coupon) => !selectedIds.has(coupon.id))
-      );
-      setSelectedIds(new Set());
+    setDeleteSubmitting(true);
+    setError(null);
+    try {
+      if (deleteDialog.type === 'bulk') {
+        await couponService.deleteMany([...selectedIds]);
+        setSelectedIds(new Set());
+      } else {
+        await couponService.deleteOne(deleteDialog.coupon.id);
+        setSelectedIds((prev) => {
+          const next = new Set(prev);
+          next.delete(deleteDialog.coupon.id);
+          return next;
+        });
+      }
       setDeleteDialog(null);
-      return;
+      await loadCoupons();
+    } catch (e) {
+      setError(getErrorMessage(e));
+    } finally {
+      setDeleteSubmitting(false);
     }
-
-    setCoupons((prev) =>
-      prev.filter((coupon) => coupon.id !== deleteDialog.coupon.id)
-    );
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      next.delete(deleteDialog.coupon.id);
-      return next;
-    });
-    setDeleteDialog(null);
   };
 
   const formDialogOpen = Boolean(formDialog);
   const formInitialValues =
     formDialog?.mode === 'edit'
-      ? { ...formDialog.coupon }
+      ? {
+          ...formDialog.coupon,
+          validUntil: formDialog.coupon.validUntil,
+        }
       : {
           code: '',
           description: '',
@@ -191,10 +199,6 @@ function Coupons() {
   const deleteIsBulk = deleteDialog?.type === 'bulk';
   const deleteCouponCode = deleteDialog?.coupon?.code ?? '';
 
-  const handleView = (coupon) => {
-    console.log('[Coupon detail]', coupon);
-  };
-
   const handleEdit = (coupon) => {
     setFormDialog({ mode: 'edit', coupon });
   };
@@ -202,6 +206,8 @@ function Coupons() {
   const handleDelete = (coupon) => {
     setDeleteDialog({ type: 'single', coupon });
   };
+
+  const isEmpty = !isLoading && coupons.length === 0;
 
   return (
     <div className="space-y-4">
@@ -213,9 +219,28 @@ function Coupons() {
         onAction={() => setFormDialog({ mode: 'create' })}
       />
 
+      {error && coupons.length > 0 ? (
+        <div
+          className="flex flex-col gap-2 rounded-lg border border-destructive/25 bg-destructive/5 px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
+          role="alert"
+        >
+          <p className="text-sm text-destructive">{error}</p>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-8 shrink-0"
+            onClick={() => void loadCoupons()}
+          >
+            Thử lại
+          </Button>
+        </div>
+      ) : null}
+
       <AdminToolbar
         searchPlaceholder="Tìm kiếm mã giảm giá..."
-        onSearchChange={setSearchQuery}
+        searchValue={searchInput}
+        onSearchChange={setSearchInput}
       >
         <AdminFilterDropdown
           label="Trạng thái"
@@ -231,48 +256,56 @@ function Coupons() {
         />
       </AdminToolbar>
 
-            <AdminBulkActions
+      <AdminBulkActions
         selectedCount={selectedIds.size}
         label={`Đã chọn ${selectedIds.size} mã giảm giá`}
       >
         <Button
-            type="button"
-            variant="destructive"
-            className="h-9 px-3"
-            onClick={() => setDeleteDialog({ type: 'bulk' })}
-          >
-            Xóa đã chọn
-          </Button>
+          type="button"
+          variant="destructive"
+          className="h-9 px-3"
+          disabled={selectedIds.size === 0}
+          onClick={() => setDeleteDialog({ type: 'bulk' })}
+        >
+          Xóa đã chọn
+        </Button>
       </AdminBulkActions>
 
       {isLoading ? (
         <AdminLoadingState rows={6} columns={8} minWidth="min-w-[900px]" />
       ) : isEmpty ? (
         <AdminEmptyState
-          {...ADMIN_EMPTY_STATES.coupons}
-          onAction={() => setFormDialog({ mode: 'create' })}
+          {...(error
+            ? {
+                title: 'Không tải được danh sách',
+                description: error,
+                actionLabel: 'Thử lại',
+                onAction: () => void loadCoupons(),
+              }
+            : {
+                ...ADMIN_EMPTY_STATES.coupons,
+                onAction: () => setFormDialog({ mode: 'create' }),
+              })}
         />
       ) : (
         <>
           <CouponTable
-                  coupons={filteredCoupons}
-                  selectedIds={selectedIds}
-                  onSelectAll={handleSelectAll}
-                  onSelectRow={handleSelectRow}
-                  onView={handleView}
-                  onEdit={handleEdit}
-                  onToggleStatus={handleToggleStatus}
-                  onDelete={handleDelete}
-                />
+            coupons={coupons}
+            selectedIds={selectedIds}
+            onSelectAll={handleSelectAll}
+            onSelectRow={handleSelectRow}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
           <AdminPagination
-            currentPage={1}
-            totalPages={1}
-            totalItems={filteredCoupons.length}
-            pageSize={10}
+            currentPage={meta.currentPage}
+            totalPages={meta.totalPages}
+            totalItems={meta.totalItems}
+            pageSize={meta.itemsPerPage}
+            onPageChange={setPage}
           />
         </>
       )}
-
 
       <CouponFormDialog
         open={formDialogOpen}
@@ -289,8 +322,11 @@ function Coupons() {
         isBulk={deleteIsBulk}
         couponCode={deleteCouponCode}
         selectedCount={selectedIds.size}
-        onConfirm={handleDeleteConfirm}
-        onCancel={() => setDeleteDialog(null)}
+        isDeleting={deleteSubmitting}
+        onConfirm={() => void handleDeleteConfirm()}
+        onCancel={() => {
+          if (!deleteSubmitting) setDeleteDialog(null);
+        }}
       />
     </div>
   );

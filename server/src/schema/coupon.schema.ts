@@ -38,8 +38,8 @@ export const updateCouponSchema = z.object({
             code: z.string().min(3).max(20).transform((val) => val.toUpperCase()).optional(),
             description: z.string().optional(),
             discountPercent: z.number().min(1).max(100).optional(),
-            validUntil: z.string().datetime().optional(),
-            usageLimit: z.number().int().positive().optional(),
+            validUntil: z.string().datetime().nullable().optional(),
+            usageLimit: z.number().int().positive().nullable().optional(),
             status: z.nativeEnum(CouponStatus).optional(),
         })
         .partial(), // Cho phép cập nhật từng trường lẻ
@@ -69,5 +69,15 @@ export const listCouponSchema = z.object({
             .default("10")
             .transform((val) => Math.max(1, parseInt(val))),
         search: z.string().optional(),
+        status: z.nativeEnum(CouponStatus).optional(),
+        validity: z.enum(["valid", "expired"]).optional(),
+    }),
+});
+
+export const deleteBulkCouponSchema = z.object({
+    body: z.object({
+        ids: z
+            .array(z.string().uuid("Invalid ID format"))
+            .min(1, "At least one ID is required"),
     }),
 });

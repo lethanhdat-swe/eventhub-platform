@@ -1,11 +1,45 @@
 import { axiosInstance } from '@/lib/http/axiosInstance';
+import { getApiData } from '@/lib/http/unwrapApiSuccess';
 
-const resourceBase = '/orders';
+const resourceBase = '/api/orders';
+
+/**
+ * @param {{ page?: number, limit?: number, search?: string, status?: string }} query
+ */
+function buildListParams(query) {
+  const { page = 1, limit = 10, search, status } = query;
+  const params = { page, limit };
+  const q = typeof search === 'string' ? search.trim() : '';
+  if (q) params.search = q;
+  if (status && status !== 'all') params.status = status;
+  return params;
+}
 
 export const orderService = {
-  getAll: () => axiosInstance.get(resourceBase),
-  getById: (id) => axiosInstance.get(`${resourceBase}/${id}`),
-  create: (data) => axiosInstance.post(resourceBase, data),
-  update: (id, data) => axiosInstance.put(`${resourceBase}/${id}`, data),
-  delete: (id) => axiosInstance.delete(`${resourceBase}/${id}`),
+  /**
+   * @param {{ page?: number, limit?: number, search?: string, status?: string }} query
+   * @returns {Promise<{ data: unknown[], meta: Record<string, number> }>}
+   */
+  list: async (query = {}) => {
+    const body = await axiosInstance.get(resourceBase, {
+      params: buildListParams(query),
+    });
+    return getApiData(body);
+  },
+
+  /**
+   * @param {string} id
+   * @returns {Promise<unknown>}
+   */
+  getById: async (id) => {
+    const body = await axiosInstance.get(`${resourceBase}/${id}`);
+    return getApiData(body);
+  },
+
+  /**
+   * @param {string[]} ids
+   */
+  deleteMany: async (ids) => {
+    await axiosInstance.delete(resourceBase, { data: { ids } });
+  },
 };

@@ -1,8 +1,11 @@
 import { Plus } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
+import { getErrorMessage } from '@/lib/http/apiError';
+import { categoryService } from '@/lib/services/admin/categoryService';
+import { eventService } from '@/lib/services/admin/eventService';
 import AdminFilterDropdown from '@/pages/(admin)/components/AdminFilterDropdown';
 import AdminToolbar from '@/pages/(admin)/components/AdminToolbar';
 import PageHeader from '@/pages/(admin)/components/PageHeader';
@@ -18,19 +21,31 @@ import DeleteEventDialog from '@/pages/(admin)/Events/components/DeleteEventDial
 import EventTable from '@/pages/(admin)/Events/components/EventTable';
 import {
   EVENT_STATUS_OPTIONS,
-  filterEvents,
-  MOCK_CATEGORIES,
-  MOCK_EVENTS,
+  mapEventRow,
 } from '@/pages/(admin)/Events/data';
+
+const PAGE_SIZE = 10;
 
 function AdminEvents() {
   const navigate = useNavigate();
-  const [events, setEvents] = useState(MOCK_EVENTS);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [events, setEvents] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [searchInput, setSearchInput] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [page, setPage] = useState(1);
+  const [meta, setMeta] = useState({
+    totalItems: 0,
+    totalPages: 1,
+    currentPage: 1,
+    itemsPerPage: PAGE_SIZE,
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selectedIds, setSelectedIds] = useState(() => new Set());
   const [deleteDialog, setDeleteDialog] = useState(null);
+  const [deleteSubmitting, setDeleteSubmitting] = useState(false);
 
   const eventStatusFilterOptions = useMemo(
     () => [
@@ -46,26 +61,70 @@ function AdminEvents() {
   const eventCategoryFilterOptions = useMemo(
     () => [
       { value: 'all', label: 'Tất cả' },
-      ...MOCK_CATEGORIES.map((c) => ({ value: c.id, label: c.name })),
+      ...categories.map((c) => ({ value: c.id, label: c.name })),
     ],
-    []
+    [categories]
   );
 
-  const filteredEvents = useMemo(
-    () =>
-      filterEvents(events, searchQuery, {
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setDebouncedSearch(searchInput.trim());
+    }, 300);
+    return () => clearTimeout(t);
+  }, [searchInput]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch, statusFilter, categoryFilter]);
+
+  const loadCategories = useCallback(async () => {
+    try {
+      const payload = await categoryService.list({ page: 1, limit: 100 });
+      setCategories(payload.data ?? []);
+    } catch {
+      setCategories([]);
+    }
+  }, []);
+
+  const loadEvents = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const payload = await eventService.list({
+        page,
+        limit: PAGE_SIZE,
+        search: debouncedSearch,
         status: statusFilter,
         categoryId: categoryFilter,
-      }),
-    [events, searchQuery, statusFilter, categoryFilter]
-  );
+      });
+      const rows = payload.data ?? [];
+      setEvents(rows.map(mapEventRow));
+      const m = payload.meta ?? {};
+      setMeta({
+        totalItems: m.totalItems ?? 0,
+        totalPages: Math.max(1, m.totalPages ?? 1),
+        currentPage: m.currentPage ?? page,
+        itemsPerPage: m.itemsPerPage ?? PAGE_SIZE,
+      });
+    } catch (e) {
+      setError(getErrorMessage(e));
+      setEvents([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [page, debouncedSearch, statusFilter, categoryFilter]);
 
-  const isLoading = false;
-  const isEmpty = !isLoading && filteredEvents.length === 0;
+  useEffect(() => {
+    void loadCategories();
+  }, [loadCategories]);
+
+  useEffect(() => {
+    void loadEvents();
+  }, [loadEvents]);
 
   const handleSelectAll = (checked) => {
     if (checked) {
-      setSelectedIds(new Set(filteredEvents.map((event) => event.id)));
+      setSelectedIds(new Set(events.map((event) => event.id)));
     } else {
       setSelectedIds(new Set());
     }
@@ -83,25 +142,30 @@ function AdminEvents() {
     });
   };
 
-  const handleDeleteConfirm = () => {
-    if (!deleteDialog) return;
+  const handleDeleteConfirm = async () => {
+    if (!deleteDialog || deleteSubmitting) return;
 
-    if (deleteDialog.type === 'bulk') {
-      setEvents((prev) => prev.filter((event) => !selectedIds.has(event.id)));
-      setSelectedIds(new Set());
+    setDeleteSubmitting(true);
+    setError(null);
+    try {
+      if (deleteDialog.type === 'bulk') {
+        await eventService.deleteMany([...selectedIds]);
+        setSelectedIds(new Set());
+      } else {
+        await eventService.deleteMany([deleteDialog.event.id]);
+        setSelectedIds((prev) => {
+          const next = new Set(prev);
+          next.delete(deleteDialog.event.id);
+          return next;
+        });
+      }
       setDeleteDialog(null);
-      return;
+      await loadEvents();
+    } catch (e) {
+      setError(getErrorMessage(e));
+    } finally {
+      setDeleteSubmitting(false);
     }
-
-    setEvents((prev) =>
-      prev.filter((event) => event.id !== deleteDialog.event.id)
-    );
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      next.delete(deleteDialog.event.id);
-      return next;
-    });
-    setDeleteDialog(null);
   };
 
   const deleteDialogTitle =
@@ -117,25 +181,11 @@ function AdminEvents() {
     navigate(`/admin/events/${event.id}/edit`);
   };
 
-  const handleToggleStatus = (event) => {
-    const nextStatus =
-      event.status === 'PUBLISHED' ? 'DRAFT' : 'PUBLISHED';
-    setEvents((prev) =>
-      prev.map((item) =>
-        item.id === event.id
-          ? {
-              ...item,
-              status: nextStatus,
-              updatedAt: new Date().toISOString(),
-            }
-          : item
-      )
-    );
-  };
-
   const handleDelete = (event) => {
     setDeleteDialog({ type: 'single', event });
   };
+
+  const isEmpty = !isLoading && events.length === 0;
 
   return (
     <div className="space-y-4">
@@ -147,9 +197,28 @@ function AdminEvents() {
         onAction={() => navigate('/admin/events/create')}
       />
 
+      {error && events.length > 0 ? (
+        <div
+          className="flex flex-col gap-2 rounded-lg border border-destructive/25 bg-destructive/5 px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
+          role="alert"
+        >
+          <p className="text-sm text-destructive">{error}</p>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-8 shrink-0 cursor-pointer"
+            onClick={() => void loadEvents()}
+          >
+            Thử lại
+          </Button>
+        </div>
+      ) : null}
+
       <AdminToolbar
         searchPlaceholder="Tìm kiếm sự kiện..."
-        onSearchChange={setSearchQuery}
+        searchValue={searchInput}
+        onSearchChange={setSearchInput}
       >
         <AdminFilterDropdown
           label="Trạng thái"
@@ -183,26 +252,35 @@ function AdminEvents() {
         <AdminLoadingState rows={6} columns={8} minWidth="min-w-[960px]" />
       ) : isEmpty ? (
         <AdminEmptyState
-          {...ADMIN_EMPTY_STATES.events}
-          onAction={() => navigate('/admin/events/create')}
+          {...(error
+            ? {
+                title: 'Không tải được danh sách',
+                description: error,
+                actionLabel: 'Thử lại',
+                onAction: () => void loadEvents(),
+              }
+            : {
+                ...ADMIN_EMPTY_STATES.events,
+                onAction: () => navigate('/admin/events/create'),
+              })}
         />
       ) : (
         <>
           <EventTable
-            events={filteredEvents}
+            events={events}
             selectedIds={selectedIds}
             onSelectAll={handleSelectAll}
             onSelectRow={handleSelectRow}
             onView={handleView}
             onEdit={handleEdit}
-            onToggleStatus={handleToggleStatus}
             onDelete={handleDelete}
           />
           <AdminPagination
-            currentPage={1}
-            totalPages={1}
-            totalItems={filteredEvents.length}
-            pageSize={10}
+            currentPage={meta.currentPage}
+            totalPages={meta.totalPages}
+            totalItems={meta.totalItems}
+            pageSize={meta.itemsPerPage}
+            onPageChange={setPage}
           />
         </>
       )}
@@ -210,8 +288,11 @@ function AdminEvents() {
       <DeleteEventDialog
         open={Boolean(deleteDialog)}
         eventTitle={deleteDialogTitle}
-        onConfirm={handleDeleteConfirm}
-        onCancel={() => setDeleteDialog(null)}
+        isDeleting={deleteSubmitting}
+        onConfirm={() => void handleDeleteConfirm()}
+        onCancel={() => {
+          if (!deleteSubmitting) setDeleteDialog(null);
+        }}
       />
     </div>
   );

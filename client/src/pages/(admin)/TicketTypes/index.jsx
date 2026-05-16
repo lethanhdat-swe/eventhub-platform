@@ -1,9 +1,9 @@
 import { Plus } from 'lucide-react';
-import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import AdminFilterDropdown from '@/pages/(admin)/components/AdminFilterDropdown';
+import { getErrorMessage } from '@/lib/http/apiError';
+import { ticketTypeService } from '@/lib/services/admin/ticketTypeService';
 import AdminToolbar from '@/pages/(admin)/components/AdminToolbar';
 import {
   AdminBulkActions,
@@ -17,45 +17,72 @@ import PageHeader from '@/pages/(admin)/components/PageHeader';
 import DeleteTicketTypeDialog from '@/pages/(admin)/TicketTypes/components/DeleteTicketTypeDialog';
 import TicketTypeFormDialog from '@/pages/(admin)/TicketTypes/components/TicketTypeFormDialog';
 import TicketTypeTable from '@/pages/(admin)/TicketTypes/components/TicketTypeTable';
-import {
-  filterTicketTypes,
-  MOCK_TICKET_TYPES,
-} from '@/pages/(admin)/TicketTypes/data';
+import { mapTicketTypeRow } from '@/pages/(admin)/TicketTypes/data';
 
-const TICKET_TYPE_PRICE_FILTER_OPTIONS = [
-  { value: 'all', label: 'Tất cả' },
-  { value: 'lt1m', label: 'Dưới 1.000.000đ' },
-  { value: 'mid', label: '1.000.000đ – 2.000.000đ' },
-  { value: 'gte2m', label: 'Từ 2.000.000đ' },
-];
-
-function createTicketTypeId() {
-  return `tt-${crypto.randomUUID().slice(0, 8)}`;
-}
+const PAGE_SIZE = 10;
 
 function TicketTypes() {
-  const navigate = useNavigate();
-  const [ticketTypes, setTicketTypes] = useState(MOCK_TICKET_TYPES);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [priceFilter, setPriceFilter] = useState('all');
+  const [ticketTypes, setTicketTypes] = useState([]);
+  const [searchInput, setSearchInput] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [meta, setMeta] = useState({
+    totalItems: 0,
+    totalPages: 1,
+    currentPage: 1,
+    itemsPerPage: PAGE_SIZE,
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selectedIds, setSelectedIds] = useState(() => new Set());
   const [formDialog, setFormDialog] = useState(null);
   const [deleteDialog, setDeleteDialog] = useState(null);
+  const [deleteSubmitting, setDeleteSubmitting] = useState(false);
 
-  const filteredTicketTypes = useMemo(
-    () =>
-      filterTicketTypes(ticketTypes, searchQuery, {
-        priceBucket: priceFilter,
-      }),
-    [ticketTypes, searchQuery, priceFilter]
-  );
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setDebouncedSearch(searchInput.trim());
+    }, 300);
+    return () => clearTimeout(t);
+  }, [searchInput]);
 
-  const isLoading = false;
-  const isEmpty = !isLoading && filteredTicketTypes.length === 0;
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch]);
+
+  const loadTicketTypes = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const payload = await ticketTypeService.list({
+        page,
+        limit: PAGE_SIZE,
+        search: debouncedSearch,
+      });
+      const rows = payload.data ?? [];
+      setTicketTypes(rows.map(mapTicketTypeRow));
+      const m = payload.meta ?? {};
+      setMeta({
+        totalItems: m.totalItems ?? 0,
+        totalPages: Math.max(1, m.totalPages ?? 1),
+        currentPage: m.currentPage ?? page,
+        itemsPerPage: m.itemsPerPage ?? PAGE_SIZE,
+      });
+    } catch (e) {
+      setError(getErrorMessage(e));
+      setTicketTypes([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [page, debouncedSearch]);
+
+  useEffect(() => {
+    void loadTicketTypes();
+  }, [loadTicketTypes]);
 
   const handleSelectAll = (checked) => {
     if (checked) {
-      setSelectedIds(new Set(filteredTicketTypes.map((type) => type.id)));
+      setSelectedIds(new Set(ticketTypes.map((type) => type.id)));
     } else {
       setSelectedIds(new Set());
     }
@@ -73,57 +100,47 @@ function TicketTypes() {
     });
   };
 
-  const handleSaveTicketType = ({ name, price, status, description }) => {
+  const handleSaveTicketType = async ({ name, price }) => {
+    setError(null);
+
     if (formDialog?.mode === 'create') {
-      setTicketTypes((prev) => [
-        ...prev,
-        {
-          id: createTicketTypeId(),
-          name,
-          price,
-          status,
-          description,
-          defaultSeatCount: 0,
-          eventSeatCount: 0,
-        },
-      ]);
+      await ticketTypeService.create({ name, price });
       setFormDialog(null);
+      await loadTicketTypes();
       return;
     }
 
     if (formDialog?.mode === 'edit' && formDialog.ticketType) {
-      setTicketTypes((prev) =>
-        prev.map((type) =>
-          type.id === formDialog.ticketType.id
-            ? { ...type, name, price, status, description }
-            : type
-        )
-      );
+      await ticketTypeService.update(formDialog.ticketType.id, { name, price });
       setFormDialog(null);
+      await loadTicketTypes();
     }
   };
 
-  const handleDeleteConfirm = () => {
-    if (!deleteDialog) return;
+  const handleDeleteConfirm = async () => {
+    if (!deleteDialog || deleteSubmitting) return;
 
-    if (deleteDialog.type === 'bulk') {
-      setTicketTypes((prev) =>
-        prev.filter((type) => !selectedIds.has(type.id))
-      );
-      setSelectedIds(new Set());
+    setDeleteSubmitting(true);
+    setError(null);
+    try {
+      if (deleteDialog.type === 'bulk') {
+        await ticketTypeService.deleteMany([...selectedIds]);
+        setSelectedIds(new Set());
+      } else {
+        await ticketTypeService.deleteMany([deleteDialog.ticketType.id]);
+        setSelectedIds((prev) => {
+          const next = new Set(prev);
+          next.delete(deleteDialog.ticketType.id);
+          return next;
+        });
+      }
       setDeleteDialog(null);
-      return;
+      await loadTicketTypes();
+    } catch (e) {
+      setError(getErrorMessage(e));
+    } finally {
+      setDeleteSubmitting(false);
     }
-
-    setTicketTypes((prev) =>
-      prev.filter((type) => type.id !== deleteDialog.ticketType.id)
-    );
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      next.delete(deleteDialog.ticketType.id);
-      return next;
-    });
-    setDeleteDialog(null);
   };
 
   const formDialogOpen = Boolean(formDialog);
@@ -132,41 +149,25 @@ function TicketTypes() {
       ? {
           name: formDialog.ticketType.name,
           price: formDialog.ticketType.price,
-          status: formDialog.ticketType.status,
-          description: formDialog.ticketType.description ?? '',
         }
       : {
           name: '',
           price: '',
-          status: 'active',
-          description: '',
         };
 
   const deleteDialogOpen = Boolean(deleteDialog);
   const deleteIsBulk = deleteDialog?.type === 'bulk';
   const deleteTypeName = deleteDialog?.ticketType?.name ?? '';
 
-  const handleView = (ticketType) => {
-    console.log('[Ticket type detail]', ticketType);
-  };
-
   const handleEdit = (ticketType) => {
     setFormDialog({ mode: 'edit', ticketType });
-  };
-
-  const handleToggleStatus = (ticketType) => {
-    const nextStatus =
-      ticketType.status === 'active' ? 'draft' : 'active';
-    setTicketTypes((prev) =>
-      prev.map((item) =>
-        item.id === ticketType.id ? { ...item, status: nextStatus } : item
-      )
-    );
   };
 
   const handleDelete = (ticketType) => {
     setDeleteDialog({ type: 'single', ticketType });
   };
+
+  const isEmpty = !isLoading && ticketTypes.length === 0;
 
   return (
     <div className="space-y-4">
@@ -178,61 +179,80 @@ function TicketTypes() {
         onAction={() => setFormDialog({ mode: 'create' })}
       />
 
+      {error && ticketTypes.length > 0 ? (
+        <div
+          className="flex flex-col gap-2 rounded-lg border border-destructive/25 bg-destructive/5 px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
+          role="alert"
+        >
+          <p className="text-sm text-destructive">{error}</p>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-8 shrink-0"
+            onClick={() => void loadTicketTypes()}
+          >
+            Thử lại
+          </Button>
+        </div>
+      ) : null}
+
       <AdminToolbar
         searchPlaceholder="Tìm kiếm loại vé..."
-        onSearchChange={setSearchQuery}
-      >
-        <AdminFilterDropdown
-          label="Khoảng giá"
-          options={TICKET_TYPE_PRICE_FILTER_OPTIONS}
-          value={priceFilter}
-          onChange={setPriceFilter}
-        />
-      </AdminToolbar>
+        searchValue={searchInput}
+        onSearchChange={setSearchInput}
+      />
 
-            <AdminBulkActions
+      <AdminBulkActions
         selectedCount={selectedIds.size}
         label={`Đã chọn ${selectedIds.size} loại vé`}
       >
         <Button
-            type="button"
-            variant="destructive"
-            className="h-9 px-3"
-            onClick={() => setDeleteDialog({ type: 'bulk' })}
-          >
-            Xóa đã chọn
-          </Button>
+          type="button"
+          variant="destructive"
+          className="h-9 px-3"
+          disabled={selectedIds.size === 0}
+          onClick={() => setDeleteDialog({ type: 'bulk' })}
+        >
+          Xóa đã chọn
+        </Button>
       </AdminBulkActions>
 
       {isLoading ? (
-        <AdminLoadingState rows={6} columns={6} minWidth="min-w-[800px]" />
+        <AdminLoadingState rows={6} columns={5} minWidth="min-w-[800px]" />
       ) : isEmpty ? (
         <AdminEmptyState
-          {...ADMIN_EMPTY_STATES.ticketTypes}
-          onAction={() => setFormDialog({ mode: 'create' })}
+          {...(error
+            ? {
+                title: 'Không tải được danh sách',
+                description: error,
+                actionLabel: 'Thử lại',
+                onAction: () => void loadTicketTypes(),
+              }
+            : {
+                ...ADMIN_EMPTY_STATES.ticketTypes,
+                onAction: () => setFormDialog({ mode: 'create' }),
+              })}
         />
       ) : (
         <>
           <TicketTypeTable
-                  ticketTypes={filteredTicketTypes}
-                  selectedIds={selectedIds}
-                  onSelectAll={handleSelectAll}
-                  onSelectRow={handleSelectRow}
-                  onView={handleView}
-                  onEdit={handleEdit}
-                  onToggleStatus={handleToggleStatus}
-                  onViewSeats={() => navigate('/admin/default-seats')}
-                  onDelete={handleDelete}
-                />
+            ticketTypes={ticketTypes}
+            selectedIds={selectedIds}
+            onSelectAll={handleSelectAll}
+            onSelectRow={handleSelectRow}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
           <AdminPagination
-            currentPage={1}
-            totalPages={1}
-            totalItems={filteredTicketTypes.length}
-            pageSize={10}
+            currentPage={meta.currentPage}
+            totalPages={meta.totalPages}
+            totalItems={meta.totalItems}
+            pageSize={meta.itemsPerPage}
+            onPageChange={setPage}
           />
         </>
       )}
-
 
       <TicketTypeFormDialog
         open={formDialogOpen}
@@ -249,8 +269,11 @@ function TicketTypes() {
         isBulk={deleteIsBulk}
         typeName={deleteTypeName}
         selectedCount={selectedIds.size}
-        onConfirm={handleDeleteConfirm}
-        onCancel={() => setDeleteDialog(null)}
+        isDeleting={deleteSubmitting}
+        onConfirm={() => void handleDeleteConfirm()}
+        onCancel={() => {
+          if (!deleteSubmitting) setDeleteDialog(null);
+        }}
       />
     </div>
   );

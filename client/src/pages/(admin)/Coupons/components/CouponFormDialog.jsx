@@ -19,7 +19,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { COUPON_STATUS_OPTIONS } from '@/pages/(admin)/Coupons/data';
+import { getErrorMessage } from '@/lib/http/apiError';
+import {
+  COUPON_STATUS_OPTIONS,
+  toDatetimeLocalValue,
+} from '@/pages/(admin)/Coupons/data';
 
 const EMPTY_VALUES = {
   code: '',
@@ -30,13 +34,6 @@ const EMPTY_VALUES = {
   status: 'ACTIVE',
 };
 
-function toDatetimeLocalValue(iso) {
-  if (!iso) return '';
-  const date = new Date(iso);
-  const pad = (n) => String(n).padStart(2, '0');
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
-}
-
 function CouponFormDialog({
   open,
   mode,
@@ -45,6 +42,10 @@ function CouponFormDialog({
   onSave,
 }) {
   const [form, setForm] = useState(EMPTY_VALUES);
+  const [codeError, setCodeError] = useState('');
+  const [discountError, setDiscountError] = useState('');
+  const [formError, setFormError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
   const isCreate = mode === 'create';
 
   useEffect(() => {
@@ -60,28 +61,64 @@ function CouponFormDialog({
         validUntil: toDatetimeLocalValue(initialValues.validUntil),
         status: initialValues.status ?? 'ACTIVE',
       });
+      setCodeError('');
+      setDiscountError('');
+      setFormError('');
     }
-  }, [open, initialValues]);
+  }, [open, mode, initialValues]);
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    onSave({
-      code: form.code.trim().toUpperCase(),
-      description: form.description.trim(),
-      discountPercent: Number(form.discountPercent),
-      usageLimit: form.usageLimit === '' ? null : Number(form.usageLimit),
-      validUntil: form.validUntil
-        ? new Date(form.validUntil).toISOString()
-        : null,
-      status: form.status,
-    });
-    onOpenChange(false);
+    setFormError('');
+    const code = form.code.trim();
+    if (code.length < 3) {
+      setCodeError('Mã giảm giá phải có ít nhất 3 ký tự.');
+      return;
+    }
+    setCodeError('');
+
+    const discountPercent = Number(form.discountPercent);
+    if (
+      form.discountPercent === '' ||
+      Number.isNaN(discountPercent) ||
+      discountPercent < 1 ||
+      discountPercent > 100
+    ) {
+      setDiscountError('Nhập phần trăm giảm từ 1 đến 100.');
+      return;
+    }
+    setDiscountError('');
+
+    const usageLimit =
+      form.usageLimit === '' ? null : Number(form.usageLimit);
+    if (form.usageLimit !== '' && (Number.isNaN(usageLimit) || usageLimit < 1)) {
+      setFormError('Giới hạn lượt dùng phải là số nguyên dương.');
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      await onSave({
+        code: code.toUpperCase(),
+        description: form.description.trim(),
+        discountPercent,
+        usageLimit,
+        validUntil: form.validUntil
+          ? new Date(form.validUntil).toISOString()
+          : null,
+        status: form.status,
+      });
+    } catch (e) {
+      setFormError(getErrorMessage(e));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md" showCloseButton>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={(e) => void handleSubmit(e)}>
           <DialogHeader>
             <DialogTitle>
               {isCreate ? 'Thêm mã giảm giá' : 'Chỉnh sửa mã giảm giá'}
@@ -94,6 +131,12 @@ function CouponFormDialog({
           </DialogHeader>
 
           <div className="grid max-h-[min(60vh,420px)] gap-3 overflow-y-auto py-2">
+            {formError ? (
+              <p className="text-sm text-destructive" role="alert">
+                {formError}
+              </p>
+            ) : null}
+
             <div className="space-y-1.5">
               <Label htmlFor="coupon-code">Mã giảm giá</Label>
               <Input
@@ -104,7 +147,12 @@ function CouponFormDialog({
                 }
                 placeholder="EVENTHUB10"
                 className="h-9 uppercase"
+                disabled={submitting}
+                aria-invalid={Boolean(codeError)}
               />
+              {codeError ? (
+                <p className="text-xs text-destructive">{codeError}</p>
+              ) : null}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="coupon-description">Mô tả</Label>
@@ -120,6 +168,7 @@ function CouponFormDialog({
                 placeholder="Mô tả mã giảm giá"
                 rows={3}
                 className="min-h-[72px] resize-y"
+                disabled={submitting}
               />
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -128,7 +177,7 @@ function CouponFormDialog({
                 <Input
                   id="coupon-discount"
                   type="number"
-                  min={0}
+                  min={1}
                   max={100}
                   value={form.discountPercent}
                   onChange={(event) =>
@@ -139,14 +188,19 @@ function CouponFormDialog({
                   }
                   placeholder="10"
                   className="h-9"
+                  disabled={submitting}
+                  aria-invalid={Boolean(discountError)}
                 />
+                {discountError ? (
+                  <p className="text-xs text-destructive">{discountError}</p>
+                ) : null}
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="coupon-limit">Giới hạn lượt dùng</Label>
                 <Input
                   id="coupon-limit"
                   type="number"
-                  min={0}
+                  min={1}
                   value={form.usageLimit}
                   onChange={(event) =>
                     setForm((prev) => ({
@@ -156,6 +210,7 @@ function CouponFormDialog({
                   }
                   placeholder="Không giới hạn"
                   className="h-9"
+                  disabled={submitting}
                 />
               </div>
             </div>
@@ -172,6 +227,7 @@ function CouponFormDialog({
                   }))
                 }
                 className="h-9"
+                disabled={submitting}
               />
             </div>
             <div className="space-y-1.5">
@@ -181,6 +237,7 @@ function CouponFormDialog({
                 onValueChange={(value) =>
                   setForm((prev) => ({ ...prev, status: value ?? 'ACTIVE' }))
                 }
+                disabled={submitting}
               >
                 <SelectTrigger id="coupon-status" className="h-9 w-full">
                   <SelectValue placeholder="Chọn trạng thái" />
@@ -201,12 +258,17 @@ function CouponFormDialog({
               type="button"
               variant="outline"
               className="h-9 cursor-pointer"
+              disabled={submitting}
               onClick={() => onOpenChange(false)}
             >
               Hủy
             </Button>
-            <Button type="submit" className="h-9 cursor-pointer">
-              Lưu mã
+            <Button
+              type="submit"
+              className="h-9 cursor-pointer"
+              disabled={submitting}
+            >
+              {submitting ? 'Đang lưu…' : 'Lưu mã'}
             </Button>
           </DialogFooter>
         </form>

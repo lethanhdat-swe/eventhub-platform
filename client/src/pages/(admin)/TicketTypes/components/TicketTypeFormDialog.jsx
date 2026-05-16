@@ -11,21 +11,11 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { TICKET_TYPE_STATUS_OPTIONS } from '@/pages/(admin)/TicketTypes/data';
+import { getErrorMessage } from '@/lib/http/apiError';
 
 const EMPTY_VALUES = {
   name: '',
   price: '',
-  status: 'active',
-  description: '',
 };
 
 function TicketTypeFormDialog({
@@ -36,6 +26,10 @@ function TicketTypeFormDialog({
   onSave,
 }) {
   const [form, setForm] = useState(EMPTY_VALUES);
+  const [nameError, setNameError] = useState('');
+  const [priceError, setPriceError] = useState('');
+  const [formError, setFormError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
   const isCreate = mode === 'create';
 
   useEffect(() => {
@@ -43,45 +37,62 @@ function TicketTypeFormDialog({
       setForm({
         name: initialValues.name ?? '',
         price: String(initialValues.price ?? ''),
-        status: initialValues.status ?? 'active',
-        description: initialValues.description ?? '',
       });
+      setNameError('');
+      setPriceError('');
+      setFormError('');
     }
-  }, [
-    open,
-    initialValues.name,
-    initialValues.price,
-    initialValues.status,
-    initialValues.description,
-  ]);
+  }, [open, initialValues.name, initialValues.price]);
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    onSave({
-      name: form.name.trim(),
-      price: Number(form.price),
-      status: form.status,
-      description: form.description.trim(),
-    });
-    onOpenChange(false);
+    setFormError('');
+    const name = form.name.trim();
+    if (!name) {
+      setNameError('Vui lòng nhập tên loại vé.');
+      return;
+    }
+    setNameError('');
+
+    const price = Number(form.price);
+    if (form.price === '' || Number.isNaN(price) || price < 0) {
+      setPriceError('Vui lòng nhập giá hợp lệ (số ≥ 0).');
+      return;
+    }
+    setPriceError('');
+
+    setSubmitting(true);
+    try {
+      await onSave({ name, price });
+    } catch (e) {
+      setFormError(getErrorMessage(e));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md" showCloseButton>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={(e) => void handleSubmit(e)}>
           <DialogHeader>
             <DialogTitle>
               {isCreate ? 'Thêm loại vé' : 'Chỉnh sửa loại vé'}
             </DialogTitle>
             <DialogDescription>
               {isCreate
-                ? 'Tạo hạng vé mới với mức giá và mô tả hiển thị.'
+                ? 'Tạo hạng vé mới với mức giá.'
                 : 'Cập nhật thông tin loại vé.'}
             </DialogDescription>
           </DialogHeader>
 
           <div className="grid gap-3 py-2">
+            {formError ? (
+              <p className="text-sm text-destructive" role="alert">
+                {formError}
+              </p>
+            ) : null}
+
             <div className="space-y-1.5">
               <Label htmlFor="ticket-type-name">Tên loại vé</Label>
               <Input
@@ -92,7 +103,12 @@ function TicketTypeFormDialog({
                 }
                 placeholder="Ví dụ: VIP"
                 className="h-9"
+                aria-invalid={Boolean(nameError)}
+                disabled={submitting}
               />
+              {nameError ? (
+                <p className="text-xs text-destructive">{nameError}</p>
+              ) : null}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="ticket-type-price">Giá</Label>
@@ -106,43 +122,12 @@ function TicketTypeFormDialog({
                 }
                 placeholder="800000"
                 className="h-9"
+                aria-invalid={Boolean(priceError)}
+                disabled={submitting}
               />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="ticket-type-status">Trạng thái</Label>
-              <Select
-                value={form.status}
-                onValueChange={(value) =>
-                  setForm((prev) => ({ ...prev, status: value ?? 'active' }))
-                }
-              >
-                <SelectTrigger id="ticket-type-status" className="h-9 w-full">
-                  <SelectValue placeholder="Chọn trạng thái" />
-                </SelectTrigger>
-                <SelectContent>
-                  {TICKET_TYPE_STATUS_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="ticket-type-description">Mô tả ngắn</Label>
-              <Textarea
-                id="ticket-type-description"
-                value={form.description}
-                onChange={(event) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    description: event.target.value,
-                  }))
-                }
-                placeholder="Mô tả loại vé (tùy chọn)"
-                rows={3}
-                className="min-h-[72px] resize-y"
-              />
+              {priceError ? (
+                <p className="text-xs text-destructive">{priceError}</p>
+              ) : null}
             </div>
           </div>
 
@@ -151,12 +136,17 @@ function TicketTypeFormDialog({
               type="button"
               variant="outline"
               className="h-9 cursor-pointer"
+              disabled={submitting}
               onClick={() => onOpenChange(false)}
             >
               Hủy
             </Button>
-            <Button type="submit" className="h-9 cursor-pointer">
-              Lưu loại vé
+            <Button
+              type="submit"
+              className="h-9 cursor-pointer"
+              disabled={submitting}
+            >
+              {submitting ? 'Đang lưu…' : 'Lưu loại vé'}
             </Button>
           </DialogFooter>
         </form>
