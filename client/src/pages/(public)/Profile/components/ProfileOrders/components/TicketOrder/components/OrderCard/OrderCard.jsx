@@ -1,4 +1,5 @@
 import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 function OrderCard({order}) {
 
@@ -19,7 +20,7 @@ function OrderCard({order}) {
   };
 
   return (
-        <div
+        <Link to={`/event-checkin/${order.id}`}
           className="
             group relative overflow-hidden rounded-3xl
             border border-(--text-primary)/10 bg-(--text-primary)/3
@@ -78,7 +79,7 @@ function OrderCard({order}) {
               <p className="text-sm text-(--text-primary)">
                 Mã đơn:
                 <span className="ml-2 text-(--text-primary)">
-                  {order.id}
+                  {order.ticketCode}
                 </span>
               </p>
 
@@ -96,7 +97,7 @@ function OrderCard({order}) {
               </button>
             </div>
           </div>
-        </div>
+        </Link>
   );
 }
 

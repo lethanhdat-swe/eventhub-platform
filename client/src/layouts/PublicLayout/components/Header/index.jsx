@@ -5,7 +5,6 @@ import HeaderLogo from './components/HeaderLogo/HeaderLogo';
 import HeaderNav from './components/HeaderNav/HeaderNav';
 import HeaderAuth from './components/HeaderAuth/HeaderAuth';
 import HeaderThemeToggle from './components/HeaderThemeToggle/HeaderThemeToggle';
-import { ShoppingCart } from 'lucide-react';
 import HeaderProfileButton from './components/HeaderProfileButton/HeaderProfileButton';
 
 function Header() {
@@ -24,9 +23,7 @@ function Header() {
 
       <div className="flex items-center gap-8 cursor-pointer">
         <HeaderSearch />
-        <ShoppingCart color="var(--text-primary)" />
         {isAuthenticated ? <HeaderProfileButton /> : <HeaderAuth />}
-
         <HeaderThemeToggle />
       </div>
     </header>
