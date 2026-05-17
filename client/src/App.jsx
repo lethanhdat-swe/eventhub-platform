@@ -36,6 +36,8 @@ import CheckInLogs from '@/pages/(admin)/CheckInLogs';
 import Users from '@/pages/(admin)/Users';
 import Notifications from '@/pages/(admin)/Notifications';
 import Settings from '@/pages/(admin)/Settings';
+import PaymentStatus from './pages/(public)/PaymentStatus';
+
 
 function App() {
   return (
@@ -50,6 +52,7 @@ function App() {
         <Route path="/search" element={<Search />} />
         <Route path="/booking" element={<Booking />} />
         <Route path="/payment" element={<Payment />} />
+        <Route path="/payment-status" element={<PaymentStatus />} />
         <Route path="/profile" element={<Profile />} />
       </Route>
 
