@@ -12,6 +12,26 @@ export const createSeatSchema = z.object({
     }),
 });
 
+export const createSeatRowSchema = z.object({
+    body: z
+        .object({
+            rowLabel: z.string().min(1, "Row label is required"),
+            fromSeatNumber: z
+                .number()
+                .int()
+                .positive("fromSeatNumber must be a positive integer"),
+            toSeatNumber: z
+                .number()
+                .int()
+                .positive("toSeatNumber must be a positive integer"),
+            defaultTicketTypeId: z.string().uuid("Invalid ticket type ID format"),
+        })
+        .refine((data) => data.toSeatNumber >= data.fromSeatNumber, {
+            message: "toSeatNumber must be greater than or equal to fromSeatNumber",
+            path: ["toSeatNumber"],
+        }),
+});
+
 export const updateSeatSchema = z.object({
     params: paramsIdSchema,
     body: z.object({

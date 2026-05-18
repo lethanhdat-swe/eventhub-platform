@@ -46,6 +46,11 @@ export const errorMiddleware = (
                 status = 404;
                 message = "Record not found";
                 break;
+            case "P2003":
+                status = 409;
+                message =
+                    "Cannot delete this record because it is still in use.";
+                break;
             default:
                 status = 400;
                 message = "Database operation failed";

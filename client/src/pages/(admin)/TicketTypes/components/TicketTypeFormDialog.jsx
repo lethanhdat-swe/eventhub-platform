@@ -12,10 +12,13 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { getErrorMessage } from '@/lib/http/apiError';
+import TicketTypeColorField from '@/pages/(admin)/TicketTypes/components/TicketTypeColorField';
+import { DEFAULT_TICKET_COLOR, normalizeHexColor } from '@/pages/(admin)/TicketTypes/colorUtils';
 
 const EMPTY_VALUES = {
   name: '',
   price: '',
+  color: DEFAULT_TICKET_COLOR,
 };
 
 function TicketTypeFormDialog({
@@ -37,12 +40,13 @@ function TicketTypeFormDialog({
       setForm({
         name: initialValues.name ?? '',
         price: String(initialValues.price ?? ''),
+        color: normalizeHexColor(initialValues.color ?? DEFAULT_TICKET_COLOR),
       });
       setNameError('');
       setPriceError('');
       setFormError('');
     }
-  }, [open, initialValues.name, initialValues.price]);
+  }, [open, initialValues.name, initialValues.price, initialValues.color]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -61,9 +65,11 @@ function TicketTypeFormDialog({
     }
     setPriceError('');
 
+    const color = normalizeHexColor(form.color);
+
     setSubmitting(true);
     try {
-      await onSave({ name, price });
+      await onSave({ name, price, color });
     } catch (e) {
       setFormError(getErrorMessage(e));
     } finally {
@@ -81,7 +87,7 @@ function TicketTypeFormDialog({
             </DialogTitle>
             <DialogDescription>
               {isCreate
-                ? 'Tạo hạng vé mới với mức giá.'
+                ? 'Tạo hạng vé mới với mức giá và màu hiển thị trên sơ đồ ghế.'
                 : 'Cập nhật thông tin loại vé.'}
             </DialogDescription>
           </DialogHeader>
@@ -129,6 +135,13 @@ function TicketTypeFormDialog({
                 <p className="text-xs text-destructive">{priceError}</p>
               ) : null}
             </div>
+            <TicketTypeColorField
+              value={form.color}
+              onChange={(color) =>
+                setForm((prev) => ({ ...prev, color: normalizeHexColor(color) }))
+              }
+              disabled={submitting}
+            />
           </div>
 
           <DialogFooter className="mt-2 sm:justify-end">

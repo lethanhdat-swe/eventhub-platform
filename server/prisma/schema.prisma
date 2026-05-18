@@ -116,6 +116,7 @@ model TicketType {
   id    String @id @default(uuid())
   name  String
   price Float
+  color String @default("#27272A") 
 
   defaultSeats Seat[]      @relation("DefaultSeats")
   eventSeats   EventSeat[]

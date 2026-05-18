@@ -15,6 +15,19 @@ class SeatController {
         }
     };
 
+    createRow = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const result = await seatService.createRow(req.body);
+
+            return res.success({
+                message: "Seat row created successfully.",
+                data: result,
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
     update = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const result = await seatService.update(

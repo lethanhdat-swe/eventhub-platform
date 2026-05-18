@@ -17,6 +17,7 @@ import PageHeader from '@/pages/(admin)/components/PageHeader';
 import DeleteTicketTypeDialog from '@/pages/(admin)/TicketTypes/components/DeleteTicketTypeDialog';
 import TicketTypeFormDialog from '@/pages/(admin)/TicketTypes/components/TicketTypeFormDialog';
 import TicketTypeTable from '@/pages/(admin)/TicketTypes/components/TicketTypeTable';
+import { DEFAULT_TICKET_COLOR, normalizeHexColor } from '@/pages/(admin)/TicketTypes/colorUtils';
 import { mapTicketTypeRow } from '@/pages/(admin)/TicketTypes/data';
 
 const PAGE_SIZE = 10;
@@ -100,18 +101,23 @@ function TicketTypes() {
     });
   };
 
-  const handleSaveTicketType = async ({ name, price }) => {
+  const handleSaveTicketType = async ({ name, price, color }) => {
     setError(null);
+    const payload = {
+      name,
+      price,
+      color: normalizeHexColor(color),
+    };
 
     if (formDialog?.mode === 'create') {
-      await ticketTypeService.create({ name, price });
+      await ticketTypeService.create(payload);
       setFormDialog(null);
       await loadTicketTypes();
       return;
     }
 
     if (formDialog?.mode === 'edit' && formDialog.ticketType) {
-      await ticketTypeService.update(formDialog.ticketType.id, { name, price });
+      await ticketTypeService.update(formDialog.ticketType.id, payload);
       setFormDialog(null);
       await loadTicketTypes();
     }
@@ -127,10 +133,11 @@ function TicketTypes() {
         await ticketTypeService.deleteMany([...selectedIds]);
         setSelectedIds(new Set());
       } else {
-        await ticketTypeService.deleteMany([deleteDialog.ticketType.id]);
+        const id = deleteDialog.ticketType.id;
+        await ticketTypeService.deleteMany([id]);
         setSelectedIds((prev) => {
           const next = new Set(prev);
-          next.delete(deleteDialog.ticketType.id);
+          next.delete(id);
           return next;
         });
       }
@@ -149,10 +156,12 @@ function TicketTypes() {
       ? {
           name: formDialog.ticketType.name,
           price: formDialog.ticketType.price,
+          color: formDialog.ticketType.color ?? DEFAULT_TICKET_COLOR,
         }
       : {
           name: '',
           price: '',
+          color: DEFAULT_TICKET_COLOR,
         };
 
   const deleteDialogOpen = Boolean(deleteDialog);
@@ -219,7 +228,7 @@ function TicketTypes() {
       </AdminBulkActions>
 
       {isLoading ? (
-        <AdminLoadingState rows={6} columns={5} minWidth="min-w-[800px]" />
+        <AdminLoadingState rows={6} columns={6} minWidth="min-w-[900px]" />
       ) : isEmpty ? (
         <AdminEmptyState
           {...(error

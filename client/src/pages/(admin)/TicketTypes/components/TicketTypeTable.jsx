@@ -41,7 +41,7 @@ function TicketTypeTable({
 
   return (
     <AdminTableWrapper>
-      <Table className="min-w-[800px]">
+      <Table className="min-w-[900px]">
         <TableHeader>
           <TableRow className="bg-muted/40 hover:bg-muted/40">
             <TableHead className="h-9 w-10 px-2">
@@ -52,6 +52,7 @@ function TicketTypeTable({
               />
             </TableHead>
             <TableHead className="h-9 px-2">Tên loại vé</TableHead>
+            <TableHead className="h-9 px-2">Màu</TableHead>
             <TableHead className="h-9 px-2">Giá</TableHead>
             <TableHead className="h-9 w-12 px-2 text-right">
               Hành động
@@ -75,6 +76,18 @@ function TicketTypeTable({
               </TableCell>
               <TableCell className="px-2 py-1.5 font-medium">
                 {type.name}
+              </TableCell>
+              <TableCell className="px-2 py-1.5">
+                <span className="inline-flex items-center gap-2">
+                  <span
+                    className="size-3.5 shrink-0 rounded-sm border border-border"
+                    style={{ backgroundColor: type.color }}
+                    aria-hidden
+                  />
+                  <span className="font-mono text-xs text-muted-foreground">
+                    {type.color}
+                  </span>
+                </span>
               </TableCell>
               <TableCell className="px-2 py-1.5 text-muted-foreground">
                 {formatPriceVnd(type.price)}

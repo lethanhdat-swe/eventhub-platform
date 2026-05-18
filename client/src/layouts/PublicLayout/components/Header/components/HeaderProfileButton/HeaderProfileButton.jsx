@@ -1,22 +1,47 @@
+import { useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-import { User, LogOut } from "lucide-react";
-import { Link } from "react-router-dom";
+import { authStorage } from "@/lib/auth/authStorage";
+import { authService } from "@/lib/services/auth/authService";
+import { useAuthStore } from "@/stores/authStore";
+import { Loader2, LogOut, User } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 
 function HeaderProfileButton() {
-  const handleLogout = () => {
-    console.log("logout");
-  };
+  const navigate = useNavigate();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  async function handleLogout() {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
+    try {
+      const refreshToken =
+        useAuthStore.getState().refreshToken ?? authStorage.getRefreshToken();
+      if (refreshToken) {
+        try {
+          await authService.logout({ refreshToken });
+        } catch {
+          /* vẫn xóa auth local dù API lỗi */
+        }
+      }
+    } finally {
+      useAuthStore.getState().clearAuth();
+      navigate("/login");
+    }
+  }
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button className="outline-none cursor-pointer p-2 rounded-full border border-transparent hover:border-(--primary-color)/40 hover:bg-(--primary-color)/10 hover:shadow-[0_0_10px_var(--primary-color)] active:scale-95 transition-all duration-300 group">
+      <DropdownMenuTrigger asChild disabled={isLoggingOut}>
+        <button
+          type="button"
+          disabled={isLoggingOut}
+          className="outline-none cursor-pointer p-2 rounded-full border border-transparent hover:border-(--primary-color)/40 hover:bg-(--primary-color)/10 hover:shadow-[0_0_10px_var(--primary-color)] active:scale-95 transition-all duration-300 group disabled:opacity-50 disabled:pointer-events-none"
+        >
           <User
             size={20}
             color="var(--text-primary)"
@@ -49,11 +74,16 @@ function HeaderProfileButton() {
         <div className="my-1 border-t border-(--primary-color)/10" />
 
         <DropdownMenuItem
-          onClick={handleLogout}
-          className="flex items-center gap-3 px-3 py-2 text-sm transition-colors duration-200 cursor-pointer rounded-xl hover:bg-red-500/10 group/logout"
+          disabled={isLoggingOut}
+          onClick={() => void handleLogout()}
+          className="flex items-center gap-3 px-3 py-2 text-sm transition-colors duration-200 cursor-pointer rounded-xl hover:bg-red-500/10 group/logout disabled:opacity-50 disabled:pointer-events-none"
         >
           <div className="p-1 transition-colors rounded-lg bg-red-500/10 group-hover/logout:bg-red-500/20">
-            <LogOut size={13} color="rgb(239 68 68)" />
+            {isLoggingOut ? (
+              <Loader2 size={13} className="animate-spin text-red-500" />
+            ) : (
+              <LogOut size={13} color="rgb(239 68 68)" />
+            )}
           </div>
           <span className="font-medium text-red-500">Đăng xuất</span>
         </DropdownMenuItem>

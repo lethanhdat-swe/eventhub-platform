@@ -7,9 +7,10 @@ function PageHeader({
   actionLabel,
   onAction,
   actionIcon,
+  actions,
   className,
 }) {
-  const showAction = actionLabel && onAction;
+  const showLegacyAction = actionLabel && onAction && !actions;
 
   return (
     <div
@@ -27,7 +28,11 @@ function PageHeader({
         ) : null}
       </div>
 
-      {showAction ? (
+      {actions ? (
+        <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>
+      ) : null}
+
+      {showLegacyAction ? (
         <Button
           type="button"
           onClick={onAction}

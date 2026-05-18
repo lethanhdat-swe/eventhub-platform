@@ -1,6 +1,7 @@
 import { prisma } from "../utils/prisma";
 import { AppError } from "../utils/AppError";
 import { getPaginationMetadata } from "../utils/pagination";
+import { CheckInTicketInput } from "../schema/ticket-type.schema";
 
 class TicketService {
     async create(body: any) {
@@ -127,6 +128,111 @@ class TicketService {
         }
 
         return result;
+    }
+
+    async checkIn(data: CheckInTicketInput) {
+        const { token } = data;
+
+        const ticket = await prisma.ticket.findUnique({
+            where: {
+                qrSecureToken: token,
+            },
+            select: {
+                id: true,
+                isCheckedIn: true,
+                checkedInAt: true,
+                order: {
+                    select: {
+                        id: true,
+                        status: true,
+                        orderCode: true,
+                    },
+                },
+                eventSeat: {
+                    select: {
+                        id: true,
+                        seat: {
+                            select: {
+                                rowLabel: true,
+                                seatNumber: true,
+                            },
+                        },
+                        ticketType: {
+                            select: {
+                                name: true,
+                            },
+                        },
+                        event: {
+                            select: {
+                                id: true,
+                                title: true,
+                                startDate: true,
+                                endDate: true,
+                                location: true,
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        if (!ticket) {
+            throw new AppError("Ticket not found or invalid QR token", 404);
+        }
+
+        if (ticket.order.status !== "PAID") {
+            throw new AppError("Ticket order is not paid", 400);
+        }
+
+        if (ticket.isCheckedIn) {
+            throw new AppError("Ticket has already been checked in", 409);
+        }
+
+        const checkedInTicket = await prisma.ticket.update({
+            where: {
+                id: ticket.id,
+            },
+            data: {
+                isCheckedIn: true,
+                checkedInAt: new Date(),
+            },
+            select: {
+                id: true,
+                isCheckedIn: true,
+                checkedInAt: true,
+                eventSeat: {
+                    select: {
+                        seat: {
+                            select: {
+                                rowLabel: true,
+                                seatNumber: true,
+                            },
+                        },
+                        ticketType: {
+                            select: {
+                                name: true,
+                            },
+                        },
+                        event: {
+                            select: {
+                                title: true,
+                                location: true,
+                                startDate: true,
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        return {
+            id: checkedInTicket.id,
+            isCheckedIn: checkedInTicket.isCheckedIn,
+            checkedInAt: checkedInTicket.checkedInAt,
+            seatLabel: `${checkedInTicket.eventSeat.seat.rowLabel}-${checkedInTicket.eventSeat.seat.seatNumber}`,
+            ticketType: checkedInTicket.eventSeat.ticketType.name,
+            event: checkedInTicket.eventSeat.event,
+        };
     }
 }
 

@@ -1,11 +1,13 @@
 import { prisma } from "../utils/prisma";
 import { AppError } from "../utils/AppError";
 import { getPaginationMetadata } from "../utils/pagination";
+import { DEFAULT_TICKET_COLOR, normalizeHexColor } from "../utils/hexColor";
 
 const ticketTypeSelect = {
     id: true,
     name: true,
     price: true,
+    color: true,
 };
 
 const ticketTypeSelectWithCount = {
@@ -24,27 +26,49 @@ function mapTicketTypeRow<
     const { _count, ...rest } = row;
     return {
         ...rest,
+        color: normalizeHexColor((rest as { color?: string }).color),
         defaultSeatCount: _count?.defaultSeats ?? 0,
         eventSeatCount: _count?.eventSeats ?? 0,
     };
 }
 
+type CreateTicketTypeBody = {
+    name: string;
+    price: number;
+    color?: string;
+};
+
+type UpdateTicketTypeBody = {
+    name?: string;
+    price?: number;
+    color?: string;
+};
+
 class TicketTypeService {
-    async create(body: { name: string; price: number }) {
+    async create(body: CreateTicketTypeBody) {
         const ticketType = await prisma.ticketType.create({
-            data: body,
+            data: {
+                name: body.name,
+                price: body.price,
+                color: normalizeHexColor(body.color ?? DEFAULT_TICKET_COLOR),
+            },
             select: ticketTypeSelectWithCount,
         });
 
         return mapTicketTypeRow(ticketType);
     }
 
-    async update(id: string, body: { name?: string; price?: number }) {
+    async update(id: string, body: UpdateTicketTypeBody) {
         await this.getDetail(id);
+
+        const data: UpdateTicketTypeBody = { ...body };
+        if (body.color !== undefined) {
+            data.color = normalizeHexColor(body.color);
+        }
 
         const ticketType = await prisma.ticketType.update({
             where: { id },
-            data: body,
+            data,
             select: ticketTypeSelectWithCount,
         });
 

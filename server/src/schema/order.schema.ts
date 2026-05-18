@@ -10,8 +10,10 @@ export const createOrderSchema = z.object({
         customerEmail: z.string().email("Invalid customer email"),
         customerPhone: z.string().min(10, "Invalid customer phone number"),
         customerName: z.string().min(1, "Customer name is required"),
-        eventSeatIds: z.array(z.string().uuid()).min(1, "At least one seat must be selected"),
-        couponId: z.string().uuid().optional(),
+        eventSeatIds: z
+            .array(z.string().uuid())
+            .min(1, "At least one seat must be selected"),
+        couponCode: z.string().optional(),
         paymentMethod: z.nativeEnum(PaymentMethod).default(PaymentMethod.SEPAY),
     }),
 });
@@ -35,7 +37,9 @@ export const listOrderSchema = z.object({
 
 export const deleteOrderSchema = z.object({
     body: z.object({
-        ids: z.array(z.string().uuid("Invalid ID format")).min(1, "At least one ID is required"),
+        ids: z
+            .array(z.string().uuid("Invalid ID format"))
+            .min(1, "At least one ID is required"),
     }),
 });
 
