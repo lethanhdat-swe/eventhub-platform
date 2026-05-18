@@ -5,7 +5,7 @@ function ChangePasswordPopover() {
     return ( 
         <Popover>
         <PopoverTrigger asChild>
-          <button
+          <div
             className="
               mt-8 flex items-center gap-2 rounded-full
               bg-(--primary-color)
@@ -21,7 +21,7 @@ function ChangePasswordPopover() {
             Đổi mật khẩu
 
             <ChevronRight className="w-4 h-4" />
-          </button>
+          </div>
         </PopoverTrigger>
 
         <PopoverContent

@@ -36,12 +36,8 @@ import CheckInLogs from '@/pages/(admin)/CheckInLogs';
 import Users from '@/pages/(admin)/Users';
 import Notifications from '@/pages/(admin)/Notifications';
 import Settings from '@/pages/(admin)/Settings';
-<<<<<<< HEAD
 import PaymentStatus from './pages/(public)/PaymentStatus';
-
-=======
 import EventCheckInPage from './pages/(public)/EventCheckInPage';
->>>>>>> 97b5de92c1a28f617cc6c5b74f81c273dba2e3d4
 
 function App() {
   return (

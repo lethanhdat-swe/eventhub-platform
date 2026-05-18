@@ -2,6 +2,7 @@ import { ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import TicketOrder from "../TicketOrder/TicketOrder";
+import SavedEvents from "../SavedEvents/SavedEvents";
 
 function OrderTabs() {
   const [activeTab, setActiveTab] = useState("ticket");
@@ -13,7 +14,7 @@ function OrderTabs() {
     },
     {
       label: "Sự kiện đã lưu",
-      value: "membership",
+      value: "saved-events",
     },
   ];
 
@@ -63,11 +64,7 @@ function OrderTabs() {
       <div>
         {activeTab === "ticket" && <TicketOrder />}
 
-        {activeTab === "membership" && (
-          <div className="text-gray-400">
-            Membership Orders Content
-          </div>
-        )}
+        {activeTab === "saved-events" && <SavedEvents />}
       </div>
     </div>
   );
