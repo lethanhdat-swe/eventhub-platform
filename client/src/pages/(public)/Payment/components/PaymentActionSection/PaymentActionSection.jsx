@@ -22,7 +22,7 @@ function PaymentActionSection() {
 
         {/* Pay Button */}
         <Link
-            to={"/"}
+            to={"/payment-status?status=success"}
             className="group relative overflow-hidden rounded-2xl px-6 py-5 flex items-center justify-center gap-4
             bg-linear-to-r
             from-purple-600
