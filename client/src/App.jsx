@@ -34,7 +34,6 @@ import Coupons from '@/pages/(admin)/Coupons';
 import CheckIn from '@/pages/(admin)/CheckIn';
 import CheckInLogs from '@/pages/(admin)/CheckInLogs';
 import Users from '@/pages/(admin)/Users';
-import Notifications from '@/pages/(admin)/Notifications';
 import Settings from '@/pages/(admin)/Settings';
 import PaymentStatus from './pages/(public)/PaymentStatus';
 import EventCheckInPage from './pages/(public)/EventCheckInPage';
@@ -91,7 +90,6 @@ function App() {
           <Route path="check-in" element={<CheckIn />} />
           <Route path="check-in-logs" element={<CheckInLogs />} />
           <Route path="users" element={<Users />} />
-          <Route path="notifications" element={<Notifications />} />
           <Route path="settings" element={<Settings />} />
         </Route>
       </Route>

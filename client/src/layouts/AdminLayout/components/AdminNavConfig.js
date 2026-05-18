@@ -114,17 +114,6 @@ export const adminNavSections = [
     ],
   },
   {
-    title: 'Giao tiếp',
-    items: [
-      {
-        label: 'Thông báo',
-        to: '/admin/notifications',
-        icon: Bell,
-        match: 'exact',
-      },
-    ],
-  },
-  {
     title: 'Hệ thống',
     items: [
       {

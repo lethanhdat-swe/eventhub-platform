@@ -19,6 +19,7 @@ import saveEventRouter from "./save-event.routes";
 import uploadRouter from "./upload.route";
 import commentRoute from "./comment.routes";
 import contactRouter from "./contact.routes";
+import dashboardRouter from "./dashboard.route";
 
 const router = Router();
 
@@ -42,5 +43,6 @@ router.use("/save-events", saveEventRouter);
 router.use("/uploads", uploadRouter);
 router.use("/comments", commentRoute);
 router.use("/contacts", contactRouter);
+router.use("/admin/dashboard", dashboardRouter);
 
 export default router;

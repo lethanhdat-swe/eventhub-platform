@@ -1,3 +1,8 @@
+import {
+  DEFAULT_TICKET_COLOR,
+  normalizeHexColor,
+} from '@/pages/(admin)/TicketTypes/colorUtils';
+
 const priceFormatter = new Intl.NumberFormat('vi-VN', {
   style: 'currency',
   currency: 'VND',
@@ -14,6 +19,7 @@ export function mapTicketTypeRow(row) {
     id: row.id,
     name: row.name,
     price: row.price,
+    color: normalizeHexColor(row.color ?? DEFAULT_TICKET_COLOR),
     defaultSeatCount: row.defaultSeatCount ?? 0,
     eventSeatCount: row.eventSeatCount ?? 0,
   };

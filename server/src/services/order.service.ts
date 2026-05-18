@@ -1,14 +1,16 @@
+import crypto from "crypto";
 import { prisma } from "../utils/prisma";
 import { AppError } from "../utils/AppError";
 import { getPaginationMetadata } from "../utils/pagination";
-import PaymentService from "./payment.service";
 import {
     CouponStatus,
     EventSeatStatus,
     OrderStatus,
     PaymentMethod,
+    Prisma,
 } from "@prisma/client";
-import crypto from "crypto";
+import paymentService from "./payment.service";
+import qrService from "./qr.service";
 
 class OrderService {
     async create(userId: string, body: any) {
@@ -16,26 +18,60 @@ class OrderService {
             customerEmail,
             customerPhone,
             customerName,
-            couponId,
+            couponCode,
             paymentMethod,
             eventSeatIds,
         } = body;
 
+        const uniqueEventSeatIds = [...new Set(eventSeatIds)];
+
+        if (uniqueEventSeatIds.length !== eventSeatIds.length) {
+            throw new AppError("Duplicate seats are not allowed", 400);
+        }
+
         const result = await prisma.$transaction(async (tx) => {
-            // 2. Load toàn bộ event_seats theo ids
             const seats = await tx.eventSeat.findMany({
-                where: { id: { in: eventSeatIds } },
-                include: { ticketType: true },
+                where: {
+                    id: { in: uniqueEventSeatIds as string[] },
+                },
+                select: {
+                    id: true,
+                    eventId: true,
+                    status: true,
+                    ticketType: {
+                        select: {
+                            id: true,
+                            name: true,
+                            price: true,
+                        },
+                    },
+                    seat: {
+                        select: {
+                            id: true,
+                            rowLabel: true,
+                            seatNumber: true,
+                        },
+                    },
+                },
             });
 
-            // 3. Đủ ghế + tất cả AVAILABLE
-            if (seats.length !== eventSeatIds.length) {
+            if (seats.length !== uniqueEventSeatIds.length) {
                 throw new AppError("Some selected seats were not found", 404);
             }
 
+            const eventIds = [...new Set(seats.map((seat) => seat.eventId))];
+
+            if (eventIds.length !== 1) {
+                throw new AppError(
+                    "All selected seats must belong to the same event",
+                    400
+                );
+            }
+
             const unavailableSeats = seats.filter(
-                (s) => s.status !== EventSeatStatus.AVAILABLE
+                (seat) => seat.status !== EventSeatStatus.AVAILABLE
             );
+
             if (unavailableSeats.length > 0) {
                 throw new AppError(
                     "Some selected seats are no longer available",
@@ -43,38 +79,65 @@ class OrderService {
                 );
             }
 
-            // 4. Tổng tiền theo ticketType.price
             let totalAmount = seats.reduce(
                 (sum, seat) => sum + seat.ticketType.price,
                 0
             );
 
-            // 5. Coupon (nếu có)
-            if (couponId) {
+            let couponId: string | null = null;
+
+            if (couponCode) {
                 const coupon = await tx.coupon.findUnique({
-                    where: { id: couponId },
+                    where: { code: couponCode },
+                    select: {
+                        id: true,
+                        status: true,
+                        discountPercent: true,
+                        validUntil: true,
+                        usageLimit: true,
+                    },
                 });
 
                 if (!coupon || coupon.status !== CouponStatus.ACTIVE) {
                     throw new AppError("Coupon is invalid or inactive", 400);
                 }
 
-                if (
-                    coupon.validUntil &&
-                    new Date(coupon.validUntil) < new Date()
-                ) {
+                if (coupon.validUntil && coupon.validUntil < new Date()) {
                     throw new AppError("Coupon has expired", 400);
                 }
 
+                if (coupon.usageLimit !== null) {
+                    const usedCount = await tx.order.count({
+                        where: {
+                            couponId: coupon.id,
+                            status: {
+                                not: OrderStatus.CANCELLED,
+                            },
+                        },
+                    });
+
+                    if (usedCount >= coupon.usageLimit) {
+                        throw new AppError(
+                            "Coupon usage limit has been reached",
+                            400
+                        );
+                    }
+                }
+
+                const safeDiscountPercent = Math.min(
+                    Math.max(coupon.discountPercent, 0),
+                    100
+                );
+
                 const discountAmount =
-                    (totalAmount * coupon.discountPercent) / 100;
-                totalAmount -= discountAmount;
+                    (totalAmount * safeDiscountPercent) / 100;
+
+                totalAmount = Math.max(totalAmount - discountAmount, 0);
+                couponId = coupon.id;
             }
 
-            // 6. Mã đơn
             const orderCode = `EH${Date.now()}${crypto.randomInt(100, 999)}`;
 
-            // 7. Order chờ thanh toán
             const order = await tx.order.create({
                 data: {
                     userId,
@@ -87,23 +150,37 @@ class OrderService {
                     orderCode,
                     couponId,
                 },
+                select: {
+                    id: true,
+                    userId: true,
+                    customerEmail: true,
+                    customerPhone: true,
+                    customerName: true,
+                    totalAmount: true,
+                    status: true,
+                    paymentMethod: true,
+                    orderCode: true,
+                    couponId: true,
+                    createdAt: true,
+                    updatedAt: true,
+                },
             });
 
-            // 8. order_seats
             await tx.orderSeat.createMany({
-                data: seats.map((s) => ({
+                data: seats.map((seat) => ({
                     orderId: order.id,
-                    eventSeatId: s.id,
+                    eventSeatId: seat.id,
                 })),
             });
 
-            // 9. Giữ chỗ: AVAILABLE -> RESERVING
             const updateResult = await tx.eventSeat.updateMany({
                 where: {
-                    id: { in: seats.map((s) => s.id) },
+                    id: { in: seats.map((seat) => seat.id) },
                     status: EventSeatStatus.AVAILABLE,
                 },
-                data: { status: EventSeatStatus.RESERVING },
+                data: {
+                    status: EventSeatStatus.RESERVING,
+                },
             });
 
             if (updateResult.count !== seats.length) {
@@ -116,10 +193,9 @@ class OrderService {
             return order;
         });
 
-        // 10. Thông tin thanh toán SEPAY cho FE
         return {
             order: result,
-            sepay: PaymentService.buildSepayPaymentInfo(
+            sepay: paymentService.buildSepayPaymentInfo(
                 result.orderCode!,
                 result.totalAmount ?? 0
             ),
@@ -130,12 +206,13 @@ class OrderService {
         search?: string;
         page: number;
         limit: number;
-        status?: string;
+        status?: OrderStatus;
     }) {
         const { page = 1, limit = 10, search, status } = query;
         const skip = (page - 1) * limit;
 
-        const where: any = {};
+        const where: Prisma.OrderWhereInput = {};
+
         if (status) {
             where.status = status;
         }
@@ -154,8 +231,21 @@ class OrderService {
                 where,
                 skip,
                 take: Number(limit),
-                orderBy: { createdAt: "desc" },
-                include: {
+                orderBy: {
+                    createdAt: "desc",
+                },
+                select: {
+                    id: true,
+                    customerEmail: true,
+                    customerPhone: true,
+                    customerName: true,
+                    totalAmount: true,
+                    status: true,
+                    paymentMethod: true,
+                    sepayTransactionId: true,
+                    orderCode: true,
+                    createdAt: true,
+                    updatedAt: true,
                     user: {
                         select: {
                             id: true,
@@ -166,34 +256,27 @@ class OrderService {
                             avatarUrl: true,
                         },
                     },
-                    coupon: true,
+                    coupon: {
+                        select: {
+                            id: true,
+                            code: true,
+                            discountPercent: true,
+                            status: true,
+                        },
+                    },
+                    _count: {
+                        select: {
+                            orderSeats: true,
+                            tickets: true,
+                        },
+                    },
                 },
             }),
             prisma.order.count({ where }),
         ]);
 
-        const ordersWithTickets = await Promise.all(
-            orders.map(async (order) => {
-                if (order.status === OrderStatus.PAID) {
-                    const tickets = await prisma.ticket.findMany({
-                        where: { orderId: order.id },
-                        include: {
-                            eventSeat: {
-                                include: {
-                                    seat: true,
-                                    ticketType: true,
-                                },
-                            },
-                        },
-                    });
-                    return { ...order, tickets };
-                }
-                return order;
-            })
-        );
-
         return {
-            data: ordersWithTickets,
+            data: orders,
             meta: getPaginationMetadata(total, page, limit),
         };
     }
@@ -201,7 +284,18 @@ class OrderService {
     async getDetail(id: string) {
         const order = await prisma.order.findUnique({
             where: { id },
-            include: {
+            select: {
+                id: true,
+                customerEmail: true,
+                customerPhone: true,
+                customerName: true,
+                totalAmount: true,
+                status: true,
+                paymentMethod: true,
+                sepayTransactionId: true,
+                orderCode: true,
+                createdAt: true,
+                updatedAt: true,
                 user: {
                     select: {
                         id: true,
@@ -212,15 +306,48 @@ class OrderService {
                         avatarUrl: true,
                     },
                 },
-                coupon: true,
+                coupon: {
+                    select: {
+                        id: true,
+                        code: true,
+                        discountPercent: true,
+                        status: true,
+                    },
+                },
                 orderSeats: {
-                    include: {
+                    select: {
+                        id: true,
                         eventSeat: {
-                            include: {
-                                seat: true,
-                                ticketType: true,
+                            select: {
+                                id: true,
+                                eventId: true,
+                                status: true,
+                                seat: {
+                                    select: {
+                                        id: true,
+                                        rowLabel: true,
+                                        seatNumber: true,
+                                    },
+                                },
+                                ticketType: {
+                                    select: {
+                                        id: true,
+                                        name: true,
+                                        price: true,
+                                        color: true,
+                                    },
+                                },
                             },
                         },
+                    },
+                },
+                tickets: {
+                    select: {
+                        id: true,
+                        eventSeatId: true,
+                        qrSecureToken: true,
+                        isCheckedIn: true,
+                        checkedInAt: true,
                     },
                 },
             },
@@ -230,39 +357,48 @@ class OrderService {
             throw new AppError("Order not found", 404);
         }
 
-        if (order.status === OrderStatus.PAID) {
-            const tickets = await prisma.ticket.findMany({
-                where: { orderId: order.id },
-                include: {
-                    eventSeat: {
-                        include: {
-                            seat: true,
-                            ticketType: true,
+        const ticketsWithQr = await Promise.all(
+            order.tickets.map(async (ticket) => ({
+                ...ticket,
+                qrImage: await qrService.generateTicketQr(ticket.qrSecureToken),
+            }))
+        );
+
+        return {
+            ...order,
+            tickets: ticketsWithQr,
+        };
+    }
+
+    async delete(ids: string[]) {
+        const uniqueIds = [...new Set(ids)];
+
+        return await prisma.$transaction(async (tx) => {
+            const orders = await tx.order.findMany({
+                where: {
+                    id: { in: uniqueIds },
+                },
+                select: {
+                    id: true,
+                    status: true,
+                    orderSeats: {
+                        select: {
+                            eventSeatId: true,
                         },
                     },
                 },
             });
 
-            return { ...order, tickets };
-        }
+            if (orders.length !== uniqueIds.length) {
+                throw new AppError("Some orders were not found", 404);
+            }
 
-        return order;
-    }
+            const paidOrders = orders.filter(
+                (order) => order.status === OrderStatus.PAID
+            );
 
-    async delete(ids: string[]) {
-        return await prisma.$transaction(async (tx) => {
-            const orders = await tx.order.findMany({
-                where: {
-                    id: { in: ids },
-                },
-                include: {
-                    orderSeats: true,
-                    tickets: true,
-                },
-            });
-
-            if (orders.length === 0) {
-                throw new AppError("No orders found to delete", 404);
+            if (paidOrders.length > 0) {
+                throw new AppError("Paid orders cannot be deleted", 400);
             }
 
             const reservingSeatIds = orders
@@ -285,23 +421,21 @@ class OrderService {
 
             await tx.ticket.deleteMany({
                 where: {
-                    orderId: { in: orders.map((order) => order.id) },
+                    orderId: { in: uniqueIds },
                 },
             });
 
             await tx.orderSeat.deleteMany({
                 where: {
-                    orderId: { in: orders.map((order) => order.id) },
+                    orderId: { in: uniqueIds },
                 },
             });
 
-            const result = await tx.order.deleteMany({
+            return await tx.order.deleteMany({
                 where: {
-                    id: { in: orders.map((order) => order.id) },
+                    id: { in: uniqueIds },
                 },
             });
-
-            return result;
         });
     }
 }

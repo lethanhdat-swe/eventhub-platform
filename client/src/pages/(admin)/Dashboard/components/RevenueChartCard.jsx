@@ -5,38 +5,76 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { MOCK_REVENUE_BARS } from '@/pages/(admin)/Dashboard/data';
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from '@/components/ui/chart';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts';
 
-function RevenueChartCard() {
-  const maxValue = Math.max(...MOCK_REVENUE_BARS.map((bar) => bar.value));
+const chartConfig = {
+  revenue: {
+    label: 'Doanh thu',
+    color: 'var(--chart-1)',
+  },
+};
 
+function RevenueChartCard({
+  periodLabel = '30 ngày qua',
+  chartData = [],
+  isLoading = false,
+  isEmpty = false,
+}) {
   return (
     <Card className="gap-0 py-0">
       <CardHeader className="border-b border-border px-4 py-3">
         <CardTitle className="text-base">Doanh thu gần đây</CardTitle>
-        <CardDescription>7 ngày qua (đơn vị: triệu VNĐ)</CardDescription>
+        <CardDescription>{periodLabel} · đơn vị triệu VNĐ</CardDescription>
       </CardHeader>
       <CardContent className="px-4 py-4">
-        <div className="flex h-32 items-end justify-between gap-1.5">
-          {MOCK_REVENUE_BARS.map((bar) => {
-            const heightPercent =
-              maxValue > 0 ? Math.round((bar.value / maxValue) * 100) : 0;
-
-            return (
-              <div
-                key={bar.label}
-                className="flex min-w-0 flex-1 flex-col items-center gap-1"
-              >
-                <div
-                  className="w-full rounded-t bg-primary/80 transition-[height]"
-                  style={{ height: `${Math.max(heightPercent, 8)}%` }}
-                  title={`${bar.value} triệu`}
-                />
-                <span className="text-xs text-muted-foreground">{bar.label}</span>
-              </div>
-            );
-          })}
-        </div>
+        {isLoading ? (
+          <Skeleton className="aspect-video w-full rounded-md" />
+        ) : isEmpty ? (
+          <p className="flex aspect-video items-center justify-center text-sm text-muted-foreground">
+            Chưa có dữ liệu
+          </p>
+        ) : (
+          <ChartContainer config={chartConfig} className="aspect-video w-full">
+            <AreaChart
+              accessibilityLayer
+              data={chartData}
+              margin={{
+                left: 12,
+                right: 12,
+              }}
+            >
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey="label"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                tickFormatter={(value) =>
+                  typeof value === 'string' && value.length > 3
+                    ? value.slice(0, 3)
+                    : value
+                }
+              />
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent indicator="line" />}
+              />
+              <Area
+                dataKey="revenue"
+                type="natural"
+                fill="var(--color-revenue)"
+                fillOpacity={0.4}
+                stroke="var(--color-revenue)"
+              />
+            </AreaChart>
+          </ChartContainer>
+        )}
       </CardContent>
     </Card>
   );
