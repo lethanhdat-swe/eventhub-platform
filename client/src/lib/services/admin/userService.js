@@ -34,6 +34,19 @@ export const userService = {
     return getApiData(body);
   },
 
+  updateMe: async (data) => {
+    const body = await axiosInstance.put(`${resourceBase}/update-me`, data);
+    return getApiData(body);
+  },
+
+  changePassword: async (data) => {
+    const body = await axiosInstance.patch(
+      `${resourceBase}/change-password`,
+      data
+    );
+    return getApiData(body);
+  },
+
   changeRole: async ({ userId, role }) => {
     await axiosInstance.patch(`${resourceBase}/change-role`, { userId, role });
   },

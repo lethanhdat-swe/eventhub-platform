@@ -43,8 +43,14 @@ export const couponService = {
     return getApiData(body);
   },
 
-  /**
-   * @param {string} id
+  /**   * @param {{ code: string, orderAmount: number }} data
+   */
+  verify: async (data) => {
+    const body = await axiosInstance.post(`${resourceBase}/verify`, data);
+    return getApiData(body);
+  },
+
+  /**   * @param {string} id
    * @param {Record<string, unknown>} data
    */
   update: async (id, data) => {

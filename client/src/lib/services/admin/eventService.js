@@ -53,6 +53,46 @@ export const eventService = {
   },
 
   /**
+   * @param {string} eventId
+   * @param {string[]} artistIds
+   */
+  deleteArtists: async (eventId, artistIds) => {
+    await axiosInstance.delete(`${resourceBase}/${eventId}/artists`, {
+      data: { artistIds },
+    });
+  },
+
+  /**
+   * @param {string} eventId
+   * @param {{ page?: number, limit?: number, status?: string, ticketTypeId?: string }} query
+   */
+  getSeats: async (eventId, query = {}) => {
+    const params = {
+      page: query.page ?? 1,
+      limit: query.limit ?? 100,
+    };
+    if (query.status) params.status = query.status;
+    if (query.ticketTypeId) params.ticketTypeId = query.ticketTypeId;
+
+    const body = await axiosInstance.get(`${resourceBase}/${eventId}/seats`, {
+      params,
+    });
+    return getApiData(body);
+  },
+
+  /**
+   * @param {string} eventId
+   * @param {{ ids: string[]; status?: string; ticketTypeId?: string }} data
+   */
+  updateSeats: async (eventId, data) => {
+    const body = await axiosInstance.patch(
+      `${resourceBase}/${eventId}/seats`,
+      data
+    );
+    return getApiData(body);
+  },
+
+  /**
    * @param {string[]} ids
    */
   deleteMany: async (ids) => {

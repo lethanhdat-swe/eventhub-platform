@@ -1,25 +1,17 @@
 import { axiosInstance } from '@/lib/http/axiosInstance';
 import { getApiData } from '@/lib/http/unwrapApiSuccess';
 
-const resourceBase = '/api/orders';
+const resourceBase = '/api/blog-categories';
 
-/**
- * @param {{ page?: number, limit?: number, search?: string, status?: string }} query
- */
-function buildListParams(query) {
-  const { page = 1, limit = 10, search, status } = query;
+function buildListParams(query = {}) {
+  const { page = 1, limit = 10, search } = query;
   const params = { page, limit };
   const q = typeof search === 'string' ? search.trim() : '';
   if (q) params.search = q;
-  if (status && status !== 'all') params.status = status;
   return params;
 }
 
-export const orderService = {
-  /**
-   * @param {{ page?: number, limit?: number, search?: string, status?: string }} query
-   * @returns {Promise<{ data: unknown[], meta: Record<string, number> }>}
-   */
+export const blogCategoryService = {
   list: async (query = {}) => {
     const body = await axiosInstance.get(resourceBase, {
       params: buildListParams(query),
@@ -27,26 +19,21 @@ export const orderService = {
     return getApiData(body);
   },
 
-  /**
-   * @param {string} id
-   * @returns {Promise<unknown>}
-   */
   getById: async (id) => {
     const body = await axiosInstance.get(`${resourceBase}/${id}`);
     return getApiData(body);
   },
 
-  /**
-   * @param {Record<string, unknown>} data
-   */
   create: async (data) => {
     const body = await axiosInstance.post(resourceBase, data);
     return getApiData(body);
   },
 
-  /**
-   * @param {string[]} ids
-   */
+  update: async (id, data) => {
+    const body = await axiosInstance.patch(`${resourceBase}/${id}`, data);
+    return getApiData(body);
+  },
+
   deleteMany: async (ids) => {
     await axiosInstance.delete(resourceBase, { data: { ids } });
   },
