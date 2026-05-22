@@ -59,6 +59,20 @@ class EventController {
             next(error);
         }
     };
+    getDetailBySlug = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const result = await eventService.getDetailBySlug(
+                req.params.slug as string
+            );
+
+            return res.success({
+                message: "Event fetched successfully.",
+                data: result,
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
 
     delete = async (req: Request, res: Response, next: NextFunction) => {
         try {

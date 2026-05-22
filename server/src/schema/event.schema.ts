@@ -87,6 +87,11 @@ export const updateEventSchema = z.object({
 export const getEventSchema = z.object({
     params: paramsIdSchema,
 });
+export const getEventBySlugSchema = z.object({
+    params: z.object({
+        slug: z.string().min(2, "Slug must be at least 2 characters"),
+    }),
+});
 
 export const deleteEventSchema = z.object({
     body: z.object({

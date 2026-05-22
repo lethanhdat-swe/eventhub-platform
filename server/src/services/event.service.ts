@@ -204,6 +204,18 @@ class EventService {
 
         return event;
     }
+    async getDetailBySlug(slug: string) {
+        const event = await prisma.event.findUnique({
+            where: { slug },
+            select: eventSelect,
+        });
+
+        if (!event) {
+            throw new AppError("Event not found", 404);
+        }
+
+        return event;
+    }
 
     async delete(ids: string[]) {
         const result = await prisma.event.deleteMany({
