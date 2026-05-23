@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { getErrorMessage } from '@/lib/http/apiError';
 import { categoryService } from '@/lib/services/admin/categoryService';
 import { eventService } from '@/lib/services/admin/eventService';
+import { artistService } from '@/lib/services/admin/artistService';
 import PageHeader from '@/pages/(admin)/components/PageHeader';
 import EventForm from '@/pages/(admin)/Events/components/EventForm';
 import {
@@ -18,6 +19,7 @@ function EditEvent() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
+  const [artists, setArtists] = useState([]);
   const [formValues, setFormValues] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -30,6 +32,15 @@ function EditEvent() {
       setCategories(payload.data ?? []);
     } catch {
       setCategories([]);
+    }
+  }, []);
+
+  const loadArtists = useCallback(async () => {
+    try {
+      const payload = await artistService.list({ page: 1, limit: 100 });
+      setArtists(payload.data ?? []);
+    } catch {
+      setArtists([]);
     }
   }, []);
 
@@ -51,8 +62,9 @@ function EditEvent() {
 
   useEffect(() => {
     void loadCategories();
+    void loadArtists();
     void loadEvent();
-  }, [loadCategories, loadEvent]);
+  }, [loadCategories, loadArtists, loadEvent]);
 
   const handleSubmit = async (form) => {
     if (!id) return;
@@ -89,7 +101,11 @@ function EditEvent() {
         <p className="text-sm text-destructive" role="alert">
           {error ?? 'Không tìm thấy sự kiện.'}
         </p>
-        <Button type="button" variant="outline" onClick={() => void loadEvent()}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => void loadEvent()}
+        >
           Thử lại
         </Button>
       </div>
@@ -120,6 +136,7 @@ function EditEvent() {
         key={id}
         initialValues={formValues}
         categories={categories}
+        artists={artists}
         submitting={submitting}
         formError={formError}
         isCreate={false}

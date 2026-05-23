@@ -3,12 +3,15 @@ import { AppError } from "../utils/AppError";
 import { getPaginationMetadata } from "../utils/pagination";
 
 class EventSeatService {
-    async listByEvent(eventId: string, query: {
-        page: number;
-        limit: number;
-        status?: string;
-        ticketTypeId?: string;
-    }) {
+    async listByEvent(
+        eventId: string,
+        query: {
+            page: number;
+            limit: number;
+            status?: string;
+            ticketTypeId?: string;
+        }
+    ) {
         const { page = 1, limit = 100, status, ticketTypeId } = query;
         const skip = (page - 1) * limit;
 
@@ -28,13 +31,9 @@ class EventSeatService {
                 skip,
                 take: Number(limit),
                 include: {
-                    seat: true,
                     ticketType: true,
                 },
-                orderBy: [
-                    { seat: { rowLabel: "asc" } },
-                    { seat: { seatNumber: "asc" } },
-                ],
+                orderBy: [{ rowLabel: "asc" }, { seatNumber: "asc" }],
             }),
             prisma.eventSeat.count({ where }),
         ]);
@@ -45,30 +44,144 @@ class EventSeatService {
         };
     }
 
-    async updateBulk(eventId: string, body: {
-        ids: string[];
-        status?: string;
-        ticketTypeId?: string;
-    }) {
-        const { ids, status, ticketTypeId } = body;
+    async updateOne(
+        eventId: string,
+        seatId: string,
+        body: {
+            status?: string;
+            ticketTypeId?: string;
+        }
+    ) {
+        const { status, ticketTypeId } = body;
 
         const updateData: any = {};
         if (status) updateData.status = status;
         if (ticketTypeId) updateData.ticketTypeId = ticketTypeId;
 
-        const result = await prisma.eventSeat.updateMany({
+        const existingSeat = await prisma.eventSeat.findFirst({
+            where: {
+                id: seatId,
+                eventId,
+            },
+        });
+
+        if (!existingSeat) {
+            throw new AppError("Event seat not found.", 404);
+        }
+
+        return prisma.eventSeat.update({
+            where: {
+                id: seatId,
+            },
+            data: updateData,
+            include: {
+                ticketType: true,
+            },
+        });
+    }
+
+    async addRow(
+        eventId: string,
+        body: {
+            rowLabel: string;
+            seatCount: number;
+            ticketTypeId: string;
+        }
+    ) {
+        const { rowLabel, seatCount, ticketTypeId } = body;
+
+        const existing = await prisma.eventSeat.count({
+            where: { eventId, rowLabel },
+        });
+
+        if (existing > 0) {
+            throw new AppError("Seat row already exists.", 400);
+        }
+
+        const seats = Array.from({ length: seatCount }, (_, index) => ({
+            eventId,
+            rowLabel,
+            seatNumber: index + 1,
+            ticketTypeId,
+            status: "AVAILABLE" as const,
+        }));
+
+        await prisma.eventSeat.createMany({ data: seats });
+
+        return seats;
+    }
+
+    async addSeat(
+        eventId: string,
+        body: {
+            rowLabel: string;
+            seatNumber: number;
+            ticketTypeId: string;
+            status?: string;
+        }
+    ) {
+        const {
+            rowLabel,
+            seatNumber,
+            ticketTypeId,
+            status = "AVAILABLE",
+        } = body;
+
+        const existing = await prisma.eventSeat.findFirst({
+            where: { eventId, rowLabel, seatNumber },
+        });
+
+        if (existing) {
+            throw new AppError("Event seat already exists.", 400);
+        }
+
+        return prisma.eventSeat.create({
+            data: {
+                eventId,
+                rowLabel,
+                seatNumber,
+                ticketTypeId,
+                status: status as any,
+            },
+            include: {
+                ticketType: true,
+            },
+        });
+    }
+
+    async deleteBulk(eventId: string, ids: string[]) {
+        const seats = await prisma.eventSeat.findMany({
             where: {
                 id: { in: ids },
                 eventId,
             },
-            data: updateData,
+            include: {
+                ticket: true,
+                orderSeats: true,
+            },
         });
 
-        if (result.count === 0) {
-            throw new AppError("No event seats found to update", 404);
+        if (seats.length === 0) {
+            throw new AppError("No event seats found to delete.", 404);
         }
 
-        return result;
+        const cannotDelete = seats.some(
+            (seat) => seat.ticket || seat.orderSeats.length > 0
+        );
+
+        if (cannotDelete) {
+            throw new AppError(
+                "Some seats already have orders or tickets and cannot be deleted.",
+                409
+            );
+        }
+
+        return prisma.eventSeat.deleteMany({
+            where: {
+                id: { in: ids },
+                eventId,
+            },
+        });
     }
 }
 

@@ -12,8 +12,11 @@ import {
     deleteEventSchema,
 } from "../schema/event.schema";
 import {
+    addEventSeatSchema,
+    addSeatRowSchema,
+    deleteEventSeatSchema,
     listEventSeatSchema,
-    updateBulkEventSeatSchema,
+    updateEventSeatSchema,
 } from "../schema/event-seat.schema";
 import { deleteBulkEventArtistSchema } from "../schema/event-artist.schema"; // Schema mới
 
@@ -55,10 +58,27 @@ router.get(
     validate(listEventSeatSchema),
     eventController.getEventSeats
 );
-router.patch(
+router.post(
+    "/:id/seats/rows",
+    validate(addSeatRowSchema),
+    eventController.addSeatRow
+);
+
+router.post(
     "/:id/seats",
-    validate(updateBulkEventSeatSchema),
-    eventController.updateEventSeats
+    validate(addEventSeatSchema),
+    eventController.addEventSeat
+);
+
+router.delete(
+    "/:id/seats",
+    validate(deleteEventSeatSchema),
+    eventController.deleteEventSeats
+);
+router.patch(
+    "/:id/seats/:seatId",
+    validate(updateEventSeatSchema),
+    eventController.updateEventSeat
 );
 
 export default router;

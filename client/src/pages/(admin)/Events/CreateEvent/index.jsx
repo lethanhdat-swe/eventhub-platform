@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { getErrorMessage } from '@/lib/http/apiError';
 import { categoryService } from '@/lib/services/admin/categoryService';
 import { eventService } from '@/lib/services/admin/eventService';
+import { artistService } from '@/lib/services/admin/artistService';
 import PageHeader from '@/pages/(admin)/components/PageHeader';
 import EventForm from '@/pages/(admin)/Events/components/EventForm';
 import { buildEventPayload } from '@/pages/(admin)/Events/data';
@@ -11,6 +12,7 @@ import { buildEventPayload } from '@/pages/(admin)/Events/data';
 function CreateEvent() {
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
+  const [artists, setArtists] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
 
@@ -23,9 +25,19 @@ function CreateEvent() {
     }
   }, []);
 
+  const loadArtists = useCallback(async () => {
+    try {
+      const payload = await artistService.list({ page: 1, limit: 100 });
+      setArtists(payload.data ?? []);
+    } catch {
+      setArtists([]);
+    }
+  }, []);
+
   useEffect(() => {
     void loadCategories();
-  }, [loadCategories]);
+    void loadArtists();
+  }, [loadCategories, loadArtists]);
 
   const saveEvent = async (form, statusOverride) => {
     setSubmitting(true);
@@ -53,6 +65,7 @@ function CreateEvent() {
 
       <EventForm
         categories={categories}
+        artists={artists}
         submitting={submitting}
         formError={formError}
         isCreate

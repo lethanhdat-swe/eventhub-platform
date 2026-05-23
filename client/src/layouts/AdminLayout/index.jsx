@@ -10,14 +10,13 @@ function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="admin-font flex h-screen bg-background text-foreground">
-      <AdminSidebar
-        open={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-      />
-      <div className="flex min-w-0 flex-1 flex-col">
+    <div className="admin-font fixed inset-0 flex overflow-hidden bg-background text-foreground">
+      <AdminSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         <AdminHeader onMenuToggle={() => setSidebarOpen((prev) => !prev)} />
-        <main className="flex-1 overflow-y-auto p-4 md:p-5 lg:p-6">
+
+        <main className="min-h-0 flex-1 overflow-y-auto p-4 md:p-5 lg:p-6">
           <Outlet />
         </main>
       </div>

@@ -6,7 +6,7 @@ CREATE TABLE `users` (
     `phone_number` VARCHAR(191) NULL,
     `full_name` VARCHAR(191) NOT NULL,
     `avatar_url` VARCHAR(191) NULL,
-    `role` VARCHAR(191) NOT NULL DEFAULT 'user',
+    `role` ENUM('USER', 'ADMIN') NOT NULL DEFAULT 'USER',
     `provider` VARCHAR(191) NOT NULL DEFAULT 'credentials',
     `provider_id` VARCHAR(191) NULL,
     `is_email_verified` BOOLEAN NOT NULL DEFAULT false,
@@ -62,6 +62,7 @@ CREATE TABLE `ticket_types` (
     `id` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
     `price` DOUBLE NOT NULL,
+    `color` VARCHAR(191) NOT NULL DEFAULT '#27272A',
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -104,7 +105,7 @@ CREATE TABLE `events` (
     `start_date` DATETIME(3) NULL,
     `end_date` DATETIME(3) NULL,
     `thumbnail_url` VARCHAR(191) NULL,
-    `status` VARCHAR(191) NOT NULL DEFAULT 'draft',
+    `status` ENUM('DRAFT', 'PUBLISHED', 'CANCELLED') NOT NULL DEFAULT 'DRAFT',
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `category_id` VARCHAR(191) NULL,
@@ -117,11 +118,13 @@ CREATE TABLE `events` (
 CREATE TABLE `event_seats` (
     `id` VARCHAR(191) NOT NULL,
     `event_id` VARCHAR(191) NOT NULL,
-    `seat_id` VARCHAR(191) NOT NULL,
     `ticket_type_id` VARCHAR(191) NOT NULL,
-    `status` VARCHAR(191) NOT NULL DEFAULT 'AVAILABLE',
+    `row_label` VARCHAR(191) NOT NULL,
+    `seat_number` INTEGER NOT NULL,
+    `status` ENUM('AVAILABLE', 'RESERVING', 'BOOKED', 'DISABLED') NOT NULL DEFAULT 'AVAILABLE',
+    `seatId` VARCHAR(191) NULL,
 
-    UNIQUE INDEX `event_seats_event_id_seat_id_key`(`event_id`, `seat_id`),
+    UNIQUE INDEX `event_seats_event_id_row_label_seat_number_key`(`event_id`, `row_label`, `seat_number`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -152,6 +155,38 @@ CREATE TABLE `save_events` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
+CREATE TABLE `comments` (
+    `id` VARCHAR(191) NOT NULL,
+    `content` TEXT NOT NULL,
+    `event_id` VARCHAR(191) NOT NULL,
+    `user_id` VARCHAR(191) NOT NULL,
+    `parent_id` VARCHAR(191) NULL,
+    `root_id` VARCHAR(191) NULL,
+    `is_edited` BOOLEAN NOT NULL DEFAULT false,
+    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updated_at` DATETIME(3) NOT NULL,
+
+    INDEX `comments_event_id_idx`(`event_id`),
+    INDEX `comments_user_id_idx`(`user_id`),
+    INDEX `comments_parent_id_idx`(`parent_id`),
+    INDEX `comments_root_id_idx`(`root_id`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `contacts` (
+    `id` VARCHAR(191) NOT NULL,
+    `full_name` VARCHAR(191) NOT NULL,
+    `email` VARCHAR(191) NOT NULL,
+    `phone_number` VARCHAR(191) NOT NULL,
+    `message` TEXT NOT NULL,
+    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updated_at` DATETIME(3) NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
 CREATE TABLE `orders` (
     `id` VARCHAR(191) NOT NULL,
     `user_id` VARCHAR(191) NOT NULL,
@@ -159,8 +194,8 @@ CREATE TABLE `orders` (
     `customer_phone` VARCHAR(191) NOT NULL,
     `customer_name` VARCHAR(191) NULL,
     `total_amount` DOUBLE NULL,
-    `status` VARCHAR(191) NOT NULL DEFAULT 'pending',
-    `payment_method` VARCHAR(191) NOT NULL DEFAULT 'SEPAY',
+    `status` ENUM('PENDING', 'PAID', 'CANCELLED') NOT NULL DEFAULT 'PENDING',
+    `payment_method` ENUM('SEPAY') NOT NULL DEFAULT 'SEPAY',
     `sepay_transaction_id` VARCHAR(191) NULL,
     `order_code` VARCHAR(191) NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
@@ -262,10 +297,10 @@ ALTER TABLE `events` ADD CONSTRAINT `events_category_id_fkey` FOREIGN KEY (`cate
 ALTER TABLE `event_seats` ADD CONSTRAINT `event_seats_event_id_fkey` FOREIGN KEY (`event_id`) REFERENCES `events`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `event_seats` ADD CONSTRAINT `event_seats_seat_id_fkey` FOREIGN KEY (`seat_id`) REFERENCES `seats`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `event_seats` ADD CONSTRAINT `event_seats_ticket_type_id_fkey` FOREIGN KEY (`ticket_type_id`) REFERENCES `ticket_types`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `event_seats` ADD CONSTRAINT `event_seats_ticket_type_id_fkey` FOREIGN KEY (`ticket_type_id`) REFERENCES `ticket_types`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `event_seats` ADD CONSTRAINT `event_seats_seatId_fkey` FOREIGN KEY (`seatId`) REFERENCES `seats`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `like_events` ADD CONSTRAINT `like_events_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
@@ -278,6 +313,15 @@ ALTER TABLE `save_events` ADD CONSTRAINT `save_events_user_id_fkey` FOREIGN KEY 
 
 -- AddForeignKey
 ALTER TABLE `save_events` ADD CONSTRAINT `save_events_event_id_fkey` FOREIGN KEY (`event_id`) REFERENCES `events`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `comments` ADD CONSTRAINT `comments_event_id_fkey` FOREIGN KEY (`event_id`) REFERENCES `events`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `comments` ADD CONSTRAINT `comments_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `comments` ADD CONSTRAINT `comments_parent_id_fkey` FOREIGN KEY (`parent_id`) REFERENCES `comments`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `orders` ADD CONSTRAINT `orders_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

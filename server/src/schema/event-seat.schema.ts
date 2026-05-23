@@ -23,13 +23,42 @@ export const listEventSeatSchema = z.object({
     }),
 });
 
-export const updateBulkEventSeatSchema = z.object({
-    params: paramsEventIdSchema,
+export const updateEventSeatSchema = z.object({
+    params: paramsEventIdSchema.extend({
+        seatId: z.string().uuid("Invalid EventSeat ID format"),
+    }),
+    body: z
+        .object({
+            status: z.nativeEnum(EventSeatStatus).optional(),
+            ticketTypeId: z.string().uuid().optional(),
+        })
+        .refine((data) => data.status || data.ticketTypeId, {
+            message:
+                "At least one field (status or ticketTypeId) must be provided for update",
+        }),
+});
+
+export const addSeatRowSchema = z.object({
     body: z.object({
-        ids: z.array(z.string().uuid("Invalid EventSeat ID format")).min(1, "At least one ID is required"),
-        status: z.nativeEnum(EventSeatStatus).optional(),
-        ticketTypeId: z.string().uuid().optional(),
-    }).refine(data => data.status || data.ticketTypeId, {
-        message: "At least one field (status or ticketTypeId) must be provided for update",
+        rowLabel: z.string().min(1),
+        seatCount: z.coerce.number().int().positive(),
+        ticketTypeId: z.string().uuid(),
+    }),
+});
+
+export const addEventSeatSchema = z.object({
+    body: z.object({
+        rowLabel: z.string().min(1),
+        seatNumber: z.coerce.number().int().positive(),
+        ticketTypeId: z.string().uuid(),
+        status: z
+            .enum(["AVAILABLE", "RESERVING", "BOOKED", "DISABLED"])
+            .optional(),
+    }),
+});
+
+export const deleteEventSeatSchema = z.object({
+    body: z.object({
+        ids: z.array(z.string().uuid()).min(1),
     }),
 });

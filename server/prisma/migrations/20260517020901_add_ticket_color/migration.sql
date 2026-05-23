@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE `ticket_types` ADD COLUMN `color` VARCHAR(191) NOT NULL DEFAULT '#27272A';
