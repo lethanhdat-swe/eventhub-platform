@@ -82,6 +82,7 @@ export function mapEventToFormValues(event) {
     thumbnailUrl: normalizeStoredUploadFilename(event?.thumbnailUrl),
     status: event?.status ?? 'DRAFT',
     categoryId: event?.categoryId ?? event?.category?.id ?? '',
+    eventArtists: event?.eventArtists ?? [],
   };
 }
 
@@ -123,6 +124,17 @@ export function buildEventPayload(form) {
 
   const endDate = datetimeLocalToIso(form.endDate);
   if (endDate) payload.endDate = endDate;
+
+  const artists = Array.isArray(form.artists)
+    ? form.artists
+        .filter((row) => row.artistId)
+        .map((row) => ({
+          artistId: row.artistId,
+          role: row.role?.trim() || 'SINGER',
+        }))
+    : [];
+
+  payload.artists = artists;
 
   return payload;
 }

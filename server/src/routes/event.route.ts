@@ -8,6 +8,7 @@ import {
     getEventSchema,
     createEventSchema,
     updateEventSchema,
+    getEventBySlugSchema,
     deleteEventSchema,
 } from "../schema/event.schema";
 import {
@@ -20,7 +21,18 @@ const router = Router();
 
 // Public routes
 router.get("/", validate(listEventSchema), eventController.list);
+router.get("/trending", eventController.getTrendingEvents);
+router.get(
+    "/:id/related",
+    validate(getEventSchema),
+    eventController.getRelatedEvents
+);
 router.get("/:id", validate(getEventSchema), eventController.getDetail);
+router.get(
+    "/slug/:slug",
+    validate(getEventBySlugSchema),
+    eventController.getDetailBySlug
+);
 
 // Admin routes
 router.use(isAuth, restrictTo("ADMIN"));

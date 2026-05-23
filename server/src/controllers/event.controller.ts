@@ -60,6 +60,42 @@ class EventController {
         }
     };
 
+    getDetailBySlug = async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) => {
+        try {
+            const result = await eventService.getDetailBySlug(
+                req.params.slug as string
+            );
+
+            return res.success({
+                message: "Event fetched successfully.",
+                data: result,
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    getTrendingEvents = async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) => {
+        try {
+            const result = await eventService.getTrendingEvents();
+
+            return res.success({
+                message: "Trending events fetched successfully.",
+                data: result,
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
     delete = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { ids } = req.body;
@@ -89,7 +125,30 @@ class EventController {
         }
     };
 
-    updateEventSeats = async (req: Request, res: Response, next: NextFunction) => {
+    getRelatedEvents = async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) => {
+        try {
+            const result = await eventService.getRelatedEvents(
+                req.params.id as string
+            );
+
+            return res.success({
+                message: "Related events fetched successfully.",
+                data: result,
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    updateEventSeats = async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) => {
         try {
             const result = await eventSeatService.updateBulk(
                 req.params.id as string,

@@ -87,6 +87,11 @@ export const updateEventSchema = z.object({
 export const getEventSchema = z.object({
     params: paramsIdSchema,
 });
+export const getEventBySlugSchema = z.object({
+    params: z.object({
+        slug: z.string().min(2, "Slug must be at least 2 characters"),
+    }),
+});
 
 export const deleteEventSchema = z.object({
     body: z.object({
@@ -111,5 +116,29 @@ export const listEventSchema = z.object({
         search: z.string().optional(),
         status: z.string().optional(),
         categoryId: z.string().uuid().optional(),
+        categoryIds: z
+            .string()
+            .optional()
+            .transform((value) => {
+                if (!value) return undefined;
+
+                return value
+                    .split(",")
+                    .map((id) => id.trim())
+                    .filter(Boolean);
+            })
+            .pipe(
+                z
+                    .array(z.string().uuid("Invalid category ID format"))
+                    .optional()
+            ),
+
+        fromDate: z.coerce.date().optional(),
+        toDate: z.coerce.date().optional(),
+
+        sort: z
+            .enum(["featured", "new", "upcoming"])
+            .optional()
+            .default("featured"),
     }),
 });
