@@ -1,4 +1,5 @@
-import { BadgeCheck, Heart, Share2 } from "lucide-react";
+import { BadgeCheck, Share2 } from "lucide-react";
+import LikeButton from '@/components/LikeButton';
 
 function EventHero({ event }) {
    return (
@@ -18,10 +19,8 @@ function EventHero({ event }) {
         <div className="text-(--text-primary)/60 text-xs mt-2">{event.date.weekday}</div>
       </div>
  
-      <div className="absolute flex gap-2 top-4 right-4">
-        <button className="flex items-center justify-center text-(--text-primary)/30 transition-all duration-200 border rounded-full w-9 h-9 bg-(--background-color)/70 backdrop-blur-sm border-gray-700/50 hover:border-(--primary-color)/60 hover:text-(--primary-color)">
-          <Heart className="w-4 h-4" />
-        </button>
+      <div className="absolute flex items-center gap-2 top-4 right-4">
+        <LikeButton eventId={event.id} size={18} showCount={true} />
         <button className="flex items-center justify-center text-(--text-primary)/30 transition-all duration-200 border rounded-full w-9 h-9 bg-(--background-color)/70 backdrop-blur-sm border-gray-700/50 hover:border-(--primary-color)/60 hover:text-(--primary-color)">
           <Share2 className="w-4 h-4" />
         </button>

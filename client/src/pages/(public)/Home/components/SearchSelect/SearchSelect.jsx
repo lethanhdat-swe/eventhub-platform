@@ -1,19 +1,44 @@
+import { useState } from 'react';
 import { Calendar, ChevronDown, MapPin, Search, Tag } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 function SearchSelect() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
+
   const action = [
     { icon: MapPin, label: 'Location', defaultValue: 'All Locations' },
     { icon: Calendar, label: 'Date', defaultValue: 'Any Date' },
     { icon: Tag, label: 'Category', defaultValue: 'All Categories' },
   ];
 
+  const handleSearch = (e) => {
+    e.preventDefault();
+    
+    if (!searchQuery.trim()) {
+      return;
+    }
+
+    // Navigate to search page with query parameter
+    navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch(e);
+    }
+  };
+
   return (
-    <div className="flex items-center gap-2 p-4 mx-8 rounded-2xl bg-(--background-color)/70 container">
+    <form onSubmit={handleSearch} className="flex items-center gap-2 p-4 mx-8 rounded-2xl bg-(--background-color)/70 container">
       <div className="flex items-center flex-1 gap-3 px-4 py-2 rounded-xl bg-(--text-primary)/5">
         <Search size={16} className="text-gray-500" />
         <input
           type="text"
           placeholder="Search events, artists, or venues..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          onKeyPress={handleKeyPress}
           className="w-full text-sm text-gray-300 placeholder-gray-600 bg-transparent outline-none"
         />
       </div>
@@ -37,10 +62,13 @@ function SearchSelect() {
       ))}
 
       {/* Search button */}
-      <button className="px-6 py-3 ml-2 text-sm font-semibold text-(--text-primary) transition-all rounded-xl hover:opacity-90 hover:scale-105 bg-(--primary-color)">
+      <button 
+        type="submit"
+        className="px-6 py-3 ml-2 text-sm font-semibold text-(--text-primary) transition-all rounded-xl hover:opacity-90 hover:scale-105 bg-(--primary-color)"
+      >
         Search
       </button>
-    </div>
+    </form>
   );
 }
 
