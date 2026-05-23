@@ -1,12 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -33,6 +28,7 @@ const EMPTY_FORM = {
   thumbnailUrl: '',
   status: 'DRAFT',
   categoryId: '',
+  artists: [],
 };
 
 function slugifyFromTitle(title) {
@@ -65,17 +61,55 @@ function EventForm({
   onSubmit,
   onSaveDraft,
   onCancel,
+  artists = [],
 }) {
   const [form, setForm] = useState(EMPTY_FORM);
   const [uploadBusy, setUploadBusy] = useState(false);
   const [thumbnailError, setThumbnailError] = useState('');
   const slugEditedRef = useRef(false);
   const formBusy = submitting || uploadBusy;
+  const availableArtists = artists;
+  const selectedArtistIds = (form.artists || [])
+    .map((row) => row.artistId)
+    .filter(Boolean);
 
   useEffect(() => {
     slugEditedRef.current = false;
-    setForm({ ...EMPTY_FORM, ...initialValues });
+    const normalizedValues = initialValues.eventArtists
+      ? {
+          ...initialValues,
+          artists: initialValues.eventArtists.map((item) => ({
+            artistId: item.artist?.id ?? '',
+            role: item.role ?? 'SINGER',
+          })),
+        }
+      : initialValues;
+
+    setForm({ ...EMPTY_FORM, ...normalizedValues });
   }, [initialValues]);
+
+  const addArtistRow = () => {
+    setForm((prev) => ({
+      ...prev,
+      artists: [...(prev.artists ?? []), { artistId: '', role: 'SINGER' }],
+    }));
+  };
+
+  const updateArtistRow = (index, key, value) => {
+    setForm((prev) => {
+      const nextArtists = [...(prev.artists ?? [])];
+      nextArtists[index] = { ...nextArtists[index], [key]: value };
+      return { ...prev, artists: nextArtists };
+    });
+  };
+
+  const removeArtistRow = (index) => {
+    setForm((prev) => {
+      const nextArtists = [...(prev.artists ?? [])];
+      nextArtists.splice(index, 1);
+      return { ...prev, artists: nextArtists };
+    });
+  };
 
   const updateField = (key) => (event) => {
     const value = event.target.value;
@@ -188,6 +222,89 @@ function EventForm({
               disabled={formBusy}
             />
           </FormField>
+
+          <FormField label="Danh sách nghệ sĩ" htmlFor="">
+            <div className="space-y-3">
+              {form.artists.length === 0 ? (
+                <div className="rounded-md border border-dashed border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-500">
+                  Chưa có nghệ sĩ nào được chọn.
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {form.artists.map((artistRow, index) => (
+                    <div
+                      key={index}
+                      className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_200px_90px] items-end"
+                    >
+                      <Select
+                        value={artistRow.artistId}
+                        onValueChange={(value) =>
+                          updateArtistRow(index, 'artistId', value)
+                        }
+                        disabled={formBusy}
+                      >
+                        <SelectTrigger className="h-9 w-full">
+                          <SelectValue placeholder="Chọn nghệ sĩ">
+                            {
+                              availableArtists.find(
+                                (artist) => artist.id === artistRow.artistId
+                              )?.name
+                            }
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          {availableArtists.map((artist) => (
+                            <SelectItem
+                              key={artist.id}
+                              value={artist.id}
+                              disabled={
+                                artistRow.artistId !== artist.id &&
+                                selectedArtistIds.includes(artist.id)
+                              }
+                            >
+                              {artist.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+
+                      <Input
+                        id={`artist-role-${index}`}
+                        name={`artistRole-${index}`}
+                        value={artistRow.role}
+                        onChange={(event) =>
+                          updateArtistRow(index, 'role', event.target.value)
+                        }
+                        placeholder="SINGER"
+                        className="h-9 w-full"
+                        disabled={formBusy}
+                      />
+
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="h-9 w-full sm:w-auto"
+                        onClick={() => removeArtistRow(index)}
+                        disabled={formBusy}
+                      >
+                        Xóa
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <Button
+                type="button"
+                variant="outline"
+                className="h-9"
+                onClick={addArtistRow}
+                disabled={formBusy}
+              >
+                Thêm nghệ sĩ
+              </Button>
+            </div>
+          </FormField>
         </CardContent>
       </Card>
 
@@ -283,8 +400,8 @@ function EventForm({
           type="button"
           variant="outline"
           className="h-9 cursor-pointer"
-            disabled={formBusy}
-            onClick={onCancel}
+          disabled={formBusy}
+          onClick={onCancel}
         >
           Hủy
         </Button>
@@ -299,7 +416,11 @@ function EventForm({
             Lưu bản nháp
           </Button>
         ) : null}
-        <Button type="submit" className="h-9 cursor-pointer" disabled={formBusy}>
+        <Button
+          type="submit"
+          className="h-9 cursor-pointer"
+          disabled={formBusy}
+        >
           {formBusy ? 'Đang xử lý…' : submitLabel}
         </Button>
       </div>
