@@ -7,10 +7,9 @@ import {
   CarouselItem,
 } from '@/components/ui/carousel';
 import { useCallback, useState } from 'react';
-import { events } from '../../data';
 import EvenItem from '@/components/EventItem/EventItem';
 
-function FeaturedEvents() {
+function FeaturedEvents({events}) {
   const [api, setApi] = useState(null);
 
   const scrollPrev = useCallback(() => api?.scrollPrev(), [api]);

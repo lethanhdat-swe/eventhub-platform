@@ -1,5 +1,3 @@
-import { useParams } from "react-router-dom";
-import { events } from "../data";
 import EventHero from "./components/EventHero/EventHero";
 import EventInfoBar from "./components/EventInfoBar/EventInfoBar";
 import EventAbout from "./components/EventAbout/EventAbout.jsx";
@@ -9,15 +7,38 @@ import EventInformation from "./components/EventInformation/EventInformation";
 import EventRelated from "./components/EventRelated/EventRelated";
 import EventBooking from "./components/EventBooking/EventBooking";
 import EventComment from "./components/EventComment/EventComment";
+import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { eventService, ticketTypeService } from "@/lib/services/admin";
+import { commentService } from "@/lib/services/comment";
 
 
 function EventDetail() {
-  const { id } = useParams();
-  const event = events.find((e) => e.id === Number(id));
 
-  if (!event) return <div>Event not found</div>;
+    const { id } = useParams();
 
-  const relatedEvents = events.filter((e) => e.id !== Number(id));
+    const [event, setEvent] = useState(null);
+    const [tickets, setTickets] = useState([]);
+    const [comments, setComments] = useState([]);
+
+    useEffect(() => {
+        const fetchEvent = async () => {
+        const data = await eventService.getById(id);
+        const payload = await ticketTypeService.list({ page: 1, limit: 100 });
+        const commentsData = await commentService.list(id);
+
+
+        setEvent(data);
+        setTickets(payload.data ?? []);
+        setComments(commentsData?? []);
+        };
+
+        if (id) {
+            fetchEvent();
+            }
+    }, [id]);
+
+    if (!event) return <div>Loading...</div>;
 
   return (
         <div className="pt-(--header-height) px-10 mb-10">
@@ -26,18 +47,22 @@ function EventDetail() {
                 <EventHero event={event} />
                 <EventInfoBar event={event} />
                 <EventAbout event={event} />
-                <EventComment />
+                <EventComment
+                    eventId={id}
+                    comments={comments}
+                    setComments={setComments}
+                />
             </div>
 
             <div className="col-span-4">
                <EventOrganizer event={event} />
                 <EventBooking />
-               <EventTickets event={event} />
+               <EventTickets tickets={tickets} />
                <EventInformation event={event} />
             </div>
         </div>
 
-        <EventRelated events={relatedEvents}/>
+        {/* <EventRelated events={relatedEvents}/> */}
         </div>
   );
 }

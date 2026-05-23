@@ -1,20 +1,37 @@
 import FeaturedEvents from './components/FeaturedEvents/FeaturedEvents';
 import HeroHome from './components/HeroHome/HeroHome';
-import CategoryItem from './components/CategoryItem/CategoryItem';
-import SearchSelect from './components/SearchSelect/SearchSelect';
 import Limit from './components/Limit/Limit';
 import TrendEvent from './components/TrendEvent/TrendEvent';
 import GoToTop from '@/components/GoToTop/GoToTop';
 import HomeTestimonials from './components/HomeTestimonials/HomeTestimonials';
 import HomeNewsletter from './components/HomeNewsletter/HomeNewsletter';
+import { eventService } from '@/lib/services/admin';
+import { useEffect, useState } from 'react';
 
 function Home() {
+  const [events, setEvents] = useState([]);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const data = await eventService.list({
+          page: 1,
+          limit: 6,
+          status: 'PUBLISHED',
+        });
+
+        setEvents(data.data || []);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchEvents();
+  }, []);
+
   return (
     <div className='mb-10'>
       <HeroHome />
-      <SearchSelect />
-      <CategoryItem />
-      <FeaturedEvents />
+      <FeaturedEvents events={events}/>
       <Limit />
       <TrendEvent />
       <HomeTestimonials />
