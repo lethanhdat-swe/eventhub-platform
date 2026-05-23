@@ -15,28 +15,33 @@ import { commentService } from "@/lib/services/comment";
 
 function EventDetail() {
 
-    const { id } = useParams();
+    const { slug } = useParams();
 
     const [event, setEvent] = useState(null);
     const [tickets, setTickets] = useState([]);
     const [comments, setComments] = useState([]);
+    const [relatedEvents, setRelatedEvents] = useState([]);
 
     useEffect(() => {
         const fetchEvent = async () => {
-        const data = await eventService.getById(id);
-        const payload = await ticketTypeService.list({ page: 1, limit: 100 });
-        const commentsData = await commentService.list(id);
-
-
+            
+        const data = await eventService.getBySlug(slug);
         setEvent(data);
-        setTickets(payload.data ?? []);
-        setComments(commentsData?? []);
-        };
 
-        if (id) {
+        const ticketTypes = await ticketTypeService.list({ page: 1, limit: 100 });
+        setTickets(ticketTypes.data ?? []);
+
+        const commentsData = await commentService.list(data.id, { page: 1, limit: 100 });
+        setComments(commentsData?? []);
+
+        const eventRelated = await eventService.eventRelated(data.id);
+        setRelatedEvents(eventRelated?? []);
+    };
+
+        if (slug) {
             fetchEvent();
             }
-    }, [id]);
+    }, [slug]);
 
     if (!event) return <div>Loading...</div>;
 
@@ -48,7 +53,7 @@ function EventDetail() {
                 <EventInfoBar event={event} />
                 <EventAbout event={event} />
                 <EventComment
-                    eventId={id}
+                    eventId={event.id}
                     comments={comments}
                     setComments={setComments}
                 />
@@ -56,13 +61,13 @@ function EventDetail() {
 
             <div className="col-span-4">
                <EventOrganizer event={event} />
-                <EventBooking />
+               <EventBooking />
                <EventTickets tickets={tickets} />
                <EventInformation event={event} />
             </div>
         </div>
 
-        {/* <EventRelated events={relatedEvents}/> */}
+        <EventRelated events={relatedEvents}/>
         </div>
   );
 }

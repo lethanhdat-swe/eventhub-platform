@@ -16,8 +16,8 @@ function EventRelated({events}) {
                 </div>
             </div>
 
-           <div className="grid grid-cols-5 gap-5 mt-5">
-            {events.slice(0, 5).map((event) => (
+           <div className="grid grid-cols-4 gap-5 mt-5">
+            {events.map((event) => (
                 <div key={event.id} className="col-span-1">
                 <EvenItem event={event} />
                 </div>

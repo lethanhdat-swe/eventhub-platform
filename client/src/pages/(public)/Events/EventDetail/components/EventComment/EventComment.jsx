@@ -28,8 +28,6 @@ function EventComment({ eventId, comments, setComments }) {
         if (e.key === 'Enter') handleSubmit();
     };
 
-    console.log('Rendering EventComment with comments:', comments);
-
     return (  
         <div className="space-y-5">
             <h1 className="text-(--text-primary) text-xl">

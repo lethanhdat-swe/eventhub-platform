@@ -6,7 +6,7 @@ function FilterHeader({ onClearAll }) {
       </span>
       <button
         onClick={onClearAll}
-        className="text-sm font-medium text-(--primary-color) transition-colors hover:text-(--primary-color)/90"
+        className="cursor-pointer text-sm font-medium text-(--primary-color) transition-colors hover:text-(--primary-color)/90"
       >
         Clear All
       </button>

@@ -10,17 +10,21 @@ import { useEffect, useState } from 'react';
 
 function Home() {
   const [events, setEvents] = useState([]);
+  const [trendingEvents, setTrendingEvents] = useState([]);
 
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const data = await eventService.list({
+        const event = await eventService.list({
           page: 1,
           limit: 6,
           status: 'PUBLISHED',
         });
+        setEvents(event.data || []);
 
-        setEvents(data.data || []);
+        const trendingData = await eventService.eventTrend();
+        setTrendingEvents(trendingData|| []);
+
       } catch (error) {
         console.log(error);
       }
@@ -33,7 +37,7 @@ function Home() {
       <HeroHome />
       <FeaturedEvents events={events}/>
       <Limit />
-      <TrendEvent />
+      <TrendEvent trendingEvents={trendingEvents} />
       <HomeTestimonials />
       <HomeNewsletter />
       <GoToTop />

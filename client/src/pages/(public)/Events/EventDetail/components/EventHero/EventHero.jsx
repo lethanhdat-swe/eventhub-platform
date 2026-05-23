@@ -1,8 +1,33 @@
-import { BadgeCheck, Heart, Share2 } from "lucide-react";
+import { saveEventService } from "@/lib/services/saveEvent";
+import { BadgeCheck, Bookmark, Heart } from "lucide-react";
+import { useEffect, useState } from "react";
 
 function EventHero({ event }) {
   const startDate = new Date(event.startDate);
+  const [saved, setSaved] = useState(false);
+    const [loading, setLoading] = useState(false);
 
+
+      useEffect(() => {
+        saveEventService.list().then((data) => {
+          const isSaved = data.some((item) => item.event.id === event.id);
+          setSaved(isSaved);
+        });
+      }, [saved, event.id]);
+
+      const handleBookmark = async (e) => {
+        e.stopPropagation();
+        if (loading) return;
+        setLoading(true);
+        try {
+          const res = await saveEventService.toggle(event.id);
+          setSaved(res);
+        } catch (err) {
+          console.error('Failed to toggle save:', err);
+        } finally {
+          setLoading(false);
+        }
+      };
   return (
     <div className="relative w-full overflow-hidden h-80 rounded-t-2xl">
       <img
@@ -36,12 +61,18 @@ function EventHero({ event }) {
       </div>
 
       <div className="absolute flex gap-2 top-4 right-4">
-        <button className="flex items-center justify-center text-(--text-primary)/30 transition-all duration-200 border rounded-full w-9 h-9 bg-(--background-color)/70 backdrop-blur-sm border-gray-700/50 hover:border-(--primary-color)/60 hover:text-(--primary-color)">
+        <button className="cursor-pointer flex items-center justify-center text-(--text-primary)/30 transition-all duration-200 border rounded-full w-9 h-9 bg-(--background-color)/70 backdrop-blur-sm border-gray-700/50 hover:border-(--primary-color)/60 hover:text-(--primary-color)">
           <Heart className="w-4 h-4" />
         </button>
 
-        <button className="flex items-center justify-center text-(--text-primary)/30 transition-all duration-200 border rounded-full w-9 h-9 bg-(--background-color)/70 backdrop-blur-sm border-gray-700/50 hover:border-(--primary-color)/60 hover:text-(--primary-color)">
-          <Share2 className="w-4 h-4" />
+        <button 
+          onClick={handleBookmark}
+          disabled={loading}
+          className="cursor-pointer flex items-center justify-center text-(--text-primary)/30 transition-all duration-200 border rounded-full w-9 h-9 bg-(--background-color)/70 backdrop-blur-sm border-gray-700/50 hover:border-(--primary-color)/60 hover:text-(--primary-color)">
+          <Bookmark 
+              color="var(--text-primary)"
+              fill={saved ? "var(--text-primary)" : "none"} 
+              className="w-4 h-4" />
         </button>
       </div>
 

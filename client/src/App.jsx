@@ -44,7 +44,7 @@ function App() {
       <Route path="/" element={<PublicLayout />}>
         <Route index element={<Home />} />
         <Route path="events" element={<Events />} />
-        <Route path="events/:id" element={<EventDetail />} />
+        <Route path="events/:slug" element={<EventDetail />} />
         <Route path="blogs" element={<Blog />} />
         <Route path="blog/:id" element={<BlogDetail />} />
         <Route path="contact" element={<Contact />} />

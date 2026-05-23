@@ -1,67 +1,71 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import FilterHeader from './components/FilterHeader/FilterHeader';
 import SearchInput from './components/SearchInput/SearchInput';
-import LocationSelect from './components/LocationSelect/LocationSelect';
 import DatePicker from './components/DatePicker/DatePicker';
 import CategoryFilter from './components/CategoryFilter/CategoryFilter';
-import PriceRangeSlider from './components/PriceRangeSlider/PriceRangeSlider';
-import EventTypeFilter from './components/EventTypeFilter/EventTypeFilter';
 import ApplyButton from './components/ApplyButton/ApplyButton';
+import { categoryService } from '@/lib/services/admin';
 
-function EventFilters() {
-  const [search, setSearch] = useState('');
-  const [location, setLocation] = useState('All Locations');
-  const [date, setDate] = useState('');
-  const [selectedCategories, setSelectedCategories] = useState(['Music']);
-  const [priceRange, setPriceRange] = useState([0, 100]);
-  const [selectedEventTypes, setSelectedEventTypes] = useState([
-    'Online Events',
-    'Offline Events',
-  ]);
+const INITIAL_FILTERS = {
+  search: '',
+  sort: '',
+  date: { startDate: '', endDate: '' },
+  selectedCategories: [],
+};
 
-  const toggleItem = (setter) => (label) => {
-    setter((prev) =>
-      prev.includes(label) ? prev.filter((i) => i !== label) : [...prev, label]
-    );
-  };
+function EventFilters({ onApply }) {
+  const [filters, setFilters] = useState(INITIAL_FILTERS);
+  const [categoryList, setCategoryList] = useState([]);
 
-  const clearAll = () => {
-    setSearch('');
-    setLocation('All Locations');
-    setDate('');
-    setSelectedCategories([]);
-    setPriceRange([0, 100]);
-    setSelectedEventTypes([]);
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await categoryService.list();
+        setCategoryList(data.data || []);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  const update = (key) => (value) =>
+    setFilters((prev) => ({ ...prev, [key]: value }));
+
+  const toggleCategory = (id) => {
+    setFilters((prev) => ({
+      ...prev,
+      selectedCategories: prev.selectedCategories.includes(id)
+        ? prev.selectedCategories.filter((i) => i !== id)
+        : [...prev.selectedCategories, id],
+    }));
   };
 
   const handleApply = () => {
-    console.log({
-      search,
-      location,
-      date,
-      selectedCategories,
-      priceRange,
-      selectedEventTypes,
+    onApply?.({
+      search: filters.search,
+      sort: filters.sort,
+      fromDate: filters.date.startDate,
+      toDate: filters.date.endDate,
+      categoryIds: filters.selectedCategories,
     });
+  };
 
-    clearAll();
+  const handleClearAll = () => {
+    setFilters(INITIAL_FILTERS);
+    onApply?.(INITIAL_FILTERS);  
   };
 
   return (
-    <div className="flex items-center justify-center h-full">
+    <div className="flex items-start justify-center h-full">
       <div className="flex flex-col w-full gap-5 p-5 bg-(--surface-color) shadow-2xl rounded-l-2xl">
-        <FilterHeader onClearAll={clearAll} />
-        <SearchInput value={search} onChange={setSearch} />
-        <LocationSelect value={location} onChange={setLocation} />
-        <DatePicker value={date} onChange={setDate} />
+        <FilterHeader onClearAll={handleClearAll} />
+        <SearchInput value={filters.search} onChange={update('search')} />
+        <DatePicker value={filters.date} onChange={update('date')} />
         <CategoryFilter
-          selected={selectedCategories}
-          onChange={toggleItem(setSelectedCategories)}
-        />
-        <PriceRangeSlider value={priceRange} onChange={setPriceRange} />
-        <EventTypeFilter
-          selected={selectedEventTypes}
-          onChange={toggleItem(setSelectedEventTypes)}
+          selected={filters.selectedCategories}
+          onChange={toggleCategory}
+          categories={categoryList}
         />
         <ApplyButton onClick={handleApply} />
       </div>

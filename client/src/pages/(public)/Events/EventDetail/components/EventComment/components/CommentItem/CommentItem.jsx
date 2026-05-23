@@ -65,7 +65,7 @@ function CommentItem({ comment, setComments }) {
                     </div>
                 </div>
             ) : (
-                <CommentInfo comment={comment} />
+                <CommentInfo comment={comment} setComments={setComments}/>
             )}
 
             <CommentActions onEdit={handleEdit} onDelete={handleDelete} />

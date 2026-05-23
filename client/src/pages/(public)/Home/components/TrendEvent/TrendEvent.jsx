@@ -1,9 +1,8 @@
 import { ArrowRight, Flame } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { events } from '../../data';
 import EventCard from './components/EventCard/EventCard';
 
-function TrendEvent() {
+function TrendEvent({ trendingEvents }) {
   return (
     <div className="container pt-7.5">
       <div className="flex items-center justify-between">
@@ -19,8 +18,8 @@ function TrendEvent() {
         </div>
       </div>
 
-      <div className="flex gap-4 mt-5">
-        {events.slice(0, 4).map((event) => (
+      <div className="grid grid-cols-4 gap-4 mt-5">
+        {trendingEvents.slice(0, 4).map((event) => (
           <EventCard key={event.id} event={event} />
         ))}
       </div>
