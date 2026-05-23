@@ -16,6 +16,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { ThumbnailUploadField } from '@/components/form/ThumbnailUploadField';
 import { cn } from '@/lib/utils';
 import { EVENT_STATUS_OPTIONS } from '@/pages/(admin)/Events/data';
+import EventSeats from './EventSeats';
 
 const EMPTY_FORM = {
   title: '',
@@ -393,14 +394,16 @@ function EventForm({
         </CardContent>
       </Card>
 
-      <Card size="sm">
-        <CardHeader className="border-b pb-3">
-          <CardTitle>Hình ảnh & trạng thái</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3 pt-3">
-          <div>Seat</div>
-        </CardContent>
-      </Card>
+      {!isCreate && form.id ? (
+        <Card size="sm">
+          <CardHeader className="border-b pb-3">
+            <CardTitle>Sơ đồ ghế (Event Seats)</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 pt-3">
+            <EventSeats eventId={form.id} />
+          </CardContent>
+        </Card>
+      ) : null}
 
       <Separator />
 

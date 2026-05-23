@@ -72,6 +72,7 @@ export function mapEventRow(row) {
 
 export function mapEventToFormValues(event) {
   return {
+    id: event?.id,
     title: event?.title ?? '',
     slug: event?.slug ?? '',
     description: event?.description ?? '',

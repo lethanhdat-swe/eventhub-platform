@@ -144,20 +144,72 @@ class EventController {
         }
     };
 
-    updateEventSeats = async (
+    updateEventSeat = async (
         req: Request,
         res: Response,
         next: NextFunction
     ) => {
         try {
-            const result = await eventSeatService.updateBulk(
+            const result = await eventSeatService.updateOne(
+                req.params.id as string,
+                req.params.seatId as string,
+                req.body
+            );
+
+            return res.success({
+                message: "Event seat updated successfully.",
+                data: result,
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    addSeatRow = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const result = await eventSeatService.addRow(
                 req.params.id as string,
                 req.body
             );
 
             return res.success({
-                message: "Event seats updated successfully.",
+                message: "Event seat row created successfully.",
                 data: result,
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    addEventSeat = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const result = await eventSeatService.addSeat(
+                req.params.id as string,
+                req.body
+            );
+
+            return res.success({
+                message: "Event seat created successfully.",
+                data: result,
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    deleteEventSeats = async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) => {
+        try {
+            await eventSeatService.deleteBulk(
+                req.params.id as string,
+                req.body.ids
+            );
+
+            return res.success({
+                message: "Event seats deleted successfully.",
             });
         } catch (error) {
             next(error);

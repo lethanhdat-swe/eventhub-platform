@@ -70,10 +70,10 @@ class EventService {
                 select: eventSelect,
             });
 
-            // ✅ create seats
             const masterSeats = await tx.seat.findMany({
                 select: {
-                    id: true,
+                    rowLabel: true,
+                    seatNumber: true,
                     defaultTicketTypeId: true,
                 },
             });
@@ -82,7 +82,8 @@ class EventService {
                 await tx.eventSeat.createMany({
                     data: masterSeats.map((seat) => ({
                         eventId: event.id,
-                        seatId: seat.id,
+                        rowLabel: seat.rowLabel,
+                        seatNumber: seat.seatNumber,
                         ticketTypeId: seat.defaultTicketTypeId,
                         status: EventSeatStatus.AVAILABLE,
                     })),

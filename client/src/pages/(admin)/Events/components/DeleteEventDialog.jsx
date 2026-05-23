@@ -27,8 +27,8 @@ function DeleteEventDialog({
         <AlertDialogHeader className="text-left sm:text-left">
           <AlertDialogTitle>Xóa sự kiện</AlertDialogTitle>
           <AlertDialogDescription>
-            Bạn có chắc muốn xóa &quot;{eventTitle}&quot;? Hành động không thể hoàn
-            tác.
+            Bạn có chắc muốn xóa &quot;{eventTitle}&quot;? Hành động không thể
+            hoàn tác.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
