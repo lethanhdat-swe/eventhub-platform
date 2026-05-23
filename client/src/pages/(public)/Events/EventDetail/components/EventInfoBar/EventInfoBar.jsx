@@ -16,9 +16,9 @@ function EventInfoBar({ event }) {
   });
 
   return (
-    <div className="flex items-center justify-between p-4 border-t-2 border-(--text-primary)/30">
+    <div className="flex flex-wrap items-center justify-between gap-4 p-3 border-t border-(--text-primary)/20">
       <div className="flex items-center gap-2">
-        <Calendar color="var(--primary-color)" />
+        <Calendar color="var(--primary-color)" size={18} />
 
         <div className="flex flex-col gap-0.5">
           <p className="text-(--text-primary)">
@@ -32,7 +32,7 @@ function EventInfoBar({ event }) {
       </div>
 
       <div className="flex items-center gap-2">
-        <MapPin color="var(--primary-color)" />
+        <MapPin color="var(--primary-color)" size={18} />
 
         <div className="flex flex-col gap-0.5">
           <p className="text-(--text-primary)">
@@ -46,7 +46,7 @@ function EventInfoBar({ event }) {
       </div>
 
       <div className="flex items-center gap-2">
-        <User color="var(--primary-color)" />
+        <User color="var(--primary-color)" size={18} />
 
         <div className="flex flex-col gap-0.5">
           <p className="text-(--text-primary)">
@@ -60,7 +60,7 @@ function EventInfoBar({ event }) {
       </div>
 
       <div className="flex items-center gap-2">
-        <Phone color="var(--primary-color)" />
+        <Phone color="var(--primary-color)" size={18} />
 
         <div className="flex flex-col gap-0.5">
           <p className="text-(--text-primary)">

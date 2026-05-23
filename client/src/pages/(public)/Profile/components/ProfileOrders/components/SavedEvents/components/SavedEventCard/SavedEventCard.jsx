@@ -1,4 +1,5 @@
 import { Calendar, ChevronRight, Clock, MapPin } from "lucide-react";
+import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
 import { Link } from "react-router-dom";
 
 function SavedEventCard({ event }) {
@@ -10,7 +11,7 @@ function SavedEventCard({ event }) {
       {/* LEFT — thumbnail + info */}
       <div className="flex flex-1 min-w-0 items-center gap-5 pr-8 border-r border-(--text-primary)/10">
         <img
-          src={`${import.meta.env.VITE_API_URL}/uploads/${event.thumbnailUrl}`}
+          src={resolvePublicAssetUrl(event.thumbnailUrl)}
           alt={event.title}
           className="object-cover h-32 w-52 shrink-0 rounded-2xl"
         />

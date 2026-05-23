@@ -1,68 +1,40 @@
-import { LockKeyhole, Undo2 } from "lucide-react";
+import { Loader2, LockKeyhole, Undo2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
-function PaymentActionSection() {
+function PaymentActionSection({
+    canSubmit,
+    isSubmitting,
+    onSubmit,
+    backTo,
+}) {
     return ( 
-        <div className="grid grid-cols-2 gap-6 mt-10 mb-5">
-        {/* Back Button */}
+        <div className="grid grid-cols-2 gap-4 mt-6 mb-5">
         <Link
-            to={"/booking"}
-            className="group relative overflow-hidden rounded-2xl border border-(--text-primary)/10 bg-(--text-primary)/3 px-6 py-5 flex items-center justify-center gap-4 backdrop-blur-xl transition-all duration-300 hover:border-(--text-primary)/20 hover:bg-(--text-primary)/5 hover:-translate-y-1 hover:shadow-[0_10px_40px_rgba(255,255,255,0.05)]">
-            {/* Glow */}
-            <div
-                className="absolute inset-0 transition-opacity duration-300 opacity-0 bg-linear-to-r from-(--text-primary)/5 to-transparent group-hover:opacity-100"
-            />
-
+            to={backTo ?? "/booking"}
+            className="group rounded-xl border border-(--text-primary)/10 bg-(--text-primary)/3 px-5 py-4 flex items-center justify-center gap-3 transition-all duration-200 hover:border-(--text-primary)/20 hover:bg-(--text-primary)/5">
             <Undo2
-                size={24}
-                className="transition-all duration-300 text-(--text-primary)/90 group-hover:-translate-x-1"
+                size={18}
+                className="transition-all duration-200 text-(--text-primary)/90 group-hover:-translate-x-1"
             />
-            <p className="text-xl font-semibold text-(--text-primary) transition-all duration-300 ">Quay lại</p>
+            <p className="font-semibold text-(--text-primary)">Quay lại</p>
         </Link>
 
-        {/* Pay Button */}
-        <Link
-            to={"/payment-status?status=success"}
-            className="group relative overflow-hidden rounded-2xl px-6 py-5 flex items-center justify-center gap-4
-            bg-linear-to-r
-            from-purple-600
-            via-fuchsia-500
-            to-purple-500 transition-all duration-300 hover:scale-[1.02]
-            hover:-translate-y-1
-            hover:shadow-[0_0_45px_rgba(168,85,247,0.55)]
-            "
+        <button
+            type="button"
+            disabled={!canSubmit || isSubmitting}
+            onClick={onSubmit}
+            className="rounded-xl px-5 py-4 flex items-center justify-center gap-3 bg-(--primary-color) text-white transition-all duration-200 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
         >
-            {/* Animated Glow */}
-            <div
-            className="
-                absolute inset-0
-                opacity-0 group-hover:opacity-100
-                transition-opacity duration-500
-                bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.25),transparent_70%)]
-            "
-            />
-
-            {/* Shine Effect */}
-            <div
-            className="
-                absolute inset-y-0 left-[-120%] w-30
-                rotate-12 bg-(--text-primary)/20 blur-2xl
-                transition-all duration-700
-                group-hover:left-[120%]
-            "
-            />
-
-            <p
-            className="relative z-10 text-xl font-bold tracking-wide text-(--text-primary) "
-            >
-            Thanh toán ngay
+            <p className="font-semibold">
+                {isSubmitting ? "Đang tạo order..." : "Thanh toán ngay"}
             </p>
 
-            <LockKeyhole
-            size={24}
-            className="relative z-10 text-(--text-primary) transition-transform duration-300 group-hover:scale-110"
-            />
-        </Link>
+            {isSubmitting ? (
+                <Loader2 size={18} className="animate-spin" />
+            ) : (
+                <LockKeyhole size={18} />
+            )}
+        </button>
         </div>
             );
 }

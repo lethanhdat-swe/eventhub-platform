@@ -1,20 +1,21 @@
 import { BadgeCheck, Heart, Share2 } from "lucide-react";
+import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
 
 function EventHero({ event }) {
   const startDate = new Date(event.startDate);
 
   return (
-    <div className="relative w-full overflow-hidden h-80 rounded-t-2xl">
+    <div className="relative w-full overflow-hidden h-72 rounded-t-2xl lg:h-[19rem]">
       <img
-        src={`${import.meta.env.VITE_API_URL}/uploads/${event.thumbnailUrl}`}
+        src={resolvePublicAssetUrl(event.thumbnailUrl)}
         alt={event.title}
         className="object-cover w-full h-full"
       />
 
       <div className="absolute inset-0 bg-linear-to-t from-(--bg-overlay) via-(--bg-overlay)/40 to-transparent" />
 
-      <div className="absolute px-3 py-2 text-center border top-4 left-4 bg-(--background-color)/70 backdrop-blur-sm border-gray-700/50 rounded-xl min-w-13">
-        <div className="text-(--text-primary) text-2xl font-bold leading-none">
+      <div className="absolute px-3 py-2 text-center border top-4 left-4 bg-(--background-color)/70 backdrop-blur-sm border-gray-700/50 rounded-xl min-w-12">
+        <div className="text-(--text-primary) text-xl font-bold leading-none">
           {startDate.getDate()}
         </div>
 
@@ -45,13 +46,13 @@ function EventHero({ event }) {
         </button>
       </div>
 
-      <div className="absolute bottom-5 left-4">
+      <div className="absolute bottom-4 left-4">
         <span className="text-white text-[10px] font-bold leading-none bg-(--primary-color) p-2 rounded-[3px]">
           {event.category?.name}
         </span>
 
         <div className="flex items-center gap-3 mt-2">
-          <h1 className="text-(--text-primary) text-2xl">
+          <h1 className="text-(--text-primary) text-xl lg:text-2xl">
             {event.title}
           </h1>
 

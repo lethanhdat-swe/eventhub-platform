@@ -1,7 +1,10 @@
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 
-function EventTitle() {
+function EventTitle({ event, isLoading }) {
+    const title = isLoading ? 'Loading event...' : event?.title ?? 'Event';
+    const categoryName = event?.category?.name;
+
     return ( 
         <>
             {/* Back link */}
@@ -19,11 +22,12 @@ function EventTitle() {
             </Link>
 
             {/* Title + badge */}
-            <div className="flex items-center gap-10">
-            <p className="text-(--text-primary) text-3xl font-bold tracking-tight">
-                NEON MUSIC FESTIVAL 2026
+            <div className="flex flex-wrap items-center gap-4">
+            <p className="text-(--text-primary) text-2xl lg:text-3xl font-bold tracking-tight">
+                {title}
             </p>
-            <p
+            {categoryName ? (
+              <p
                 className="text-xs px-2 py-0.5 rounded-sm uppercase border text-center shrink-0"
                 style={{
                 color: "var(--primary-color)",
@@ -31,8 +35,9 @@ function EventTitle() {
                 borderColor: "color-mix(in srgb, var(--primary-color) 30%, transparent)",
                 }}
             >
-                Music festival
-            </p>
+                {categoryName}
+              </p>
+            ) : null}
             </div>
         </>
      );

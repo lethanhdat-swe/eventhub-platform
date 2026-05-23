@@ -22,20 +22,20 @@ function EventInformation({ event }) {
   });
 
   return (
-    <div className="p-5 bg-(--surface-color) rounded-xl mt-4">
-      <h1 className="text-(--text-primary) text-xl">
+    <div className="p-4 bg-(--surface-color) rounded-xl mt-4">
+      <h1 className="text-(--text-primary) text-lg font-medium">
         Event Information
       </h1>
 
-      <div className="flex justify-between mt-5 text-(--text-primary)/70">
-        <div className="flex flex-col gap-5">
+      <div className="flex justify-between gap-4 mt-4 text-sm text-(--text-primary)/70">
+        <div className="flex flex-col gap-3">
           <p>Date</p>
           <p>Time</p>
           <p>Location</p>
           <p>Age Restriction</p>
         </div>
 
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-3 text-right">
           <p>{dateStr}</p>
           <p>{timeStr}</p>
           <p>{event.location}</p>
@@ -43,12 +43,12 @@ function EventInformation({ event }) {
         </div>
       </div>
 
-      <div className="mt-10 border-t-2 border-(--text-primary)/30 p-4 flex gap-7 items-center">
-        <h1 className="text-(--text-primary) text-[18px]">
+      <div className="mt-5 border-t border-(--text-primary)/20 pt-4 flex gap-4 items-center">
+        <h1 className="text-(--text-primary) text-sm font-medium">
           Share this event
         </h1>
 
-        <div className="flex items-center gap-4 text-(--text-primary)">
+        <div className="flex items-center gap-3 text-(--text-primary)">
           <FacebookIcon />
           <InstagramIcon />
           <TwitterIcon />

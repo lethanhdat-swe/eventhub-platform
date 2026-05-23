@@ -1,85 +1,70 @@
 import { Banknote, Landmark } from "lucide-react";
-import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
 
-function BankTransferMethod() {
-     const [selected, setSelected] = useState(true);
+function formatCurrency(value) {
+    return Number(value || 0).toLocaleString("vi-VN") + "đ";
+}
+
+function BankTransferMethod({ paymentInfo }) {
     return ( 
         <div>
-            <div className="flex items-center gap-3 mt-10 mb-5">
-                <Banknote color="var(--primary-color)"size={24}/>
-                <p className="text-(--text-primary) text-xl font-medium">Phương thức thanh toán</p> 
+            <div className="flex items-center gap-2 mt-6 mb-3">
+                <Banknote color="var(--primary-color)" size={20}/>
+                <p className="text-(--text-primary) font-medium">Phương thức thanh toán</p> 
             </div>
 
-             <button
-                onClick={() => setSelected(!selected)}
-                className={`
-                    w-full rounded-xl p-5 transition-all duration-300
-                    border bg-(--background-color)/90
-                    ${
-                    selected
-                        ? "border-(--primary-color) shadow-[0_0_30px_color-mix(in_srgb,var(--primary-color)_25%,transparent)]"
-                        : "border-(--text-primary)/10 hover:border-(--primary-color)/40"
-                    }
-                `}
-                >
+             <div className="w-full rounded-xl border border-(--text-primary)/10 bg-(--background-color)/90 p-4">
                 <div className="flex items-center justify-between gap-6">
-                    {/* Left */}
                     <div className="flex items-center gap-4">
-                        <div className="rounded-xl p-4 bg-(--surface-color)/60 border border-(--text-primary)/40">
-                            <Landmark color="var(--text-primary)" />
+                        <div className="rounded-xl p-3 bg-(--surface-color)/60 border border-(--text-primary)/10">
+                            <Landmark color="var(--text-primary)" size={20} />
                         </div>
 
                         <div className="flex flex-col items-start gap-1">
                             <div className="flex items-center gap-3">
-                                <h1 className="text-(--text-primary) font-semibold text-lg">
+                                <h2 className="text-(--text-primary) font-semibold">
                                     Thanh toán qua ngân hàng
-                                </h1>
+                                </h2>
 
-                                <p
-                                    className="text-xs px-2 py-0.5 rounded-sm uppercase border text-center shrink-0"
-                                    style={{
-                                    color: "var(--primary-color)",
-                                    backgroundColor:
-                                        "color-mix(in srgb, var(--primary-color) 15%, transparent)",
-                                    borderColor:
-                                        "color-mix(in srgb, var(--primary-color) 30%, transparent)",
-                                    }}
-                                >
-                                    Khuyến nghị
-                                </p>
+                                <Badge variant="outline" className="text-(--primary-color)">
+                                    SEPAY
+                                </Badge>
                             </div>
 
                             <p className="text-(--text-primary)/60 text-sm">
-                            Chuyển khoản qua QR code hoặc số tài khoản
+                                Chuyển khoản bằng mã QR hoặc thông tin tài khoản
                             </p>
                         </div>
                     </div>
-
-                    {/* Right Radio */}
-                    <div
-                        className={`
-                            relative w-7 h-7 rounded-full border transition-all duration-300
-                            flex items-center justify-center
-                            ${
-                            selected
-                                ? "border-(--primary-color)"
-                                : "border-(--text-primary)/20"
-                            }
-                        `}
-                        >
-                        <div
-                            className={`
-                            w-3.5 h-3.5 rounded-full transition-all duration-300
-                            ${
-                                selected
-                                ? "bg-(--primary-color) shadow-[0_0_15px_var(--primary-color)]"
-                                : "bg-transparent"
-                            }
-                            `}
-                        />
-                    </div>
                 </div>
-                </button>
+
+                {paymentInfo ? (
+                    <div className="mt-4 grid gap-3 rounded-lg border border-(--text-primary)/10 bg-(--surface-color)/30 p-4 text-sm md:grid-cols-3">
+                        <div>
+                            <p className="text-(--text-primary)/50">Mã đơn hàng</p>
+                            <p className="font-semibold text-(--text-primary)">
+                                {paymentInfo.orderCode}
+                            </p>
+                        </div>
+                        <div>
+                            <p className="text-(--text-primary)/50">Số tiền</p>
+                            <p className="font-semibold text-(--text-primary)">
+                                {formatCurrency(paymentInfo.amount)}
+                            </p>
+                        </div>
+                        {paymentInfo.paymentUrl ? (
+                            <a
+                                href={paymentInfo.paymentUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="font-semibold text-(--primary-color) hover:underline"
+                            >
+                                Mở trang thanh toán SEPAY
+                            </a>
+                        ) : null}
+                    </div>
+                ) : null}
+            </div>
        </div>
      );
 }

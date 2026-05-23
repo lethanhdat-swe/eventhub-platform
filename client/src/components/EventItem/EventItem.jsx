@@ -1,4 +1,5 @@
 import { saveEventService } from "@/lib/services/saveEvent";
+import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
 import { Bookmark, MapPin, Star } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -36,7 +37,7 @@ function EventItem({ event }) {
       <div className="flex flex-col h-full overflow-hidden cursor-pointer group rounded-xl">
         <div className="relative">
           <img
-            src={`${import.meta.env.VITE_API_URL}/uploads/${event.thumbnailUrl}`}
+            src={resolvePublicAssetUrl(event.thumbnailUrl)}
             alt={event.title}
             className="object-cover w-full transition-transform duration-500 h-50 group-hover:scale-105"
           />

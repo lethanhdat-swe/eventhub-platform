@@ -32,6 +32,11 @@ router.get(
 );
 router.get("/:id", validate(getEventSchema), eventController.getDetail);
 router.get(
+    "/:id/seats",
+    validate(listEventSeatSchema),
+    eventController.getEventSeats
+);
+router.get(
     "/slug/:slug",
     validate(getEventBySlugSchema),
     eventController.getDetailBySlug
@@ -53,11 +58,6 @@ router.delete(
 );
 
 // EventSeats management
-router.get(
-    "/:id/seats",
-    validate(listEventSeatSchema),
-    eventController.getEventSeats
-);
 router.post(
     "/:id/seats/rows",
     validate(addSeatRowSchema),

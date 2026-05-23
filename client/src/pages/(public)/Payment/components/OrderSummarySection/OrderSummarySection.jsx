@@ -1,39 +1,37 @@
-import { images } from "@/assets";
-import { ReceiptText } from "lucide-react";
-import TicketTable from "./components/TicketTable/TicketTable";
-import EventInfoCard from "./components/EventInfoCard/EventInfoCard";
+import { images } from '@/assets';
+import { ReceiptText } from 'lucide-react';
+import TicketTable from './components/TicketTable/TicketTable';
+import EventInfoCard from './components/EventInfoCard/EventInfoCard';
+import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
 
-function OrderSummarySection() {
-    return ( 
-       <div>
-            <div className="flex items-center gap-3 mt-10 mb-5">
-                <ReceiptText color="var(--primary-color)" size={24}/>
-                <p className="text-(--text-primary) font-medium text-xl">Chi tiết sự kiện</p> 
-            </div>
+function OrderSummarySection({ event, ticketItems = [] }) {
+  const imageUrl = resolvePublicAssetUrl(event?.thumbnailUrl) || images.home;
 
-            <div className="grid grid-cols-12 gap-5 bg-(--background-color)/90 border border-(--text-primary)/10 rounded-xl p-10">
-                <div className="col-span-4">
-                    <img src={images.home} alt="" className="object-cover w-full h-full rounded-xl"/>
-                </div>
+  return (
+    <div>
+      <div className="flex items-center gap-2 mt-6 mb-3">
+        <ReceiptText color="var(--primary-color)" size={20} />
+        <p className="text-(--text-primary) font-medium">Chi tiết sự kiện</p>
+      </div>
 
-                <div className="col-span-8 space-y-5">
-                   <EventInfoCard />
+      <div className="grid grid-cols-12 gap-5 bg-(--background-color)/90 border border-(--text-primary)/10 rounded-xl p-5">
+        <div className="col-span-12 md:col-span-4">
+          <div className="aspect-[5/5] w-full overflow-hidden rounded-2xl">
+            <img
+              src={imageUrl}
+              alt={event?.title ?? 'Event'}
+              className="h-full w-full object-cover"
+            />
+          </div>
+        </div>
 
-                    <TicketTable
-                        items={[
-                            {
-                            ticketType: "VIP Stand",
-                            quantity: 2,
-                            seats: ["A12", "A13"],
-                            price: 2000000,
-                            total: 4000000,
-                            },
-                        ]}
-                        />
-                </div>
-            </div>
-       </div>
-     );
+        <div className="col-span-12 md:col-span-8 space-y-4">
+          <EventInfoCard event={event} />
+          <TicketTable items={ticketItems} />
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default OrderSummarySection;
