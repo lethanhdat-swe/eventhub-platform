@@ -117,13 +117,21 @@ export const listEventSchema = z.object({
         status: z.string().optional(),
         categoryId: z.string().uuid().optional(),
         categoryIds: z
-            .union([z.string(), z.array(z.string())])
+            .string()
             .optional()
             .transform((value) => {
                 if (!value) return undefined;
-                if (Array.isArray(value)) return value;
-                return value.split(",").filter(Boolean);
-            }),
+
+                return value
+                    .split(",")
+                    .map((id) => id.trim())
+                    .filter(Boolean);
+            })
+            .pipe(
+                z
+                    .array(z.string().uuid("Invalid category ID format"))
+                    .optional()
+            ),
 
         fromDate: z.coerce.date().optional(),
         toDate: z.coerce.date().optional(),
