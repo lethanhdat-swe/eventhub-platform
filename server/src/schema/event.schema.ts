@@ -116,5 +116,21 @@ export const listEventSchema = z.object({
         search: z.string().optional(),
         status: z.string().optional(),
         categoryId: z.string().uuid().optional(),
+        categoryIds: z
+            .union([z.string(), z.array(z.string())])
+            .optional()
+            .transform((value) => {
+                if (!value) return undefined;
+                if (Array.isArray(value)) return value;
+                return value.split(",").filter(Boolean);
+            }),
+
+        fromDate: z.coerce.date().optional(),
+        toDate: z.coerce.date().optional(),
+
+        sort: z
+            .enum(["featured", "new", "upcoming"])
+            .optional()
+            .default("featured"),
     }),
 });

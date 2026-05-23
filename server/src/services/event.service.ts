@@ -154,25 +154,65 @@ class EventService {
         limit: number;
         status?: string;
         categoryId?: string;
+        categoryIds?: string[];
+        fromDate?: Date;
+        toDate?: Date;
+        sort?: "featured" | "new" | "upcoming";
     }) {
-        const { page = 1, limit = 10, search, status, categoryId } = query;
+        const {
+            page = 1,
+            limit = 10,
+            search,
+            status,
+            categoryId,
+            categoryIds,
+            fromDate,
+            toDate,
+            sort = "featured",
+        } = query;
+
         const skip = (page - 1) * limit;
 
         const where: any = {};
 
         if (search) {
-            where.OR = [
-                { title: { contains: search } },
-                { slug: { contains: search } },
-            ];
+            where.OR = [{ title: { contains: search } }];
         }
 
         if (status) {
             where.status = status;
         }
 
-        if (categoryId) {
+        if (categoryIds?.length) {
+            where.categoryId = {
+                in: categoryIds,
+            };
+        } else if (categoryId) {
             where.categoryId = categoryId;
+        }
+
+        if (fromDate || toDate) {
+            where.startDate = {};
+
+            if (fromDate) {
+                where.startDate.gte = fromDate;
+            }
+
+            if (toDate) {
+                where.startDate.lte = toDate;
+            }
+        }
+
+        const orderBy =
+            sort === "new"
+                ? { createdAt: "desc" as const }
+                : { startDate: "asc" as const };
+
+        if (sort === "upcoming") {
+            where.startDate = {
+                ...(where.startDate || {}),
+                gte: new Date(),
+            };
         }
 
         const [events, total] = await Promise.all([
@@ -180,7 +220,7 @@ class EventService {
                 where,
                 skip,
                 take: Number(limit),
-                orderBy: { createdAt: "desc" },
+                orderBy,
                 select: eventSelect,
             }),
             prisma.event.count({ where }),
@@ -190,6 +230,37 @@ class EventService {
             data: events,
             meta: getPaginationMetadata(total, page, limit),
         };
+    }
+
+    async getRelatedEvents(eventId: string) {
+        const currentEvent = await prisma.event.findUnique({
+            where: { id: eventId },
+            select: {
+                id: true,
+                categoryId: true,
+            },
+        });
+
+        if (!currentEvent) {
+            throw new AppError("Event not found.", 404);
+        }
+
+        const relatedEvents = await prisma.event.findMany({
+            where: {
+                id: {
+                    not: eventId,
+                },
+                status: "PUBLISHED",
+                categoryId: currentEvent.categoryId,
+            },
+            take: 4,
+            orderBy: {
+                startDate: "asc",
+            },
+            select: eventSelect,
+        });
+
+        return relatedEvents;
     }
 
     async getDetail(id: string) {
@@ -204,6 +275,7 @@ class EventService {
 
         return event;
     }
+
     async getDetailBySlug(slug: string) {
         const event = await prisma.event.findUnique({
             where: { slug },
@@ -215,6 +287,88 @@ class EventService {
         }
 
         return event;
+    }
+
+    async getTrendingEvents() {
+        const events = await prisma.event.findMany({
+            where: {
+                status: "PUBLISHED",
+            },
+            take: 30,
+            orderBy: {
+                createdAt: "desc",
+            },
+            select: {
+                ...eventSelect,
+                _count: {
+                    select: {
+                        likedByUsers: true,
+                        savedByUsers: true,
+                        comments: true,
+                    },
+                },
+            },
+        });
+
+        const eventIds = events.map((event) => event.id);
+
+        const tickets = await prisma.ticket.findMany({
+            where: {
+                order: {
+                    status: "PAID",
+                },
+                eventSeat: {
+                    eventId: {
+                        in: eventIds,
+                    },
+                },
+            },
+            select: {
+                id: true,
+                eventSeat: {
+                    select: {
+                        eventId: true,
+                    },
+                },
+            },
+        });
+
+        const paidTicketCountByEvent = new Map<string, number>();
+
+        tickets.forEach((ticket) => {
+            const eventId = ticket.eventSeat.eventId;
+
+            paidTicketCountByEvent.set(
+                eventId,
+                (paidTicketCountByEvent.get(eventId) || 0) + 1
+            );
+        });
+
+        return events
+            .map((event) => {
+                const paidTicketCount =
+                    paidTicketCountByEvent.get(event.id) || 0;
+                const likeCount = event._count.likedByUsers;
+                const saveCount = event._count.savedByUsers;
+                const commentCount = event._count.comments;
+
+                const trendingScore =
+                    paidTicketCount * 5 +
+                    likeCount * 3 +
+                    saveCount * 2 +
+                    commentCount;
+
+                return {
+                    ...event,
+                    paidTicketCount,
+                    likeCount,
+                    saveCount,
+                    commentCount,
+                    trendingScore,
+                };
+            })
+            .sort((a, b) => b.trendingScore - a.trendingScore)
+            .slice(0, 6);
     }
 
     async delete(ids: string[]) {
