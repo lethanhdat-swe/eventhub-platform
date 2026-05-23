@@ -260,7 +260,27 @@ class EventService {
             select: eventSelect,
         });
 
-        return relatedEvents;
+        if (relatedEvents.length >= 4) {
+            return relatedEvents;
+        }
+
+        const existingIds = relatedEvents.map((event) => event.id);
+
+        const fallbackEvents = await prisma.event.findMany({
+            where: {
+                id: {
+                    notIn: [eventId, ...existingIds],
+                },
+                status: "PUBLISHED",
+            },
+            take: 4 - relatedEvents.length,
+            orderBy: {
+                startDate: "asc",
+            },
+            select: eventSelect,
+        });
+
+        return [...relatedEvents, ...fallbackEvents];
     }
 
     async getDetail(id: string) {
