@@ -42,4 +42,8 @@ export const authService = {
   getMe() {
     return axiosInstance.get(`${AUTH_BASE}/me`);
   },
+
+  updateMe(data) {
+    return axiosInstance.put(`/api/users/update-me`, data);
+  },
 };

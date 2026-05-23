@@ -2,6 +2,22 @@ import { Request, Response, NextFunction } from "express";
 import likeEventService from "../services/like-event.service";
 
 class LikeEventController {
+    getLikeInfo = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { eventId } = req.params;
+            const userId = req.user!.id;
+
+            const result = await likeEventService.getLikeInfo(userId, eventId as string);
+
+            return res.success({
+                message: "Event like info fetched successfully.",
+                data: result,
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
     toggleLike = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { eventId } = req.params;

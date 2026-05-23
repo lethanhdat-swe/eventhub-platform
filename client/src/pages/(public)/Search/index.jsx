@@ -10,8 +10,8 @@ function Search() {
     return ( 
         <div className="pt-(--header-height)">
             <SearchHero keyword={keyword}/>
-            <EventsSection />
-            <ArtistsSection />
+            <EventsSection keyword={keyword}/>
+            <ArtistsSection keyword={keyword}/>
         </div>
      );
 }

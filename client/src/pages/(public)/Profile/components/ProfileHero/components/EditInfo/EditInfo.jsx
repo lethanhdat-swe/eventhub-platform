@@ -1,24 +1,63 @@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Pen } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useAuthStore } from "@/stores/authStore";
+import { authService } from "@/lib/services/auth/authService";
 
 function EditInfo() {
+  const { user, setAuth } = useAuthStore();
   const [form, setForm] = useState({
     name: "",
-    email: "",
     phone: "",
-    date: "",
-    sex: "",
   });
+  const [isLoading, setIsLoading] = useState(false);
+  const [openPopover, setOpenPopover] = useState(false);
+  const popoverRef = useRef(null);
+
+  // Populate form khi component mount
+  useEffect(() => {
+    if (user) {
+      setForm({
+        name: user.fullName || "",
+        phone: user.phoneNumber || "",
+      });
+    }
+  }, [user]);
 
   const handle = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+
+  const handleSave = async () => {
+    try {
+      setIsLoading(true);
+      const response = await authService.updateMe({
+        fullName: form.name,
+        phoneNumber: form.phone,
+      });
+      
+      // Update auth store với user mới
+      if (response.data?.data) {
+        setAuth({
+          accessToken: user?.accessToken || null,
+          refreshToken: user?.refreshToken || null,
+          user: response.data.data,
+        });
+      }
+      
+      setOpenPopover(false);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      alert("Lỗi khi cập nhật thông tin");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const labelClass = "block text-xs font-medium text-(--text-primary) mb-1 opacity-70";
   const inputClass =
     "w-full px-3 py-1.5 rounded-xl border border-(--primary-color)/30 bg-(--surface-color) text-(--text-primary) text-sm outline-none focus:border-(--primary-color) transition-colors placeholder:text-gray-400";
 
   return (
-    <Popover>
+    <Popover open={openPopover} onOpenChange={setOpenPopover}>
       <PopoverTrigger asChild>
             <div
                 className="flex items-center gap-4 p-2 border border-(--primary-color) rounded-4xl cursor-pointer 
@@ -48,13 +87,6 @@ function EditInfo() {
               placeholder="Nguyễn Văn A" className={inputClass} />
           </div>
 
-          {/* Email */}
-          <div>
-            <label className={labelClass}>Email</label>
-            <input name="email" type="email" value={form.email} onChange={handle}
-              placeholder="example@email.com" className={inputClass} />
-          </div>
-
           {/* Phone */}
           <div>
             <label className={labelClass}>Số điện thoại</label>
@@ -62,30 +94,13 @@ function EditInfo() {
               placeholder="0912 345 678" className={inputClass} />
           </div>
 
-          {/* Date */}
-          <div>
-            <label className={labelClass}>Ngày sinh</label>
-            <input name="date" type="date" value={form.date} onChange={handle}
-              className={inputClass} />
-          </div>
-
-          {/* Sex */}
-          <div>
-            <label className={labelClass}>Giới tính</label>
-            <select name="sex" value={form.sex} onChange={handle} className={inputClass}>
-              <option value="" disabled>Chọn giới tính</option>
-              <option value="male">Nam</option>
-              <option value="female">Nữ</option>
-              <option value="other">Khác</option>
-            </select>
-          </div>
-
           {/* Submit */}
           <button
-            onClick={() => console.log(form)}
-            className="mt-1 w-full py-2 rounded-xl bg-(--primary-color) text-white text-sm font-semibold hover:opacity-90 transition-opacity cursor-pointer"
+            onClick={handleSave}
+            disabled={isLoading}
+            className="mt-1 w-full py-2 rounded-xl bg-(--primary-color) text-white text-sm font-semibold hover:opacity-90 disabled:opacity-50 transition-opacity cursor-pointer"
           >
-            Lưu thay đổi
+            {isLoading ? "Đang lưu..." : "Lưu thay đổi"}
           </button>
         </div>
       </PopoverContent>

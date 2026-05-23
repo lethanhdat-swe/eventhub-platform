@@ -1,5 +1,6 @@
-import { Heart, MapPin, Star } from "lucide-react";
+import { MapPin, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import LikeButton from '@/components/LikeButton';
 
 function EventItem({ event }) {
   const navigate = useNavigate();
@@ -28,9 +29,9 @@ function EventItem({ event }) {
             </span>
           </div>
 
-          <button className="absolute flex items-center justify-center w-8 h-8 transition-all duration-200 rounded-full top-3 right-3 bg-(--background-color)/40  hover:bg-(--background-color)/60">
-            <Heart size={14} color='var(--text-primary)'/>
-          </button>
+          <div className="absolute top-3 right-3">
+            <LikeButton eventId={event.id} size={14} showCount={false} />
+          </div>
 
           <span className="absolute bottom-3 left-3 bg-(--primary-color)/70 text-(--text-primary) text-xs font-bold px-2 py-1 rounded">
             {event.category?.name}
