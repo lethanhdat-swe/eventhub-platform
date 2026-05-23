@@ -1,12 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -276,6 +271,15 @@ function EventForm({
         </CardContent>
       </Card>
 
+      <Card size="sm">
+        <CardHeader className="border-b pb-3">
+          <CardTitle>Hình ảnh & trạng thái</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3 pt-3">
+          <div>Seat</div>
+        </CardContent>
+      </Card>
+
       <Separator />
 
       <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
@@ -283,8 +287,8 @@ function EventForm({
           type="button"
           variant="outline"
           className="h-9 cursor-pointer"
-            disabled={formBusy}
-            onClick={onCancel}
+          disabled={formBusy}
+          onClick={onCancel}
         >
           Hủy
         </Button>
@@ -299,7 +303,11 @@ function EventForm({
             Lưu bản nháp
           </Button>
         ) : null}
-        <Button type="submit" className="h-9 cursor-pointer" disabled={formBusy}>
+        <Button
+          type="submit"
+          className="h-9 cursor-pointer"
+          disabled={formBusy}
+        >
           {formBusy ? 'Đang xử lý…' : submitLabel}
         </Button>
       </div>
