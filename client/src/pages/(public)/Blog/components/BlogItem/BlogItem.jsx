@@ -3,9 +3,10 @@ import { useNavigate } from "react-router-dom";
 
 function BlogItem({blog}) {
     const navigate = useNavigate();
+    const detailPath = `/blog/${blog.slug ?? blog.id}`;
 
     return ( 
-        <div onClick={() => navigate(`/blog/${blog.id}`)} className="container mt-5">
+        <div onClick={() => navigate(detailPath)} className="container mt-5">
             <div className="grid grid-cols-12 gap-5 p-5 border-2 border-white/10 rounded-3xl transition-all duration-500 ease-in-out
                       hover:border-(--primary-color) 
                       group cursor-pointer">
@@ -33,7 +34,7 @@ function BlogItem({blog}) {
                         </div>
                         </div>
 
-                        <button onClick={() => navigate(`/blog/${blog.id}`)} className="p-2 border-2 border-white/10 rounded-3xl
+                        <button onClick={() => navigate(detailPath)} className="p-2 border-2 border-white/10 rounded-3xl
                                transition-all duration-300 ease-in-out
                                hover:border-(--primary-color)
                                hover:bg-(--primary-color)

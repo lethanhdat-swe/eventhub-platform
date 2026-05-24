@@ -24,6 +24,21 @@ export const blogService = {
     return getApiData(body);
   },
 
+  getBySlug: async (slug) => {
+    const body = await axiosInstance.get(`${resourceBase}/slug/${slug}`);
+    return getApiData(body);
+  },
+
+  getByCategoryId: async (categoryId, query = {}) => {
+    const body = await axiosInstance.get(
+      `${resourceBase}/category/${categoryId}`,
+      {
+        params: buildListParams(query),
+      }
+    );
+    return getApiData(body);
+  },
+
   create: async (data) => {
     const body = await axiosInstance.post(resourceBase, data);
     return getApiData(body);

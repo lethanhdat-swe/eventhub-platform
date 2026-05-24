@@ -35,6 +35,10 @@ import Orders from '@/pages/(admin)/Orders';
 import PaymentTransactions from '@/pages/(admin)/PaymentTransactions';
 import Tickets from '@/pages/(admin)/Tickets';
 import Coupons from '@/pages/(admin)/Coupons';
+import Blogs from '@/pages/(admin)/Blogs';
+import CreateBlog from '@/pages/(admin)/Blogs/CreateBlog';
+import EditBlog from '@/pages/(admin)/Blogs/EditBlog';
+import BlogCategories from '@/pages/(admin)/BlogCategories';
 import CheckIn from '@/pages/(admin)/CheckIn';
 import CheckInLogs from '@/pages/(admin)/CheckInLogs';
 import Users from '@/pages/(admin)/Users';
@@ -95,6 +99,10 @@ function App() {
           <Route path="payment-transactions" element={<PaymentTransactions />} />
           <Route path="tickets" element={<Tickets />} />
           <Route path="coupons" element={<Coupons />} />
+          <Route path="blogs/create" element={<CreateBlog />} />
+          <Route path="blogs/:id/edit" element={<EditBlog />} />
+          <Route path="blogs" element={<Blogs />} />
+          <Route path="blog-categories" element={<BlogCategories />} />
           <Route path="check-in" element={<CheckIn />} />
           <Route path="check-in-logs" element={<CheckInLogs />} />
           <Route path="users" element={<Users />} />

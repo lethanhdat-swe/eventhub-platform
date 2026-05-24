@@ -185,6 +185,85 @@ class BlogService {
 
         return deleteResult;
     }
+    async getBlogsByCategoryId(
+        categoryId: string,
+        page: number = 1,
+        limit: number = 10,
+        search?: string
+    ) {
+        const currentPage = Number(page) || 1;
+        const currentLimit = Number(limit) || 10;
+        const skip = (currentPage - 1) * currentLimit;
+
+        const where: any = {
+            categoryId,
+            status: "PUBLISHED",
+        };
+
+        if (search) {
+            where.OR = [
+                { title: { contains: search } },
+                { excerpt: { contains: search } },
+            ];
+        }
+
+        const [items, totalItems] = await Promise.all([
+            prisma.blog.findMany({
+                where,
+                skip,
+                take: currentLimit,
+                orderBy: { publishedAt: "desc" },
+                include: {
+                    category: true,
+                    author: {
+                        select: {
+                            id: true,
+                            fullName: true,
+                            avatarUrl: true,
+                        },
+                    },
+                },
+            }),
+            prisma.blog.count({ where }),
+        ]);
+
+        return {
+            items,
+            meta: {
+                totalItems,
+                itemCount: items.length,
+                itemsPerPage: currentLimit,
+                totalPages: Math.ceil(totalItems / currentLimit),
+                currentPage,
+            },
+        };
+    }
+
+    async getBlogBySlug(slug: string) {
+        const blog = await prisma.blog.findUnique({
+            where: { slug },
+            include: {
+                category: true,
+                author: {
+                    select: {
+                        id: true,
+                        fullName: true,
+                        avatarUrl: true,
+                    },
+                },
+            },
+        });
+
+        if (!blog) {
+            throw new AppError("Blog not found", 404);
+        }
+
+        if (blog.status !== "PUBLISHED") {
+            throw new AppError("Blog not found", 404);
+        }
+
+        return blog;
+    }
 }
 
 export default new BlogService();

@@ -17,6 +17,7 @@ import { ThumbnailUploadField } from '@/components/form/ThumbnailUploadField';
 import { cn } from '@/lib/utils';
 import { EVENT_STATUS_OPTIONS } from '@/pages/(admin)/Events/data';
 import EventSeats from './EventSeats';
+import RichTextEditorComponent from '../../components/RichTextEditor';
 
 const EMPTY_FORM = {
   title: '',
@@ -212,14 +213,15 @@ function EventForm({
           </FormField>
 
           <FormField label="Nội dung chi tiết" htmlFor="contentHtml">
-            <Textarea
-              id="contentHtml"
-              name="contentHtml"
+            <RichTextEditorComponent
               value={form.contentHtml}
-              onChange={updateField('contentHtml')}
-              placeholder="Nội dung HTML chi tiết"
-              rows={6}
-              className="min-h-[120px] resize-y"
+              onChange={(value) =>
+                setForm((prev) => ({
+                  ...prev,
+                  contentHtml: value,
+                }))
+              }
+              minHeight={260}
               disabled={formBusy}
             />
           </FormField>

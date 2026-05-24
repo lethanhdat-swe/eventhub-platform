@@ -19,6 +19,31 @@ class BlogController {
         });
     }
 
+    async getByCategoryId(req: Request, res: Response) {
+        const { page, limit, search } = req.query as any;
+
+        const result = await blogService.getBlogsByCategoryId(
+            req.params.categoryId as string,
+            page,
+            limit,
+            search
+        );
+
+        res.success({
+            message: "Blogs by category retrieved successfully",
+            data: result,
+        });
+    }
+
+    async getBySlug(req: Request, res: Response) {
+        const blog = await blogService.getBlogBySlug(req.params.slug as string);
+
+        res.success({
+            message: "Blog retrieved successfully",
+            data: blog,
+        });
+    }
+
     async create(req: Request, res: Response) {
         const authorId = req.user?.id as string;
         const blog = await blogService.createBlog(req.body, authorId);

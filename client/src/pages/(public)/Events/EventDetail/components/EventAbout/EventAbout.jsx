@@ -1,17 +1,14 @@
+import RichContentRenderer from '@/components/RichContentRenderer/RichContentRenderer';
+
 function EventAbout({ event }) {
   return (
     <div className="p-3 border-t border-(--text-primary)/20">
       <div>
-        <h1 className="text-(--text-primary) text-lg font-medium">About This Event</h1>
+        <h1 className="text-(--text-primary) text-lg font-medium">
+          About This Event
+        </h1>
 
-        {event.contentHtml && (
-          <div
-            className="pt-3 text-(--text-primary)/60 space-y-2"
-            dangerouslySetInnerHTML={{
-              __html: event.contentHtml,
-            }}
-          />
-        )}
+        {event.contentHtml && <RichContentRenderer html={event.contentHtml} />}
       </div>
 
       {event.eventArtists?.length > 0 && (

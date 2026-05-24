@@ -13,6 +13,9 @@ import {
 const router = Router();
 
 router.get("/", validate(listBlogSchema), blogController.getAll);
+router.get("/category/:categoryId", blogController.getByCategoryId);
+
+router.get("/slug/:slug", blogController.getBySlug);
 router.get("/:id", validate(getBlogSchema), blogController.getOne);
 
 // Admin only routes

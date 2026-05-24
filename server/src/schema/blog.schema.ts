@@ -26,11 +26,7 @@ export const createBlogSchema = z.object({
         slug: z.string().min(1, "Slug is required"),
         excerpt: z.string().optional(),
         contentHtml: z.string().min(1, "Content is required"),
-        thumbnailUrl: z
-            .string()
-            .url("Invalid thumbnail URL")
-            .optional()
-            .or(z.literal("")),
+        thumbnailUrl: z.string().optional(),
         status: z.enum(["draft", "published"]).optional(),
         categoryId: z.string().uuid("Invalid category ID format").optional(),
     }),
@@ -45,11 +41,7 @@ export const updateBlogSchema = z.object({
         slug: z.string().optional(),
         excerpt: z.string().optional(),
         contentHtml: z.string().optional(),
-        thumbnailUrl: z
-            .string()
-            .url("Invalid thumbnail URL")
-            .optional()
-            .or(z.literal("")),
+        thumbnailUrl: z.string().optional(),
         status: z.enum(["draft", "published"]).optional(),
         categoryId: z
             .string()

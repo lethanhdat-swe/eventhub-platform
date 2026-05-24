@@ -2,6 +2,8 @@ import {
   Armchair,
   CalendarDays,
   ClipboardList,
+  FileText,
+  FolderTree,
   LayoutDashboard,
   Mic2,
   Percent,
@@ -109,6 +111,23 @@ export const adminNavSections = [
     ],
   },
   {
+    title: 'Nội dung',
+    items: [
+      {
+        label: 'Quản lý bài viết',
+        to: '/admin/blogs',
+        icon: FileText,
+        match: 'prefix',
+      },
+      {
+        label: 'Quản lý danh mục blog',
+        to: '/admin/blog-categories',
+        icon: FolderTree,
+        match: 'exact',
+      },
+    ],
+  },
+  {
     title: 'Người dùng',
     items: [
       {
@@ -161,6 +180,23 @@ export function getAdminBreadcrumbs(pathname) {
   const eventDetailMatch = pathname.match(/^\/admin\/events\/([^/]+)$/);
   if (eventDetailMatch) {
     return [{ label: 'Sự kiện' }, { label: 'Chi tiết' }];
+  }
+
+  if (pathname === '/admin/blogs') {
+    return [{ label: 'Nội dung' }, { label: 'Quản lý bài viết' }];
+  }
+
+  if (pathname === '/admin/blogs/create') {
+    return [{ label: 'Nội dung' }, { label: 'Quản lý bài viết' }, { label: 'Tạo mới' }];
+  }
+
+  const blogEditMatch = pathname.match(/^\/admin\/blogs\/([^/]+)\/edit$/);
+  if (blogEditMatch) {
+    return [{ label: 'Nội dung' }, { label: 'Quản lý bài viết' }, { label: 'Chỉnh sửa' }];
+  }
+
+  if (pathname === '/admin/blog-categories') {
+    return [{ label: 'Nội dung' }, { label: 'Quản lý danh mục blog' }];
   }
 
   for (const section of adminNavSections) {
