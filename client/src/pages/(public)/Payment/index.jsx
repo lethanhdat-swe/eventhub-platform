@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { getErrorMessage } from '@/lib/http/apiError';
 import { couponService, orderService } from '@/lib/services/admin';
@@ -56,6 +56,7 @@ function groupTicketItems(selectedSeats) {
 
 function Payment() {
   const location = useLocation();
+  const navigate = useNavigate();
   const authUser = useAuthStore((state) => state.user);
   const checkoutState = location.state ?? {};
   const event = checkoutState.event ?? null;
@@ -172,6 +173,12 @@ function Payment() {
         'eventhub:lastPayment',
         JSON.stringify({ order, sepay })
       );
+      navigate(`/payment/qr/${order.id ?? sepay?.orderCode ?? 'mock-order'}`, {
+        state: {
+          order,
+          sepay,
+        },
+      });
     } catch (error) {
       setSubmitError(getErrorMessage(error));
     } finally {

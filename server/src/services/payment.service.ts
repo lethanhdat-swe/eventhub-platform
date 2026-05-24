@@ -1,20 +1,87 @@
 import crypto from "crypto";
+import { EventSeatStatus, OrderStatus } from "@prisma/client";
+
 import { prisma } from "../utils/prisma";
 import { AppError } from "../utils/AppError";
-import { EventSeatStatus, OrderStatus } from "@prisma/client";
 import { SepayWebhookInput } from "../schema/payment.schema";
 import qrService from "./qr.service";
 import mailService from "./mail.service";
+
+type PaymentSuccessInput = {
+    orderCode: string;
+    transactionId: string;
+    amount: number;
+};
+
 class PaymentService {
     buildSepayPaymentInfo(orderCode: string, amount: number) {
+        const bankCode = process.env.SEPAY_BANK_CODE;
+        const accountNumber = process.env.SEPAY_ACCOUNT_NUMBER;
+        const accountName = process.env.SEPAY_ACCOUNT_NAME;
+
+        const qrUrl =
+            `https://qr.sepay.vn/img` +
+            `?bank=${bankCode}` +
+            `&acc=${accountNumber}` +
+            `&template=compact` +
+            `&amount=${amount}` +
+            `&des=${encodeURIComponent(orderCode)}`;
+
         return {
+            method: "SEPAY",
             orderCode,
             amount,
+
+            bankCode,
+            accountNumber,
+            accountName,
+
+            transferContent: orderCode,
+
+            qrUrl,
+
             paymentUrl: `https://sepay.vn/pay?orderCode=${orderCode}`,
         };
     }
+    async handleSepayWebhook(payload: SepayWebhookInput) {
+        console.log(payload);
 
-    async handlePaymentSuccess(data: SepayWebhookInput) {
+        if (payload.transferType !== "in") {
+            return {
+                ignored: true,
+                reason: "Not an incoming transaction",
+            };
+        }
+
+        const orderCode = this.extractOrderCode(payload.content);
+        console.log(orderCode);
+
+        if (!orderCode) {
+            return {
+                ignored: true,
+                reason: "Order code not found in transfer content",
+            };
+        }
+
+        const transactionId = String(payload.id ?? payload.referenceCode ?? "");
+
+        if (!transactionId) {
+            throw new AppError("Transaction ID is required", 400);
+        }
+
+        return this.handlePaymentSuccess({
+            orderCode,
+            transactionId,
+            amount: payload.transferAmount,
+        });
+    }
+
+    private extractOrderCode(content: string) {
+        const match = content.match(/\bEH\d+\b/i);
+        return match?.[0]?.toUpperCase() ?? null;
+    }
+
+    async handlePaymentSuccess(data: PaymentSuccessInput) {
         const { orderCode, transactionId, amount } = data;
 
         return prisma.$transaction(async (tx) => {
@@ -37,7 +104,10 @@ class PaymentService {
                 throw new AppError("Order not found", 404);
             }
 
-            if (Math.round(order.totalAmount ?? 0) !== Math.round(amount)) {
+            if (
+                Math.round(Number(order.totalAmount ?? 0)) !==
+                Math.round(amount)
+            ) {
                 throw new AppError(
                     "Payment amount does not match order total",
                     400
@@ -52,31 +122,7 @@ class PaymentService {
                     );
                 }
 
-                return tx.order.findUnique({
-                    where: { id: order.id },
-                    select: {
-                        id: true,
-                        status: true,
-                        totalAmount: true,
-                        sepayTransactionId: true,
-                        orderCode: true,
-                        tickets: {
-                            select: {
-                                id: true,
-                                eventSeatId: true,
-                                qrSecureToken: true,
-                                isCheckedIn: true,
-                                checkedInAt: true,
-                            },
-                        },
-                        orderSeats: {
-                            select: {
-                                id: true,
-                                eventSeatId: true,
-                            },
-                        },
-                    },
-                });
+                return this.getPaidOrder(tx, order.id);
             }
 
             if (order.status !== OrderStatus.PENDING) {
@@ -136,55 +182,10 @@ class PaymentService {
                 skipDuplicates: true,
             });
 
-            const paidOrder = await tx.order.findUnique({
-                where: { id: order.id },
-                select: {
-                    id: true,
-                    customerEmail: true,
-                    customerName: true,
-                    status: true,
-                    totalAmount: true,
-                    sepayTransactionId: true,
-                    orderCode: true,
-                    user: {
-                        select: {
-                            fullName: true,
-                        },
-                    },
-                    tickets: {
-                        select: {
-                            id: true,
-                            eventSeatId: true,
-                            qrSecureToken: true,
-                            isCheckedIn: true,
-                            checkedInAt: true,
-                            eventSeat: {
-                                select: {
-                                    seat: {
-                                        select: {
-                                            rowLabel: true,
-                                            seatNumber: true,
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    orderSeats: {
-                        select: {
-                            id: true,
-                            eventSeatId: true,
-                        },
-                    },
-                },
-            });
-
-            if (!paidOrder) {
-                throw new AppError("Order not found after payment", 404);
-            }
+            const paidOrder = await this.getPaidOrder(tx, order.id);
 
             const ticketsWithQr = await Promise.all(
-                paidOrder.tickets.map(async (ticket) => ({
+                paidOrder.tickets.map(async (ticket: any) => ({
                     ...ticket,
                     qrImage: await qrService.generateTicketQr(
                         ticket.qrSecureToken
@@ -194,9 +195,13 @@ class PaymentService {
 
             await mailService.sendTicketsEmail(
                 paidOrder.customerEmail,
-                paidOrder.customerName ?? paidOrder.user.fullName,
+                paidOrder.customerName ??
+                    paidOrder.user?.fullName ??
+                    "Customer",
                 ticketsWithQr.map((ticket) => ({
-                    seatLabel: `${ticket.eventSeat.seat.rowLabel}${ticket.eventSeat.seat.seatNumber}`,
+                    seatLabel: `${ticket.eventSeat.seat?.rowLabel ?? ""}${
+                        ticket.eventSeat.seat?.seatNumber ?? ""
+                    }`,
                     qrImage: ticket.qrImage,
                 }))
             );
@@ -270,6 +275,57 @@ class PaymentService {
                 },
             });
         });
+    }
+
+    private async getPaidOrder(tx: any, orderId: string) {
+        const paidOrder = await tx.order.findUnique({
+            where: { id: orderId },
+            select: {
+                id: true,
+                customerEmail: true,
+                customerName: true,
+                status: true,
+                totalAmount: true,
+                sepayTransactionId: true,
+                orderCode: true,
+                user: {
+                    select: {
+                        fullName: true,
+                    },
+                },
+                tickets: {
+                    select: {
+                        id: true,
+                        eventSeatId: true,
+                        qrSecureToken: true,
+                        isCheckedIn: true,
+                        checkedInAt: true,
+                        eventSeat: {
+                            select: {
+                                seat: {
+                                    select: {
+                                        rowLabel: true,
+                                        seatNumber: true,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                orderSeats: {
+                    select: {
+                        id: true,
+                        eventSeatId: true,
+                    },
+                },
+            },
+        });
+
+        if (!paidOrder) {
+            throw new AppError("Order not found after payment", 404);
+        }
+
+        return paidOrder;
     }
 }
 

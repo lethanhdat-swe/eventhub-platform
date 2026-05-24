@@ -80,7 +80,7 @@ class OrderService {
             }
 
             let totalAmount = seats.reduce(
-                (sum, seat) => sum + seat.ticketType.price,
+                (sum, seat) => sum + Number(seat.ticketType.price),
                 0
             );
 
@@ -152,17 +152,8 @@ class OrderService {
                 },
                 select: {
                     id: true,
-                    userId: true,
-                    customerEmail: true,
-                    customerPhone: true,
-                    customerName: true,
-                    totalAmount: true,
-                    status: true,
-                    paymentMethod: true,
                     orderCode: true,
-                    couponId: true,
-                    createdAt: true,
-                    updatedAt: true,
+                    totalAmount: true,
                 },
             });
 
@@ -190,14 +181,60 @@ class OrderService {
                 );
             }
 
-            return order;
+            const orderDetail = await tx.order.findUnique({
+                where: { id: order.id },
+                select: {
+                    id: true,
+                    userId: true,
+                    customerEmail: true,
+                    customerPhone: true,
+                    customerName: true,
+                    totalAmount: true,
+                    status: true,
+                    paymentMethod: true,
+                    orderCode: true,
+                    couponId: true,
+                    createdAt: true,
+                    updatedAt: true,
+
+                    orderSeats: {
+                        select: {
+                            eventSeat: {
+                                select: {
+                                    event: {
+                                        select: {
+                                            id: true,
+                                            title: true,
+                                            location: true,
+                                            startDate: true,
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            });
+
+            if (!orderDetail) {
+                throw new AppError("Order not found after created", 404);
+            }
+
+            const event = orderDetail.orderSeats[0]?.eventSeat.event ?? null;
+
+            return {
+                ...orderDetail,
+                event,
+                ticketCount: orderDetail.orderSeats.length,
+                expiredAt: new Date(Date.now() + 15 * 60 * 1000),
+            };
         });
 
         return {
             order: result,
             sepay: paymentService.buildSepayPaymentInfo(
-                result.orderCode!,
-                result.totalAmount ?? 0
+                result.orderCode ?? "",
+                Number(result.totalAmount)
             ),
         };
     }

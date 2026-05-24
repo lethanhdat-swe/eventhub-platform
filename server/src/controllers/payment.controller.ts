@@ -4,10 +4,10 @@ import PaymentService from "../services/payment.service";
 class PaymentController {
     sepayWebhook = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const data = await PaymentService.handlePaymentSuccess(req.body);
+            const data = await PaymentService.handleSepayWebhook(req.body);
 
-            return res.success({
-                message: "Payment processed successfully.",
+            return res.status(200).json({
+                success: true,
                 data,
             });
         } catch (error) {

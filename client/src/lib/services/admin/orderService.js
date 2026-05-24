@@ -37,6 +37,15 @@ export const orderService = {
   },
 
   /**
+   * @param {string} id
+   * @returns {Promise<unknown>}
+   */
+  getDetail: async (id) => {
+    const body = await axiosInstance.get(`${resourceBase}/${id}`);
+    return getApiData(body);
+  },
+
+  /**
    * @param {Record<string, unknown>} data
    */
   create: async (data) => {

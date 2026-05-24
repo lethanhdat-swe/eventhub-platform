@@ -15,6 +15,9 @@ import Contact from './pages/(public)/Contact';
 import Search from './pages/(public)/Search';
 import Booking from './pages/(public)/Booking';
 import Payment from './pages/(public)/Payment';
+import PaymentFailedPage from './pages/(public)/PaymentFailed';
+import PaymentQrPage from './pages/(public)/PaymentQr';
+import PaymentSuccessPage from './pages/(public)/PaymentSuccess';
 import Profile from './pages/(public)/Profile';
 import AdminLayout from '@/layouts/AdminLayout';
 import AuthGuestRoute from '@/routes/AuthGuestRoute';
@@ -51,6 +54,9 @@ function App() {
         <Route path="/search" element={<Search />} />
         <Route path="/booking" element={<Booking />} />
         <Route path="/payment" element={<Payment />} />
+        <Route path="/payment/qr/:orderId" element={<PaymentQrPage />} />
+        <Route path="/payment-success/:orderId" element={<PaymentSuccessPage />} />
+        <Route path="/payment-failed/:orderId" element={<PaymentFailedPage />} />
         <Route path="/payment-status" element={<PaymentStatus />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/event-checkin/:id" element={<EventCheckInPage />} />

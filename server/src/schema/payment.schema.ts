@@ -2,11 +2,18 @@ import { z } from "zod";
 
 export const sepayWebhookSchema = z.object({
     body: z.object({
-        orderCode: z.string().min(1, "orderCode is required"),
+        id: z.union([z.string(), z.number()]).optional(),
+        gateway: z.string().optional(),
+        transactionDate: z.string().optional(),
+        accountNumber: z.string().optional(),
 
-        transactionId: z.string().min(1, "transactionId is required"),
+        content: z.string().min(1, "content is required"),
+        transferType: z.string().min(1, "transferType is required"),
+        transferAmount: z.coerce
+            .number()
+            .positive("transferAmount must be greater than 0"),
 
-        amount: z.coerce.number().positive("amount must be greater than 0"),
+        referenceCode: z.string().optional(),
     }),
 });
 
