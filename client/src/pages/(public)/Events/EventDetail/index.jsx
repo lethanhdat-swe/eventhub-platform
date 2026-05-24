@@ -16,6 +16,7 @@ import { getErrorMessage } from '@/lib/http/apiError';
 function EventDetail() {
   const { id } = useParams();
 
+<<<<<<< HEAD
   const [event, setEvent] = useState(null);
   const [tickets, setTickets] = useState([]);
   const [comments, setComments] = useState([]);
@@ -43,6 +44,35 @@ function EventDetail() {
           setEventSeats(data.eventSeats ?? data.seats ?? []);
           return;
         }
+=======
+    const { slug } = useParams();
+
+    const [event, setEvent] = useState(null);
+    const [tickets, setTickets] = useState([]);
+    const [comments, setComments] = useState([]);
+    const [relatedEvents, setRelatedEvents] = useState([]);
+
+    useEffect(() => {
+        const fetchEvent = async () => {
+            
+        const data = await eventService.getBySlug(slug);
+        setEvent(data);
+
+        const ticketTypes = await ticketTypeService.list({ page: 1, limit: 100 });
+        setTickets(ticketTypes.data ?? []);
+
+        const commentsData = await commentService.list(data.id, { page: 1, limit: 100 });
+        setComments(commentsData?? []);
+
+        const eventRelated = await eventService.eventRelated(data.id);
+        setRelatedEvents(eventRelated?? []);
+    };
+
+        if (slug) {
+            fetchEvent();
+            }
+    }, [slug]);
+>>>>>>> origin/dev/quan/event-comment-save-event
 
         try {
           const seatsPayload = await eventService.getSeats(id, {
@@ -66,6 +96,7 @@ function EventDetail() {
 
   if (!event) return <div>Loading...</div>;
   return (
+<<<<<<< HEAD
     <div className="pt-(--header-height) mx-auto mb-10 w-full max-w-[1320px] px-5 lg:px-8">
       <div className="grid grid-cols-12 gap-6 mt-8">
         <div className="col-span-12 lg:col-span-8">
@@ -89,6 +120,30 @@ function EventDetail() {
           <EventBooking eventId={event.id} />
           <EventTickets tickets={tickets} />
           <EventInformation event={event} />
+=======
+        <div className="pt-(--header-height) px-10 mb-10">
+        <div className="grid grid-cols-12 gap-8 mt-10">
+            <div className="col-span-8">
+                <EventHero event={event} />
+                <EventInfoBar event={event} />
+                <EventAbout event={event} />
+                <EventComment
+                    eventId={event.id}
+                    comments={comments}
+                    setComments={setComments}
+                />
+            </div>
+
+            <div className="col-span-4">
+               <EventOrganizer event={event} />
+               <EventBooking />
+               <EventTickets tickets={tickets} />
+               <EventInformation event={event} />
+            </div>
+        </div>
+
+        <EventRelated events={relatedEvents}/>
+>>>>>>> origin/dev/quan/event-comment-save-event
         </div>
       </div>
     </div>

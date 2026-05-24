@@ -172,6 +172,15 @@ class EventService {
             sort = "featured",
         } = query;
 
+        const normalizedCategoryIds = Array.isArray(categoryIds)
+            ? categoryIds
+            : typeof categoryIds === "string"
+              ? categoryIds
+                    .split(",")
+                    .map((id) => id.trim())
+                    .filter(Boolean)
+              : [];
+
         const skip = (page - 1) * limit;
 
         const where: any = {};
@@ -184,9 +193,9 @@ class EventService {
             where.status = status;
         }
 
-        if (categoryIds?.length) {
+        if (normalizedCategoryIds.length) {
             where.categoryId = {
-                in: categoryIds,
+                in: normalizedCategoryIds,
             };
         } else if (categoryId) {
             where.categoryId = categoryId;
