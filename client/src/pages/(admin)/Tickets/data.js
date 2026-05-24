@@ -20,7 +20,7 @@ export function formatSeatLabel(seat) {
 }
 
 export function mapTicketRow(row) {
-  const seat = row.eventSeat?.seat;
+  const seat = row.eventSeat;
   return {
     id: row.id,
     orderId: row.orderId,

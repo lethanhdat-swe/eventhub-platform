@@ -1,6 +1,6 @@
 import { Router } from "express";
 import uploadController from "../controllers/upload.controller";
-import { isAuth } from "../middlewares/auth.middleware";
+import { isAuth, restrictTo } from "../middlewares/auth.middleware";
 import {
     uploadSingleImage,
     uploadMultipleImages,
@@ -8,10 +8,11 @@ import {
 
 const router = Router();
 
-router.post("/image", isAuth, uploadSingleImage, uploadController.uploadImage);
+router.use(isAuth, restrictTo("ADMIN"));
+
+router.post("/image", uploadSingleImage, uploadController.uploadImage);
 router.post(
     "/images",
-    isAuth,
     uploadMultipleImages,
     uploadController.uploadImages
 );

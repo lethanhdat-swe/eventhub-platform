@@ -47,6 +47,40 @@ export const isAuth = async (
     }
 };
 
+export const optionalAuth = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    const authHeader = req.headers.authorization;
+
+    // Public route: no token means continue as guest.
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return next();
+    }
+
+    try {
+        const token = authHeader.split(" ")[1];
+        const decoded = jwt.verify(
+            token,
+            process.env.ACCESS_TOKEN_SECRET!
+        ) as any;
+
+        const user = await prisma.user.findUnique({
+            where: { id: decoded.id },
+            select: { id: true, email: true, role: true },
+        });
+
+        if (user) {
+            req.user = user;
+        }
+    } catch {
+        // Optional auth must not block guest flows when a stale token is sent.
+    }
+
+    return next();
+};
+
 export const restrictTo = (...roles: string[]) => {
     return (req: Request, res: Response, next: NextFunction) => {
         if (!req.user || !roles.includes(req.user.role)) {
@@ -61,4 +95,4 @@ export const restrictTo = (...roles: string[]) => {
     };
 };
 
-export const isAdmin = restrictTo("admin");
+export const isAdmin = restrictTo("ADMIN");

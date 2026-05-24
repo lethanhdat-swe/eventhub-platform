@@ -1,12 +1,12 @@
 import {
   Armchair,
-  Bell,
   CalendarDays,
   ClipboardList,
   LayoutDashboard,
   Mic2,
   Percent,
   Receipt,
+  ReceiptText,
   ScanLine,
   Settings,
   ShoppingCart,
@@ -69,6 +69,12 @@ export const adminNavSections = [
         label: 'Đơn hàng',
         to: '/admin/orders',
         icon: ShoppingCart,
+        match: 'exact',
+      },
+      {
+        label: 'Đối soát thanh toán',
+        to: '/admin/payment-transactions',
+        icon: ReceiptText,
         match: 'exact',
       },
       {

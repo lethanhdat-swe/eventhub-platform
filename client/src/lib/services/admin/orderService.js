@@ -46,6 +46,26 @@ export const orderService = {
   },
 
   /**
+   * @param {{ page?: number, limit?: number, status?: string }} params
+   * @returns {Promise<{ data: unknown[], meta: Record<string, number> }>}
+   */
+  getMyOrders: async (params = {}) => {
+    const body = await axiosInstance.get(`${resourceBase}/my`, {
+      params: buildListParams(params),
+    });
+    return getApiData(body);
+  },
+
+  /**
+   * @param {string} id
+   * @returns {Promise<unknown>}
+   */
+  getMyOrderDetail: async (id) => {
+    const body = await axiosInstance.get(`${resourceBase}/my/${id}`);
+    return getApiData(body);
+  },
+
+  /**
    * @param {Record<string, unknown>} data
    */
   create: async (data) => {

@@ -32,6 +32,7 @@ import Artists from '@/pages/(admin)/Artists';
 import DefaultSeats from '@/pages/(admin)/DefaultSeats';
 import TicketTypes from '@/pages/(admin)/TicketTypes';
 import Orders from '@/pages/(admin)/Orders';
+import PaymentTransactions from '@/pages/(admin)/PaymentTransactions';
 import Tickets from '@/pages/(admin)/Tickets';
 import Coupons from '@/pages/(admin)/Coupons';
 import CheckIn from '@/pages/(admin)/CheckIn';
@@ -91,6 +92,7 @@ function App() {
           <Route path="default-seats" element={<DefaultSeats />} />
           <Route path="ticket-types" element={<TicketTypes />} />
           <Route path="orders" element={<Orders />} />
+          <Route path="payment-transactions" element={<PaymentTransactions />} />
           <Route path="tickets" element={<Tickets />} />
           <Route path="coupons" element={<Coupons />} />
           <Route path="check-in" element={<CheckIn />} />

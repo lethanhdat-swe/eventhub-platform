@@ -32,7 +32,10 @@ function getNormalizedPath(config) {
   const base = config.baseURL || '';
   if (base) {
     try {
-      const resolved = new URL(url.replace(/^\//, ''), base.endsWith('/') ? base : `${base}/`);
+      const resolved = new URL(
+        url.replace(/^\//, ''),
+        base.endsWith('/') ? base : `${base}/`
+      );
       return resolved.pathname;
     } catch {
       /* fall through */

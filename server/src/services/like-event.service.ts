@@ -24,14 +24,14 @@ class LikeEventService {
         return { isLiked: true, likeCount };
     };
 
-    getLikeInfo = async (userId: string, eventId: string) => {
+    getLikeInfo = async (userId: string | null, eventId: string) => {
         const event = await prisma.event.findUnique({ where: { id: eventId } });
         if (!event) throw new AppError("Event not found", 404);
 
-        const [likeCount, existingLike] = await Promise.all([
-            prisma.likeEvent.count({ where: { eventId } }),
-            prisma.likeEvent.findFirst({ where: { userId, eventId } }),
-        ]);
+        const likeCount = await prisma.likeEvent.count({ where: { eventId } });
+        const existingLike = userId
+            ? await prisma.likeEvent.findFirst({ where: { userId, eventId } })
+            : null;
 
         return {
             likeCount,

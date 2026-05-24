@@ -11,7 +11,7 @@ function OrderCard({order}) {
       case "Đang xử lý":
         return "bg-yellow-500/15 text-yellow-400 border border-yellow-500/20";
 
-      case "Đã huỷ":
+      case "Đã hủy":
         return "bg-red-500/15 text-red-400 border border-red-500/20";
 
       default:
@@ -19,8 +19,12 @@ function OrderCard({order}) {
     }
   };
 
+  const Wrapper = order.href ? Link : "article";
+  const wrapperProps = order.href ? { to: order.href } : {};
+
   return (
-        <Link to={`/event-checkin/${order.id}`}
+        <Wrapper
+          {...wrapperProps}
           className="
             group relative overflow-hidden rounded-3xl
             border border-(--text-primary)/10 bg-(--text-primary)/3
@@ -75,6 +79,12 @@ function OrderCard({order}) {
               <span>{order.zone}</span>
             </div>
 
+            {order.amount ? (
+              <p className="text-sm font-semibold text-(--primary-color)">
+                {order.amount}
+              </p>
+            ) : null}
+
             <div className="flex items-center justify-between pt-4 border-t border-(--text-primary)/10">
               <p className="text-sm text-(--text-primary)">
                 Mã đơn:
@@ -83,7 +93,7 @@ function OrderCard({order}) {
                 </span>
               </p>
 
-              <button
+              <div
                 className="
                   flex h-10 w-10 items-center justify-center rounded-full
                   border border-(--text-primary)/10 bg-(--text-primary)/5
@@ -94,10 +104,10 @@ function OrderCard({order}) {
                 "
               >
                 <ArrowRight className="w-4 h-4" />
-              </button>
+              </div>
             </div>
           </div>
-        </Link>
+        </Wrapper>
   );
 }
 

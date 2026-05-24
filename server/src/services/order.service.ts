@@ -6,6 +6,7 @@ import {
     CouponStatus,
     EventSeatStatus,
     OrderStatus,
+    PaymentTransactionStatus,
     PaymentMethod,
     Prisma,
 } from "@prisma/client";
@@ -13,7 +14,49 @@ import paymentService from "./payment.service";
 import qrService from "./qr.service";
 
 class OrderService {
-    async create(userId: string, body: any) {
+    private getPaidAt(order: any) {
+        return order.paymentTransactions?.[0]?.updatedAt ?? null;
+    }
+
+    private mapEvent(event: any) {
+        if (!event) return null;
+
+        return {
+            id: event.id,
+            title: event.title,
+            bannerUrl: event.thumbnailUrl,
+            startDate: event.startDate,
+            endDate: event.endDate,
+            location: event.location,
+        };
+    }
+
+    private summarizeTicketTypes(eventSeats: any[]) {
+        const ticketTypeMap = new Map<string, any>();
+
+        for (const eventSeat of eventSeats) {
+            const ticketType = eventSeat?.ticketType;
+            if (!ticketType?.id) continue;
+
+            const current = ticketTypeMap.get(ticketType.id);
+            if (current) {
+                current.quantity += 1;
+                continue;
+            }
+
+            ticketTypeMap.set(ticketType.id, {
+                id: ticketType.id,
+                name: ticketType.name,
+                color: ticketType.color,
+                price: ticketType.price,
+                quantity: 1,
+            });
+        }
+
+        return Array.from(ticketTypeMap.values());
+    }
+
+    async create(userId: string | null, body: any) {
         const {
             customerEmail,
             customerPhone,
@@ -37,19 +80,14 @@ class OrderService {
                 select: {
                     id: true,
                     eventId: true,
+                    rowLabel: true,
+                    seatNumber: true,
                     status: true,
                     ticketType: {
                         select: {
                             id: true,
                             name: true,
                             price: true,
-                        },
-                    },
-                    seat: {
-                        select: {
-                            id: true,
-                            rowLabel: true,
-                            seatNumber: true,
                         },
                     },
                 },
@@ -318,6 +356,267 @@ class OrderService {
         };
     }
 
+    async myOrders(
+        userId: string,
+        query: {
+            page?: number;
+            limit?: number;
+            status?: OrderStatus;
+        }
+    ) {
+        const { page = 1, limit = 10, status } = query;
+        const skip = (page - 1) * limit;
+
+        const where: Prisma.OrderWhereInput = {
+            userId,
+        };
+
+        if (status) {
+            where.status = status;
+        }
+
+        const [orders, total] = await Promise.all([
+            prisma.order.findMany({
+                where,
+                skip,
+                take: Number(limit),
+                orderBy: {
+                    createdAt: "desc",
+                },
+                select: {
+                    id: true,
+                    orderCode: true,
+                    status: true,
+                    totalAmount: true,
+                    paymentMethod: true,
+                    createdAt: true,
+                    tickets: {
+                        select: {
+                            eventSeat: {
+                                select: {
+                                    event: {
+                                        select: {
+                                            id: true,
+                                            title: true,
+                                            thumbnailUrl: true,
+                                            startDate: true,
+                                            endDate: true,
+                                            location: true,
+                                        },
+                                    },
+                                    ticketType: {
+                                        select: {
+                                            id: true,
+                                            name: true,
+                                            color: true,
+                                            price: true,
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    orderSeats: {
+                        select: {
+                            eventSeat: {
+                                select: {
+                                    event: {
+                                        select: {
+                                            id: true,
+                                            title: true,
+                                            thumbnailUrl: true,
+                                            startDate: true,
+                                            endDate: true,
+                                            location: true,
+                                        },
+                                    },
+                                    ticketType: {
+                                        select: {
+                                            id: true,
+                                            name: true,
+                                            color: true,
+                                            price: true,
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    paymentTransactions: {
+                        where: {
+                            status: PaymentTransactionStatus.MATCHED,
+                        },
+                        orderBy: {
+                            updatedAt: "desc",
+                        },
+                        take: 1,
+                        select: {
+                            updatedAt: true,
+                        },
+                    },
+                },
+            }),
+            prisma.order.count({ where }),
+        ]);
+
+        return {
+            data: orders.map((order) => {
+                const ticketEventSeats = order.tickets.map(
+                    (ticket) => ticket.eventSeat
+                );
+                const orderEventSeats = order.orderSeats.map(
+                    (orderSeat) => orderSeat.eventSeat
+                );
+                const eventSeats =
+                    ticketEventSeats.length > 0
+                        ? ticketEventSeats
+                        : orderEventSeats;
+
+                return {
+                    id: order.id,
+                    orderCode: order.orderCode,
+                    status: order.status,
+                    totalAmount: order.totalAmount,
+                    finalAmount: order.totalAmount,
+                    paymentMethod: order.paymentMethod,
+                    createdAt: order.createdAt,
+                    paidAt: this.getPaidAt(order),
+                    ticketCount: ticketEventSeats.length || orderEventSeats.length,
+                    event: this.mapEvent(eventSeats[0]?.event),
+                    ticketTypes: this.summarizeTicketTypes(eventSeats),
+                };
+            }),
+            meta: getPaginationMetadata(total, page, limit),
+        };
+    }
+
+    async myOrderDetail(userId: string, orderId: string) {
+        const order = await prisma.order.findFirst({
+            where: {
+                id: orderId,
+                userId,
+            },
+            select: {
+                id: true,
+                orderCode: true,
+                status: true,
+                totalAmount: true,
+                paymentMethod: true,
+                createdAt: true,
+                user: {
+                    select: {
+                        id: true,
+                        fullName: true,
+                        email: true,
+                    },
+                },
+                tickets: {
+                    select: {
+                        id: true,
+                        qrSecureToken: true,
+                        isCheckedIn: true,
+                        checkedInAt: true,
+                        eventSeat: {
+                            select: {
+                                id: true,
+                                rowLabel: true,
+                                seatNumber: true,
+                                status: true,
+                                event: {
+                                    select: {
+                                        id: true,
+                                        title: true,
+                                        thumbnailUrl: true,
+                                        startDate: true,
+                                        endDate: true,
+                                        location: true,
+                                    },
+                                },
+                                ticketType: {
+                                    select: {
+                                        id: true,
+                                        name: true,
+                                        price: true,
+                                        color: true,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                orderSeats: {
+                    select: {
+                        eventSeat: {
+                            select: {
+                                event: {
+                                    select: {
+                                        id: true,
+                                        title: true,
+                                        thumbnailUrl: true,
+                                        startDate: true,
+                                        endDate: true,
+                                        location: true,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                paymentTransactions: {
+                    where: {
+                        status: PaymentTransactionStatus.MATCHED,
+                    },
+                    orderBy: {
+                        updatedAt: "desc",
+                    },
+                    take: 1,
+                    select: {
+                        updatedAt: true,
+                    },
+                },
+            },
+        });
+
+        if (!order) {
+            throw new AppError("Order not found", 404);
+        }
+
+        const firstTicketEvent = order.tickets[0]?.eventSeat.event;
+        const firstOrderSeatEvent = order.orderSeats[0]?.eventSeat.event;
+
+        return {
+            id: order.id,
+            orderCode: order.orderCode,
+            status: order.status,
+            totalAmount: order.totalAmount,
+            finalAmount: order.totalAmount,
+            paymentMethod: order.paymentMethod,
+            createdAt: order.createdAt,
+            paidAt: this.getPaidAt(order),
+            user: order.user
+                ? {
+                      id: order.user.id,
+                      name: order.user.fullName,
+                      email: order.user.email,
+                  }
+                : null,
+            event: this.mapEvent(firstTicketEvent ?? firstOrderSeatEvent),
+            tickets: order.tickets.map((ticket) => ({
+                id: ticket.id,
+                qrSecureToken: ticket.qrSecureToken,
+                isCheckedIn: ticket.isCheckedIn,
+                checkedInAt: ticket.checkedInAt,
+                eventSeat: {
+                    id: ticket.eventSeat.id,
+                    rowLabel: ticket.eventSeat.rowLabel,
+                    seatNumber: ticket.eventSeat.seatNumber,
+                    status: ticket.eventSeat.status,
+                },
+                ticketType: ticket.eventSeat.ticketType,
+            })),
+        };
+    }
+
     async getDetail(id: string) {
         const order = await prisma.order.findUnique({
             where: { id },
@@ -358,14 +657,9 @@ class OrderService {
                             select: {
                                 id: true,
                                 eventId: true,
+                                rowLabel: true,
+                                seatNumber: true,
                                 status: true,
-                                seat: {
-                                    select: {
-                                        id: true,
-                                        rowLabel: true,
-                                        seatNumber: true,
-                                    },
-                                },
                                 ticketType: {
                                     select: {
                                         id: true,

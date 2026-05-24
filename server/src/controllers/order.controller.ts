@@ -4,8 +4,8 @@ import orderService from "../services/order.service";
 class OrderController {
     create = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            // userId comes from isAuth middleware
-            const result = await orderService.create(req.user!.id, req.body);
+            const userId = req.user?.id || null;
+            const result = await orderService.create(userId, req.body);
 
             return res.success({
                 message: "Order created successfully. Seats are reserved.",
@@ -37,6 +37,42 @@ class OrderController {
 
             return res.success({
                 message: "Order fetched successfully.",
+                data: result,
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    myOrders = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const result = await orderService.myOrders(
+                req.user!.id,
+                req.query as any
+            );
+
+            return res.success({
+                message: "My orders fetched successfully.",
+                data: result,
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    myOrderDetail = async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) => {
+        try {
+            const result = await orderService.myOrderDetail(
+                req.user!.id,
+                req.params.id as string
+            );
+
+            return res.success({
+                message: "My order fetched successfully.",
                 data: result,
             });
         } catch (error) {

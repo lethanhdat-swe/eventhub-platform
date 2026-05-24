@@ -5,7 +5,7 @@ class LikeEventController {
     getLikeInfo = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { eventId } = req.params;
-            const userId = req.user!.id;
+            const userId = req.user?.id ?? null;
 
             const result = await likeEventService.getLikeInfo(userId, eventId as string);
 
@@ -21,7 +21,14 @@ class LikeEventController {
     toggleLike = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { eventId } = req.params;
-            const userId = req.user!.id;
+            const userId = req.user?.id ?? null;
+
+            if (!userId) {
+                return res.success({
+                    message: "Login required to like event.",
+                    data: { isLiked: false, requiresAuth: true },
+                });
+            }
 
             const result = await likeEventService.toggleLike(userId, eventId as string);
 

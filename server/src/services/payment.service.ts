@@ -1,5 +1,9 @@
 import crypto from "crypto";
-import { EventSeatStatus, OrderStatus } from "@prisma/client";
+import {
+    EventSeatStatus,
+    OrderStatus,
+    PaymentTransactionStatus,
+} from "@prisma/client";
 
 import { prisma } from "../utils/prisma";
 import { AppError } from "../utils/AppError";
@@ -44,8 +48,6 @@ class PaymentService {
         };
     }
     async handleSepayWebhook(payload: SepayWebhookInput) {
-        console.log(payload);
-
         if (payload.transferType !== "in") {
             return {
                 ignored: true,
@@ -54,16 +56,30 @@ class PaymentService {
         }
 
         const orderCode = this.extractOrderCode(payload.content);
-        console.log(orderCode);
+
+        const paymentTransaction = await prisma.paymentTransaction.create({
+            data: {
+                transactionId: String(payload.referenceCode),
+                orderCode,
+                amount: Number(payload.transferAmount) ?? 0,
+                content: payload.content,
+                gateway: payload.gateway,
+                status: PaymentTransactionStatus.PENDING,
+            },
+        });
 
         if (!orderCode) {
-            return {
-                ignored: true,
-                reason: "Order code not found in transfer content",
-            };
+            await prisma.paymentTransaction.update({
+                where: { id: paymentTransaction.id },
+                data: {
+                    status: PaymentTransactionStatus.UNMATCHED,
+                },
+            });
+
+            throw new AppError("Order code not found in transfer content", 400);
         }
 
-        const transactionId = String(payload.id ?? payload.referenceCode ?? "");
+        const transactionId = String(payload.referenceCode ?? "");
 
         if (!transactionId) {
             throw new AppError("Transaction ID is required", 400);
@@ -101,6 +117,13 @@ class PaymentService {
             });
 
             if (!order) {
+                await tx.paymentTransaction.update({
+                    where: { transactionId },
+                    data: {
+                        status: PaymentTransactionStatus.UNMATCHED,
+                    },
+                });
+
                 throw new AppError("Order not found", 404);
             }
 
@@ -183,7 +206,6 @@ class PaymentService {
             });
 
             const paidOrder = await this.getPaidOrder(tx, order.id);
-
             const ticketsWithQr = await Promise.all(
                 paidOrder.tickets.map(async (ticket: any) => ({
                     ...ticket,
@@ -199,12 +221,21 @@ class PaymentService {
                     paidOrder.user?.fullName ??
                     "Customer",
                 ticketsWithQr.map((ticket) => ({
-                    seatLabel: `${ticket.eventSeat.seat?.rowLabel ?? ""}${
-                        ticket.eventSeat.seat?.seatNumber ?? ""
+                    seatLabel: `${ticket.eventSeat?.rowLabel ?? ""}${
+                        ticket.eventSeat?.seatNumber ?? ""
                     }`,
                     qrImage: ticket.qrImage,
                 }))
             );
+
+            await tx.paymentTransaction.update({
+                where: { transactionId },
+                data: {
+                    orderId: order.id,
+                    orderCode,
+                    status: PaymentTransactionStatus.MATCHED,
+                },
+            });
 
             return {
                 ...paidOrder,
@@ -302,12 +333,8 @@ class PaymentService {
                         checkedInAt: true,
                         eventSeat: {
                             select: {
-                                seat: {
-                                    select: {
-                                        rowLabel: true,
-                                        seatNumber: true,
-                                    },
-                                },
+                                rowLabel: true,
+                                seatNumber: true,
                             },
                         },
                     },

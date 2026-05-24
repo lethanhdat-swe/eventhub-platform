@@ -47,7 +47,7 @@ function CheckInBadge({ isCheckedIn }) {
 
 function TicketDetailDialog({ open, onOpenChange, ticket, loading = false }) {
   const qrUrl = ticket ? getTicketQrImageUrl(ticket.qrSecureToken) : null;
-  const seat = ticket?.eventSeat?.seat;
+  const seat = ticket?.eventSeat;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

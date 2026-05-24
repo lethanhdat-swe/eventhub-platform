@@ -72,6 +72,7 @@ class EventService {
 
             const masterSeats = await tx.seat.findMany({
                 select: {
+                    id: true,
                     rowLabel: true,
                     seatNumber: true,
                     defaultTicketTypeId: true,

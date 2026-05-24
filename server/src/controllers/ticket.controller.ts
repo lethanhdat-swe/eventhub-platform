@@ -59,6 +59,19 @@ class TicketController {
         }
     };
 
+    myTickets = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const result = await ticketService.myTickets(req.user!.id);
+
+            return res.success({
+                message: "My tickets fetched successfully.",
+                data: result,
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
     delete = async (req: Request, res: Response, next: NextFunction) => {
         try {
             await ticketService.delete(req.params.id as string);

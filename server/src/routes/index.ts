@@ -20,6 +20,7 @@ import uploadRouter from "./upload.route";
 import commentRoute from "./comment.routes";
 import contactRouter from "./contact.routes";
 import dashboardRouter from "./dashboard.route";
+import paymentTransactionRouter from "./payment-transaction.route";
 
 const router = Router();
 
@@ -44,5 +45,6 @@ router.use("/uploads", uploadRouter);
 router.use("/comments", commentRoute);
 router.use("/contacts", contactRouter);
 router.use("/admin/dashboard", dashboardRouter);
+router.use("/payment-transactions", paymentTransactionRouter);
 
 export default router;

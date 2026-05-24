@@ -72,7 +72,6 @@ class TicketService {
                     eventSeat: {
                         include: {
                             event: true,
-                            seat: true,
                             ticketType: true,
                         },
                     },
@@ -96,7 +95,6 @@ class TicketService {
                 eventSeat: {
                     include: {
                         event: true,
-                        seat: true,
                         ticketType: true,
                     },
                 },
@@ -108,6 +106,80 @@ class TicketService {
         }
 
         return ticket;
+    }
+
+    async myTickets(userId: string) {
+        const tickets = await prisma.ticket.findMany({
+            where: {
+                order: {
+                    userId,
+                    status: "PAID",
+                },
+            },
+            select: {
+                id: true,
+                orderId: true,
+                eventSeatId: true,
+                qrSecureToken: true,
+                isCheckedIn: true,
+                checkedInAt: true,
+                order: {
+                    select: {
+                        id: true,
+                        orderCode: true,
+                        status: true,
+                        totalAmount: true,
+                        paymentMethod: true,
+                        createdAt: true,
+                    },
+                },
+                eventSeat: {
+                    select: {
+                        rowLabel: true,
+                        seatNumber: true,
+                        status: true,
+                        ticketType: {
+                            select: {
+                                id: true,
+                                name: true,
+                                price: true,
+                                color: true,
+                            },
+                        },
+                        event: {
+                            select: {
+                                id: true,
+                                title: true,
+                                thumbnailUrl: true,
+                                startDate: true,
+                                endDate: true,
+                                location: true,
+                            },
+                        },
+                    },
+                },
+            },
+            orderBy: {
+                order: {
+                    createdAt: "desc",
+                },
+            },
+        });
+
+        return tickets.map((ticket) => ({
+            ...ticket,
+            order: {
+                ...ticket.order,
+                finalAmount: ticket.order.totalAmount,
+            },
+            eventSeat: {
+                ...ticket.eventSeat,
+                event: {
+                    ...ticket.eventSeat.event,
+                    bannerUrl: ticket.eventSeat.event.thumbnailUrl,
+                },
+            },
+        }));
     }
 
     async delete(id: string) {
@@ -151,12 +223,8 @@ class TicketService {
                 eventSeat: {
                     select: {
                         id: true,
-                        seat: {
-                            select: {
-                                rowLabel: true,
-                                seatNumber: true,
-                            },
-                        },
+                        rowLabel: true,
+                        seatNumber: true,
                         ticketType: {
                             select: {
                                 name: true,
@@ -202,12 +270,8 @@ class TicketService {
                 checkedInAt: true,
                 eventSeat: {
                     select: {
-                        seat: {
-                            select: {
-                                rowLabel: true,
-                                seatNumber: true,
-                            },
-                        },
+                        rowLabel: true,
+                        seatNumber: true,
                         ticketType: {
                             select: {
                                 name: true,
@@ -229,7 +293,7 @@ class TicketService {
             id: checkedInTicket.id,
             isCheckedIn: checkedInTicket.isCheckedIn,
             checkedInAt: checkedInTicket.checkedInAt,
-            seatLabel: `${checkedInTicket.eventSeat.seat.rowLabel}-${checkedInTicket.eventSeat.seat.seatNumber}`,
+            seatLabel: `${checkedInTicket.eventSeat.rowLabel}-${checkedInTicket.eventSeat.seatNumber}`,
             ticketType: checkedInTicket.eventSeat.ticketType.name,
             event: checkedInTicket.eventSeat.event,
         };

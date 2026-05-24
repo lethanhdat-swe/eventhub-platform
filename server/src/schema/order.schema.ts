@@ -35,6 +35,22 @@ export const listOrderSchema = z.object({
     }),
 });
 
+export const listMyOrderSchema = z.object({
+    query: z.object({
+        page: z
+            .string()
+            .optional()
+            .default("1")
+            .transform((val) => Math.max(1, parseInt(val))),
+        limit: z
+            .string()
+            .optional()
+            .default("10")
+            .transform((val) => Math.max(1, parseInt(val))),
+        status: z.nativeEnum(OrderStatus).optional(),
+    }),
+});
+
 export const deleteOrderSchema = z.object({
     body: z.object({
         ids: z

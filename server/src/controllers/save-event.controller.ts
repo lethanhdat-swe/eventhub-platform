@@ -5,7 +5,14 @@ class SaveEventController {
     toggleSave = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { eventId } = req.params;
-            const userId = req.user!.id; 
+            const userId = req.user?.id ?? null;
+
+            if (!userId) {
+                return res.success({
+                    message: "Login required to save event.",
+                    data: { isSaved: false, requiresAuth: true },
+                });
+            }
 
             const result = await saveEventService.toggleSave(userId, eventId as string);
 
@@ -20,7 +27,7 @@ class SaveEventController {
 
     listSaved = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const userId = req.user!.id;
+            const userId = req.user?.id ?? null;
             const page = Number(req.query.page) || 1;
             const limit = Number(req.query.limit) || 10;
 

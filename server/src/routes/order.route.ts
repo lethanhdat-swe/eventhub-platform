@@ -1,36 +1,59 @@
 import { Router } from "express";
-import { isAuth, restrictTo } from "../middlewares/auth.middleware";
+import {
+    isAuth,
+    optionalAuth,
+    restrictTo,
+} from "../middlewares/auth.middleware";
 import { validate } from "../middlewares/validate.middleware";
 import orderController from "../controllers/order.controller";
 import {
     createOrderSchema,
     listOrderSchema,
+    listMyOrderSchema,
     deleteOrderSchema,
     getOrderSchema,
 } from "../schema/order.schema";
 
 const router = Router();
 
-// Toàn bộ route order yêu cầu đăng nhập
-router.use(isAuth);
-
 // User có thể tạo order
-router.post("/", validate(createOrderSchema), orderController.create);
+router.post(
+    "/",
+    optionalAuth,
+    validate(createOrderSchema),
+    orderController.create
+);
 
-// Get detail - Owner hoặc Admin (Controller có thể check thêm nếu cần,
-// nhưng thường admin mới xem được danh sách orders)
-router.get("/:id", validate(getOrderSchema), orderController.getDetail);
+router.get(
+    "/my",
+    isAuth,
+    validate(listMyOrderSchema),
+    orderController.myOrders
+);
+router.get(
+    "/my/:id",
+    isAuth,
+    validate(getOrderSchema),
+    orderController.myOrderDetail
+);
+
+router.get(
+    "/:id",
+    optionalAuth,
+    validate(getOrderSchema),
+    orderController.getDetail
+);
 
 // Admin routes
+router.use(isAuth, restrictTo("ADMIN"));
+
 router.get(
     "/",
-    restrictTo("ADMIN"),
     validate(listOrderSchema),
     orderController.list
 );
 router.delete(
     "/",
-    restrictTo("ADMIN"),
     validate(deleteOrderSchema),
     orderController.delete
 );

@@ -63,26 +63,20 @@ export function mapOrderRow(row) {
 }
 
 export function formatOrderSeatLines(order) {
-  if (order.tickets?.length) {
-    return order.tickets.map((ticket) => {
-      const seat = ticket.eventSeat?.seat;
-      const type = ticket.eventSeat?.ticketType;
-      const label = seat
-        ? [seat.rowLabel, seat.seatNumber].filter((v) => v != null && v !== '').join('') ||
-          seat.id?.slice(0, 8)
-        : '—';
-      return `${label} · ${type?.name ?? '—'}`;
-    });
-  }
+  const items = order.orderSeats?.length ? order.orderSeats : order.tickets;
 
-  if (order.orderSeats?.length) {
-    return order.orderSeats.map((os) => {
-      const seat = os.eventSeat?.seat;
-      const type = os.eventSeat?.ticketType;
-      const label = seat
-        ? [seat.rowLabel, seat.seatNumber].filter((v) => v != null && v !== '').join('') ||
-          seat.id?.slice(0, 8)
-        : '—';
+  if (items?.length) {
+    return items.map((item) => {
+      const eventSeat = item.eventSeat;
+      const seat = eventSeat?.seat ?? eventSeat;
+      const type = eventSeat?.ticketType;
+      const label =
+        [seat?.rowLabel, seat?.seatNumber]
+          .filter((v) => v != null && v !== '')
+          .join('') ||
+        seat?.id?.slice(0, 8) ||
+        '—';
+
       return `${label} · ${type?.name ?? '—'}`;
     });
   }

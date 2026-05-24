@@ -28,6 +28,7 @@ function CustomerFormSection({
                             value={form.name}
                             onChange={handleChange}
                             placeholder="Nhập họ và tên"
+                            required
                             className="bg-transparent text-(--text-primary) outline-none w-full placeholder:text-(--text-primary)/30"
                         />
                     </div>
@@ -40,9 +41,11 @@ function CustomerFormSection({
                         <p className="text-(--text-primary)/70 text-sm">Email</p>
                         <input
                             name="email"
+                            type="email"
                             value={form.email}
                             onChange={handleChange}
                             placeholder="Nhập email"
+                            required
                             className="bg-transparent text-(--text-primary) outline-none w-full placeholder:text-(--text-primary)/30"
                         />
                     </div>
@@ -55,9 +58,11 @@ function CustomerFormSection({
                         <p className="text-(--text-primary)/70 text-sm">Số điện thoại</p>
                         <input
                             name="phone"
+                            type="tel"
                             value={form.phone}
                             onChange={handleChange}
                             placeholder="Nhập số điện thoại"
+                            required
                             className="bg-transparent text-(--text-primary) outline-none w-full placeholder:text-(--text-primary)/30"
                         />
                     </div>

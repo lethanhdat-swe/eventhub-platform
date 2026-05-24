@@ -35,7 +35,20 @@ class SaveEventService {
     };
 
    
-    getSavedEvents = async (userId: string, page: number, limit: number) => {
+    getSavedEvents = async (userId: string | null, page: number, limit: number) => {
+        if (!userId) {
+            return {
+                items: [],
+                meta: {
+                    totalItems: 0,
+                    itemCount: 0,
+                    itemsPerPage: limit,
+                    totalPages: 0,
+                    currentPage: page,
+                },
+            };
+        }
+
         const skip = (page - 1) * limit;
 
     

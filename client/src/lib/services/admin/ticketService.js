@@ -35,6 +35,11 @@ export const ticketService = {
     return getApiData(body);
   },
 
+  myTickets: async () => {
+    const body = await axiosInstance.get(`${resourceBase}/my`);
+    return getApiData(body);
+  },
+
   /**
    * @param {string} id
    * @param {{ isCheckedIn?: boolean, checkedInAt?: string | null }} data

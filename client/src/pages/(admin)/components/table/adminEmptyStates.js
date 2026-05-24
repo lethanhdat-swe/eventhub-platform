@@ -34,6 +34,11 @@ export const ADMIN_EMPTY_STATES = {
     description:
       'Đơn đặt vé sẽ xuất hiện tại đây sau khi khách hàng thanh toán hoặc tạo đơn.',
   },
+  paymentTransactions: {
+    title: 'Chưa có giao dịch thanh toán',
+    description:
+      'Giao dịch SePay webhook gửi về sẽ xuất hiện tại đây để đối soát.',
+  },
   coupons: {
     title: 'Chưa có mã giảm giá',
     description: 'Tạo mã giảm giá để khuyến mãi cho đơn đặt vé.',
