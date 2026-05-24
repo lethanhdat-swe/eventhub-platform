@@ -1,15 +1,7 @@
-import {
-  AlertTriangle,
-  Eye,
-  MoreHorizontal,
-  Pencil,
-  Ticket,
-  Trash2,
-} from 'lucide-react';
+import { Eye, MoreHorizontal, Ticket, Trash2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import AdminTableWrapper from '@/pages/(admin)/components/table/AdminTableWrapper';
-import { Checkbox } from '@/components/ui/checkbox';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,112 +20,76 @@ import {
 import CheckInLogStatusBadge from '@/pages/(admin)/CheckInLogs/components/CheckInLogStatusBadge';
 import { formatCheckInTime } from '@/pages/(admin)/CheckInLogs/data';
 
+const EMPTY_VALUE = '-';
+
 function CheckInLogTable({
   logs,
-  selectedIds,
-  onSelectAll,
-  onSelectRow,
   onView,
-  onEdit,
   onViewTicket,
-  onMarkInvalid,
   onDelete,
 }) {
-  const selectedCount = selectedIds.size;
-  const allSelected = logs.length > 0 && selectedCount === logs.length;
-  const someSelected = selectedCount > 0 && selectedCount < logs.length;
-
-  const headerChecked = allSelected
-    ? true
-    : someSelected
-      ? 'indeterminate'
-      : false;
-
   return (
     <AdminTableWrapper>
-      <Table className="min-w-[1000px]">
+      <Table className="min-w-[1100px]">
         <TableHeader>
           <TableRow className="bg-muted/40 hover:bg-muted/40">
-            <TableHead className="h-9 w-10 px-2">
-              <Checkbox
-                checked={headerChecked}
-                onCheckedChange={(checked) => onSelectAll(Boolean(checked))}
-                aria-label="Chọn tất cả bản ghi"
-              />
-            </TableHead>
-            <TableHead className="h-9 px-2">Mã vé</TableHead>
-            <TableHead className="h-9 px-2">Khách hàng</TableHead>
+            <TableHead className="h-9 px-2">Thời gian quét</TableHead>
+            <TableHead className="h-9 px-2">Token / Mã QR</TableHead>
+            <TableHead className="h-9 px-2">Trạng thái</TableHead>
+            <TableHead className="h-9 px-2">Nội dung</TableHead>
+            <TableHead className="h-9 px-2">Vé liên kết</TableHead>
             <TableHead className="h-9 px-2">Sự kiện</TableHead>
             <TableHead className="h-9 px-2">Ghế</TableHead>
-            <TableHead className="h-9 px-2">Người quét</TableHead>
-            <TableHead className="h-9 px-2">Trạng thái</TableHead>
-            <TableHead className="h-9 px-2">Thời gian check-in</TableHead>
             <TableHead className="h-9 w-12 px-2 text-right">Hành động</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {logs.map((log) => (
-              <TableRow
-                key={log.id}
-                data-state={selectedIds.has(log.id) ? 'selected' : undefined}
-              >
-                <TableCell className="px-2 py-1.5">
-                  <Checkbox
-                    checked={selectedIds.has(log.id)}
-                    onCheckedChange={(checked) =>
-                      onSelectRow(log.id, Boolean(checked))
+            <TableRow key={log.id}>
+              <TableCell className="px-2 py-1.5 text-muted-foreground">
+                {formatCheckInTime(log.scannedAt)}
+              </TableCell>
+              <TableCell className="max-w-[180px] truncate px-2 py-1.5 font-mono text-xs font-medium">
+                {log.token}
+              </TableCell>
+              <TableCell className="px-2 py-1.5">
+                <CheckInLogStatusBadge status={log.status} />
+              </TableCell>
+              <TableCell className="max-w-[240px] truncate px-2 py-1.5 text-muted-foreground">
+                {log.message || EMPTY_VALUE}
+              </TableCell>
+              <TableCell className="max-w-[140px] truncate px-2 py-1.5 font-mono text-xs text-muted-foreground">
+                {log.ticketId || EMPTY_VALUE}
+              </TableCell>
+              <TableCell className="max-w-[200px] truncate px-2 py-1.5 text-muted-foreground">
+                {log.eventTitle || EMPTY_VALUE}
+              </TableCell>
+              <TableCell className="px-2 py-1.5 tabular-nums text-muted-foreground">
+                {log.seatLabel || EMPTY_VALUE}
+              </TableCell>
+              <TableCell className="px-2 py-1.5 text-right">
+                <DropdownMenu>
+                  <DropdownMenuTrigger
+                    render={
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        className="cursor-pointer"
+                        aria-label={`Hành động cho log ${log.token}`}
+                      >
+                        <MoreHorizontal className="size-4" />
+                      </Button>
                     }
-                    aria-label={`Chọn bản ghi ${log.ticketCode}`}
                   />
-                </TableCell>
-                <TableCell className="px-2 py-1.5 font-medium">
-                  {log.ticketCode}
-                </TableCell>
-                <TableCell className="px-2 py-1.5">{log.customerName}</TableCell>
-                <TableCell className="max-w-[180px] truncate px-2 py-1.5 text-muted-foreground">
-                  {log.eventTitle}
-                </TableCell>
-                <TableCell className="px-2 py-1.5 tabular-nums text-muted-foreground">
-                  {log.seatLabel}
-                </TableCell>
-                <TableCell className="px-2 py-1.5 text-muted-foreground">
-                  {log.scannedBy}
-                </TableCell>
-                <TableCell className="px-2 py-1.5">
-                  <CheckInLogStatusBadge status={log.status} />
-                </TableCell>
-                <TableCell className="px-2 py-1.5 text-muted-foreground">
-                  {formatCheckInTime(log.checkedInAt)}
-                </TableCell>
-                <TableCell className="px-2 py-1.5 text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger
-                      render={
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          className="cursor-pointer"
-                          aria-label={`Hành động cho ${log.ticketCode}`}
-                        >
-                          <MoreHorizontal className="size-4" />
-                        </Button>
-                      }
-                    />
-                    <DropdownMenuContent align="end" className="w-52">
-                      <DropdownMenuItem
-                        className="cursor-pointer"
-                        onClick={() => onView(log)}
-                      >
-                        <Eye className="size-4" />
-                        Xem chi tiết
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="cursor-pointer"
-                        onClick={() => onEdit(log)}
-                      >
-                        <Pencil className="size-4" />
-                        Chỉnh sửa
-                      </DropdownMenuItem>
+                  <DropdownMenuContent align="end" className="w-52">
+                    <DropdownMenuItem
+                      className="cursor-pointer"
+                      onClick={() => onView(log)}
+                    >
+                      <Eye className="size-4" />
+                      Xem chi tiết
+                    </DropdownMenuItem>
+                    {log.ticketId ? (
                       <DropdownMenuItem
                         className="cursor-pointer"
                         onClick={() => onViewTicket(log)}
@@ -141,26 +97,20 @@ function CheckInLogTable({
                         <Ticket className="size-4" />
                         Xem vé
                       </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="cursor-pointer"
-                        onClick={() => onMarkInvalid(log)}
-                      >
-                        <AlertTriangle className="size-4" />
-                        Đánh dấu lỗi
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        variant="destructive"
-                        className="cursor-pointer"
-                        onClick={() => onDelete(log)}
-                      >
-                        <Trash2 className="size-4" />
-                        Xóa
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
+                    ) : null}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      variant="destructive"
+                      className="cursor-pointer"
+                      onClick={() => onDelete(log)}
+                    >
+                      <Trash2 className="size-4" />
+                      Xóa
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </TableCell>
+            </TableRow>
           ))}
         </TableBody>
       </Table>

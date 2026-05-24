@@ -21,6 +21,7 @@ import commentRoute from "./comment.routes";
 import contactRouter from "./contact.routes";
 import dashboardRouter from "./dashboard.route";
 import paymentTransactionRouter from "./payment-transaction.route";
+import checkInRouter from "./check-in.route";
 
 const router = Router();
 
@@ -46,5 +47,6 @@ router.use("/comments", commentRoute);
 router.use("/contacts", contactRouter);
 router.use("/admin/dashboard", dashboardRouter);
 router.use("/payment-transactions", paymentTransactionRouter);
+router.use("/check-ins", checkInRouter);
 
 export default router;

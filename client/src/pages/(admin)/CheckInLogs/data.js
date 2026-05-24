@@ -7,71 +7,77 @@ const checkInTimeFormatter = new Intl.DateTimeFormat('vi-VN', {
 });
 
 export const CHECKIN_LOG_STATUS_LABELS = {
-  success: 'Hợp lệ',
-  duplicate: 'Quét trùng',
-  invalid: 'Không hợp lệ',
+  VALID: 'Hợp lệ',
+  DUPLICATE: 'Quét trùng',
+  INVALID: 'Không hợp lệ',
 };
 
 export const MOCK_CHECKIN_LOGS = [
   {
     id: 'cil-001',
-    ticketCode: 'V-2026-001',
+    scannedAt: '2026-06-15T18:45:00.000Z',
+    token: 'qr_live_8f3b7a9c1d2e',
+    status: 'VALID',
+    message: 'Check-in thành công.',
+    ticketId: 'ticket-001',
     customerName: 'Nguyễn Văn An',
     eventTitle: 'Concert Anh Trai Say Hi',
     seatLabel: 'A-01',
-    scannedBy: 'Nguyễn Minh Gate',
-    status: 'success',
-    checkedInAt: '2026-06-15T18:45:00.000Z',
   },
   {
     id: 'cil-002',
-    ticketCode: 'V-2026-002',
-    customerName: 'Trần Thị Bình',
-    eventTitle: 'Workshop Thiết kế UI/UX',
-    seatLabel: 'B-02',
-    scannedBy: 'Lê Hương Gate',
-    status: 'success',
-    checkedInAt: '2026-07-20T09:12:00.000Z',
+    scannedAt: '2026-06-15T18:52:00.000Z',
+    token: 'qr_live_8f3b7a9c1d2e',
+    status: 'DUPLICATE',
+    message: 'Vé đã được quét trước đó.',
+    ticketId: 'ticket-001',
+    customerName: 'Nguyễn Văn An',
+    eventTitle: 'Concert Anh Trai Say Hi',
+    seatLabel: 'A-01',
   },
   {
     id: 'cil-003',
-    ticketCode: 'V-2026-003',
-    customerName: 'Lê Minh Châu',
-    eventTitle: 'Đêm nhạc Acoustic Đà Lạt',
-    seatLabel: 'C-01',
-    scannedBy: 'Nguyễn Minh Gate',
-    status: 'duplicate',
-    checkedInAt: '2026-05-08T19:15:00.000Z',
+    scannedAt: '2026-07-20T09:12:00.000Z',
+    token: 'qr_live_4a6c2f0b9d1a',
+    status: 'VALID',
+    message: 'Check-in thành công.',
+    ticketId: 'ticket-002',
+    customerName: 'Trần Thị Bình',
+    eventTitle: 'Workshop Thiết kế UI/UX',
+    seatLabel: 'B-02',
   },
   {
     id: 'cil-004',
-    ticketCode: 'V-2026-004',
-    customerName: 'Phạm Hoàng Dũng',
-    eventTitle: 'Tech Summit 2026',
-    seatLabel: 'A-02',
-    scannedBy: 'Trần Văn Gate',
-    status: 'invalid',
-    checkedInAt: '2026-08-10T14:30:00.000Z',
+    scannedAt: '2026-08-10T14:30:00.000Z',
+    token: 'qr_unknown_9172',
+    status: 'INVALID',
+    message: 'Không tìm thấy vé tương ứng với mã QR.',
+    ticketId: null,
+    customerName: null,
+    eventTitle: null,
+    seatLabel: null,
   },
   {
     id: 'cil-005',
-    ticketCode: 'V-2026-005',
-    customerName: 'Võ Thị Em',
-    eventTitle: 'Marathon City Run',
-    seatLabel: 'B-01',
-    scannedBy: 'Lê Hương Gate',
-    status: 'success',
-    checkedInAt: '2026-09-05T06:55:00.000Z',
+    scannedAt: '2026-05-08T19:15:00.000Z',
+    token: 'qr_live_b2d9f81a74cc',
+    status: 'DUPLICATE',
+    message: 'Vé đã được check-in lúc 19:02.',
+    ticketId: 'ticket-003',
+    customerName: 'Lê Minh Châu',
+    eventTitle: 'Đêm nhạc Acoustic Đà Lạt',
+    seatLabel: 'C-01',
   },
   {
     id: 'cil-006',
-    ticketCode: 'V-2026-006',
-    customerName: 'Đặng Quốc Phong',
-    eventTitle: 'Food Festival Mùa Thu',
-    seatLabel: 'Fan-12',
-    scannedBy: 'Nguyễn Minh Gate',
-    status: 'success',
-    checkedInAt: '2026-10-03T10:30:00.000Z',
+    scannedAt: '2026-10-03T10:30:00.000Z',
+    token: 'qr_malformed_003',
+    status: 'INVALID',
+    message: 'Token không đúng định dạng.',
+    ticketId: null,
+    customerName: null,
+    eventTitle: null,
+    seatLabel: null,
   },
 ];
 
@@ -93,11 +99,12 @@ export function filterCheckInLogs(logs, searchQuery, facets = {}) {
   if (query) {
     list = list.filter((log) => {
       const haystack = [
-        log.ticketCode,
+        log.token,
         log.customerName,
         log.eventTitle,
+        log.message,
+        log.ticketId,
         log.seatLabel,
-        log.scannedBy,
       ]
         .filter(Boolean)
         .join(' ')
@@ -109,7 +116,7 @@ export function filterCheckInLogs(logs, searchQuery, facets = {}) {
 
   const { eventTitle, status, timeRange } = facets;
   if (eventTitle && eventTitle !== 'all') {
-    list = list.filter((log) => log.eventTitle === eventTitle);
+    list = list.filter((log) => log.ticketId && log.eventTitle === eventTitle);
   }
   if (status && status !== 'all') {
     list = list.filter((log) => log.status === status);
@@ -123,7 +130,7 @@ export function filterCheckInLogs(logs, searchQuery, facets = {}) {
           : null;
     if (cutoff != null) {
       list = list.filter(
-        (log) => log.checkedInAt && new Date(log.checkedInAt).getTime() >= cutoff
+        (log) => log.scannedAt && new Date(log.scannedAt).getTime() >= cutoff
       );
     }
   }

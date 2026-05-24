@@ -359,8 +359,31 @@ model Ticket {
 
   order     Order     @relation(fields: [orderId], references: [id])
   eventSeat EventSeat @relation(fields: [eventSeatId], references: [id])
+  checkInLogs CheckInLog[]
 
   @@map("tickets")
+}
+
+model CheckInLog {
+  id        String           @id @default(uuid())
+  ticketId  String?          @map("ticket_id")
+  token     String           @db.Text
+  status    CheckInLogStatus
+  message   String?
+  scannedAt DateTime         @default(now()) @map("scanned_at")
+
+  ticket Ticket? @relation(fields: [ticketId], references: [id])
+
+  @@index([ticketId])
+  @@index([status])
+  @@index([scannedAt])
+  @@map("check_in_logs")
+}
+
+enum CheckInLogStatus {
+  VALID
+  DUPLICATE
+  INVALID
 }
 
 model Coupon {
@@ -378,6 +401,7 @@ model Coupon {
 
   @@map("coupons")
 }
+
 
 enum CouponStatus {
   ACTIVE

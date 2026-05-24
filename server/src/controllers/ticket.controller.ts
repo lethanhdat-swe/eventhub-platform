@@ -95,19 +95,6 @@ class TicketController {
             next(error);
         }
     };
-
-    checkIn = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const data = await ticketService.checkIn(req.body);
-
-            return res.success({
-                message: "Ticket checked in successfully.",
-                data,
-            });
-        } catch (error) {
-            next(error);
-        }
-    };
 }
 
 export default new TicketController();

@@ -3,15 +3,15 @@ import { cn } from '@/lib/utils';
 import { CHECKIN_LOG_STATUS_LABELS } from '@/pages/(admin)/CheckInLogs/data';
 
 const statusConfig = {
-  success: {
+  VALID: {
     className:
       'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-300',
   },
-  duplicate: {
+  DUPLICATE: {
     className:
       'border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-300',
   },
-  invalid: {
+  INVALID: {
     className:
       'border-destructive/30 bg-destructive/10 text-destructive dark:border-destructive/40',
   },
