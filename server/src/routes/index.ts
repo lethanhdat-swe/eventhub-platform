@@ -22,6 +22,8 @@ import contactRouter from "./contact.routes";
 import dashboardRouter from "./dashboard.route";
 import paymentTransactionRouter from "./payment-transaction.route";
 import checkInRouter from "./check-in.route";
+import aiBlogIdeaRouter from "./blog-idea.routes";
+import aiContentConfigRouter from "./ai-content-config.routes";
 
 const router = Router();
 
@@ -48,5 +50,7 @@ router.use("/contacts", contactRouter);
 router.use("/admin/dashboard", dashboardRouter);
 router.use("/payment-transactions", paymentTransactionRouter);
 router.use("/check-ins", checkInRouter);
+router.use("/blog-ideas", aiBlogIdeaRouter);
+router.use("/ai-content-config", aiContentConfigRouter);
 
 export default router;

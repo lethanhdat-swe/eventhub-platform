@@ -1,4 +1,5 @@
 import RichContentRenderer from '@/components/RichContentRenderer/RichContentRenderer';
+import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
 import { Dot } from 'lucide-react';
 
 function BlogContent({ blog }) {
@@ -6,7 +7,7 @@ function BlogContent({ blog }) {
     <div className="mt-5">
       <div className="w-full h-137.5 overflow-hidden rounded-2xl">
         <img
-          src={blog.image}
+          src={resolvePublicAssetUrl(blog.thumbnailUrl)}
           alt={blog.title}
           className="object-cover w-full h-full"
         />

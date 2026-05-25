@@ -291,7 +291,7 @@ model Contact {
 
 model Order {
   id                 String        @id @default(uuid())
-  userId             String?        @map("user_id")
+  userId             String?       @map("user_id")
   customerEmail      String        @map("customer_email")
   customerPhone      String        @map("customer_phone")
   customerName       String?       @map("customer_name")
@@ -303,11 +303,11 @@ model Order {
   createdAt          DateTime      @default(now()) @map("created_at")
   updatedAt          DateTime      @updatedAt @map("updated_at")
 
-  user       User?        @relation(fields: [userId], references: [id])
-  couponId   String?     @map("coupon_id")
-  coupon     Coupon?     @relation(fields: [couponId], references: [id])
-  tickets    Ticket[]
-  orderSeats OrderSeat[]
+  user                User?                @relation(fields: [userId], references: [id])
+  couponId            String?              @map("coupon_id")
+  coupon              Coupon?              @relation(fields: [couponId], references: [id])
+  tickets             Ticket[]
+  orderSeats          OrderSeat[]
   paymentTransactions PaymentTransaction[]
 
   @@map("orders")
@@ -332,7 +332,7 @@ model PaymentTransaction {
   createdAt     DateTime                 @default(now()) @map("created_at")
   updatedAt     DateTime                 @updatedAt @map("updated_at")
 
-  order         Order?                   @relation(fields: [orderId], references: [id])
+  order Order? @relation(fields: [orderId], references: [id])
 
   @@map("payment_transactions")
 }
@@ -357,8 +357,8 @@ model Ticket {
   isCheckedIn   Boolean   @default(false) @map("is_checked_in")
   checkedInAt   DateTime? @map("checked_in_at")
 
-  order     Order     @relation(fields: [orderId], references: [id])
-  eventSeat EventSeat @relation(fields: [eventSeatId], references: [id])
+  order       Order        @relation(fields: [orderId], references: [id])
+  eventSeat   EventSeat    @relation(fields: [eventSeatId], references: [id])
   checkInLogs CheckInLog[]
 
   @@map("tickets")
@@ -402,7 +402,6 @@ model Coupon {
   @@map("coupons")
 }
 
-
 enum CouponStatus {
   ACTIVE
   INACTIVE
@@ -426,7 +425,7 @@ model Blog {
   slug         String  @unique
   excerpt      String? @db.Text
   contentHtml  String  @map("content_html") @db.Text
-  thumbnailUrl String? @map("thumbnail_url")
+  thumbnailUrl String? @map("thumbnail_url") @db.LongText
 
   status      BlogStatus @default(DRAFT)
   publishedAt DateTime?  @map("published_at")
@@ -446,4 +445,42 @@ model Blog {
 enum BlogStatus {
   DRAFT
   PUBLISHED
+}
+
+model BlogIdea {
+  id          String @id @default(uuid())
+  title       String
+  description String @db.Text
+
+  status BlogIdeaStatus @default(PENDING)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("blog_ideas")
+}
+
+enum BlogIdeaStatus {
+  PENDING
+  USED
+  FAILED
+}
+
+model AIContentConfig {
+  id String @id @default(uuid())
+
+  ideaModel  String @map("idea_model")
+  ideaPrompt String @map("idea_prompt") @db.Text
+
+  blogModel  String @map("blog_model")
+  blogPrompt String @map("blog_prompt") @db.Text
+
+  thumbnailModel String? @map("thumbnail_model")
+
+  isActive Boolean @default(true) @map("is_active")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("ai_content_configs")
 }
