@@ -2,6 +2,7 @@ import {
   Armchair,
   CalendarDays,
   ClipboardList,
+  Contact,
   FileText,
   FolderTree,
   LayoutDashboard,
@@ -128,6 +129,17 @@ export const adminNavSections = [
     ],
   },
   {
+    title: 'Liên hệ',
+    items: [
+      {
+        label: 'Quản lý liên hệ',
+        to: '/admin/contact',
+        icon: Contact,
+        match: 'exact',
+      },
+    ],
+  },
+  {
     title: 'Người dùng',
     items: [
       {
@@ -197,6 +209,10 @@ export function getAdminBreadcrumbs(pathname) {
 
   if (pathname === '/admin/blog-categories') {
     return [{ label: 'Nội dung' }, { label: 'Quản lý danh mục blog' }];
+  }
+
+  if (pathname === '/admin/contact') {
+    return [{ label: 'Liên hệ' }, { label: 'Quản lý liên hệ' }];
   }
 
   for (const section of adminNavSections) {

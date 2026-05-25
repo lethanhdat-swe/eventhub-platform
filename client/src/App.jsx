@@ -45,6 +45,7 @@ import Users from '@/pages/(admin)/Users';
 import Settings from '@/pages/(admin)/Settings';
 import PaymentStatus from './pages/(public)/PaymentStatus';
 import EventCheckInPage from './pages/(public)/EventCheckInPage';
+import ContactPage from './pages/(admin)/Contact';
 
 function App() {
   return (
@@ -107,6 +108,7 @@ function App() {
           <Route path="check-in-logs" element={<CheckInLogs />} />
           <Route path="users" element={<Users />} />
           <Route path="settings" element={<Settings />} />
+          <Route path="contact" element={<ContactPage />} />
         </Route>
       </Route>
     </Routes>
