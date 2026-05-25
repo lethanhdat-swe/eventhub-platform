@@ -1,4 +1,3 @@
-import { images } from "@/assets";
 import CommentActions from "../../../CommentActions/CommentActions";
 
 function ReplyItem({
@@ -10,10 +9,11 @@ function ReplyItem({
     handleUpdateReply,
     handleDeleteReply,
 }) {
+    console.log('Rendering ReplyItem with reply:', reply);
     return (
         <div className="flex gap-3">
             <img
-                src={reply.avatarUrl ?? images.profile}
+                src={`${import.meta.env.VITE_API_URL}${reply.user.avatarUrl}`}
                 alt=""
                 className="w-10 h-10 rounded-full"
             />

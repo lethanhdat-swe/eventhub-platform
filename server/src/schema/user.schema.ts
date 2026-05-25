@@ -15,8 +15,6 @@ export const updateMeSchema = z.object({
                 .optional(),
             avatarUrl: z
                 .string()
-                .url("Invalid avatar URL")
-                .or(z.string().length(0))
                 .optional(),
         })
         .strict(),

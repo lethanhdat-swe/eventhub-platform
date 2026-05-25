@@ -5,6 +5,8 @@ import ReplyInput from "./components/ReplyInput/ReplyInput";
 import ReplyList from "./components/ReplyList/ReplyList";
 
 function CommentInfo({ comment, setComments }) {
+    console.log('Rendering CommentInfo with comment:', comment);
+
     const [replying, setReplying] = useState(false);
     const [replyText, setReplyText] = useState("");
     const [loading, setLoading] = useState(false);
@@ -111,7 +113,7 @@ function CommentInfo({ comment, setComments }) {
         <div className="w-full">
             <div className="flex items-start gap-4">
                 <img
-                    src={comment.avatarUrl ?? images.profile}
+                    src={`${import.meta.env.VITE_API_URL}${comment.user.avatarUrl}`}
                     alt=""
                     className="object-cover w-16 h-16 rounded-full ring-2 ring-(--primary-color)/20"
                 />

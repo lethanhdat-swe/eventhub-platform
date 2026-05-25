@@ -66,6 +66,11 @@ export const useAuthStore = create((set) => ({
       isHydrated: true,
     });
   },
+
+  setUser(user) {
+    authStorage.setUser(user);
+    set({ user });
+  },
 }));
 
 useAuthStore.getState().hydrateAuth();

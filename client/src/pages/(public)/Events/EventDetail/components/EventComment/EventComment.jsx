@@ -1,4 +1,3 @@
-import { images } from "@/assets";
 import { Send } from "lucide-react";
 import { useState } from "react";
 import { commentService } from "@/lib/services/comment";
@@ -36,7 +35,7 @@ function EventComment({ eventId, comments, setComments }) {
             
             <div className="flex items-center gap-3">
                 <img
-                    src={images.profile}
+                    src={`${import.meta.env.VITE_API_URL}${comments[0]?.user.avatarUrl}`}
                     alt=""
                     className="object-cover w-18 h-18 rounded-4xl"
                 />

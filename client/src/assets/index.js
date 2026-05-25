@@ -1,4 +1,4 @@
-import home from './images/store/home.jpg';
+import home from './images/store/home.png';
 import avatar1 from './images/store/avatar1.jpg';
 import avatar2 from './images/store/avatar2.jpg';
 import avatar3 from './images/store/avatar3.jpg';

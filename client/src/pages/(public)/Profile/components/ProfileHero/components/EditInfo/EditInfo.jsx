@@ -1,25 +1,23 @@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Pen } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useAuthStore } from "@/stores/authStore";
 import { authService } from "@/lib/services/auth/authService";
-
 function EditInfo() {
-  const { user, setAuth } = useAuthStore();
+  const { user, setUser } = useAuthStore();
   const [form, setForm] = useState({
     name: "",
     phone: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [openPopover, setOpenPopover] = useState(false);
-  const popoverRef = useRef(null);
 
   // Populate form khi component mount
   useEffect(() => {
     if (user) {
       setForm({
-        name: user.fullName || "",
-        phone: user.phoneNumber || "",
+        name: "",
+        phone: "",
       });
     }
   }, [user]);
@@ -28,21 +26,14 @@ function EditInfo() {
 
   const handleSave = async () => {
     try {
-      setIsLoading(true);
+      setIsLoading(true); 
       const response = await authService.updateMe({
         fullName: form.name,
         phoneNumber: form.phone,
       });
-      
-      // Update auth store với user mới
-      if (response.data?.data) {
-        setAuth({
-          accessToken: user?.accessToken || null,
-          refreshToken: user?.refreshToken || null,
-          user: response.data.data,
-        });
-      }
-      
+
+      const updatedUser = response.data?.data ?? response.data;
+      setUser(updatedUser);
       setOpenPopover(false);
     } catch (error) {
       console.error("Error updating profile:", error);
