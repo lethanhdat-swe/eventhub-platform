@@ -55,9 +55,9 @@ function EventItem({ event }) {
           </div>
 
           <div className="flex items-center justify-between">
-            <p className="mt-auto text-xs font-semibold text-(--text-primary)">
+            {/* <p className="mt-auto text-xs font-semibold text-(--text-primary)">
               {event.eventArtists.map((ea) => ea.artist.name).join(', ')}
-            </p>
+            </p> */}
 
             <div className="flex items-center gap-1 text-gray-400">
               <Star fill="yellow" size={13} />

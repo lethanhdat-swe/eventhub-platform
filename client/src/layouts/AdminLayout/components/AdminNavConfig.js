@@ -1,5 +1,6 @@
 import {
   Armchair,
+  Bot,
   CalendarDays,
   ClipboardList,
   Contact,
@@ -140,6 +141,17 @@ export const adminNavSections = [
     ],
   },
   {
+    title: 'Cấu hình AI blog',
+    items: [
+      {
+        label: 'Quản lý AI blog',
+        to: '/admin/ai-blog-config',
+        icon: Bot,
+        match: 'exact',
+      },
+    ],
+  },
+  {
     title: 'Người dùng',
     items: [
       {
@@ -213,6 +225,10 @@ export function getAdminBreadcrumbs(pathname) {
 
   if (pathname === '/admin/contact') {
     return [{ label: 'Liên hệ' }, { label: 'Quản lý liên hệ' }];
+  }
+
+  if (pathname === '/admin/ai-blog-config') {
+    return [{ label: 'Cấu hình AI blog' }, { label: 'Quản lý AI blog' }];
   }
 
   for (const section of adminNavSections) {
