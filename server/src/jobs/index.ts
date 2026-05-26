@@ -11,7 +11,7 @@ export const startCronJobs = () => {
         },
         {
             name: "Generate weekly AI blog",
-            schedule: "*/1 * * * *",
+            schedule: "0 8 * * 1",
             task: generateWeeklyBlogTask,
         },
     ]);

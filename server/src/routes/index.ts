@@ -24,6 +24,7 @@ import paymentTransactionRouter from "./payment-transaction.route";
 import checkInRouter from "./check-in.route";
 import aiBlogIdeaRouter from "./blog-idea.routes";
 import aiContentConfigRouter from "./ai-content-config.routes";
+import appSettingRouter from "./app-setting.route";
 
 const router = Router();
 
@@ -52,5 +53,6 @@ router.use("/payment-transactions", paymentTransactionRouter);
 router.use("/check-ins", checkInRouter);
 router.use("/blog-ideas", aiBlogIdeaRouter);
 router.use("/ai-content-config", aiContentConfigRouter);
+router.use("/app-settings", appSettingRouter);
 
 export default router;
