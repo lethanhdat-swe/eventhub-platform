@@ -1,55 +1,51 @@
-import { ArrowRight, Star } from 'lucide-react';
+import { ArrowRight, Sparkles } from 'lucide-react';
 
 function Limit() {
   return (
-    <div className="container flex justify-center mt-10">
-      <div className="relative flex items-center gap-8 max-w-3xl w-full bg-linear-to-br from-[#110d22] via-[#1a1030] to-[#0e0b1f] border border-(--primary-color)/30 rounded-2xl px-10 py-8 overflow-hidden shadow-[0_0_60px_rgba(120,40,255,0.12)]">
-        <div className="absolute w-56 h-56 rounded-full pointer-events-none -top-14 -left-14 bg-(--primary-color)/20 blur-3xl" />
-        <div className="absolute w-64 h-64 rounded-full pointer-events-none -bottom-16 right-24 bg-(--primary-color)/10 blur-3xl" />
+    <section className="container mt-12">
+      <div className="relative overflow-hidden rounded-[28px] border border-(--primary-color)/25 bg-[radial-gradient(circle_at_20%_20%,rgba(168,85,247,0.28),transparent_32%),linear-gradient(135deg,#15101f_0%,#0b0911_52%,#12081d_100%)] px-5 py-6 shadow-[0_24px_80px_rgba(0,0,0,0.35)] md:px-8 md:py-7">
+        {/* Glow */}
+        <div className="pointer-events-none absolute -left-24 -top-24 h-64 w-64 rounded-full bg-(--primary-color)/25 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-28 right-10 h-72 w-72 rounded-full bg-fuchsia-500/10 blur-3xl" />
 
-        <div className="absolute inset-0 pointer-events-none rounded-2xl opacity-40 bg-[repeating-linear-gradient(to_bottom,transparent_0px,transparent_3px,rgba(255,255,255,0.013)_3px,rgba(255,255,255,0.013)_4px)]" />
+        {/* Subtle border light */}
+        <div className="pointer-events-none absolute inset-0 rounded-[28px] bg-gradient-to-r from-white/10 via-transparent to-white/5" />
 
-        {/* Icon */}
-        <div className="relative flex items-center justify-center shrink-0 w-28 h-28">
-          <div className="absolute w-28 h-28 rounded-full border border-(--primary-color)/40 border-t-(--primary-color) animate-spin animation-duration-[8s]" />
-          <div className="absolute w-22 h-22 rounded-full border border-(--primary-color)/20 border-b-(--primary-color)/60 animate-spin animation-duration-[6s] animation-direction-[reverse]" />
+        <div className="relative z-10 flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+          {/* Left content */}
+          <div className="flex items-start gap-4">
+            <div className="flex h-13 w-13 shrink-0 items-center justify-center rounded-2xl border border-(--primary-color)/30 bg-(--primary-color)/15 text-(--primary-color) shadow-[0_0_35px_rgba(168,85,247,0.22)]">
+              <Sparkles size={24} />
+            </div>
 
-          <div className="relative z-10 w-16 h-16 rounded-xl rotate-45 flex items-center justify-center shadow-[0_0_28px_rgba(180,60,255,0.6)] bg-[linear-gradient(to_bottom_right,(--primary-color),(--primary-color))] ">
-            <span className="text-yellow-300 text-2xl -rotate-45 drop-shadow-[0_0_8px_rgba(255,220,80,0.9)]">
-              <Star />
-            </span>
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.22em] text-(--primary-color)">
+                Ưu đãi có thời hạn
+              </p>
+
+              <h2 className="mt-2 text-2xl font-black tracking-tight text-white md:text-3xl">
+                Giảm 20% cho đơn hàng đầu tiên
+              </h2>
+
+              <p className="mt-2 max-w-xl text-sm leading-6 text-white/55">
+                Đăng ký hôm nay và mở khóa các ưu đãi độc quyền cho các sự kiện
+                bạn yêu thích.
+              </p>
+            </div>
           </div>
-        </div>
 
-        <div className="relative z-10 flex-1">
-          <p className="mb-2 text-xs font-semibold tracking-widest text-(--primary-color) uppercase">
-            Limited Time Offer!
-          </p>
-          <h2 className="mb-2 text-2xl font-extrabold leading-tight tracking-tight text-white">
-            Get 20% Off Your First Order
-          </h2>
-          <p className="max-w-xs text-sm leading-relaxed text-(--primary-color)/50">
-            Sign up now and unlock exclusive deals on your favorite events.
-          </p>
-        </div>
-
-        <div className="relative z-10 shrink-0">
-          <button
-            className="flex items-center gap-2 hover:brightness-110 hover:-translate-y-0.5 hover:shadow-[0_8px_32px_rgba(180,80,255,0.6)] active:scale-95 transition-all duration-200 text-white font-medium text-sm px-7 py-4 rounded-xl whitespace-nowrap cursor-pointer border-0"
-            style={{
-              background:
-                'linear-gradient(to bottom right, var(--primary-color), var(--primary-color))',
-              boxShadow: '0 4px 24px rgba(160,60,255,0.45)',
-            }}
-          >
-            Sign Up Now
-            <span className="text-base transition-transform duration-200 group-hover:translate-x-1">
-              <ArrowRight />
-            </span>
+          {/* CTA */}
+          <button className="group inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-(--primary-color) px-6 py-3.5 text-sm font-bold text-white shadow-[0_14px_40px_rgba(168,85,247,0.35)] transition-all duration-300 hover:-translate-y-0.5 hover:brightness-110 active:scale-95 md:w-auto">
+            Đăng ký ngay
+            <ArrowRight
+              size={18}
+              className="transition-transform duration-300 group-hover:translate-x-1"
+            />
           </button>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
+
 export default Limit;

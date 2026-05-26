@@ -8,23 +8,34 @@ import HeaderThemeToggle from './components/HeaderThemeToggle/HeaderThemeToggle'
 import HeaderProfileButton from './components/HeaderProfileButton/HeaderProfileButton';
 
 function Header() {
-  const visible = useHeaderVisibility();
+  const { visible, scrolled } = useHeaderVisibility();
+
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   return (
-   <header
-      className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-10 py-5 shadow-md bg-(--background-color)/50
-      transition-transform duration-300
-      ${visible ? 'translate-y-0' : '-translate-y-full'}
-    `}
-    >
-      <HeaderLogo />
-      <HeaderNav />
+    <header
+      className={`
+        fixed top-0 left-0 right-0 z-50
+        flex items-center justify-between
+        px-12 py-5 h-18
+        transition-all duration-300
 
-      <div className="flex items-center gap-8 cursor-pointer">
+        ${visible ? 'translate-y-0' : '-translate-y-full'}
+
+        ${
+          scrolled
+            ? 'bg-[var(--background-color)]/80 backdrop-blur-2xl border-b border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.25)]'
+            : 'bg-transparent'
+        }
+      `}
+    >
+      <HeaderLogo scrolled={scrolled} />
+      <HeaderNav scrolled={scrolled} />
+
+      <div className="flex items-center gap-4 cursor-pointer">
         <HeaderSearch />
+        <HeaderThemeToggle scrolled={scrolled} />
         {isAuthenticated ? <HeaderProfileButton /> : <HeaderAuth />}
-        <HeaderThemeToggle />
       </div>
     </header>
   );

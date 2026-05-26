@@ -1,13 +1,31 @@
 import { useTheme } from '@/hooks/useTheme';
 import { Moon, Sun } from 'lucide-react';
 
-function HeaderThemeToggle() {
+function HeaderThemeToggle({ scrolled }) {
   const { theme, toggleTheme } = useTheme();
 
   return (
     <button
       onClick={toggleTheme}
-      className="ml-6 p-2 rounded-full bg-(--primary-color) text-(--text-primary) hover:bg-(--primary-color-hover) transition-colors duration-300"
+      className={`
+        p-2 rounded-full cursor-pointer
+        transition-all duration-300
+
+        ${
+          scrolled
+            ? `
+              bg-(--primary-color-hover)
+              text-(--text-primary)
+              hover:bg-(--primary-color)
+            `
+            : `
+              bg-white/10
+              text-white
+              hover:bg-white/20
+              backdrop-blur-xl
+            `
+        }
+      `}
     >
       {theme === 'dark' ? (
         <Sun className="w-5 h-5" />
