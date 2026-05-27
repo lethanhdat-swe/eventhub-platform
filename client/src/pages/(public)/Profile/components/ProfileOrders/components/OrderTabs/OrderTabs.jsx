@@ -1,72 +1,110 @@
-import { ArrowRight } from "lucide-react";
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import TicketOrder from "../TicketOrder/TicketOrder";
-import SavedEvents from "../SavedEvents/SavedEvents";
+import { ArrowRight, Bookmark, Ticket } from 'lucide-react';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import TicketOrder from '../TicketOrder/TicketOrder';
+import SavedEvents from '../SavedEvents/SavedEvents';
 
 function OrderTabs() {
-  const [activeTab, setActiveTab] = useState("ticket");
+  const [activeTab, setActiveTab] = useState('ticket');
 
   const tabs = [
     {
-      label: "Vé",
-      value: "ticket",
+      label: 'Vé',
+      value: 'ticket',
+      Icon: Ticket,
     },
     {
-      label: "Sự kiện đã lưu",
-      value: "saved-events",
+      label: 'Sự kiện đã lưu',
+      value: 'saved-events',
+      Icon: Bookmark,
     },
   ];
 
+  const viewAllConfig =
+    activeTab === 'ticket'
+      ? {
+          label: 'Xem tất cả vé',
+          to: '/myorder',
+        }
+      : {
+          label: 'Xem sự kiện đã lưu',
+          to: '/saved-events',
+        };
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-            <div className="flex items-center gap-8 ">
-            {tabs.map((tab) => {
-            const isActive = activeTab === tab.value;
+    <section className="space-y-6">
+      <div className="pt-2">
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="mb-2 text-xs font-black uppercase tracking-[0.24em] text-[var(--primary-color)]">
+              Quản lý của bạn
+            </p>
 
-            return (
-                <button
-                key={tab.value}
-                onClick={() => setActiveTab(tab.value)}
-                className={`
-                    relative pb-4 text-[18px] font-medium transition-all duration-300 cursor-pointer
-                    ${
-                    isActive
-                        ? "text-(--text-primary)"
-                        : "text-gray-500 hover:text-(--text-primary)"
-                    }
-                `}
-                >
-                {tab.label}
+            <h2 className="text-2xl font-black tracking-[-0.035em] text-[var(--text-primary)]">
+              Danh sách vé và sự kiện đã lưu
+            </h2>
+          </div>
 
-                <span
-                    className={`
-                    absolute bottom-3 left-1/2 h-0.5
-                    -translate-x-1/2 rounded-full
-                    border border-(--primary-color)
-                    transition-all duration-300
-                    ${
-                        isActive
-                        ? "w-full opacity-100"
-                        : "w-0 opacity-0"
-                    }
-                    `}
-                />
-                </button>
-            );
-            })}
+          <Link
+            to={viewAllConfig.to}
+            className="
+              group inline-flex items-center gap-2 rounded-full
+              border border-[var(--border-color)]
+              bg-[var(--soft-surface-color)] px-5 py-3
+              text-sm font-black text-[var(--primary-color)]
+              transition-all duration-300
+              hover:-translate-y-0.5
+              hover:border-[var(--primary-color)]/55
+              hover:bg-[var(--primary-color)]
+              hover:text-white
+              active:scale-95
+            "
+          >
+            {viewAllConfig.label}
+            <ArrowRight
+              size={16}
+              className="transition-transform duration-300 group-hover:translate-x-1"
+            />
+          </Link>
         </div>
 
-        <Link to={'/myorder'} className="flex items-center gap-2 text-(--primary-color)">Xem tất cả vé <ArrowRight /> </Link>
+        <div
+          className="
+            inline-flex rounded-full border border-[var(--border-color)]
+            bg-[var(--card-surface-color)] p-1
+            shadow-[0_16px_45px_rgba(0,0,0,0.18)]
+            backdrop-blur-xl
+          "
+        >
+          {tabs.map(({ label, value, Icon }) => {
+            const isActive = activeTab === value;
+
+            return (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setActiveTab(value)}
+                className={`
+                  cursor-pointer inline-flex items-center gap-2 rounded-full px-5 py-2.5
+                  text-sm font-black transition-all duration-300
+                  active:scale-95
+                  ${
+                    isActive
+                      ? 'bg-[var(--primary-color)] text-white shadow-[0_12px_35px_rgba(124,58,237,0.35)]'
+                      : 'text-[var(--muted-text)] hover:bg-[var(--soft-surface-color)] hover:text-[var(--text-primary)]'
+                  }
+                `}
+              >
+                <Icon size={16} />
+                {label}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      <div>
-        {activeTab === "ticket" && <TicketOrder />}
-
-        {activeTab === "saved-events" && <SavedEvents />}
-      </div>
-    </div>
+      <div>{activeTab === 'ticket' ? <TicketOrder /> : <SavedEvents />}</div>
+    </section>
   );
 }
 

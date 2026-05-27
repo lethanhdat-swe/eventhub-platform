@@ -31,7 +31,7 @@ function EventCard({ event }) {
   const trendingScore = event.trendingScore ?? 0;
 
   return (
-    <article className="group relative h-[280px] cursor-pointer overflow-hidden rounded-[28px] border border-white/10 bg-zinc-950 shadow-[0_18px_50px_rgba(0,0,0,0.35)] transition-all duration-300 hover:-translate-y-1 hover:border-(--primary-color)/45 hover:shadow-[0_24px_80px_rgba(168,85,247,0.18)]">
+    <article className="group relative h-[280px] cursor-pointer overflow-hidden rounded-[28px] border border-white/10 bg-zinc-950 shadow-[0_18px_50px_rgba(0,0,0,0.35)] transition-all duration-300 hover:-translate-y-1 hover:border-(--primary-color)/45 hover:shadow-[0_18px_45px_rgba(168,85,247,0.14)]">
       {/* Image */}
       <img
         src={imageUrl}

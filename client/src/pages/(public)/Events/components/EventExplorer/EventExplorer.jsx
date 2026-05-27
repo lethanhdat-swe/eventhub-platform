@@ -1,7 +1,7 @@
-import EventFilters from "./components/EventFilters/EventFilters";
-import EventFilterBar from "./components/EventFilterBar/EventFilterBar";
-import EventItem from "@/components/EventItem/EventItem";
-import EventPagination from "@/components/Pagination/Pagination";
+import EventFilters from './components/EventFilters/EventFilters';
+import EventFilterBar from './components/EventFilterBar/EventFilterBar';
+import EventItem from '@/components/EventItem/EventItem';
+import EventPagination from '@/components/Pagination/Pagination';
 
 function EventExplorer({
   events,
@@ -14,36 +14,52 @@ function EventExplorer({
   onSortChange,
 }) {
   return (
-    <div className="container grid grid-cols-12 gap-5 p-10">
-      <div className="col-span-3">
+    <div className="grid grid-cols-12 gap-4">
+      <aside className="col-span-12 lg:col-span-3">
         <EventFilters onApply={onApply} />
-      </div>
+      </aside>
 
-      <div className="col-span-9 bg-(--background-color)/70 border border-white/10 p-3 rounded-r-2xl">
+      <section
+        className="
+          col-span-12 lg:col-span-9
+          rounded-[28px] border border-[var(--border-color)]
+          bg-[var(--card-surface-color)]
+          p-4 shadow-[0_20px_70px_rgba(0,0,0,0.24)]
+          backdrop-blur-xl
+        "
+      >
         <EventFilterBar
           value={sort}
           onChange={onSortChange}
           totalEvents={totalEvents}
         />
 
-        <div className="grid grid-cols-3 gap-5 mt-5">
+        <div className="mt-6 grid grid-cols-1 gap-x-3 gap-y-4 md:grid-cols-2 xl:grid-cols-3">
           {events.length > 0 ? (
-            events.map((event) => (
-              <EventItem key={event.id} event={event} />
-            ))
+            events.map((event) => <EventItem key={event.id} event={event} />)
           ) : (
-            <p className="col-span-3 text-center text-(--text-primary)/60 py-10">
-              No events found
-            </p>
+            <div
+              className="
+                col-span-full flex min-h-[260px] items-center justify-center
+                rounded-[24px] border border-dashed border-[var(--border-color)]
+                bg-[var(--soft-surface-color)]
+              "
+            >
+              <p className="text-center text-sm font-medium text-[var(--muted-text)]">
+                Không tìm thấy sự kiện phù hợp.
+              </p>
+            </div>
           )}
         </div>
 
-        <EventPagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={onPageChange}
-        />
-      </div>
+        <div className="mt-8">
+          <EventPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={onPageChange}
+          />
+        </div>
+      </section>
     </div>
   );
 }

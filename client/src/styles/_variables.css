@@ -1,18 +1,32 @@
 :root {
- --primary-color: #7c3aed;
+  --primary-color: #7c3aed;
   --text-primary: #ffffff;
   --background-color: #09090b;
-  --bg-overlay:  #030712;
- --surface-color: #1c1e23;
+  --bg-overlay: #030712;
+  --surface-color: #1c1e23;
   --header-height: 80px;
   --color-scheme: dark;
+
+  --border-color: rgba(255, 255, 255, 0.1);
+  --muted-text: rgba(255, 255, 255, 0.55);
+  --soft-surface-color: rgba(255, 255, 255, 0.04);
+  --card-surface-color: rgba(18, 18, 23, 0.9);
+  --card-hover-color: rgba(23, 17, 31, 0.95);
+  --decorative-number-color: rgba(255, 255, 255, 0.1);
 }
 
 [data-theme='light'] {
   --color-scheme: light;
-   --background-color: #f4f4f5;
+  --background-color: #f4f4f5;
   --text-primary: #09090b;
   --primary-color: #6d28d9;
   --bg-overlay: #ffffff;
   --surface-color: #ffffff;
+
+  --border-color: rgba(9, 9, 11, 0.1);
+  --muted-text: rgba(9, 9, 11, 0.58);
+  --soft-surface-color: rgba(255, 255, 255, 0.7);
+  --card-surface-color: rgba(255, 255, 255, 0.78);
+  --card-hover-color: rgba(255, 255, 255, 0.95);
+  --decorative-number-color: rgba(9, 9, 11, 0.1);
 }

@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
-import EventExplorer from "./components/EventExplorer/EventExplorer";
-import EventsTitle from "./components/EventsTitle";
-import { eventService } from "@/lib/services/admin";
+import { useEffect, useState } from 'react';
+import EventExplorer from './components/EventExplorer/EventExplorer';
+import EventsTitle from './components/EventsTitle';
+import { eventService } from '@/lib/services/admin';
 
 const INITIAL_FILTERS = {
   search: '',
@@ -23,10 +23,11 @@ function Events() {
       try {
         const response = await eventService.list({
           page: currentPage,
-          limit: 6,
-          status: "PUBLISHED",
+          limit: 9,
+          status: 'PUBLISHED',
           ...filters,
         });
+
         setEvents(response.data || []);
         setTotalPages(response.meta?.totalPages || 1);
         setTotalItems(response.meta?.totalItems || 0);
@@ -49,20 +50,26 @@ function Events() {
   };
 
   return (
-    <div className="pt-(--header-height)">
-      <EventsTitle />
+    <main className="min-h-screen bg-[var(--background-color)] text-[var(--text-primary)]">
+      <EventsTitle totalEvents={totalItems} />
 
-      <EventExplorer
-        events={events}
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={setCurrentPage}
-        onApply={handleApply}
-        totalEvents={totalItems}
-        sort={filters.sort}
-        onSortChange={handleSortChange}
-      />
-    </div>
+      <section className="relative">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(124,58,237,0.16),transparent_32%),radial-gradient(circle_at_top_left,rgba(168,85,247,0.1),transparent_28%)]" />
+
+        <div className="px-10 relative z-10 py-14">
+          <EventExplorer
+            events={events}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            onApply={handleApply}
+            totalEvents={totalItems}
+            sort={filters.sort}
+            onSortChange={handleSortChange}
+          />
+        </div>
+      </section>
+    </main>
   );
 }
 

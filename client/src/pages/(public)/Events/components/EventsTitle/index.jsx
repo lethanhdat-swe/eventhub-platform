@@ -1,22 +1,59 @@
+import { CalendarDays, MapPin, Sparkles } from 'lucide-react';
 import { images } from '@/assets';
 
-function EventsTitle() {
+function EventsTitle({ totalEvents = 0 }) {
   return (
-    <div className="relative">
-      <img src={images.home} alt="" className="object-cover w-full h-70" />
-      <div className="absolute inset-0 bg-linear-to-r from-black/85 via-black/50 to-black/20" />
-      <div className="container absolute flex items-center justify-between top-10 left-10 right-10">
-        <div>
-          <h1 className="mb-4 text-5xl font-black leading-tight text-white">
-            All Events
+    <section className="relative h-[500px] overflow-hidden">
+      <img
+        src={images.home}
+        alt=""
+        className="absolute inset-0 h-full w-full object-cover"
+      />
+
+      <div className="absolute inset-0 bg-linear-to-r from-black/92 via-black/58 to-black/25" />
+      <div className="absolute inset-0 bg-linear-to-t from-black/78 via-black/15 to-black/20" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_35%,rgba(168,85,247,0.34),transparent_36%)]" />
+
+      <div className="container relative z-10 flex  items-center pt-4 h-full">
+        <div className="max-w-3xl">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/8 px-4 py-2 backdrop-blur-xl">
+            <Sparkles
+              size={14}
+              className="text-[var(--primary-color)] drop-shadow-[0_0_16px_rgba(168,85,247,0.9)]"
+            />
+
+            <span className="text-[11px] font-black uppercase tracking-[0.26em] text-white/72">
+              Khám phá sự kiện
+            </span>
+          </div>
+
+          <h1 className="mb-5 max-w-3xl text-[44px] font-black leading-[1.08] tracking-[-0.045em] text-white drop-shadow-[0_8px_32px_rgba(0,0,0,0.6)] md:text-[52px]">
+            Tìm kiếm những
+            <br />
+            <span className="bg-gradient-to-r from-[#f0abfc] via-[#c084fc] to-[#9333ea] bg-clip-text text-transparent">
+              trải nghiệm đáng nhớ
+            </span>
           </h1>
-          <p className="mb-8 text-sm leading-relaxed text-white max-w-120">
-            Discover the best concerts, festivals, and live experiences
-            happening near you and around the world.
+
+          <p className="max-w-2xl text-base font-medium leading-8 text-white/68">
+            Khám phá concert, lễ hội, workshop và các sự kiện nổi bật đang diễn
+            ra quanh bạn.
           </p>
+
+          <div className="mt-8 flex flex-wrap items-center gap-4">
+            <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/10 px-5 py-3 text-sm font-bold text-white backdrop-blur-xl">
+              <CalendarDays size={16} className="text-white/60" />
+              <span>{totalEvents} sự kiện đang mở</span>
+            </div>
+
+            <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/10 px-5 py-3 text-sm font-bold text-white backdrop-blur-xl">
+              <MapPin size={16} className="text-white/60" />
+              <span>Nhiều địa điểm nổi bật</span>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
 

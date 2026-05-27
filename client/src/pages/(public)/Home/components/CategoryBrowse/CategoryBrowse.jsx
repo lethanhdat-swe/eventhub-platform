@@ -15,7 +15,7 @@ function CategoryBrowse() {
 
         const res = await categoryService.list({
           page: 1,
-          limit: 8,
+          limit: 4,
         });
 
         if (ignore) return;

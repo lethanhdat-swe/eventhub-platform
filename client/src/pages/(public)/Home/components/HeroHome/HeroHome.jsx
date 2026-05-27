@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { images } from '@/assets';
 import HeroTitle from './components/HeroTitle/HeroTitle';
-import Popular from './components/Popular/Popular';
 
 const heroImages = [images.home, images.Pornhub, images.avatar1];
 
@@ -17,7 +16,7 @@ function HeroHome() {
   }, []);
 
   return (
-    <div className="relative h-screen overflow-hidden bg-black">
+    <section className="relative h-screen min-h-[720px] overflow-hidden bg-black">
       {heroImages.map((image, index) => {
         const isActive = index === activeIndex;
 
@@ -35,13 +34,15 @@ function HeroHome() {
         );
       })}
 
-      <div className="absolute inset-0 bg-linear-to-r from-black/85 via-black/50 to-black/20" />
+      <div className="absolute inset-0 bg-linear-to-r from-black/90 via-black/55 to-black/25" />
+      <div className="absolute inset-0 bg-linear-to-t from-black/70 via-transparent to-black/25" />
 
-      <div className="container absolute bottom-30 left-10 right-10 flex items-end justify-between">
-        <HeroTitle />
-        <Popular />
+      <div className="relative z-10 flex h-full items-center">
+        <div className="container">
+          <HeroTitle />
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
 

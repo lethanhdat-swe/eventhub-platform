@@ -10,11 +10,15 @@ import {
 
 function EventPagination({ currentPage, totalPages, onPageChange }) {
   const getPages = () => {
-    if (totalPages <= 7)
-      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    if (totalPages <= 7) {
+      return Array.from({ length: totalPages }, (_, index) => index + 1);
+    }
 
-    if (currentPage <= 4) return [1, 2, 3, 4, 5, '...', totalPages];
-    if (currentPage >= totalPages - 3)
+    if (currentPage <= 4) {
+      return [1, 2, 3, 4, 5, '...', totalPages];
+    }
+
+    if (currentPage >= totalPages - 3) {
       return [
         1,
         '...',
@@ -24,6 +28,8 @@ function EventPagination({ currentPage, totalPages, onPageChange }) {
         totalPages - 1,
         totalPages,
       ];
+    }
+
     return [
       1,
       '...',
@@ -36,31 +42,42 @@ function EventPagination({ currentPage, totalPages, onPageChange }) {
   };
 
   const pages = getPages();
+  const isFirstPage = currentPage === 1;
+  const isLastPage = currentPage === totalPages;
+
+  const handlePrevious = () => {
+    if (isFirstPage) return;
+    onPageChange(currentPage - 1);
+  };
+
+  const handleNext = () => {
+    if (isLastPage) return;
+    onPageChange(currentPage + 1);
+  };
 
   return (
-    <Pagination className="mt-4">
-      <PaginationContent className="gap-2">
-        {/* Previous */}
+    <Pagination className="mt-2">
+      <PaginationContent className="gap-1.5 rounded-2xl border border-[var(--border-color)] bg-[var(--soft-surface-color)] p-1.5 backdrop-blur-xl">
         <PaginationItem>
           <PaginationPrevious
-            onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+            onClick={handlePrevious}
             className={`
-                border border-transparent rounded-lg bg-[#0b0c10] text-gray-400
-                transition-all duration-200 ease-out
-                ${
-                  currentPage === 1
-                    ? 'pointer-events-none opacity-25'
-                    : 'cursor-pointer hover:border-(--primary-color) hover:text-(--text-primary)/70 hover:bg-(--primary-color)/10 active:scale-95'
-                }
-        `}
+              h-9 rounded-xl border border-transparent px-3
+              text-xs font-bold text-[var(--muted-text)]
+              transition-all duration-200
+              ${
+                isFirstPage
+                  ? 'pointer-events-none opacity-35'
+                  : 'cursor-pointer hover:border-[var(--primary-color)]/40 hover:bg-[var(--primary-color)]/10 hover:text-[var(--text-primary)] active:scale-95'
+              }
+            `}
           />
         </PaginationItem>
 
-        {/* Page numbers */}
-        {pages.map((page, idx) =>
+        {pages.map((page, index) =>
           page === '...' ? (
-            <PaginationItem key={`ellipsis-${idx}`}>
-              <PaginationEllipsis className="text-gray-500" />
+            <PaginationItem key={`ellipsis-${index}`}>
+              <PaginationEllipsis className="size-9 text-[var(--muted-text)] opacity-70" />
             </PaginationItem>
           ) : (
             <PaginationItem key={page}>
@@ -68,12 +85,12 @@ function EventPagination({ currentPage, totalPages, onPageChange }) {
                 onClick={() => onPageChange(page)}
                 isActive={currentPage === page}
                 className={`
-                  cursor-pointer rounded-lg border 
-                  transition-all duration-200 ease-out
+                  size-9 rounded-xl border text-xs font-black
+                  transition-all duration-200
                   ${
                     currentPage === page
-                      ? 'bg-(--primary-color) border-(--primary-color) text-white shadow-[0_0_16px_rgba(139,92,246,0.45)]'
-                      : 'bg-transparent border-gray-700 text-gray-400 hover:border-(--primary-color) hover:text-(--text-primary)/70 hover:bg-(--primary-color)/10 active:scale-95'
+                      ? 'border-[var(--primary-color)] bg-[var(--primary-color)] text-white shadow-[0_10px_28px_rgba(124,58,237,0.34)]'
+                      : 'border-transparent text-[var(--muted-text)] hover:border-[var(--primary-color)]/35 hover:bg-[var(--primary-color)]/10 hover:text-[var(--text-primary)] active:scale-95'
                   }
                 `}
               >
@@ -83,17 +100,17 @@ function EventPagination({ currentPage, totalPages, onPageChange }) {
           )
         )}
 
-        {/* Next */}
         <PaginationItem>
           <PaginationNext
-            onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+            onClick={handleNext}
             className={`
-              border border-transparent rounded-lg bg-[#0b0c10] text-gray-400
-              transition-all duration-200 ease-out
+              h-9 rounded-xl border border-transparent px-3
+              text-xs font-bold text-[var(--muted-text)]
+              transition-all duration-200
               ${
-                currentPage === totalPages
-                  ? 'pointer-events-none opacity-25'
-                  : 'cursor-pointer hover:border-(--primary-color) hover:text-(--text-primary)/70 hover:bg-(--primary-color)/10 active:scale-95'
+                isLastPage
+                  ? 'pointer-events-none opacity-35'
+                  : 'cursor-pointer hover:border-[var(--primary-color)]/40 hover:bg-[var(--primary-color)]/10 hover:text-[var(--text-primary)] active:scale-95'
               }
             `}
           />

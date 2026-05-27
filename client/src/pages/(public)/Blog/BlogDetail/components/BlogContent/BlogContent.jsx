@@ -13,7 +13,7 @@ function BlogContent({ blog }) {
         />
       </div>
 
-      <div className="p-10">
+      <div className="pt-10">
         {blog.contentHtml ? (
           <RichContentRenderer html={blog.contentHtml} />
         ) : (

@@ -45,7 +45,7 @@ function Blog() {
 
   const filterCategories = useMemo(
     () => [
-      { id: ALL_CATEGORY_ID, label: 'All' },
+      { id: ALL_CATEGORY_ID, label: 'Tất cả' },
       ...categories.map((category) => ({
         id: category.id,
         label: category.name,
@@ -119,7 +119,7 @@ function Blog() {
   };
 
   return (
-    <div className="pt-(--header-height) mb-10">
+    <div className="mb-10">
       <BlogHero />
       <BlogFilter
         categories={filterCategories}

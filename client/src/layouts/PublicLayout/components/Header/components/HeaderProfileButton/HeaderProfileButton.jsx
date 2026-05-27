@@ -25,7 +25,6 @@ function HeaderProfileButton() {
         const res = await authService.getMe();
 
         const userData = res?.data;
-        console.log(userData);
 
         if (!userData) return;
 

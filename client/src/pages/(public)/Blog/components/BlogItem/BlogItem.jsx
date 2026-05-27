@@ -1,64 +1,134 @@
 import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
-import { ArrowRight, Calendar, Eye } from 'lucide-react';
+import { ArrowRight, CalendarDays, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 function BlogItem({ blog }) {
   const navigate = useNavigate();
   const detailPath = `/blog/${blog.slug ?? blog.id}`;
 
+  const handleNavigate = () => {
+    navigate(detailPath);
+  };
+
+  const handleButtonClick = (event) => {
+    event.stopPropagation();
+    navigate(detailPath);
+  };
+
   return (
-    <div onClick={() => navigate(detailPath)} className="container mt-5">
+    <article className="container mt-6">
       <div
-        className="grid grid-cols-12 gap-5 p-5 border-2 border-white/10 rounded-3xl transition-all duration-500 ease-in-out
-                      hover:border-(--primary-color) 
-                      group cursor-pointer"
+        onClick={handleNavigate}
+        className="
+          group grid cursor-pointer grid-cols-12 gap-6
+          rounded-[28px] border border-[var(--border-color)]
+          bg-[var(--card-surface-color)] p-4
+          shadow-[0_22px_70px_rgba(0,0,0,0.22)]
+          backdrop-blur-xl
+          transition-all duration-500
+          hover:-translate-y-1 hover:border-[var(--primary-color)]/60
+          hover:bg-[var(--card-hover-color)]
+          hover:shadow-[0_28px_90px_rgba(124,58,237,0.16)]
+        "
       >
-        <div className="col-span-5 overflow-hidden rounded-3xl">
-          <img
-            src={resolvePublicAssetUrl(blog.thumbnailUrl)}
-            alt={blog.title}
-            className="object-cover w-full transition-transform duration-500 ease-in-out h-65 rounded-3xl group-hover:scale-105"
-          />
+        <div className="col-span-12 overflow-hidden rounded-[24px] lg:col-span-5">
+          <div className="relative h-[260px] overflow-hidden rounded-[24px]">
+            <img
+              src={resolvePublicAssetUrl(blog.thumbnailUrl)}
+              alt={blog.title}
+              className="
+                h-full w-full object-cover
+                transition-transform duration-700 ease-out
+                group-hover:scale-105
+              "
+            />
+
+            <div className="absolute inset-0 bg-linear-to-t from-black/55 via-black/5 to-transparent" />
+
+            <span
+              className="
+                absolute left-4 top-4 rounded-full
+                border border-white/15 bg-black/35 px-3.5 py-2
+                text-xs font-black text-white
+                backdrop-blur-xl
+              "
+            >
+              {blog.category || 'Chưa phân loại'}
+            </span>
+          </div>
         </div>
 
-        <div className="flex flex-col justify-center col-span-7 gap-3 ">
-          <p className="text-(--primary-color) font-semibold mb-4">
-            {blog.category}
+        <div className="col-span-12 flex flex-col justify-center lg:col-span-7">
+          <div className="mb-4 flex flex-wrap items-center gap-3">
+            <span className="text-xs font-black uppercase tracking-[0.22em] text-[var(--primary-color)]">
+              Bài viết
+            </span>
+
+            <span className="h-1 w-1 rounded-full bg-[var(--muted-text)]" />
+
+            <div className="flex items-center gap-2 text-sm font-medium text-[var(--muted-text)]">
+              <CalendarDays size={16} />
+              <span>{blog.date}</span>
+            </div>
+
+            <div className="flex items-center gap-2 text-sm font-medium text-[var(--muted-text)]">
+              <Eye size={16} />
+              <span>{blog.views || 0} lượt xem</span>
+            </div>
+          </div>
+
+          <h2
+            className="
+              mb-4 line-clamp-2 text-2xl font-black leading-tight
+              tracking-[-0.035em] text-[var(--text-primary)]
+              transition-colors duration-300
+              group-hover:text-white
+              md:text-3xl
+            "
+          >
+            {blog.title}
+          </h2>
+
+          <p className="line-clamp-3 max-w-3xl text-base font-medium leading-8 text-[var(--muted-text)]">
+            {blog.excerpt}
           </p>
 
-          <h1 className="text-(--text-primary) text-3xl font-bold">
-            {blog.title}
-          </h1>
+          <div className="mt-8 flex items-center justify-between border-t border-[var(--border-color)] pt-5">
+            <div className="min-w-0">
+              <p className="text-xs font-medium text-[var(--muted-text)]">
+                Tác giả
+              </p>
 
-          <p className="text-(--text-primary)/70">{blog.excerpt}</p>
-
-          <div className="flex justify-between w-full mt-4">
-            <div className="flex gap-15">
-              <div className="flex items-center gap-2">
-                <Calendar color="var(--text-primary)" />
-                <p className="text-(--text-primary)/70">{blog.date}</p>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Eye color="var(--text-primary)" />
-                <p className="text-(--text-primary)/70">{blog.views} views</p>
-              </div>
+              <p className="mt-1 truncate text-sm font-bold text-[var(--text-primary)]">
+                {blog.author?.email || 'EventHub Editorial'}
+              </p>
             </div>
 
             <button
-              onClick={() => navigate(detailPath)}
-              className="p-2 border-2 border-white/10 rounded-3xl
-                               transition-all duration-300 ease-in-out
-                               hover:border-(--primary-color)
-                               hover:bg-(--primary-color)
-                               hover:scale-110 cursor-pointer"
+              type="button"
+              onClick={handleButtonClick}
+              className="
+                inline-flex items-center gap-2 rounded-full
+                border border-[var(--border-color)]
+                bg-[var(--soft-surface-color)] px-5 py-3
+                text-sm font-black text-[var(--text-primary)]
+                transition-all duration-300
+                hover:border-[var(--primary-color)]/60
+                hover:bg-[var(--primary-color)]
+                hover:text-white
+                active:scale-95
+              "
             >
-              <ArrowRight color="var(--text-primary)" />{' '}
+              Đọc tiếp
+              <ArrowRight
+                size={16}
+                className="transition-transform duration-300 group-hover:translate-x-1"
+              />
             </button>
           </div>
         </div>
       </div>
-    </div>
+    </article>
   );
 }
 

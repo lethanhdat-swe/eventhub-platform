@@ -218,11 +218,6 @@ function ContactForm() {
           <Send size={18} color="white" />
         </button>
       </form>
-
-      <div className="flex items-center justify-center text-[17px] text-(--text-primary)/40 gap-3 mt-7">
-        <Lock />
-        <p>Thông tin của bạn được bảo mật và chỉ sử dụng để hỗ trợ</p>
-      </div>
     </div>
   );
 }

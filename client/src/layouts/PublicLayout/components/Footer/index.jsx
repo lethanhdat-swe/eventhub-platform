@@ -5,14 +5,18 @@ import PaymentMethods from './components/PaymentMethods';
 
 function Footer() {
   return (
-    <footer className="p-10 border-t-2 border-[#29282a]">
-      <div className="flex items-start justify-between">
-        <BrandLogo />
-        <NavColumn />
-        <AppDownload />
-      </div>
+    <footer className="relative border-t border-[var(--border-color)] bg-[var(--background-color)] text-[var(--text-primary)]">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(124,58,237,0.12),transparent_30%)]" />
 
-      <PaymentMethods />
+      <div className="container relative z-10 py-12">
+        <div className="grid gap-10 lg:grid-cols-[1.05fr_1.4fr_1fr] lg:items-start">
+          <BrandLogo />
+          <NavColumn />
+          <AppDownload />
+        </div>
+
+        <PaymentMethods />
+      </div>
     </footer>
   );
 }
