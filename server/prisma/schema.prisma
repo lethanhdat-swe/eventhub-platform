@@ -487,6 +487,7 @@ model AIContentConfig {
 
 model SiteSetting {
   id           String   @id @default(uuid())
+  websiteName  String?  @map("website_name")
   logoUrl      String?  @map("logo_url")
   address      String?  @db.Text
   hotline      String?

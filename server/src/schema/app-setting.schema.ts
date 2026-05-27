@@ -6,6 +6,7 @@ const paramsIdSchema = z.object({
 
 export const createSiteSettingsSchema = z.object({
     body: z.object({
+        websiteName: z.string().optional().nullable(),
         logoUrl: z.string().optional().nullable(),
         address: z.string().optional().nullable(),
         hotline: z.string().optional().nullable(),
@@ -21,6 +22,7 @@ export const createSiteSettingsSchema = z.object({
 
 export const updateSiteSettingsSchema = z.object({
     body: z.object({
+        websiteName: z.string().optional().nullable(),
         logoUrl: z.string().optional().nullable(),
         address: z.string().optional().nullable(),
         hotline: z.string().optional().nullable(),
