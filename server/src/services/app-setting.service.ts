@@ -8,6 +8,7 @@ class AppSettingService {
     }
 
     async createSiteSetting(data: {
+        websiteName?: string | null;
         logoUrl?: string | null;
         address?: string | null;
         hotline?: string | null;
@@ -28,6 +29,7 @@ class AppSettingService {
     }
 
     async upsertSiteSetting(data: {
+        websiteName?: string | null;
         logoUrl?: string | null;
         address?: string | null;
         hotline?: string | null;
