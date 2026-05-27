@@ -16,12 +16,11 @@ function EditInfo() {
   useEffect(() => {
     if (user) {
       setForm({
-        name: form.name || "",
-        phone: form.phone ||"",
+        name: user.fullName || "",
+        phone: user.phoneNumber || "",
       });
     }
   }, [user]);
-
   const handle = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSave = async () => {
