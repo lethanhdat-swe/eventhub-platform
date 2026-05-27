@@ -1,5 +1,5 @@
 import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
-import { MapPin, Star } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import LikeButton from '@/components/LikeButton';
 
@@ -52,17 +52,6 @@ function EventItem({ event }) {
             <span className="text-[11px]">
               {startDate.toLocaleDateString('vi-VN')}
             </span>
-          </div>
-
-          <div className="flex items-center justify-between">
-            {/* <p className="mt-auto text-xs font-semibold text-(--text-primary)">
-              {event.eventArtists.map((ea) => ea.artist.name).join(', ')}
-            </p> */}
-
-            <div className="flex items-center gap-1 text-gray-400">
-              <Star fill="yellow" size={13} />
-              <span className="text-[11px]">5.0</span>
-            </div>
           </div>
         </div>
       </div>

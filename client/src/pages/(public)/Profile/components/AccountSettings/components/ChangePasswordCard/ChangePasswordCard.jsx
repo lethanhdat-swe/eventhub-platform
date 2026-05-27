@@ -38,9 +38,7 @@ function ChangePasswordCard() {
           </div>
         </div>
       </div>
-    
         <ChangePasswordPopover />
-     
     </div>
   );
 }

@@ -29,8 +29,6 @@ export function AvatarUpload() {
     }
   };
 
-  console.log("Current user:", user);
-
   return (
     <div
       onClick={() => inputRef.current?.click()}
