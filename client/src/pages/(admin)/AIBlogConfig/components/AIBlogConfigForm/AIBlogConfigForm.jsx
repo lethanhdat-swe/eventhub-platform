@@ -11,9 +11,7 @@ Nội dung cần:
 
 Giọng văn: Trẻ trung, năng động, cuốn hút.`;
 
-export default function AIBlogConfigForm() {
-  const [selectedAI, setSelectedAI] =
-    useState("claude");
+export default function AIBlogConfigForm({ aiConfig }) {
 
   const [prompt, setPrompt] =
     useState(DEFAULT_PROMPT);
@@ -23,8 +21,7 @@ export default function AIBlogConfigForm() {
   return (
     <div className="w-full pb-6 font-sans">
       <AIModelCard
-        selectedAI={selectedAI}
-        setSelectedAI={setSelectedAI}
+        aiConfig={aiConfig}
       />
 
       <PromptConfigCard

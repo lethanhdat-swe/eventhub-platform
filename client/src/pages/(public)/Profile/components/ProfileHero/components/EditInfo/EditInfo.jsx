@@ -16,8 +16,8 @@ function EditInfo() {
   useEffect(() => {
     if (user) {
       setForm({
-        name: "",
-        phone: "",
+        name: form.name || "",
+        phone: form.phone ||"",
       });
     }
   }, [user]);
