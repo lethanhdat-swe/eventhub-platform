@@ -33,7 +33,13 @@ function EditInfo() {
       });
 
       const updatedUser = response.data?.data ?? response.data;
-      setUser(updatedUser);
+
+      setUser({
+        email: updatedUser.email,
+        fullName: updatedUser.fullName,
+        id: user.id,
+        role: user.role,
+      });
       setOpenPopover(false);
     } catch (error) {
       console.error("Error updating profile:", error);

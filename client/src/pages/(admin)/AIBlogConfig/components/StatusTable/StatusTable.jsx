@@ -7,27 +7,6 @@ import {
   TableCell,
 } from "@/components/ui/table";
 
-const INITIAL_DATA = [
-  {
-    id: 1,
-    title: "Blog AI Event",
-    description: "Tạo bài blog cho sự kiện âm nhạc",
-    status: "PENDING",
-  },
-  {
-    id: 2,
-    title: "Landing Page",
-    description: "Sinh nội dung landing page",
-    status: "USED",
-  },
-  {
-    id: 3,
-    title: "Email Campaign",
-    description: "Viết email marketing",
-    status: "FAILED",
-  },
-];
-
 const STATUS_STYLES = {
   PENDING:
     "bg-yellow-100 text-yellow-700 border border-yellow-200",
@@ -50,7 +29,9 @@ function StatusBadge({ status }) {
   );
 }
 
-function StatusTable() {
+function StatusTable({
+  data = [],
+}) {
   return (
     <div className="overflow-hidden bg-white border border-gray-200 rounded-xl">
       <Table>
@@ -60,6 +41,8 @@ function StatusTable() {
 
             <TableHead>Description</TableHead>
 
+            <TableHead>Created At</TableHead>
+
             <TableHead className="w-[180px]">
               Status
             </TableHead>
@@ -67,21 +50,44 @@ function StatusTable() {
         </TableHeader>
 
         <TableBody>
-          {INITIAL_DATA.map((row) => (
-            <TableRow key={row.id}>
-              <TableCell className="font-medium text-gray-900">
-                {row.title}
-              </TableCell>
+          {data.length > 0 ? (
+            data.map((row) => (
+              <TableRow key={row.id}>
+                <TableCell className="font-medium text-gray-900 max-w-[250px]">
+                  <div className="line-clamp-2">
+                    {row.title}
+                  </div>
+                </TableCell>
 
-              <TableCell className="text-gray-500">
-                {row.description}
-              </TableCell>
+                <TableCell className="text-gray-500 max-w-[500px]">
+                  <div className="line-clamp-2">
+                    {row.description}
+                  </div>
+                </TableCell>
 
-              <TableCell>
-                <StatusBadge status={row.status} />
+                <TableCell className="text-gray-500 whitespace-nowrap">
+                  {new Date(
+                    row.createdAt
+                  ).toLocaleDateString("vi-VN")}
+                </TableCell>
+
+                <TableCell>
+                  <StatusBadge
+                    status={row.status}
+                  />
+                </TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell
+                colSpan={4}
+                className="h-32 text-center text-gray-400"
+              >
+                Không có dữ liệu
               </TableCell>
             </TableRow>
-          ))}
+          )}
         </TableBody>
       </Table>
     </div>

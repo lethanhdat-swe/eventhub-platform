@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const updateAIContentConfigSchema = z.object({
     params: z.object({
-        id: z.string().uuid(),
+        id: z.string(),
     }),
 
     body: z.object({

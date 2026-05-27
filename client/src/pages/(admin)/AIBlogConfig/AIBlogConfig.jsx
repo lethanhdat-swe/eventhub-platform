@@ -1,40 +1,174 @@
 import { useEffect, useState } from "react";
+
 import PageHeader from "../components/PageHeader";
+
 import AIBlogConfigForm from "./components/AIBlogConfigForm/AIBlogConfigForm";
 import AIIdeaForm from "./components/AIIdeaForm/AIIdeaForm";
 import NumberLimitForm from "./components/NumberLimitForm/NumberLimitForm";
 import StatusTable from "./components/StatusTable/StatusTable";
+
+import AIModelCard from "./components/AIBlogConfigForm/components/AIModelCard/AIModelCard";
+
+import PromptActionBar from "./components/PromptActionBar/PromptActionBar";
+
 import { aiBlogConfigService } from "@/lib/services/aiBlog";
 
 function AIBlogConfig() {
-    
-    const [aiConfig, setAiConfig] = useState(null);
-     
-    useEffect(() => {
-        // Fetch AI blog configuration when component mounts
-        const fetchAIConfig = async () => {
-            const config = await aiBlogConfigService.getAIConfig();
-            setAiConfig(config);
-        };
+  const [config, setConfig] =
+    useState(null);
 
-        fetchAIConfig();
-    }, []);
+  const [saved, setSaved] =
+    useState(false);
 
-    console.log('AI Blog Config:', aiConfig);
+  // IDEA
+  const [ideaModel, setIdeaModel] =
+    useState("");
 
-    return ( 
-        <div className="space-y-2">
-            <PageHeader
-                title="Quản lý cấu hình AI blog"
-                description="Cấu hình và quản lý các thiết lập cho chức năng blog được hỗ trợ bởi AI."
-            />
+  const [ideaPrompt, setIdeaPrompt] =
+    useState("");
 
-            <AIBlogConfigForm aiConfig={aiConfig} />
-            <AIIdeaForm />
-            <NumberLimitForm />
-            <StatusTable />
-        </div>
-     );
+  // BLOG
+  const [blogModel, setBlogModel] =
+    useState("");
+
+  const [blogPrompt, setBlogPrompt] =
+    useState("");
+
+  // IMAGE
+  const [thumbnailModel, setThumbnailModel ] = useState("");
+  const [blogIdeas, setBlogIdeas] =
+    useState([]);
+
+
+  useEffect(() => {
+    fetchConfig();
+    fetchBlogIdeas()
+  }, []);
+
+  const fetchBlogIdeas = async (
+    ) => {
+      try {
+        const res =
+          await aiBlogConfigService.listBlogAi({
+            page: 1,
+            size: 10,
+          });
+
+        setBlogIdeas(
+          res.items || []
+        );
+      } catch (err) {
+        console.error(err);
+      }
+    };
+  const fetchConfig = async () => {
+    try {
+      const res =
+        await aiBlogConfigService.getAIConfig();
+
+      setConfig(res);
+
+      setIdeaModel(res.ideaModel || "");
+      setIdeaPrompt(res.ideaPrompt || "");
+
+      setBlogModel(res.blogModel || "");
+      setBlogPrompt(res.blogPrompt || "");
+
+      setThumbnailModel(
+        res.thumbnailModel || ""
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      await aiBlogConfigService.updateAIConfig(
+        config.id,
+        {
+          ideaModel,
+          ideaPrompt,
+
+          blogModel,
+          blogPrompt,
+
+          thumbnailModel,
+
+          isActive: true,
+        }
+      );
+
+      setSaved(true);
+
+      setTimeout(() => {
+        setSaved(false);
+      }, 2000);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleGenerateIdeas = async (
+      quantity
+    ) => {
+      try {
+        await aiBlogConfigService.createIdeaAiWithQuantity(
+          {
+            quantity,
+          }
+        );
+        fetchBlogIdeas()
+
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+  return (
+    <div className="space-y-2">
+      <PageHeader
+        title="Quản lý cấu hình AI blog"
+        description="Cấu hình và quản lý AI blog"
+      />
+
+      <AIBlogConfigForm
+        selectedAI={blogModel}
+        setSelectedAI={setBlogModel}
+        prompt={blogPrompt}
+        setPrompt={setBlogPrompt}
+      />
+
+      <AIIdeaForm
+        selectedAI={ideaModel}
+        setSelectedAI={setIdeaModel}
+        prompt={ideaPrompt}
+        setPrompt={setIdeaPrompt}
+      />
+
+      <AIModelCard
+        selectedAI={thumbnailModel}
+        setSelectedAI={
+          setThumbnailModel
+        }
+        content="ảnh"
+      />
+
+      <PromptActionBar
+          prompt={blogPrompt + ideaPrompt}
+          saved={saved}
+          handleSave={handleSave}
+        />
+
+      <NumberLimitForm
+        onSubmit={handleGenerateIdeas}
+      />
+
+     <StatusTable
+        data={blogIdeas}
+      />
+    </div>
+  );
 }
 
 export default AIBlogConfig;
