@@ -82,6 +82,20 @@
   .eventhub-rich-content .ProseMirror h4 {
     color: inherit;
   }
+
+  @keyframes hero-zoom {
+    from {
+      transform: scale(1.04);
+    }
+
+    to {
+      transform: scale(1.1);
+    }
+  }
+
+  .animate-hero-zoom {
+    animation: hero-zoom 8s linear forwards;
+  }
 }
 
 @theme inline {

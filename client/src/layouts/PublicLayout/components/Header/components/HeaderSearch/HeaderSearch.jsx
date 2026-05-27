@@ -1,36 +1,114 @@
-import { Search, X } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { motion } from 'framer-motion';
+import { Search } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { SearchDropdown } from './SearchDropdown';
 
 export function HeaderSearch() {
   const [value, setValue] = useState('');
+  const [open, setOpen] = useState(false);
+
   const navigate = useNavigate();
+
+  const wrapperRef = useRef(null);
   const inputRef = useRef(null);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!value.trim()) return;
-    navigate(`/search?q=${encodeURIComponent(value.trim())}`);
+  const openSearch = () => {
+    setOpen(true);
+
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 0);
+  };
+
+  const closeSearch = () => {
+    setOpen(false);
     setValue('');
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const keyword = value.trim();
+
+    if (!keyword) return;
+
+    navigate(`/search?q=${encodeURIComponent(keyword)}`);
+
+    closeSearch();
+  };
+
+  useEffect(() => {
+    if (!open) return;
+
+    const handleClickOutside = (e) => {
+      if (!wrapperRef.current?.contains(e.target)) {
+        closeSearch();
+      }
+    };
+
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        closeSearch();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [open]);
+
   return (
-    <form onSubmit={handleSubmit} className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-(--primary-color)/40 bg-(--surface-color)">
-      <input
-        ref={inputRef}
+    <div ref={wrapperRef} className="relative">
+      <motion.button
+        whileHover={{
+          scale: 1.05,
+        }}
+        whileTap={{
+          scale: 0.96,
+        }}
+        type="button"
+        onClick={openSearch}
+        className="
+          group relative grid size-10 place-items-center
+          overflow-hidden rounded-full
+          cursor-pointer
+          backdrop-blur-xl
+          transition-all duration-300
+          hover:border-[var(--primary-color)]/50
+          hover:shadow-[0_0_30px_rgba(124,58,237,0.2)]
+        "
+      >
+        <div
+          className="
+            absolute inset-0
+            bg-[radial-gradient(circle_at_center,rgba(124,58,237,0.18),transparent_70%)]
+            opacity-0 transition-opacity duration-300
+            group-hover:opacity-100
+          "
+        />
+
+        <Search
+          size={18}
+          className="
+            relative z-10 text-[var(--primary-color)]
+            transition-transform duration-300
+            group-hover:scale-110
+          "
+        />
+      </motion.button>
+
+      <SearchDropdown
+        open={open}
         value={value}
-        onChange={(e) => setValue(e.target.value)}
-        placeholder="Tìm kiếm..."
-        className="w-52 text-sm bg-transparent outline-none text-(--text-primary) placeholder:text-gray-500"
+        onChange={setValue}
+        onSubmit={handleSubmit}
+        inputRef={inputRef}
       />
-      {value && (
-        <button type="button" onClick={() => setValue('')}>
-          <X size={14} className="opacity-50 hover:opacity-100" color="var(--text-primary)" />
-        </button>
-      )}
-      <button type="submit" className="p-0.5 rounded-full hover:bg-(--primary-color)/10 transition-colors">
-        <Search size={20} color="var(--primary-color)" />
-      </button>
-    </form>
+    </div>
   );
 }
