@@ -1,7 +1,7 @@
-import LikeButton from '@/components/LikeButton';
 import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
-import { CalendarDays, MapPin, UserRound } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import LikeButton from '@/components/LikeButton';
+import { CalendarDays, MapPin, UserRound } from 'lucide-react';
 
 function EventItem({ event }) {
   const navigate = useNavigate();
@@ -61,23 +61,17 @@ function EventItem({ event }) {
          hover:border-(--primary-color)/40 hover:shadow-2xl hover:shadow-black/20
       "
     >
-      <div className="relative h-52 overflow-hidden">
+      <div className="relative overflow-hidden h-52">
         <img
           src={thumbnailUrl}
           alt={title}
-          className="
-            h-full w-full object-cover transition-transform duration-700
-            group-hover:scale-110
-          "
+          className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
         />
 
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-black/5" />
 
         <div
-          className="
-            absolute left-3 top-3 flex h-14 w-14 flex-col items-center justify-center
-            rounded-2xl border border-white/20 bg-black/35 text-white backdrop-blur-md
-          "
+          className="absolute flex flex-col items-center justify-center text-white border left-3 top-3 h-14 w-14 rounded-2xl border-white/20 bg-black/35 backdrop-blur-md"
         >
           <span className="text-xl font-black leading-none">{day}</span>
           <span className="mt-1 text-[10px] font-bold uppercase tracking-widest text-white/70">
@@ -103,7 +97,7 @@ function EventItem({ event }) {
         </span>
       </div>
 
-      <div className="flex flex-1 flex-col gap-3 p-4">
+      <div className="flex flex-col flex-1 gap-3 p-4">
         <div className="space-y-2">
           <h3
             className="
@@ -117,19 +111,18 @@ function EventItem({ event }) {
 
           <div className="flex items-center gap-2 text-(--text-primary)/55">
             <MapPin size={14} className="shrink-0" />
-            <span className="truncate text-xs font-medium">{location}</span>
+            <span className="text-xs font-medium truncate">{location}</span>
           </div>
 
           <div className="flex items-center gap-2 text-(--text-primary)/55">
             <CalendarDays size={14} className="shrink-0" />
-            <span className="truncate text-xs font-medium">
+            <span className="text-xs font-medium truncate">
               {startTime ? `${startTime} · ${fullDate}` : fullDate}
             </span>
           </div>
         </div>
-
-        <div className="mt-auto flex items-center justify-between gap-3 border-t border-white/10 pt-3">
-          <div className="flex min-w-0 items-center gap-2">
+        <div className="flex items-center justify-between gap-3 pt-3 mt-auto border-t border-white/10">
+          <div className="flex items-center min-w-0 gap-2">
             <div
               className="
                 flex h-8 w-8 shrink-0 items-center justify-center rounded-full

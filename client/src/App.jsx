@@ -46,6 +46,7 @@ import Settings from '@/pages/(admin)/Settings';
 import PaymentStatus from './pages/(public)/PaymentStatus';
 import EventCheckInPage from './pages/(public)/EventCheckInPage';
 import ContactPage from './pages/(admin)/Contact';
+import AIBlogConfig from './pages/(admin)/AIBlogConfig/AIBlogConfig';
 
 function App() {
   return (
@@ -109,6 +110,7 @@ function App() {
           <Route path="users" element={<Users />} />
           <Route path="settings" element={<Settings />} />
           <Route path="contact" element={<ContactPage />} />
+          <Route path="ai-blog-config" element={<AIBlogConfig />} />
         </Route>
       </Route>
     </Routes>

@@ -16,12 +16,11 @@ function EditInfo() {
   useEffect(() => {
     if (user) {
       setForm({
-        name: "",
-        phone: "",
+        name: user.fullName || "",
+        phone: user.phoneNumber || "",
       });
     }
   }, [user]);
-
   const handle = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSave = async () => {
@@ -33,7 +32,13 @@ function EditInfo() {
       });
 
       const updatedUser = response.data?.data ?? response.data;
-      setUser(updatedUser);
+
+      setUser({
+        email: updatedUser.email,
+        fullName: updatedUser.fullName,
+        id: user.id,
+        role: user.role,
+      });
       setOpenPopover(false);
     } catch (error) {
       console.error("Error updating profile:", error);

@@ -2,48 +2,20 @@ import { useEffect, useState } from "react";
 import { ArrowRight, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import ArtistCard from "./components/ArtistCard/ArtistCard";
-import { searchService } from "@/lib/services/searchService";
+import { searchService } from "@/lib/services/search";
 
 function ArtistsSection({ keyword }) {
     const [artists, setArtists] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState(null);
-
-    // Transform API data to match ArtistCard component format
-    const transformArtistData = (apiArtist) => {
-        return {
-            id: apiArtist.id,
-            name: apiArtist.name,
-            slug: apiArtist.slug,
-            image: apiArtist.avatarUrl || '/default-artist.jpg',
-            genre: 'Music', // Default genre
-            followers: Math.floor(Math.random() * 100000) + 1000, // Mock followers
-        };
-    };
 
     useEffect(() => {
-        if (!keyword || keyword.trim() === "") {
-            setArtists([]);
-            return;
-        }
-
-        const fetchSearchResults = async () => {
-            setIsLoading(true);
-            setError(null);
-            try {
-                const result = await searchService.search(keyword);
-                const transformedArtists = result.artists.map(transformArtistData);
-                setArtists(transformedArtists);
-            } catch (err) {
-                console.error("Error searching artists:", err);
-                setError("Failed to search artists. Please try again.");
-                setArtists([]);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchSearchResults();
+            setIsLoading(true)
+            const fetchData = async () => {
+                const res = await searchService.search(keyword);
+                setArtists(res.artists)
+            };
+            fetchData();
+            setIsLoading(false)
     }, [keyword]);
 
     return ( 
@@ -63,20 +35,14 @@ function ArtistsSection({ keyword }) {
             </div>
 
             {isLoading && (
-                <div className="mt-5 text-center text-(--text-secondary)">
+                <div className="mt-5 text-center text-(--text-primary) text-xl">
                     <p>Loading artists...</p>
                 </div>
             )}
 
-            {error && (
-                <div className="mt-5 text-center text-red-500">
-                    <p>{error}</p>
-                </div>
-            )}
-
             {!isLoading && artists.length === 0 && keyword && (
-                <div className="mt-5 text-center text-(--text-secondary)">
-                    <p>No artists found for "{keyword}"</p>
+                <div className="mt-5 text-center text-(--text-primary) text-xl">
+                    <p>No artists found for &quot;{keyword}&quot;</p>
                 </div>
             )}
 

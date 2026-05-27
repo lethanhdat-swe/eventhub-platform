@@ -30,7 +30,7 @@ model User {
   blogs       Blog[]
   likedEvents LikeEvent[]
   savedEvents SaveEvent[]
-  comments    Comment[] // Thêm quan hệ với Comment
+  comments    Comment[]
 
   @@map("users")
 }
@@ -61,29 +61,6 @@ enum TokenType {
 enum UserRole {
   USER
   ADMIN
-}
-
-enum EventStatus {
-  DRAFT
-  PUBLISHED
-  CANCELLED
-}
-
-enum EventSeatStatus {
-  AVAILABLE
-  RESERVING
-  BOOKED
-  DISABLED
-}
-
-enum OrderStatus {
-  PENDING
-  PAID
-  CANCELLED
-}
-
-enum PaymentMethod {
-  SEPAY
 }
 
 ///////////////////////
@@ -185,9 +162,15 @@ model Event {
   eventArtists EventArtist[]
   likedByUsers LikeEvent[]
   savedByUsers SaveEvent[]
-  comments     Comment[] // Thêm quan hệ với Comment
+  comments     Comment[]
 
   @@map("events")
+}
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  CANCELLED
 }
 
 model EventSeat {
@@ -205,14 +188,21 @@ model EventSeat {
   ticket     Ticket?
   orderSeats OrderSeat[]
   seat       Seat?       @relation(fields: [seatId], references: [id])
-  seatId     String?
+  seatId     String?     @map("seat_id")
 
   @@unique([eventId, rowLabel, seatNumber])
   @@map("event_seats")
 }
 
+enum EventSeatStatus {
+  AVAILABLE
+  RESERVING
+  BOOKED
+  DISABLED
+}
+
 ///////////////////////
-// SOCIAL: LIKE, SAVE & COMMENTS
+// SOCIAL & CONTACT
 ///////////////////////
 
 model LikeEvent {
@@ -253,8 +243,7 @@ model Comment {
   userId  String @map("user_id")
 
   parentId String? @map("parent_id")
-
-  rootId String? @map("root_id")
+  rootId   String? @map("root_id")
 
   isEdited  Boolean  @default(false) @map("is_edited")
   createdAt DateTime @default(now()) @map("created_at")
@@ -313,11 +302,14 @@ model Order {
   @@map("orders")
 }
 
-enum PaymentTransactionStatus {
+enum OrderStatus {
   PENDING
-  MATCHED
-  UNMATCHED
-  FAILED
+  PAID
+  CANCELLED
+}
+
+enum PaymentMethod {
+  SEPAY
 }
 
 model PaymentTransaction {
@@ -335,6 +327,13 @@ model PaymentTransaction {
   order Order? @relation(fields: [orderId], references: [id])
 
   @@map("payment_transactions")
+}
+
+enum PaymentTransactionStatus {
+  PENDING
+  MATCHED
+  UNMATCHED
+  FAILED
 }
 
 model OrderSeat {
@@ -407,6 +406,10 @@ enum CouponStatus {
   INACTIVE
 }
 
+///////////////////////
+// CONTENT & AI
+///////////////////////
+
 model BlogCategory {
   id        String   @id @default(uuid())
   name      String
@@ -420,15 +423,14 @@ model BlogCategory {
 }
 
 model Blog {
-  id           String  @id @default(uuid())
+  id           String     @id @default(uuid())
   title        String
-  slug         String  @unique
-  excerpt      String? @db.Text
-  contentHtml  String  @map("content_html") @db.Text
-  thumbnailUrl String? @map("thumbnail_url") @db.LongText
-
-  status      BlogStatus @default(DRAFT)
-  publishedAt DateTime?  @map("published_at")
+  slug         String     @unique
+  excerpt      String?    @db.Text
+  contentHtml  String     @map("content_html") @db.Text
+  thumbnailUrl String?    @map("thumbnail_url") @db.LongText
+  status       BlogStatus @default(DRAFT)
+  publishedAt  DateTime?  @map("published_at")
 
   authorId String @map("author_id")
   author   User   @relation(fields: [authorId], references: [id])
@@ -448,14 +450,12 @@ enum BlogStatus {
 }
 
 model BlogIdea {
-  id          String @id @default(uuid())
+  id          String         @id @default(uuid())
   title       String
-  description String @db.Text
-
-  status BlogIdeaStatus @default(PENDING)
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  description String         @db.Text
+  status      BlogIdeaStatus @default(PENDING)
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
 
   @@map("blog_ideas")
 }
@@ -467,20 +467,41 @@ enum BlogIdeaStatus {
 }
 
 model AIContentConfig {
-  id String @id @default(uuid())
-
-  ideaModel  String @map("idea_model")
-  ideaPrompt String @map("idea_prompt") @db.Text
-
-  blogModel  String @map("blog_model")
-  blogPrompt String @map("blog_prompt") @db.Text
-
+  id             String  @id @default(uuid())
+  ideaModel      String  @map("idea_model")
+  ideaPrompt     String  @map("idea_prompt") @db.Text
+  blogModel      String  @map("blog_model")
+  blogPrompt     String  @map("blog_prompt") @db.Text
   thumbnailModel String? @map("thumbnail_model")
-
-  isActive Boolean @default(true) @map("is_active")
+  isActive       Boolean @default(true) @map("is_active")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("ai_content_configs")
+}
+
+///////////////////////
+// SYSTEM SETTINGS
+///////////////////////
+
+model SiteSetting {
+  id           String   @id @default(uuid())
+  websiteName  String?  @map("website_name")
+  logoUrl      String?  @map("logo_url")
+  address      String?  @db.Text
+  hotline      String?
+  supportEmail String?  @map("support_email")
+  workingHours String?  @map("working_hours")
+  mapUrl       String?  @map("map_url") @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  @@map("site_settings")
+}
+model Banner {
+  id       String @id @default(uuid())
+  imageUrl String @map("image_url")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  @@map("banners")
 }
