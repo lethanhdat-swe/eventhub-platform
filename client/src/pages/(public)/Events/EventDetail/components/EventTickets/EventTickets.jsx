@@ -1,31 +1,50 @@
-function EventTickets({ tickets }) {
-    return ( 
-        <div className="p-4 bg-(--surface-color) rounded-xl mt-4">
-            <h1 className="text-(--text-primary) font-medium">Ticket Types</h1>
-            <div className="mt-3">
-                {tickets.map((ticket) => (
-                    <div key={ticket.id} className="bg-(--background-color)/30 p-3 rounded-xl flex items-start justify-between gap-3 mt-2.5">
-                        <div className="flex gap-3">
-                            <span
-                                className="w-2.5 h-2.5 rounded-full mt-2 shrink-0"
-                                style={{ backgroundColor: ticket.color }}
-                            />
-                            <h1 className="text-(--text-primary) text-sm font-medium">{ticket.name}</h1>
-                        </div>
+function EventTickets({ tickets = [] }) {
+  if (!tickets.length) return null;
 
-                        <div className="flex flex-col items-end gap-1">
-                            <h1 className="text-(--text-primary) text-sm font-medium">
-                                {ticket.price.toLocaleString('de-DE')} ₫
-                            </h1>
-                            <p className="text-(--text-primary)/60 text-sm">
-                                Seats: {ticket.eventSeatCount ?? ticket.defaultSeatCount}
-                            </p>
-                        </div>
-                    </div>
-                ))}
+  return (
+    <section className="mt-4 rounded-2xl border border-(--border-color) bg-(--card-surface-color) p-4 shadow-xl shadow-black/10 backdrop-blur-xl">
+      <div className="mb-3">
+        <p className="text-xs font-black uppercase tracking-[0.16em] text-(--muted-text)">
+          Vé tham dự
+        </p>
+
+        <h2 className="mt-1 text-sm font-bold text-(--text-primary)">
+          Loại vé hiện có
+        </h2>
+      </div>
+
+      <div className="space-y-2.5">
+        {tickets.map((ticket) => (
+          <div
+            key={ticket.id}
+            className="flex items-start justify-between gap-3 rounded-xl border border-(--border-color) bg-(--soft-surface-color) p-3 transition-colors hover:bg-(--card-hover-color)"
+          >
+            <div className="flex min-w-0 items-start gap-3">
+              <span
+                className="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full"
+                style={{ backgroundColor: ticket.color }}
+              />
+
+              <div className="min-w-0">
+                <h3 className="truncate text-sm font-bold text-(--text-primary)">
+                  {ticket.name}
+                </h3>
+
+                <p className="mt-1 text-xs text-(--muted-text)">
+                  Còn {ticket.eventSeatCount ?? ticket.defaultSeatCount ?? 0}{' '}
+                  ghế
+                </p>
+              </div>
             </div>
-        </div>
-    );
+
+            <p className="shrink-0 text-sm font-black text-(--text-primary)">
+              {Number(ticket.price ?? 0).toLocaleString('vi-VN')} ₫
+            </p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
 }
 
 export default EventTickets;

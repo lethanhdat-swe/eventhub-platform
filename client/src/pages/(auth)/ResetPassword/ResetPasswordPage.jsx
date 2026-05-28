@@ -2,10 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 
 import { Link, useSearchParams } from 'react-router-dom';
 
-import { AlertTriangle, Loader2 } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Loader2 } from 'lucide-react';
 
-import { Button, buttonVariants } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -44,10 +43,13 @@ function ResetPasswordPage() {
     (async () => {
       try {
         await authService.verifyResetToken({ token });
+
         if (seq !== verifySeq.current) return;
+
         setPhase('form');
       } catch (e) {
         if (seq !== verifySeq.current) return;
+
         setInvalidDetail(getErrorMessage(e));
         setPhase('invalid');
       }
@@ -58,20 +60,26 @@ function ResetPasswordPage() {
 
   function validateForm() {
     const next = { password: '', confirmPassword: '' };
+
     if (password.length < 6) {
       next.password = 'Mật khẩu cần ít nhất 6 ký tự';
     }
+
     if (password !== confirmPassword) {
       next.confirmPassword = 'Mật khẩu xác nhận không khớp';
     }
+
     setErrors(next);
     return !next.password && !next.confirmPassword;
   }
 
   async function handleSubmit(event) {
     event.preventDefault();
+
     setSubmitError('');
+
     if (!validateForm()) return;
+
     setLoading(true);
 
     try {
@@ -86,164 +94,232 @@ function ResetPasswordPage() {
 
   if (phase === 'missing') {
     return (
-      <Card className="w-full max-w-md" size="default">
-        <CardHeader>
-          <CardTitle>Đặt lại mật khẩu</CardTitle>
-          <CardDescription>Thiếu token trong đường dẫn.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="text-muted-foreground flex gap-3 rounded-lg border border-amber-500/40 bg-amber-500/5 p-3 text-sm">
-            <AlertTriangle aria-hidden className="mt-0.5 size-5 shrink-0 text-amber-600 dark:text-amber-400" />
-            <div>
-              <p>Hãy dùng liên kết đầy đủ được gửi qua email. Định dạng:</p>
-              <code className="bg-muted mt-2 block truncate rounded px-2 py-1 text-xs">
-                /reset-password?token=…
-              </code>
+      <div className="w-full max-w-[440px]">
+        <Card className="rounded-3xl border border-(--border-color) bg-(--card-surface-color) shadow-[0_20px_70px_rgba(0,0,0,0.16)] backdrop-blur-xl">
+          <CardHeader className="px-7 pb-4 pt-8 text-center">
+            <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-500">
+              <AlertTriangle aria-hidden className="size-8" />
             </div>
-          </div>
-        </CardContent>
-        <CardFooter className="gap-2 sm:justify-between">
-          <Link
-            className={cn(buttonVariants({ variant: 'outline' }), 'justify-center')}
-            to="/forgot-password"
-          >
-            Yêu cầu liên kết mới
-          </Link>
-          <Link
-            className={cn(buttonVariants({ variant: 'outline' }), 'justify-center')}
-            to="/login"
-          >
-            Đăng nhập
-          </Link>
-        </CardFooter>
-      </Card>
+
+            <CardTitle className="text-2xl font-black text-(--text-primary)">
+              Thiếu liên kết
+            </CardTitle>
+
+            <CardDescription className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-(--muted-text)">
+              Đường dẫn đặt lại mật khẩu không hợp lệ. Hãy dùng liên kết đầy đủ
+              được gửi qua email.
+            </CardDescription>
+          </CardHeader>
+
+          <CardFooter className="flex flex-col gap-3 border-t border-(--border-color) bg-(--soft-surface-color) px-7 py-6">
+            <Link
+              to="/forgot-password"
+              className="flex h-12 w-full items-center justify-center rounded-2xl bg-(--primary-color) text-sm font-bold text-white transition-all duration-300 hover:bg-(--primary-color)"
+            >
+              Yêu cầu liên kết mới
+            </Link>
+
+            <Link
+              to="/login"
+              className="flex h-12 w-full items-center justify-center rounded-2xl border border-(--border-color) bg-(--card-surface-color) text-sm font-bold text-(--text-primary) transition-all duration-300 hover:border-(--primary-color)/40 hover:bg-(--card-hover-color)"
+            >
+              Đăng nhập
+            </Link>
+          </CardFooter>
+        </Card>
+      </div>
     );
   }
 
   if (phase === 'loading') {
     return (
-      <Card className="w-full max-w-md" size="default">
-        <CardHeader>
-          <CardTitle>Đặt lại mật khẩu</CardTitle>
-          <CardDescription>Đang kiểm tra liên kết đặt lại mật khẩu…</CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col items-center gap-4 py-8">
-          <Loader2 className="size-10 animate-spin text-muted-foreground" aria-hidden />
-        </CardContent>
-      </Card>
+      <div className="w-full max-w-[440px]">
+        <Card className="rounded-3xl border border-(--border-color) bg-(--card-surface-color) shadow-[0_20px_70px_rgba(0,0,0,0.16)] backdrop-blur-xl">
+          <CardHeader className="px-7 pb-4 pt-8 text-center">
+            <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-(--primary-color)/10 text-(--primary-color)">
+              <Loader2 aria-hidden className="size-8 animate-spin" />
+            </div>
+
+            <CardTitle className="text-2xl font-black text-(--text-primary)">
+              Đang kiểm tra
+            </CardTitle>
+
+            <CardDescription className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-(--muted-text)">
+              Vui lòng chờ trong giây lát, chúng tôi đang kiểm tra liên kết đặt
+              lại mật khẩu của bạn.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
     );
   }
 
   if (phase === 'invalid') {
     return (
-      <Card className="w-full max-w-md" size="default">
-        <CardHeader>
-          <CardTitle>Liên kết không hợp lệ</CardTitle>
-          <CardDescription>Token hết hạn hoặc không còn hiệu lực.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground mb-3 text-sm">
-            {invalidDetail ||
-              'Liên kết đặt lại mật khẩu chỉ dùng được trong thời gian ngắn. Yêu cầu email mới nếu cần.'}
-          </p>
-        </CardContent>
-        <CardFooter className="justify-center gap-2">
-          <Link className={cn(buttonVariants({ variant: 'default' }), 'justify-center')} to="/forgot-password">
-            Quên mật khẩu lại
-          </Link>
-          <Link
-            className={cn(buttonVariants({ variant: 'outline' }), 'justify-center')}
-            to="/login"
-          >
-            Đăng nhập
-          </Link>
-        </CardFooter>
-      </Card>
+      <div className="w-full max-w-[440px]">
+        <Card className="rounded-3xl border border-(--border-color) bg-(--card-surface-color) shadow-[0_20px_70px_rgba(0,0,0,0.16)] backdrop-blur-xl">
+          <CardHeader className="px-7 pb-4 pt-8 text-center">
+            <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-red-500/10 text-red-500">
+              <AlertTriangle aria-hidden className="size-8" />
+            </div>
+
+            <CardTitle className="text-2xl font-black text-(--text-primary)">
+              Liên kết không hợp lệ
+            </CardTitle>
+
+            <CardDescription className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-(--muted-text)">
+              {invalidDetail ||
+                'Liên kết đặt lại mật khẩu đã hết hạn hoặc không còn hiệu lực.'}
+            </CardDescription>
+          </CardHeader>
+
+          <CardFooter className="flex flex-col gap-3 border-t border-(--border-color) bg-(--soft-surface-color) px-7 py-6">
+            <Link
+              to="/forgot-password"
+              className="flex h-12 w-full items-center justify-center rounded-2xl bg-(--primary-color) text-sm font-bold text-white transition-all duration-300 hover:bg-(--primary-color)"
+            >
+              Yêu cầu liên kết mới
+            </Link>
+
+            <Link
+              to="/login"
+              className="flex h-12 w-full items-center justify-center rounded-2xl border border-(--border-color) bg-(--card-surface-color) text-sm font-bold text-(--text-primary) transition-all duration-300 hover:border-(--primary-color)/40 hover:bg-(--card-hover-color)"
+            >
+              Đăng nhập
+            </Link>
+          </CardFooter>
+        </Card>
+      </div>
     );
   }
 
   if (phase === 'success') {
     return (
-      <Card className="w-full max-w-md" size="default">
-        <CardHeader>
-          <CardTitle>Đặt lại mật khẩu thành công</CardTitle>
-          <CardDescription>Bạn có thể đăng nhập với mật khẩu mới.</CardDescription>
-        </CardHeader>
-        <CardFooter className="justify-center">
-          <Link
-            className={cn(buttonVariants({ variant: 'default', size: 'lg' }), 'justify-center')}
-            to="/login"
-          >
-            Đăng nhập với mật khẩu mới
-          </Link>
-        </CardFooter>
-      </Card>
+      <div className="w-full max-w-[440px]">
+        <Card className="rounded-3xl border border-(--border-color) bg-(--card-surface-color) shadow-[0_20px_70px_rgba(0,0,0,0.16)] backdrop-blur-xl">
+          <CardHeader className="px-7 pb-4 pt-8 text-center">
+            <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-500">
+              <CheckCircle2 aria-hidden className="size-8" />
+            </div>
+
+            <CardTitle className="text-2xl font-black text-(--text-primary)">
+              Đổi mật khẩu thành công
+            </CardTitle>
+
+            <CardDescription className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-(--muted-text)">
+              Bạn có thể đăng nhập lại bằng mật khẩu mới vừa tạo.
+            </CardDescription>
+          </CardHeader>
+
+          <CardFooter className="border-t border-(--border-color) bg-(--soft-surface-color) px-7 py-6">
+            <Link
+              to="/login"
+              className="flex h-12 w-full items-center justify-center rounded-2xl bg-(--primary-color) text-sm font-bold text-white transition-all duration-300 hover:bg-(--primary-color)"
+            >
+              Đăng nhập với mật khẩu mới
+            </Link>
+          </CardFooter>
+        </Card>
+      </div>
     );
   }
 
   return (
-    <Card className="w-full max-w-md" size="default">
-      <CardHeader>
-        <CardTitle>Mật khẩu mới</CardTitle>
-        <CardDescription>Nhập mật khẩu mới cho tài khoản của bạn.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        {submitError ? (
-          <p
-            className="text-destructive bg-destructive/5 mb-4 rounded-lg px-3 py-2 text-sm"
-            role="alert"
-          >
-            {submitError}
-          </p>
-        ) : null}
+    <div className="w-full max-w-[440px]">
+      <Card className="rounded-3xl border border-(--border-color) bg-(--card-surface-color) shadow-[0_20px_70px_rgba(0,0,0,0.16)] backdrop-blur-xl">
+        <CardHeader className="px-7 pb-4 pt-8 text-center">
+          <CardTitle className="text-2xl font-black text-(--text-primary)">
+            Mật khẩu mới
+          </CardTitle>
 
-        <form className="space-y-4" noValidate onSubmit={handleSubmit}>
-          <div className="space-y-2">
-            <Label htmlFor="reset-password">Mật khẩu mới</Label>
-            <Input
-              aria-invalid={Boolean(errors.password)}
-              autoComplete="new-password"
-              id="reset-password"
-              onChange={(e) => setPassword(e.target.value)}
-              type="password"
-              value={password}
-            />
-            {errors.password ? (
-              <p className="text-destructive text-xs">{errors.password}</p>
-            ) : null}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="reset-confirm">Xác nhận mật khẩu</Label>
-            <Input
-              aria-invalid={Boolean(errors.confirmPassword)}
-              autoComplete="new-password"
-              id="reset-confirm"
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              type="password"
-              value={confirmPassword}
-            />
-            {errors.confirmPassword ? (
-              <p className="text-destructive text-xs">{errors.confirmPassword}</p>
-            ) : null}
-          </div>
-          <Button className="w-full" disabled={loading} size="lg" type="submit">
-            {loading ? (
-              <>
-                <Loader2 className="animate-spin" />
-                Đang lưu…
-              </>
-            ) : (
-              'Cập nhật mật khẩu'
-            )}
-          </Button>
-        </form>
-      </CardContent>
-      <CardFooter className="flex justify-center">
-        <Link className="text-muted-foreground text-sm hover:text-foreground" to="/login">
-          ← Quay đăng nhập
-        </Link>
-      </CardFooter>
-    </Card>
+          <CardDescription className="mt-2 text-sm leading-relaxed text-(--muted-text)">
+            Nhập mật khẩu mới cho tài khoản của bạn.
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent className="space-y-5 px-7 pb-7">
+          {submitError && (
+            <p
+              className="rounded-xl bg-red-500/10 px-4 py-3 text-sm text-red-500"
+              role="alert"
+            >
+              {submitError}
+            </p>
+          )}
+
+          <form className="space-y-4" noValidate onSubmit={handleSubmit}>
+            <div className="space-y-2.5">
+              <Label
+                htmlFor="reset-password"
+                className="text-sm font-semibold text-(--text-primary)"
+              >
+                Mật khẩu mới
+              </Label>
+
+              <Input
+                aria-invalid={Boolean(errors.password)}
+                autoComplete="new-password"
+                id="reset-password"
+                onChange={(e) => setPassword(e.target.value)}
+                type="password"
+                value={password}
+                className="h-[52px] rounded-2xl border-(--border-color) bg-(--soft-surface-color) px-4 text-(--text-primary)"
+              />
+
+              {errors.password && (
+                <p className="text-xs text-red-500">{errors.password}</p>
+              )}
+            </div>
+
+            <div className="space-y-2.5">
+              <Label
+                htmlFor="reset-confirm"
+                className="text-sm font-semibold text-(--text-primary)"
+              >
+                Xác nhận mật khẩu
+              </Label>
+
+              <Input
+                aria-invalid={Boolean(errors.confirmPassword)}
+                autoComplete="new-password"
+                id="reset-confirm"
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                type="password"
+                value={confirmPassword}
+                className="h-[52px] rounded-2xl border-(--border-color) bg-(--soft-surface-color) px-4 text-(--text-primary)"
+              />
+
+              {errors.confirmPassword && (
+                <p className="text-xs text-red-500">{errors.confirmPassword}</p>
+              )}
+            </div>
+
+            <Button
+              className="h-[52px] w-full rounded-2xl bg-(--primary-color) font-bold text-white hover:bg-(--primary-color)"
+              disabled={loading}
+              size="lg"
+              type="submit"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="animate-spin" />
+                  Đang lưu…
+                </>
+              ) : (
+                'Cập nhật mật khẩu'
+              )}
+            </Button>
+          </form>
+
+          <p className="text-center text-sm text-(--muted-text)">
+            Đã nhớ mật khẩu?{' '}
+            <Link to="/login" className="font-bold text-(--primary-color)">
+              Đăng nhập
+            </Link>
+          </p>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 

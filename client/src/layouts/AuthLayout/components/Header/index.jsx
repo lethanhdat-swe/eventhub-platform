@@ -1,26 +1,44 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import HeaderLogo from '@/layouts/PublicLayout/components/Header/components/HeaderLogo/HeaderLogo';
+import HeaderThemeToggle from '@/layouts/PublicLayout/components/Header/components/HeaderThemeToggle/HeaderThemeToggle';
 
 function Header() {
+  const { pathname } = useLocation();
+
+  const isLoginPage = pathname === '/login';
+  const isRegisterPage = pathname === '/register';
+
   return (
-    <header className="border-border bg-card/80 border-b backdrop-blur-sm">
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
-        <Link
-          className="font-heading text-lg font-semibold tracking-tight text-foreground hover:opacity-90"
-          to="/"
-        >
-          EventHub
-        </Link>
-        <nav aria-label="Tài khoản" className="text-sm">
-          <Link className="text-muted-foreground hover:text-foreground" to="/login">
-            Đăng nhập
-          </Link>
-          <span className="text-muted-foreground mx-2" aria-hidden>
-            /
-          </span>
-          <Link className="text-muted-foreground hover:text-foreground" to="/register">
-            Đăng ký
-          </Link>
-        </nav>
+    <header className="relative z-20 border-b border-(--border-color) bg-(--background-color)/80 backdrop-blur-2xl">
+      <div className="px-10 flex h-18 items-center justify-between">
+        <HeaderLogo scrolled />
+
+        <div className="flex items-center gap-3">
+          <HeaderThemeToggle scrolled />
+
+          <nav
+            aria-label="Tài khoản"
+            className="hidden items-center gap-2 text-sm font-semibold sm:flex"
+          >
+            {!isLoginPage && (
+              <Link
+                to="/login"
+                className="rounded-full px-4 py-2 text-(--muted-text) transition-colors duration-300 hover:bg-(--soft-surface-color) hover:text-(--text-primary)"
+              >
+                Đăng nhập
+              </Link>
+            )}
+
+            {!isRegisterPage && (
+              <Link
+                to="/register"
+                className="rounded-full bg-(--primary-color) px-4 py-2 text-white transition-transform duration-300 hover:scale-105"
+              >
+                Đăng ký
+              </Link>
+            )}
+          </nav>
+        </div>
       </div>
     </header>
   );

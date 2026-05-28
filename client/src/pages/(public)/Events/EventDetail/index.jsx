@@ -59,38 +59,60 @@ function EventDetail() {
     }
   }, [slug]);
 
-  if (!event) return <div>Loading...</div>;
+  if (!event) {
+    return (
+      <main className="min-h-screen bg-(--background-color) pt-(--header-height) text-(--text-primary)">
+        <div className="mx-auto flex min-h-[60vh] max-w-[1320px] items-center justify-center px-5">
+          <div className="rounded-2xl border border-(--border-color) bg-(--card-surface-color) px-6 py-4 text-sm text-(--muted-text)">
+            Loading event...
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   return (
-    <div className="pt-(--header-height) mx-auto mb-10 w-full max-w-[1320px] px-5 lg:px-8">
-      <div className="grid grid-cols-12 gap-8 mt-8">
-        <div className="col-span-12 lg:col-span-8">
-          <EventHero event={event} />
-          <EventInfoBar event={event} />
-          <EventAbout event={event} />
-
-          <EventSeat
-            eventSeats={eventSeats}
-            isLoading={isSeatsLoading}
-            error={seatsError}
-          />
-
-          <EventComment
-            eventId={event.id}
-            comments={comments}
-            setComments={setComments}
-          />
-        </div>
-
-        <div className="col-span-12 lg:col-span-4">
-          <EventOrganizer event={event} />
-          <EventBooking eventId={event.id} />
-          <EventTickets tickets={tickets} />
-          <EventInformation event={event} />
-        </div>
+    <main className="min-h-screen overflow-hidden bg-(--background-color) pt-(--header-height) text-(--text-primary)">
+      <div className="pointer-events-none fixed inset-0 -z-0">
+        <div className="absolute left-1/2 top-0 h-[420px] w-[720px] -translate-x-1/2 rounded-full bg-(--primary-color)/10 blur-[120px]" />
+        <div className="absolute right-0 top-[320px] h-[360px] w-[360px] rounded-full bg-(--primary-color)/5 blur-[100px]" />
       </div>
 
-      <EventRelated events={relatedEvents} />
-    </div>
+      <div className="relative z-10 mx-auto w-full container px-4 pb-16 pt-8 sm:px-5 lg:px-8">
+        <div className="grid grid-cols-12 gap-6 lg:gap-6">
+          <section className="col-span-12 space-y-5 lg:col-span-8">
+            <EventHero event={event} />
+            <EventInfoBar event={event} />
+            <EventAbout event={event} />
+
+            <EventSeat
+              eventSeats={eventSeats}
+              isLoading={isSeatsLoading}
+              error={seatsError}
+            />
+
+            <EventComment
+              eventId={event.id}
+              comments={comments}
+              setComments={setComments}
+            />
+          </section>
+
+          <aside className="col-span-12 lg:col-span-4">
+            <div className="space-y-4">
+              <EventOrganizer event={event} />
+              <EventBooking eventId={event.id} />
+              <EventTickets tickets={tickets} />
+              <EventInformation event={event} />
+            </div>
+          </aside>
+        </div>
+
+        <div className="mt-14">
+          <EventRelated events={relatedEvents} />
+        </div>
+      </div>
+    </main>
   );
 }
 

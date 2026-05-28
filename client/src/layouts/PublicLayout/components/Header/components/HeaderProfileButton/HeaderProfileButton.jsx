@@ -118,8 +118,9 @@ function HeaderProfileButton() {
           >
             {avatarUrl ? (
               <img
-                src={avatarUrl}
-                alt={resolvePublicAssetUrl(user?.fullName) || 'Avatar'}
+                src={resolvePublicAssetUrl(user.avatarUrl)}
+                alt={user.fullName}
+                referrerPolicy="no-referrer"
                 className="h-full w-full object-cover"
               />
             ) : (
@@ -150,7 +151,7 @@ function HeaderProfileButton() {
           >
             {avatarUrl ? (
               <img
-                src={avatarUrl}
+                src={resolvePublicAssetUrl(user.avatarUrl)}
                 alt={user?.fullName || 'Avatar'}
                 className="h-full w-full object-cover"
               />

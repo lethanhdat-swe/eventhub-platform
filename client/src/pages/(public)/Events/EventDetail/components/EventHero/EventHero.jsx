@@ -1,4 +1,4 @@
-import { BadgeCheck, Heart, Share2, Bookmark } from 'lucide-react';
+import { BadgeCheck, Bookmark, CalendarDays, MapPin } from 'lucide-react';
 import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
 import { saveEventService } from '@/lib/services/saveEvent';
 import { useEffect, useState } from 'react';
@@ -10,93 +10,137 @@ function EventHero({ event }) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    saveEventService.list().then((data) => {
-      const isSaved = data.some((item) => item.event.id === event.id);
-      setSaved(isSaved);
-    });
-  }, [saved, event.id]);
+    let mounted = true;
+
+    const fetchSavedEvents = async () => {
+      try {
+        const data = await saveEventService.list();
+        if (!mounted) return;
+
+        const isSaved = data.some((item) => item.event.id === event.id);
+        setSaved(isSaved);
+      } catch (error) {
+        console.error('Failed to fetch saved events:', error);
+      }
+    };
+
+    if (event?.id) {
+      fetchSavedEvents();
+    }
+
+    return () => {
+      mounted = false;
+    };
+  }, [event.id]);
 
   const handleBookmark = async (e) => {
     e.stopPropagation();
+
     if (loading) return;
+
     setLoading(true);
+
     try {
-      const res = await saveEventService.toggle(event.id);
-      setSaved(res);
-    } catch (err) {
-      console.error('Failed to toggle save:', err);
+      const nextSaved = await saveEventService.toggle(event.id);
+      setSaved(nextSaved);
+    } catch (error) {
+      console.error('Failed to toggle save:', error);
     } finally {
       setLoading(false);
     }
   };
+
+  const day = startDate.getDate();
+  const month = startDate.toLocaleString('vi-VN', { month: 'short' });
+  const weekday = startDate.toLocaleString('vi-VN', { weekday: 'long' });
+  const year = startDate.getFullYear();
+
   return (
-    <div className="relative w-full overflow-hidden h-72 rounded-t-2xl lg:h-[19rem]">
+    <section className="group relative h-[21rem] w-full overflow-hidden rounded-3xl border border-(--border-color) bg-(--card-surface-color) shadow-2xl shadow-black/20 lg:h-[25rem]">
       <img
         src={resolvePublicAssetUrl(event.thumbnailUrl)}
         alt={event.title}
-        className="object-cover w-full h-full"
+        referrerPolicy="no-referrer"
+        className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
       />
 
-      <div className="absolute inset-0 bg-linear-to-t from-(--bg-overlay) via-(--bg-overlay)/40 to-transparent" />
+      <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/35 to-black/25" />
+      <div className="absolute inset-0 bg-linear-to-r from-black/55 via-transparent to-black/20" />
 
-      <div className="absolute flex items-center gap-4 top-4 left-4">
-        <div className=" px-3 py-2 text-center border  bg-(--background-color)/70 backdrop-blur-sm border-gray-700/50 rounded-xl min-w-13">
-          <div className="text-(--text-primary) text-2xl font-bold leading-none">
-            {startDate.getDate()}
+      <div className="absolute left-5 top-5 flex items-center gap-3">
+        <div className="rounded-2xl border border-white/15 bg-black/45 px-3.5 py-3 text-center backdrop-blur-xl">
+          <div className="text-2xl font-black leading-none text-white">
+            {day}
           </div>
 
-          <div className="text-(--text-primary)/60 text-xs font-semibold mt-0.5">
-            {startDate.toLocaleString('default', {
-              month: 'short',
-            })}
-          </div>
-
-          <div className="text-(--text-primary)/60 text-xs">
-            {startDate.getFullYear()}
-          </div>
-
-          <div className="text-(--text-primary)/60 text-xs mt-2">
-            {startDate.toLocaleString('default', {
-              weekday: 'long',
-            })}
+          <div className="mt-1 text-[11px] font-bold uppercase tracking-wide text-white/70">
+            {month}
           </div>
         </div>
 
-        <div>
-          <span className="text-(--text-primary) text-[10px] font-bold leading-none bg-(--primary-color) p-2 rounded-[3px]">
-            {event.category?.name}
-          </span>
-
-          <div className="flex items-center gap-3 mt-2">
-            <h1 className="text-(--text-primary) text-xl lg:text-2xl">
-              {event.title}
-            </h1>
-
-            <BadgeCheck
-              fill="var(--primary-color)"
-              color="var(--text-primary)"
-            />
+        <div className="hidden rounded-2xl border border-white/15 bg-black/35 px-4 py-3 backdrop-blur-xl sm:block">
+          <div className="flex items-center gap-2 text-xs font-semibold text-white/80">
+            <CalendarDays size={14} className="text-(--primary-color)" />
+            <span>
+              {weekday}, {year}
+            </span>
           </div>
 
-          <p className="text-(--text-primary)/60 mt-2">{event.location}</p>
+          <div className="mt-1 flex items-center gap-2 text-xs text-white/60">
+            <MapPin size={14} className="text-(--primary-color)" />
+            <span className="line-clamp-1">{event.location}</span>
+          </div>
         </div>
       </div>
-      <div className="absolute flex gap-2 top-4 right-4">
+
+      <div className="absolute right-5 top-5 flex items-center gap-2">
         <LikeButton eventId={event.id} size={18} showCount={true} />
 
         <button
+          type="button"
           onClick={handleBookmark}
           disabled={loading}
-          className="cursor-pointer flex items-center justify-center text-(--text-primary)/30 transition-all duration-200 border rounded-full w-9 h-9 bg-(--background-color)/70 backdrop-blur-sm border-gray-700/50 hover:border-(--primary-color)/60 hover:text-(--primary-color)"
+          aria-label={saved ? 'Remove saved event' : 'Save event'}
+          className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-white/15 bg-black/45 text-white/80 backdrop-blur-xl transition-all duration-200 hover:border-(--primary-color)/70 hover:bg-(--primary-color)/15 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
         >
           <Bookmark
-            color="var(--text-primary)"
-            fill={saved ? 'var(--text-primary)' : 'none'}
-            className="w-4 h-4"
+            className="h-4 w-4"
+            fill={saved ? 'currentColor' : 'none'}
           />
         </button>
       </div>
-    </div>
+
+      <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6 lg:p-7">
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          {event.category?.name && (
+            <span className="rounded-full bg-(--primary-color) px-3 py-1.5 text-xs font-bold text-white shadow-lg shadow-(--primary-color)/25">
+              {event.category.name}
+            </span>
+          )}
+
+          <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white/75 backdrop-blur-xl">
+            EventHub verified
+          </span>
+        </div>
+
+        <div className="flex max-w-3xl items-center gap-3">
+          <h1 className="line-clamp-2 text-3xl font-black tracking-tight text-white sm:text-4xl lg:text-5xl">
+            {event.title}
+          </h1>
+
+          <BadgeCheck
+            size={26}
+            className="mt-1 shrink-0 text-white"
+            fill="var(--primary-color)"
+          />
+        </div>
+
+        <p className="mt-3 flex max-w-2xl items-center gap-2 text-sm font-medium text-white/70 sm:text-base">
+          <MapPin size={17} className="shrink-0 text-(--primary-color)" />
+          <span className="line-clamp-1">{event.location}</span>
+        </p>
+      </div>
+    </section>
   );
 }
 

@@ -13,8 +13,6 @@ export const validate =
 
             next();
         } catch (err: any) {
-            console.log("run here");
-
             if (err instanceof ZodError) {
                 // Chỉ lấy những thông tin cần thiết: field nào, lỗi gì
                 const details = err.issues.map((e) => ({

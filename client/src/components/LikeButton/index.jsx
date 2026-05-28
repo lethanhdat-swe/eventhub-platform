@@ -1,4 +1,3 @@
-import React from 'react';
 import { Heart, Loader2 } from 'lucide-react';
 import useEventLike from '@/hooks/useEventlike';
 
@@ -22,45 +21,36 @@ const LikeButton = ({ eventId, size = 18, showCount = true }) => {
         disabled={isLoading}
         aria-pressed={isLiked}
         className={`
-          group cursor-pointer inline-flex items-center justify-center rounded-full border px-2 py-2
-          shadow-sm backdrop-blur-md transition-all duration-300
-          hover:scale-110 hover:shadow-lg
-          active:scale-95
+          group inline-flex h-10 cursor-pointer items-center justify-center gap-1.5 rounded-full border px-3
+          backdrop-blur-xl transition-all duration-300
+          hover:scale-105 active:scale-95
           disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:scale-100
           ${
             isLiked
-              ? 'border-white/20 bg-white/90 text-[#e2433d]'
-              : 'border-white/20 bg-white/85 text-[#e2433d]'
+              ? 'border-[#e2433d]/30 bg-[#e2433d]/15 text-[#ff625d]'
+              : 'border-white/15 bg-black/45 text-white/85 hover:border-[#e2433d]/40 hover:bg-[#e2433d]/10 hover:text-[#ff625d]'
           }
         `}
-        style={{ minWidth: size + 16, minHeight: size + 16 }}
       >
         {isLoading ? (
           <Loader2 className="animate-spin" size={size} />
         ) : (
           <Heart
             size={size}
-            fill={isLiked ? '#e2433d' : 'none'}
-            color={isLiked ? '#e2433d' : 'currentColor'}
+            fill={isLiked ? 'currentColor' : 'none'}
             className={`
-              transition-all duration-300
-              group-hover:scale-110
-              ${isLiked ? 'animate-[heartBeat_350ms_ease-out]' : 'group-hover:fill-[#e2433d]/10'}
+              transition-all duration-300 group-hover:scale-110
+              ${isLiked ? 'animate-[heartBeat_350ms_ease-out]' : ''}
             `}
           />
         )}
-      </button>
 
-      {showCount && (
-        <span
-          className={`
-            text-sm font-medium transition-colors duration-300
-            ${isLiked ? 'text-[#e2433d]' : 'text-(--text-primary)'}
-          `}
-        >
-          {Number(likeCount ?? 0).toLocaleString('vi-VN')}
-        </span>
-      )}
+        {showCount && (
+          <span className="min-w-4 text-sm font-bold leading-none">
+            {Number(likeCount ?? 0).toLocaleString('vi-VN')}
+          </span>
+        )}
+      </button>
 
       {error && <span className="text-[11px] text-[#e2433d]">{error}</span>}
     </div>

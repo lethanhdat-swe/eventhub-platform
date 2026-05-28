@@ -1,23 +1,41 @@
-import { images } from "@/assets";
+import { images } from '@/assets';
+import { Search } from 'lucide-react';
 
-function SearchHero({keyword}) {
-    return ( 
-        <div className="relative">
-            <img src={images.home} alt="" className="object-cover w-full h-70" />
-            <div className="absolute inset-0 bg-linear-to-r from-black/85 via-black/50 to-black/20" />
-            <div className="container absolute flex items-center justify-between top-10 left-10 right-10">
-                <div className="flex flex-col gap-5">
-                    <p className="text-white">Search results for</p>
-                    <h1 className="text-5xl font-bold text-white">
-                    &quot;{keyword}&quot;
-                    </h1>
-                    <p className="text-sm leading-relaxed text-white max-w-120">
-                        Find the best events and artists near you
-                    </p>
-                </div>
-            </div>
+function SearchHero({ keyword }) {
+  return (
+    <section className="relative overflow-hidden border-b border-white/10">
+      <img
+        src={images.home}
+        alt="Search hero"
+        className="h-[500px] w-full object-cover"
+      />
+
+      <div className="absolute -left-24 top-10 h-72 w-72 rounded-full bg-(--primary-color)/25 blur-3xl" />
+      <div className="absolute bottom-0 right-10 h-56 w-56 rounded-full bg-white/10 blur-3xl" />
+
+      <div className="container absolute inset-0 flex items-center">
+        <div className="max-w-3xl">
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold text-white/85 backdrop-blur-md">
+            <Search size={16} />
+            Kết quả tìm kiếm
+          </div>
+
+          <p className="mb-3 text-sm font-bold uppercase tracking-[0.24em] text-(--primary-color)">
+            Search results for
+          </p>
+
+          <h1 className="max-w-3xl text-4xl font-black leading-tight tracking-tight text-white md:text-6xl">
+            &quot;{keyword || 'Tất cả sự kiện'}&quot;
+          </h1>
+
+          <p className="mt-5 max-w-xl text-base leading-relaxed text-white/70">
+            Khám phá những sự kiện, nghệ sĩ và trải nghiệm phù hợp với nội dung
+            bạn đang tìm kiếm.
+          </p>
         </div>
-     );
+      </div>
+    </section>
+  );
 }
 
 export default SearchHero;

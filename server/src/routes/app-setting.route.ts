@@ -12,19 +12,37 @@ import {
 
 const router = Router();
 
+router.get("/site", appSettingController.getSiteSetting);
+router.get("/banners", appSettingController.getBanners);
 
 router.use(isAuth, restrictTo("ADMIN"));
 
-
-router.get("/site", appSettingController.getSiteSetting);
-router.post("/site", validate(createSiteSettingsSchema), appSettingController.createSiteSetting);
-router.put("/site", validate(updateSiteSettingsSchema), appSettingController.updateSiteSetting);
+router.post(
+    "/site",
+    validate(createSiteSettingsSchema),
+    appSettingController.createSiteSetting
+);
+router.put(
+    "/site",
+    validate(updateSiteSettingsSchema),
+    appSettingController.updateSiteSetting
+);
 router.delete("/site", appSettingController.deleteSiteSetting);
 
-
-router.get("/banners", appSettingController.getBanners);
-router.post("/banners", validate(createBannersSchema), appSettingController.createBanners);
-router.patch("/banners/:id", validate(updateBannerSchema), appSettingController.updateBanner);
-router.delete("/banners/:id", validate(deleteBannerSchema), appSettingController.deleteBanner);
+router.post(
+    "/banners",
+    validate(createBannersSchema),
+    appSettingController.createBanners
+);
+router.patch(
+    "/banners/:id",
+    validate(updateBannerSchema),
+    appSettingController.updateBanner
+);
+router.delete(
+    "/banners/:id",
+    validate(deleteBannerSchema),
+    appSettingController.deleteBanner
+);
 
 export default router;

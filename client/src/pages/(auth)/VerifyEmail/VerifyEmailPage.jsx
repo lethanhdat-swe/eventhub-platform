@@ -4,8 +4,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
 
-import { Button, buttonVariants } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -22,31 +21,49 @@ import { useAuthStore } from '@/stores/authStore';
 
 function VerifyEmailPage() {
   const setAuth = useAuthStore((s) => s.setAuth);
-  const user = useAuthStore((s) => s.user);
   const navigate = useNavigate();
+
   const [params] = useSearchParams();
   const token = params.get('token') ?? '';
+
   const [status, setStatus] = useState(() => (!token ? 'failed' : 'loading'));
   const [errorDetail, setErrorDetail] = useState('');
-  const autoNavTimerRef = useRef(null);
-  /** Tránh StrictMode / remount làm hai request verify và lời gọi sau ghi đè thành công */
+  const [verifiedAuthData, setVerifiedAuthData] = useState(null);
+  const [countdown, setCountdown] = useState(3);
+
   const verifyRequestSeq = useRef(0);
 
   useEffect(() => {
     if (!token) return undefined;
+
+    const storageKey = `eventhub_verify_email_${token}`;
+    const currentStatus = sessionStorage.getItem(storageKey);
+
+    if (currentStatus === 'pending' || currentStatus === 'success') {
+      return undefined;
+    }
+
+    sessionStorage.setItem(storageKey, 'pending');
 
     const seq = ++verifyRequestSeq.current;
 
     (async () => {
       try {
         const body = await authService.verifyEmail({ token });
+
         if (seq !== verifyRequestSeq.current) return;
-        setAuth(getApiData(body));
+
+        const data = getApiData(body);
+
+        setVerifiedAuthData(data);
         setStatus('success');
+        sessionStorage.setItem(storageKey, 'success');
       } catch (e) {
         if (seq !== verifyRequestSeq.current) return;
+
         setErrorDetail(getErrorMessage(e));
         setStatus('failed');
+        sessionStorage.removeItem(storageKey);
       }
     })();
 
@@ -54,88 +71,134 @@ function VerifyEmailPage() {
   }, [token]);
 
   useEffect(() => {
-    if (status !== 'success') return undefined;
+    if (status !== 'success' || !verifiedAuthData) return undefined;
 
-    const dest = isAdminUser(user) ? '/admin/dashboard' : '/';
+    setCountdown(3);
 
-    autoNavTimerRef.current = window.setTimeout(() => {
-      navigate(dest, { replace: true });
-    }, 3000);
+    const dest = isAdminUser(verifiedAuthData.user) ? '/admin/dashboard' : '/';
+
+    const intervalId = window.setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          window.clearInterval(intervalId);
+
+          setAuth(verifiedAuthData);
+          navigate(dest, { replace: true });
+
+          return 0;
+        }
+
+        return prev - 1;
+      });
+    }, 1000);
 
     return () => {
-      if (autoNavTimerRef.current !== null) {
-        window.clearTimeout(autoNavTimerRef.current);
-      }
+      window.clearInterval(intervalId);
     };
-  }, [navigate, status, user]);
+  }, [navigate, setAuth, status, verifiedAuthData]);
+
+  function handleNavigateNow() {
+    if (!verifiedAuthData) return;
+
+    const dest = isAdminUser(verifiedAuthData.user) ? '/admin/dashboard' : '/';
+
+    setAuth(verifiedAuthData);
+    navigate(dest, { replace: true });
+  }
+
+  const isAdmin = isAdminUser(verifiedAuthData?.user);
 
   return (
-    <Card className="w-full max-w-md" size="default">
-      <CardHeader>
-        <CardTitle>Xác thực email</CardTitle>
-        <CardDescription>Kích hoạt tài khoản qua liên kết trong email.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        {status === 'loading' ? (
-          <div className="flex flex-col items-center gap-3 py-6 text-center">
-            <Loader2 aria-hidden className="text-muted-foreground size-10 animate-spin" />
-            <p className="text-muted-foreground text-sm">Đang xác minh liên kết của bạn…</p>
-          </div>
-        ) : null}
-
-        {status === 'success' ? (
-          <div className="flex flex-col items-center gap-3 py-4 text-center">
-            <CheckCircle2 aria-hidden className="size-11 text-emerald-600 dark:text-emerald-400" />
-            <div className="space-y-2">
-              <p className="text-sm leading-relaxed font-medium">
-                Địa chỉ email đã được xác thực. Phiên đăng nhập của bạn đã được lưu.
-              </p>
-              <p className="text-muted-foreground text-xs">
-                {isAdminUser(user)
-                  ? 'Tự chuyển tới bảng điều khiển sau 3 giây, hoặc bấm nút bên dưới.'
-                  : 'Tự chuyển về trang chủ sau 3 giây, hoặc bấm nút bên dưới.'}
-              </p>
-            </div>
-          </div>
-        ) : null}
-
-        {status === 'failed' ? (
-          <div className="flex flex-col items-center gap-3 py-4 text-center">
-            <AlertCircle aria-hidden className="size-11 text-destructive" />
-            <p className="text-muted-foreground text-sm">
-              {!token
-                ? 'Không tìm thấy token trên đường dẫn. Hãy mở lại đúng liên kết trong email (có ?token=...).'
-                : errorDetail ||
-                  'Token không hợp lệ hoặc đã hết hạn. Yêu cầu đăng ký lại hoặc liên hệ hỗ trợ.'}
-            </p>
-          </div>
-        ) : null}
-      </CardContent>
-      <CardFooter className="flex flex-wrap justify-center gap-2">
-        {status === 'success' ? (
-          <Button
-            size="lg"
-            type="button"
-            onClick={() =>
-              navigate(isAdminUser(user) ? '/admin/dashboard' : '/', {
-                replace: true,
-              })
-            }
+    <div className="w-full max-w-[440px]">
+      <Card className="rounded-3xl border border-(--border-color) bg-(--card-surface-color) shadow-[0_20px_70px_rgba(0,0,0,0.16)] backdrop-blur-xl">
+        <CardHeader className="px-7 pb-4 pt-8 text-center">
+          <div
+            className={`
+              mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl
+              ${
+                status === 'failed'
+                  ? 'bg-red-500/10 text-red-500'
+                  : status === 'success'
+                    ? 'bg-emerald-500/10 text-emerald-500'
+                    : 'bg-(--primary-color)/10 text-(--primary-color)'
+              }
+            `}
           >
-            {isAdminUser(user) ? 'Vào bảng điều khiển' : 'Về trang chủ'}
-          </Button>
-        ) : null}
-        <Link
-          className={cn(buttonVariants({ variant: 'outline', size: 'lg' }), 'justify-center')}
-          to="/login"
-        >
-          Đăng nhập
-        </Link>
-        <Link className={cn(buttonVariants({ size: 'lg' }), 'justify-center')} to="/register">
-          Đăng ký lại
-        </Link>
-      </CardFooter>
-    </Card>
+            {status === 'loading' && (
+              <Loader2 aria-hidden className="size-7 animate-spin" />
+            )}
+
+            {status === 'success' && (
+              <CheckCircle2 aria-hidden className="size-8" />
+            )}
+
+            {status === 'failed' && (
+              <AlertCircle aria-hidden className="size-8" />
+            )}
+          </div>
+
+          <CardTitle className="text-2xl font-black text-(--text-primary)">
+            {status === 'loading' && 'Đang xác thực'}
+            {status === 'success' && 'Xác thực thành công'}
+            {status === 'failed' && 'Xác thực thất bại'}
+          </CardTitle>
+
+          <CardDescription className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-(--muted-text)">
+            {status === 'loading' &&
+              'Vui lòng chờ trong giây lát, chúng tôi đang kiểm tra liên kết xác thực của bạn.'}
+
+            {status === 'success' &&
+              'Email của bạn đã được xác thực. Tài khoản hiện đã sẵn sàng để sử dụng.'}
+
+            {status === 'failed' &&
+              (!token
+                ? 'Không tìm thấy token trên đường dẫn. Hãy mở lại đúng liên kết trong email.'
+                : errorDetail ||
+                  'Token không hợp lệ hoặc đã hết hạn. Vui lòng đăng ký lại hoặc liên hệ hỗ trợ.')}
+          </CardDescription>
+        </CardHeader>
+
+        {status === 'success' && (
+          <CardContent className="px-7 pb-4">
+            <div className="rounded-2xl border border-(--border-color) bg-(--soft-surface-color) px-4 py-3 text-center text-xs leading-relaxed text-(--muted-text)">
+              {isAdmin
+                ? `Tự chuyển tới bảng điều khiển sau ${countdown} giây.`
+                : `Tự chuyển về trang chủ sau ${countdown} giây.`}
+            </div>
+          </CardContent>
+        )}
+
+        <CardFooter className="flex flex-col gap-3 border-t border-(--border-color) bg-(--soft-surface-color) px-7 py-6">
+          {status === 'success' && (
+            <Button
+              type="button"
+              onClick={handleNavigateNow}
+              className="h-12 w-full rounded-2xl bg-(--primary-color) font-bold text-white hover:bg-(--primary-color)"
+            >
+              {isAdmin ? 'Vào bảng điều khiển ngay' : 'Về trang chủ ngay'}
+            </Button>
+          )}
+
+          {status !== 'loading' && status !== 'success' && (
+            <Link
+              to="/login"
+              className="flex h-12 w-full items-center justify-center rounded-2xl border border-(--border-color) bg-(--card-surface-color) text-sm font-bold text-(--text-primary) transition-all duration-300 hover:border-(--primary-color)/40 hover:bg-(--card-hover-color)"
+            >
+              Đăng nhập
+            </Link>
+          )}
+
+          {status === 'failed' && (
+            <Link
+              to="/register"
+              className="flex h-12 w-full items-center justify-center rounded-2xl bg-(--primary-color) text-sm font-bold text-white transition-all duration-300 hover:bg-(--primary-color)"
+            >
+              Đăng ký lại
+            </Link>
+          )}
+        </CardFooter>
+      </Card>
+    </div>
   );
 }
 

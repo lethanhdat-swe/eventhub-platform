@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { Armchair } from 'lucide-react';
 
 import PublicSeatMap from '../../../components/PublicSeatMap/PublicSeatMap';
 
@@ -26,19 +27,40 @@ function EventSeat({ eventSeats = [], isLoading = false, error = null }) {
   );
 
   return (
-    <div className="mt-5">
+    <section className="mt-8 border-t border-(--border-color) pt-8">
+      <div className="mb-5 flex items-end justify-between gap-4">
+        <div>
+          <p className="mb-2 flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-(--primary-color)">
+            <Armchair size={15} />
+            Sơ đồ chỗ ngồi
+          </p>
+
+          <h2 className="text-2xl font-black tracking-tight text-(--text-primary)">
+            Chọn vị trí của bạn
+          </h2>
+        </div>
+
+        <span className="hidden rounded-full border border-(--border-color) bg-(--soft-surface-color) px-3 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-(--muted-text) sm:inline-flex">
+          Preview
+        </span>
+      </div>
+
       {isLoading ? (
-        <div className="rounded-xl border border-(--text-primary)/10 bg-(--surface-color) p-4 text-sm text-(--text-primary)/55">
-          Loading seat map...
+        <div className="rounded-2xl border border-(--border-color) bg-(--surface-color) p-5 text-sm text-(--muted-text)">
+          Đang tải sơ đồ chỗ ngồi...
         </div>
       ) : error ? (
-        <div className="rounded-xl border border-(--text-primary)/10 bg-(--surface-color) p-4 text-sm text-(--text-primary)/55">
+        <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-5 text-sm text-red-300">
           {error}
+        </div>
+      ) : eventSeatItems.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-(--border-color) bg-(--soft-surface-color) p-5 text-sm text-(--muted-text)">
+          Sự kiện này chưa có sơ đồ chỗ ngồi.
         </div>
       ) : (
         <PublicSeatMap seats={eventSeatItems} mode="preview" />
       )}
-    </div>
+    </section>
   );
 }
 

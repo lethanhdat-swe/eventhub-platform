@@ -8,13 +8,15 @@ import '@/styles/container.css';
 import '@/styles/_variables.css';
 import '@mantine/core/styles.css';
 import '@mantine/tiptap/styles.css';
+import ScrollToTop from './components/ScrollToTop/ScrollToTop';
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <BrowserRouter>
-      <MantineProvider>
-        <App />
-      </MantineProvider>
-    </BrowserRouter>
-  </StrictMode>
+  // <StrictMode>
+  <BrowserRouter>
+    <MantineProvider>
+      <App />
+      <ScrollToTop />
+    </MantineProvider>
+  </BrowserRouter>
+  // </StrictMode>
 );

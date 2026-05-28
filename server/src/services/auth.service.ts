@@ -3,15 +3,17 @@ import bcrypt from "bcryptjs";
 import MailService from "./mail.service";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
-import admin from "firebase-admin";
 import ms from "ms";
 import { AppError } from "../utils/AppError";
+import firebaseApp from "../config/firebase";
 
 class AuthService {
     async googleLogin(idToken: string) {
         try {
             // 1. Verify ID Token from Firebase
-            const decodedToken = await admin.auth().verifyIdToken(idToken);
+            const decodedToken = await firebaseApp
+                .auth()
+                .verifyIdToken(idToken);
             const { email, name, picture, uid } = decodedToken;
 
             if (!email) {
