@@ -23,23 +23,23 @@ function NavColumn() {
   };
 
   return (
-    <nav className="grid gap-8 sm:grid-cols-3">
+    // 1 cột trên mobile, 3 cột từ sm+
+    <nav className="grid grid-cols-2 gap-8 sm:grid-cols-3">
       {Object.entries(NAV_LINKS).map(([title, links]) => (
         <div key={title}>
-          <h3 className="mb-4 text-sm font-black uppercase tracking-[0.22em] text-[var(--text-primary)]">
+          <h3 className="mb-3 text-xs font-black uppercase tracking-[0.22em] text-(--text-primary)">
             {title}
           </h3>
-
-          <ul className="space-y-3">
+          <ul className="space-y-2.5">
             {links.map((link) => (
               <li key={link.label}>
                 <Link
                   to={link.path}
                   className="
                     group inline-flex text-sm font-medium
-                    text-[var(--muted-text)]
+                    text-(--muted-text)
                     transition-colors duration-300
-                    hover:text-[var(--primary-color)]
+                    hover:text-(--primary-color)
                   "
                 >
                   <span className="transition-transform duration-300 group-hover:translate-x-1">

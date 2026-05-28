@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Sparkle } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { siteSettingService } from '@/lib/services/siteSetting/siteSettingService';
 import { getUploadPreviewSrc } from '@/lib/upload/uploadAsset';
 
 function HeaderLogo({ scrolled }) {
   const [siteSetting, setSiteSetting] = useState({ websiteName: 'EventHub', logoUrl: '' });
+  const { pathname } = useLocation();
+  const DARK_HERO_ROUTES = ['/', '/events', '/blogs', '/contact'];
+  const isDarkHero = DARK_HERO_ROUTES.includes(pathname);
 
   useEffect(() => {
     const fetchSiteSetting = async () => {
@@ -26,7 +29,7 @@ function HeaderLogo({ scrolled }) {
         <img
           src={getUploadPreviewSrc(siteSetting.logoUrl)}
           alt={siteSetting.websiteName}
-          className="object-contain w-15 h-15"
+          className="object-contain w-8 h-8 lg:w-10 lg:h-10"
         />
       ) : (
         <Sparkle color="var(--primary-color)" />
@@ -36,7 +39,7 @@ function HeaderLogo({ scrolled }) {
         to="/"
         className={`
           text-xl font-bold transition-colors duration-300
-          ${scrolled ? 'text-(--text-primary)' : 'text-white'}
+          ${isDarkHero && !scrolled ? 'text-white' : 'text-(--text-primary)'}
         `}
       >
         {siteSetting.websiteName}

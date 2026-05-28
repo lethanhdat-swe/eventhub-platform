@@ -74,7 +74,7 @@ function AdminEventDetail() {
           Quay lại danh sách
         </Button>
         <div
-          className="rounded-lg border border-destructive/25 bg-destructive/5 px-3 py-4 text-sm text-destructive"
+          className="px-3 py-4 text-sm border rounded-lg border-destructive/25 bg-destructive/5 text-destructive"
           role="alert"
         >
           {error ?? 'Không tìm thấy sự kiện.'}
@@ -91,7 +91,7 @@ function AdminEventDetail() {
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex min-w-0 items-start gap-2">
+        <div className="flex items-start min-w-0 gap-2">
           <Button
             type="button"
             variant="ghost"
@@ -124,19 +124,19 @@ function AdminEventDetail() {
               <img
                 src={thumbnailSrc}
                 alt=""
-                className="aspect-square w-full rounded-md object-cover"
+                className="object-cover w-32 rounded-md sm:w-40 lg:w-full aspect-square"
               />
             ) : (
-              <div className="flex aspect-square w-full items-center justify-center rounded-md bg-muted text-3xl font-semibold text-muted-foreground">
+              <div className="flex items-center justify-center w-full text-3xl font-semibold rounded-md aspect-square bg-muted text-muted-foreground">
                 {event.title?.charAt(0)?.toUpperCase() ?? '?'}
               </div>
             )}
           </CardContent>
         </Card>
 
-        <div className="space-y-3">
+        <div className="space-y-3 w-100 lg:w-full">
           <Card size="sm">
-            <CardHeader className="border-b pb-3">
+            <CardHeader className="pb-3 border-b">
               <CardTitle>Thông tin chung</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4 pt-3 sm:grid-cols-2">
@@ -164,7 +164,7 @@ function AdminEventDetail() {
 
           {event.description ? (
             <Card size="sm">
-              <CardHeader className="border-b pb-3">
+              <CardHeader className="pb-3 border-b">
                 <CardTitle>Mô tả ngắn</CardTitle>
               </CardHeader>
               <CardContent className="pt-3">
@@ -177,12 +177,12 @@ function AdminEventDetail() {
 
           {event.contentHtml ? (
             <Card size="sm">
-              <CardHeader className="border-b pb-3">
+              <CardHeader className="pb-3 border-b">
                 <CardTitle>Nội dung chi tiết</CardTitle>
               </CardHeader>
               <CardContent className="pt-3">
                 <div
-                  className="prose prose-sm max-w-none text-foreground dark:prose-invert"
+                  className="prose-sm prose max-w-none text-foreground dark:prose-invert"
                   dangerouslySetInnerHTML={{ __html: event.contentHtml }}
                 />
               </CardContent>
@@ -191,7 +191,7 @@ function AdminEventDetail() {
 
           {event.eventArtists?.length > 0 ? (
             <Card size="sm">
-              <CardHeader className="border-b pb-3">
+              <CardHeader className="pb-3 border-b">
                 <CardTitle>Nghệ sĩ tham gia</CardTitle>
               </CardHeader>
               <CardContent className="pt-3">

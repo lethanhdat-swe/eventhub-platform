@@ -17,24 +17,26 @@ function PaymentMethods() {
   ];
 
   return (
-    <div className="mt-10 border-t border-[var(--border-color)] pt-6">
-      <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center gap-2 text-sm font-medium text-[var(--muted-text)]">
-          <Copyright size={17} />
+    <div className="mt-8 border-t border-(--border-color) pt-6">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex items-center gap-2 text-sm font-medium text-(--muted-text)">
+          <Copyright size={15} />
           <p>2026 EventHub. Đã đăng ký bản quyền.</p>
         </div>
 
+        {/* justify-start mobile, tự align-right theo flex-row trên md */}
         <div className="flex flex-wrap items-center gap-2">
           {paymentIcons.map(({ id, Icon }) => (
             <div
               key={id}
               className="
-                flex h-9 items-center justify-center rounded-xl
-                border border-[var(--border-color)]
-                bg-[var(--soft-surface-color)] px-3
+                flex h-8 items-center justify-center rounded-xl
+                border border-(--border-color)
+                bg-(--soft-surface-color) px-2.5
+                sm:h-9 sm:px-3
               "
             >
-              <Icon size={36} />
+              <Icon size={32} />
             </div>
           ))}
         </div>

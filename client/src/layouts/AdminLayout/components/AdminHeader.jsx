@@ -43,7 +43,7 @@ function AdminHeader({ onMenuToggle }) {
   }
 
   return (
-    <header className="flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background px-4 md:px-6">
+    <header className="flex items-center gap-3 px-4 border-b h-30 lg:h-14 shrink-0 border-border bg-background md:px-6">
       <Button
         type="button"
         variant="ghost"
@@ -55,7 +55,7 @@ function AdminHeader({ onMenuToggle }) {
         <Menu className="size-5" />
       </Button>
 
-      <nav aria-label="Đường dẫn" className="min-w-0 flex-1">
+      <nav aria-label="Đường dẫn" className="flex-1 min-w-0">
         <ol className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
           <li className="text-muted-foreground">Quản trị</li>
           {breadcrumbs.map((crumb, index) => (
@@ -75,21 +75,7 @@ function AdminHeader({ onMenuToggle }) {
         </ol>
       </nav>
 
-      <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-        <Button
-          type="button"
-          variant="outline"
-          size="icon"
-          className="relative size-9 rounded-full"
-          aria-label="Thông báo"
-        >
-          <Bell className="size-4" />
-          <span
-            className="absolute right-1.5 top-1.5 size-2 rounded-full bg-red-500 ring-2 ring-background"
-            aria-hidden
-          />
-        </Button>
-
+      <div className="flex items-center gap-2 shrink-0 sm:gap-3">
         <DropdownMenu>
           <DropdownMenuTrigger
             disabled={isLoggingOut}
@@ -99,7 +85,7 @@ function AdminHeader({ onMenuToggle }) {
                 className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 data-popup-open:bg-muted"
                 aria-label="Menu tài khoản quản trị"
               >
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
+                <span className="flex items-center justify-center text-xs font-medium rounded-full size-8 shrink-0 bg-muted text-muted-foreground">
                   Q
                 </span>
                 <span className="hidden font-medium sm:inline">Quản trị viên</span>

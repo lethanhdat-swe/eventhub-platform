@@ -30,7 +30,7 @@ function HeaderThemeToggle({ scrolled }) {
       {theme === 'dark' ? (
         <Sun className="w-5 h-5" />
       ) : (
-        <Moon className="w-5 h-5" />
+        <Moon className="w-5 h-5" color='var(--text-primary)' />
       )}
     </button>
   );
