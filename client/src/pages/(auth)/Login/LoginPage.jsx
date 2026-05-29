@@ -16,7 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { isAdminUser } from '@/lib/auth/authRole';
-import { signInWithGoogle } from '@/lib/firebase/googleAuth';
+// import { signInWithGoogle } from '@/lib/firebase/googleAuth';
 import { parseApiError } from '@/lib/http/apiError';
 import { getApiData } from '@/lib/http/unwrapApiSuccess';
 import { authService } from '@/lib/services/auth';
@@ -139,29 +139,29 @@ function LoginPage() {
     }
   }
 
-  async function handleGoogleLogin() {
-    setApiError('');
-    setGoogleLoading(true);
+  // async function handleGoogleLogin() {
+  //   setApiError('');
+  //   setGoogleLoading(true);
 
-    try {
-      const { idToken } = await signInWithGoogle();
+  //   try {
+  //     const { idToken } = await signInWithGoogle();
 
-      const body = await authService.googleLogin({ idToken });
-      const data = getApiData(body);
+  //     const body = await authService.googleLogin({ idToken });
+  //     const data = getApiData(body);
 
-      setAuth(data);
-      redirectAfterLogin(data);
-    } catch (e) {
-      setApiError(mapGoogleLoginError(e));
-    } finally {
-      setGoogleLoading(false);
-    }
-  }
+  //     setAuth(data);
+  //     redirectAfterLogin(data);
+  //   } catch (e) {
+  //     setApiError(mapGoogleLoginError(e));
+  //   } finally {
+  //     setGoogleLoading(false);
+  //   }
+  // }
 
   return (
     <div className="w-full max-w-[520px]">
       <Card className="rounded-3xl border border-(--border-color) bg-(--card-surface-color) shadow-[0_20px_70px_rgba(0,0,0,0.16)] backdrop-blur-xl">
-        <CardHeader className="px-7 pb-3 pt-7 text-center">
+        <CardHeader className="pb-3 text-center px-7 pt-7">
           <CardTitle className="text-2xl font-black text-(--text-primary)">
             Đăng nhập
           </CardTitle>
@@ -174,7 +174,7 @@ function LoginPage() {
         <CardContent className="space-y-5 px-7 pb-7">
           {apiError && (
             <p
-              className="rounded-xl bg-red-500/10 px-4 py-3 text-sm text-red-500"
+              className="px-4 py-3 text-sm text-red-500 rounded-xl bg-red-500/10"
               role="alert"
             >
               {apiError}
@@ -262,12 +262,12 @@ function LoginPage() {
             <Separator className="flex-1 bg-(--border-color)" />
           </div>
 
-          <GoogleAuthButton
+          {/* <GoogleAuthButton
             label={googleLoading ? 'Đang đăng nhập…' : 'Tiếp tục với Google'}
             loading={googleLoading}
             disabled={loading}
             onClick={handleGoogleLogin}
-          />
+          /> */}
 
           <p className="text-center text-sm text-(--muted-text)">
             Chưa có tài khoản?{' '}

@@ -13,10 +13,12 @@ function SavedEvents() {
         };
         fetch();
     }, []);
+
     return (  
         <div>
             <SavedEventsHero />
-            <div className="grid grid-cols-2 gap-2.5">
+            {/* 1 col mobile, 2 col sm+ */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {events.map((item) => (
                     <SavedEventCard key={item.id} event={item.event} />
                 ))}

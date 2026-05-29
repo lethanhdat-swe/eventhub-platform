@@ -18,6 +18,7 @@ import CategoryFormDialog from '@/pages/(admin)/EventCategories/components/Categ
 import CategoryTable from '@/pages/(admin)/EventCategories/components/CategoryTable';
 import DeleteCategoryDialog from '@/pages/(admin)/EventCategories/components/DeleteCategoryDialog';
 import { mapCategoryRow } from '@/pages/(admin)/EventCategories/data';
+import { toast } from 'sonner';
 
 const PAGE_SIZE = 10;
 
@@ -103,17 +104,25 @@ function EventCategories() {
   const handleSaveCategory = async ({ name, slug }) => {
     setError(null);
 
-    if (formDialog?.mode === 'create') {
-      await categoryService.create({ name, slug });
-      setFormDialog(null);
-      await loadCategories();
-      return;
-    }
+    try {
+      if (formDialog?.mode === 'create') {
+        await categoryService.create({ name, slug });
+        toast.success('Tạo danh mục thành công');
+        setFormDialog(null);
+        await loadCategories();
+        return;
+      }
 
-    if (formDialog?.mode === 'edit' && formDialog.category) {
-      await categoryService.update(formDialog.category.id, { name, slug });
-      setFormDialog(null);
-      await loadCategories();
+      if (formDialog?.mode === 'edit' && formDialog.category) {
+        await categoryService.update(formDialog.category.id, { name, slug });
+        toast.success('Cập nhật danh mục thành công');
+        setFormDialog(null);
+        await loadCategories();
+      }
+    } catch (e) {
+      const message = getErrorMessage(e);
+      setError(message);
+      toast.error(message || 'Có lỗi xảy ra');
     }
   };
 
@@ -126,6 +135,7 @@ function EventCategories() {
       if (deleteDialog.type === 'bulk') {
         await categoryService.deleteMany([...selectedIds]);
         setSelectedIds(new Set());
+        toast.success(`Đã xóa ${selectedIds.size} danh mục`);
       } else {
         await categoryService.deleteMany([deleteDialog.category.id]);
         setSelectedIds((prev) => {
@@ -133,11 +143,14 @@ function EventCategories() {
           next.delete(deleteDialog.category.id);
           return next;
         });
+        toast.success(`Đã xóa danh mục "${deleteDialog.category.name}"`);
       }
       setDeleteDialog(null);
       await loadCategories();
     } catch (e) {
-      setError(getErrorMessage(e));
+      const message = getErrorMessage(e);
+      setError(message);
+      toast.error(message || 'Xóa danh mục thất bại');
     } finally {
       setDeleteSubmitting(false);
     }
@@ -175,7 +188,7 @@ function EventCategories() {
 
       {error && categories.length > 0 ? (
         <div
-          className="flex flex-col gap-2 rounded-lg border border-destructive/25 bg-destructive/5 px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
+          className="flex flex-col gap-2 px-3 py-2 border rounded-lg border-destructive/25 bg-destructive/5 sm:flex-row sm:items-center sm:justify-between"
           role="alert"
         >
           <p className="text-sm text-destructive">{error}</p>
@@ -183,7 +196,7 @@ function EventCategories() {
             type="button"
             variant="outline"
             size="sm"
-            className="h-8 shrink-0 cursor-pointer"
+            className="h-8 cursor-pointer shrink-0"
             onClick={() => void loadCategories()}
           >
             Thử lại
@@ -204,7 +217,7 @@ function EventCategories() {
         <Button
           type="button"
           variant="destructive"
-          className="h-9 px-3"
+          className="px-3 h-9"
           onClick={() => setDeleteDialog({ type: 'bulk' })}
         >
           Xóa đã chọn

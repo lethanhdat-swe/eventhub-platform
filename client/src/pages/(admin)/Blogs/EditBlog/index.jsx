@@ -9,6 +9,7 @@ import { blogCategoryService } from '@/lib/services/blogCategory/blogCategorySer
 import PageHeader from '@/pages/(admin)/components/PageHeader';
 import BlogForm from '@/pages/(admin)/Blogs/components/BlogForm';
 import { buildBlogPayload, mapBlogRow } from '@/pages/(admin)/Blogs/data';
+import { toast } from 'sonner';
 
 function EditBlog() {
   const { id } = useParams();
@@ -58,9 +59,12 @@ function EditBlog() {
         ...buildBlogPayload(form),
         categoryId: form.categoryId || null,
       });
+      toast.success('Cập nhật bài viết thành công');
       navigate('/admin/blogs');
     } catch (e) {
-      setFormError(getErrorMessage(e));
+      const message = getErrorMessage(e);
+      setFormError(message);
+      toast.error(message || 'Cập nhật bài viết thất bại');
     } finally {
       setSubmitting(false);
     }

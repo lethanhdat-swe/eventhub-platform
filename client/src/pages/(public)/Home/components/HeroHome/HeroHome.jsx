@@ -32,7 +32,7 @@ function HeroHome() {
   }, [heroImages.length]);
 
   return (
-    <section className="relative h-screen min-h-[720px] overflow-hidden bg-black">
+    <section className="relative h-screen overflow-hidden bg-black min-h-180">
       {heroImages.map((image, index) => {
         const isActive = index === activeIndex;
 

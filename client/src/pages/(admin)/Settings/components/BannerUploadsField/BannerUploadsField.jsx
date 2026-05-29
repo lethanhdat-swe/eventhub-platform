@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { ThumbnailUploadField } from '@/components/form';
 import { bannerService } from '@/lib/services/banner';
+import { toast } from 'sonner';
 
 function BannerUploadsField({ max = 10, label = 'Banner website' }) {
   const [banners, setBanners] = useState([]);
@@ -45,14 +46,14 @@ function BannerUploadsField({ max = 10, label = 'Banner website' }) {
     try {
       await bannerService.deleteBanner(banner.id);
     } catch (error) {
-      // Nếu message là success thì vẫn tiếp tục xóa local
       if (!error.message?.toLowerCase().includes('success')) {
+        toast.error(error?.message || 'Xóa banner thất bại');
         console.error('DELETE error:', error);
-        return; // lỗi thật → dừng lại
+        return;
       }
     }
 
-    // Xóa local dù deleteBanner throw "success"
+    toast.success('Đã xóa banner');
     setBanners((prev) => prev.filter((_, i) => i !== index));
     originalBannersRef.current = originalBannersRef.current.filter(
       (b) => b.id !== banner.id
@@ -84,8 +85,6 @@ function BannerUploadsField({ max = 10, label = 'Banner website' }) {
         )
       );
 
-      // Chỉ fetch lại khi có banner mới để lấy id từ server
-      // Tránh overwrite state đã xóa local
       if (newBanners.length > 0) {
         const refreshed = await bannerService.getAllBanners();
         const data = refreshed || [];
@@ -94,7 +93,10 @@ function BannerUploadsField({ max = 10, label = 'Banner website' }) {
       } else {
         originalBannersRef.current = [...banners];
       }
+
+      toast.success('Lưu banner thành công');
     } catch (error) {
+      toast.error(error?.message || 'Lưu banner thất bại');
       console.error(error);
     } finally {
       setIsSaving(false);

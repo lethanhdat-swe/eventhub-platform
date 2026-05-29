@@ -14,18 +14,18 @@ function OrderSummarySection({ event, ticketItems = [] }) {
         <p className="text-(--text-primary) font-medium">Chi tiết sự kiện</p>
       </div>
 
-      <div className="grid grid-cols-12 gap-5 bg-(--background-color)/90 border border-(--text-primary)/10 rounded-xl p-5">
-        <div className="col-span-12 md:col-span-4">
-          <div className="aspect-[5/5] w-full overflow-hidden rounded-2xl">
+      <div className="bg-(--background-color)/90 border border-(--text-primary)/10 rounded-xl p-4 sm:p-5 space-y-4 md:space-y-0 md:grid md:grid-cols-12 md:gap-5">
+        <div className="md:col-span-4">
+          <div className="aspect-[16/9] sm:aspect-[5/4] md:aspect-[5/5] w-full overflow-hidden rounded-2xl">
             <img
               src={imageUrl}
               alt={event?.title ?? 'Event'}
-              className="h-full w-full object-cover"
+              className="object-cover w-full h-full"
             />
           </div>
         </div>
 
-        <div className="col-span-12 md:col-span-8 space-y-4">
+        <div className="space-y-4 md:col-span-8">
           <EventInfoCard event={event} />
           <TicketTable items={ticketItems} />
         </div>

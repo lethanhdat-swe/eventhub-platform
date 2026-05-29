@@ -33,7 +33,7 @@ export function AvatarUpload() {
   return (
     <div
       onClick={() => inputRef.current?.click()}
-      className="relative p-3 cursor-pointer w-35 h-35 group"
+      className="relative flex-shrink-0 w-24 h-24 p-2 cursor-pointer sm:p-3 sm:w-35 sm:h-35 group"
     >
       <img
         src={resolvePublicAssetUrl(user.avatarUrl)}

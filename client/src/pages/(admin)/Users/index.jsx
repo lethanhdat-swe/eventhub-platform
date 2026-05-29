@@ -19,6 +19,7 @@ import UserDetailDialog from '@/pages/(admin)/Users/components/UserDetailDialog'
 import UserRoleDialog from '@/pages/(admin)/Users/components/UserRoleDialog';
 import UserTable from '@/pages/(admin)/Users/components/UserTable';
 import { USER_ROLE_OPTIONS } from '@/pages/(admin)/Users/data';
+import { toast } from 'sonner';
 
 const USER_EMAIL_FILTER_OPTIONS = [
   { value: 'all', label: 'Tất cả' },
@@ -126,10 +127,13 @@ function Users() {
     setError(null);
     try {
       await userService.changeRole({ userId: roleDialogUser.id, role });
+      toast.success(`Đã cập nhật vai trò của "${roleDialogUser.name}"`);
       setRoleDialogUser(null);
       await loadUsers();
     } catch (e) {
-      setError(getErrorMessage(e));
+      const message = getErrorMessage(e);
+      setError(message);
+      toast.error(message || 'Cập nhật vai trò thất bại');
       throw e;
     }
   };
@@ -142,6 +146,7 @@ function Users() {
       if (deleteDialog.type === 'bulk') {
         await userService.deleteMany([...selectedIds]);
         setSelectedIds(new Set());
+        toast.success(`Đã xóa ${selectedIds.size} người dùng`);
       } else {
         await userService.deleteMany([deleteDialog.user.id]);
         setSelectedIds((prev) => {
@@ -149,11 +154,14 @@ function Users() {
           next.delete(deleteDialog.user.id);
           return next;
         });
+        toast.success(`Đã xóa người dùng "${deleteDialog.user.name}"`);
       }
       setDeleteDialog(null);
       await loadUsers();
     } catch (e) {
-      setError(getErrorMessage(e));
+      const message = getErrorMessage(e);
+      setError(message);
+      toast.error(message || 'Xóa người dùng thất bại');
     }
   };
 
@@ -198,7 +206,7 @@ function Users() {
 
       {error && users.length > 0 ? (
         <div
-          className="flex flex-col gap-2 rounded-lg border border-destructive/25 bg-destructive/5 px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
+          className="flex flex-col gap-2 px-3 py-2 border rounded-lg border-destructive/25 bg-destructive/5 sm:flex-row sm:items-center sm:justify-between"
           role="alert"
         >
           <p className="text-sm text-destructive">{error}</p>
@@ -241,7 +249,7 @@ function Users() {
           <Button
             type="button"
             variant="outline"
-            className="h-9 px-3"
+            className="px-3 h-9"
             onClick={handleNotifySelected}
           >
             Gửi thông báo
@@ -249,7 +257,7 @@ function Users() {
           <Button
             type="button"
             variant="destructive"
-            className="h-9 px-3"
+            className="px-3 h-9"
             onClick={() => setDeleteDialog({ type: 'bulk' })}
           >
             Xóa đã chọn

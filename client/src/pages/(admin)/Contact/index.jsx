@@ -14,6 +14,7 @@ import PageHeader from '@/pages/(admin)/components/PageHeader';
 import ContactTable from './components/ContactTable/ContactTable';
 import DeleteContactDialog from './components/DeleteContactDialog/DeleteContactDialog';
 import ContactDetailDialog from './components/ContactDetailDialog/ContactDetailDialog';
+import { toast } from 'sonner';
 
 const PAGE_SIZE = 10;
 
@@ -91,6 +92,7 @@ function Contacts() {
       if (deleteDialog.type === 'bulk') {
         await Promise.all([...selectedIds].map((id) => contactService.deleteOne(id)));
         setSelectedIds(new Set());
+        toast.success(`Đã xóa ${selectedIds.size} liên hệ`);
       } else {
         await contactService.deleteOne(deleteDialog.contact.id);
         setSelectedIds((prev) => {
@@ -98,11 +100,14 @@ function Contacts() {
           next.delete(deleteDialog.contact.id);
           return next;
         });
+        toast.success(`Đã xóa liên hệ "${deleteDialog.contact.fullName}"`);
       }
       setDeleteDialog(null);
       await loadContacts();
     } catch (e) {
-      setError(getErrorMessage(e));
+      const message = getErrorMessage(e);
+      setError(message);
+      toast.error(message || 'Xóa liên hệ thất bại');
     }
   };
 

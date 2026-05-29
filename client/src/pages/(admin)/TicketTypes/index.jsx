@@ -19,6 +19,7 @@ import TicketTypeFormDialog from '@/pages/(admin)/TicketTypes/components/TicketT
 import TicketTypeTable from '@/pages/(admin)/TicketTypes/components/TicketTypeTable';
 import { DEFAULT_TICKET_COLOR, normalizeHexColor } from '@/pages/(admin)/TicketTypes/colorUtils';
 import { mapTicketTypeRow } from '@/pages/(admin)/TicketTypes/data';
+import { toast } from 'sonner';
 
 const PAGE_SIZE = 10;
 
@@ -109,17 +110,25 @@ function TicketTypes() {
       color: normalizeHexColor(color),
     };
 
-    if (formDialog?.mode === 'create') {
-      await ticketTypeService.create(payload);
-      setFormDialog(null);
-      await loadTicketTypes();
-      return;
-    }
+    try {
+      if (formDialog?.mode === 'create') {
+        await ticketTypeService.create(payload);
+        toast.success('Tạo loại vé thành công');
+        setFormDialog(null);
+        await loadTicketTypes();
+        return;
+      }
 
-    if (formDialog?.mode === 'edit' && formDialog.ticketType) {
-      await ticketTypeService.update(formDialog.ticketType.id, payload);
-      setFormDialog(null);
-      await loadTicketTypes();
+      if (formDialog?.mode === 'edit' && formDialog.ticketType) {
+        await ticketTypeService.update(formDialog.ticketType.id, payload);
+        toast.success('Cập nhật loại vé thành công');
+        setFormDialog(null);
+        await loadTicketTypes();
+      }
+    } catch (e) {
+      const message = getErrorMessage(e);
+      setError(message);
+      toast.error(message || 'Có lỗi xảy ra');
     }
   };
 
@@ -132,6 +141,7 @@ function TicketTypes() {
       if (deleteDialog.type === 'bulk') {
         await ticketTypeService.deleteMany([...selectedIds]);
         setSelectedIds(new Set());
+        toast.success(`Đã xóa ${selectedIds.size} loại vé`);
       } else {
         const id = deleteDialog.ticketType.id;
         await ticketTypeService.deleteMany([id]);
@@ -140,11 +150,14 @@ function TicketTypes() {
           next.delete(id);
           return next;
         });
+        toast.success(`Đã xóa loại vé "${deleteDialog.ticketType.name}"`);
       }
       setDeleteDialog(null);
       await loadTicketTypes();
     } catch (e) {
-      setError(getErrorMessage(e));
+      const message = getErrorMessage(e);
+      setError(message);
+      toast.error(message || 'Xóa loại vé thất bại');
     } finally {
       setDeleteSubmitting(false);
     }
@@ -190,7 +203,7 @@ function TicketTypes() {
 
       {error && ticketTypes.length > 0 ? (
         <div
-          className="flex flex-col gap-2 rounded-lg border border-destructive/25 bg-destructive/5 px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
+          className="flex flex-col gap-2 px-3 py-2 border rounded-lg border-destructive/25 bg-destructive/5 sm:flex-row sm:items-center sm:justify-between"
           role="alert"
         >
           <p className="text-sm text-destructive">{error}</p>
@@ -219,7 +232,7 @@ function TicketTypes() {
         <Button
           type="button"
           variant="destructive"
-          className="h-9 px-3"
+          className="px-3 h-9"
           disabled={selectedIds.size === 0}
           onClick={() => setDeleteDialog({ type: 'bulk' })}
         >

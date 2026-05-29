@@ -23,6 +23,7 @@ import {
   COUPON_STATUS_OPTIONS,
   mapCouponRow,
 } from '@/pages/(admin)/Coupons/data';
+import { toast } from 'sonner';
 
 const PAGE_SIZE = 10;
 
@@ -133,23 +134,31 @@ function Coupons() {
     setError(null);
     const body = buildCouponPayload(values);
 
-    if (formDialog?.mode === 'create') {
-      await couponService.create(body);
-      setFormDialog(null);
-      await loadCoupons();
-      return;
-    }
+    try {
+      if (formDialog?.mode === 'create') {
+        await couponService.create(body);
+        toast.success('Tạo mã giảm giá thành công');
+        setFormDialog(null);
+        await loadCoupons();
+        return;
+      }
 
-    if (formDialog?.mode === 'edit' && formDialog.coupon) {
-      const updateBody = {
-        ...body,
-        description: values.description || undefined,
-        validUntil: values.validUntil,
-        usageLimit: values.usageLimit,
-      };
-      await couponService.update(formDialog.coupon.id, updateBody);
-      setFormDialog(null);
-      await loadCoupons();
+      if (formDialog?.mode === 'edit' && formDialog.coupon) {
+        const updateBody = {
+          ...body,
+          description: values.description || undefined,
+          validUntil: values.validUntil,
+          usageLimit: values.usageLimit,
+        };
+        await couponService.update(formDialog.coupon.id, updateBody);
+        toast.success('Cập nhật mã giảm giá thành công');
+        setFormDialog(null);
+        await loadCoupons();
+      }
+    } catch (e) {
+      const message = getErrorMessage(e);
+      setError(message);
+      toast.error(message || 'Có lỗi xảy ra');
     }
   };
 
@@ -162,6 +171,7 @@ function Coupons() {
       if (deleteDialog.type === 'bulk') {
         await couponService.deleteMany([...selectedIds]);
         setSelectedIds(new Set());
+        toast.success(`Đã xóa ${selectedIds.size} mã giảm giá`);
       } else {
         await couponService.deleteOne(deleteDialog.coupon.id);
         setSelectedIds((prev) => {
@@ -169,11 +179,14 @@ function Coupons() {
           next.delete(deleteDialog.coupon.id);
           return next;
         });
+        toast.success(`Đã xóa mã giảm giá "${deleteDialog.coupon.code}"`);
       }
       setDeleteDialog(null);
       await loadCoupons();
     } catch (e) {
-      setError(getErrorMessage(e));
+      const message = getErrorMessage(e);
+      setError(message);
+      toast.error(message || 'Xóa mã giảm giá thất bại');
     } finally {
       setDeleteSubmitting(false);
     }
@@ -221,7 +234,7 @@ function Coupons() {
 
       {error && coupons.length > 0 ? (
         <div
-          className="flex flex-col gap-2 rounded-lg border border-destructive/25 bg-destructive/5 px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
+          className="flex flex-col gap-2 px-3 py-2 border rounded-lg border-destructive/25 bg-destructive/5 sm:flex-row sm:items-center sm:justify-between"
           role="alert"
         >
           <p className="text-sm text-destructive">{error}</p>
@@ -263,7 +276,7 @@ function Coupons() {
         <Button
           type="button"
           variant="destructive"
-          className="h-9 px-3"
+          className="px-3 h-9"
           disabled={selectedIds.size === 0}
           onClick={() => setDeleteDialog({ type: 'bulk' })}
         >

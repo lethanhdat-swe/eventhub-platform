@@ -16,6 +16,7 @@ import {
 import ArtistFormDialog from '@/pages/(admin)/Artists/components/ArtistFormDialog';
 import ArtistTable from '@/pages/(admin)/Artists/components/ArtistTable';
 import DeleteArtistDialog from '@/pages/(admin)/Artists/components/DeleteArtistDialog';
+import { toast } from 'sonner';
 
 const PAGE_SIZE = 10;
 
@@ -100,31 +101,39 @@ function Artists() {
   const handleSaveArtist = async ({ name, slug, avatarUrl, description }) => {
     setError(null);
 
-    if (formDialog?.mode === 'create') {
-      await artistService.create({
-        name,
-        ...(slug ? { slug } : {}),
-        ...(avatarUrl ? { avatarUrl } : {}),
-        ...(description ? { description } : {}),
-      });
-      setFormDialog(null);
-      await loadArtists();
-      return;
-    }
+    try {
+      if (formDialog?.mode === 'create') {
+        await artistService.create({
+          name,
+          ...(slug ? { slug } : {}),
+          ...(avatarUrl ? { avatarUrl } : {}),
+          ...(description ? { description } : {}),
+        });
+        toast.success('Tạo nghệ sĩ thành công');
+        setFormDialog(null);
+        await loadArtists();
+        return;
+      }
 
-    if (formDialog?.mode === 'edit' && formDialog.artist) {
-      await artistService.update(formDialog.artist.id, {
-        name,
-        ...(slug ? { slug } : {}),
-        description,
-        ...(avatarUrl === ''
-          ? { avatarUrl: null }
-          : avatarUrl
-            ? { avatarUrl }
-            : {}),
-      });
-      setFormDialog(null);
-      await loadArtists();
+      if (formDialog?.mode === 'edit' && formDialog.artist) {
+        await artistService.update(formDialog.artist.id, {
+          name,
+          ...(slug ? { slug } : {}),
+          description,
+          ...(avatarUrl === ''
+            ? { avatarUrl: null }
+            : avatarUrl
+              ? { avatarUrl }
+              : {}),
+        });
+        toast.success('Cập nhật nghệ sĩ thành công');
+        setFormDialog(null);
+        await loadArtists();
+      }
+    } catch (e) {
+      const message = getErrorMessage(e);
+      setError(message);
+      toast.error(message || 'Có lỗi xảy ra');
     }
   };
 
@@ -137,6 +146,7 @@ function Artists() {
       if (deleteDialog.type === 'bulk') {
         await artistService.deleteMany([...selectedIds]);
         setSelectedIds(new Set());
+        toast.success(`Đã xóa ${selectedIds.size} nghệ sĩ`);
       } else {
         await artistService.deleteMany([deleteDialog.artist.id]);
         setSelectedIds((prev) => {
@@ -144,11 +154,14 @@ function Artists() {
           next.delete(deleteDialog.artist.id);
           return next;
         });
+        toast.success(`Đã xóa nghệ sĩ "${deleteDialog.artist.name}"`);
       }
       setDeleteDialog(null);
       await loadArtists();
     } catch (e) {
-      setError(getErrorMessage(e));
+      const message = getErrorMessage(e);
+      setError(message);
+      toast.error(message || 'Xóa nghệ sĩ thất bại');
     } finally {
       setDeleteSubmitting(false);
     }
@@ -196,7 +209,7 @@ function Artists() {
 
       {error && artists.length > 0 ? (
         <div
-          className="flex flex-col gap-2 rounded-lg border border-destructive/25 bg-destructive/5 px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
+          className="flex flex-col gap-2 px-3 py-2 border rounded-lg border-destructive/25 bg-destructive/5 sm:flex-row sm:items-center sm:justify-between"
           role="alert"
         >
           <p className="text-sm text-destructive">{error}</p>
@@ -225,7 +238,7 @@ function Artists() {
         <Button
           type="button"
           variant="destructive"
-          className="h-9 px-3"
+          className="px-3 h-9"
           disabled={selectedIds.size === 0}
           onClick={() => setDeleteDialog({ type: 'bulk' })}
         >

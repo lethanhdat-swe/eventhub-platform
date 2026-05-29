@@ -16,6 +16,7 @@ import BlogCategoryFormDialog from '@/pages/(admin)/BlogCategories/components/Bl
 import BlogCategoryTable from '@/pages/(admin)/BlogCategories/components/BlogCategoryTable';
 import DeleteBlogCategoryDialog from '@/pages/(admin)/BlogCategories/components/DeleteBlogCategoryDialog';
 import { mapBlogCategoryRow } from '@/pages/(admin)/BlogCategories/data';
+import { toast } from 'sonner';
 
 const PAGE_SIZE = 10;
 
@@ -102,20 +103,28 @@ function BlogCategories() {
     });
   };
 
-  const handleSaveCategory = async ({ name, slug }) => {
+ const handleSaveCategory = async ({ name, slug }) => {
     setError(null);
 
-    if (formDialog?.mode === 'create') {
-      await blogCategoryService.create({ name, slug });
-      setFormDialog(null);
-      await loadCategories();
-      return;
-    }
+    try {
+      if (formDialog?.mode === 'create') {
+        await blogCategoryService.create({ name, slug });
+        toast.success('Tạo danh mục thành công');
+        setFormDialog(null);
+        await loadCategories();
+        return;
+      }
 
-    if (formDialog?.mode === 'edit' && formDialog.category) {
-      await blogCategoryService.update(formDialog.category.id, { name, slug });
-      setFormDialog(null);
-      await loadCategories();
+      if (formDialog?.mode === 'edit' && formDialog.category) {
+        await blogCategoryService.update(formDialog.category.id, { name, slug });
+        toast.success('Cập nhật danh mục thành công');
+        setFormDialog(null);
+        await loadCategories();
+      }
+    } catch (e) {
+      const message = getErrorMessage(e);
+      setError(message);
+      toast.error(message || 'Có lỗi xảy ra');
     }
   };
 
@@ -128,6 +137,7 @@ function BlogCategories() {
       if (deleteDialog.type === 'bulk') {
         await blogCategoryService.deleteMany([...selectedIds]);
         setSelectedIds(new Set());
+        toast.success(`Đã xóa ${selectedIds.size} danh mục`);
       } else {
         await blogCategoryService.deleteMany([deleteDialog.category.id]);
         setSelectedIds((prev) => {
@@ -135,12 +145,14 @@ function BlogCategories() {
           next.delete(deleteDialog.category.id);
           return next;
         });
+        toast.success(`Đã xóa danh mục "${deleteDialog.category.name}"`);
       }
-
       setDeleteDialog(null);
       await loadCategories();
     } catch (e) {
-      setError(getErrorMessage(e));
+      const message = getErrorMessage(e);
+      setError(message);
+      toast.error(message || 'Xóa danh mục thất bại');
     } finally {
       setDeleteSubmitting(false);
     }
@@ -177,7 +189,7 @@ function BlogCategories() {
 
       {error && categories.length > 0 ? (
         <div
-          className="flex flex-col gap-2 rounded-lg border border-destructive/25 bg-destructive/5 px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
+          className="flex flex-col gap-2 px-3 py-2 border rounded-lg border-destructive/25 bg-destructive/5 sm:flex-row sm:items-center sm:justify-between"
           role="alert"
         >
           <p className="text-sm text-destructive">{error}</p>
@@ -185,7 +197,7 @@ function BlogCategories() {
             type="button"
             variant="outline"
             size="sm"
-            className="h-8 shrink-0 cursor-pointer"
+            className="h-8 cursor-pointer shrink-0"
             onClick={() => void loadCategories()}
           >
             Thử lại
@@ -206,7 +218,7 @@ function BlogCategories() {
         <Button
           type="button"
           variant="destructive"
-          className="h-9 px-3"
+          className="px-3 h-9"
           onClick={() => setDeleteDialog({ type: 'bulk' })}
         >
           Xóa đã chọn

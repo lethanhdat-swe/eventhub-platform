@@ -16,40 +16,37 @@ function BlogItem({ blog }) {
   };
 
   return (
-    <article className="container mt-6">
+    <article className="container mt-4 sm:mt-6">
       <div
         onClick={handleNavigate}
         className="
-          group grid cursor-pointer grid-cols-12 gap-6
-          rounded-[28px] border border-[var(--border-color)]
-          bg-[var(--card-surface-color)] p-4
+          group grid cursor-pointer grid-cols-12 gap-4 sm:gap-6
+          rounded-2xl sm:rounded-[28px] border border-(--border-color)
+          bg-(--card-surface-color) p-3 sm:p-4
           shadow-[0_22px_70px_rgba(0,0,0,0.22)]
           backdrop-blur-xl
           transition-all duration-500
-          hover:-translate-y-1 hover:border-[var(--primary-color)]/60
-          hover:bg-[var(--card-hover-color)]
+          hover:-translate-y-1 hover:border-(--primary-color)/60
+          hover:bg-(--card-hover-color)
           hover:shadow-[0_28px_90px_rgba(124,58,237,0.16)]
         "
       >
-        <div className="col-span-12 overflow-hidden rounded-[24px] lg:col-span-5">
-          <div className="relative h-[260px] overflow-hidden rounded-[24px]">
+        {/* Thumbnail */}
+        <div className="col-span-12 overflow-hidden rounded-xl sm:rounded-[24px] lg:col-span-5">
+          <div className="relative h-50 sm:h-60 lg:h-65 overflow-hidden rounded-xl sm:rounded-[24px]">
             <img
               src={resolvePublicAssetUrl(blog.thumbnailUrl)}
               alt={blog.title}
-              className="
-                h-full w-full object-cover
-                transition-transform duration-700 ease-out
-                group-hover:scale-105
-              "
+              className="object-cover w-full h-full transition-transform duration-700 ease-out group-hover:scale-105"
             />
 
             <div className="absolute inset-0 bg-linear-to-t from-black/55 via-black/5 to-transparent" />
 
             <span
               className="
-                absolute left-4 top-4 rounded-full
-                border border-white/15 bg-black/35 px-3.5 py-2
-                text-xs font-black text-white
+                absolute left-3 top-3 sm:left-4 sm:top-4 rounded-full
+                border border-white/15 bg-black/35 px-3 py-1.5 sm:px-3.5 sm:py-2
+                text-[10px] sm:text-xs font-black text-white
                 backdrop-blur-xl
               "
             >
@@ -58,48 +55,52 @@ function BlogItem({ blog }) {
           </div>
         </div>
 
-        <div className="col-span-12 flex flex-col justify-center lg:col-span-7">
-          <div className="mb-4 flex flex-wrap items-center gap-3">
-            <span className="text-xs font-black uppercase tracking-[0.22em] text-[var(--primary-color)]">
+        {/* Content */}
+        <div className="flex flex-col justify-center col-span-12 lg:col-span-7">
+          <div className="flex flex-wrap items-center gap-2 mb-3 sm:mb-4 sm:gap-3">
+            <span className="text-[10px] sm:text-xs font-black uppercase tracking-[0.22em] text-(--primary-color)">
               Bài viết
             </span>
 
-            <span className="h-1 w-1 rounded-full bg-[var(--muted-text)]" />
+            <span className="h-1 w-1 rounded-full bg-(--muted-text)" />
 
-            <div className="flex items-center gap-2 text-sm font-medium text-[var(--muted-text)]">
-              <CalendarDays size={16} />
+            <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-(--muted-text)">
+              <CalendarDays size={13} className="sm:hidden" />
+              <CalendarDays size={16} className="hidden sm:block" />
               <span>{blog.date}</span>
             </div>
 
-            <div className="flex items-center gap-2 text-sm font-medium text-[var(--muted-text)]">
-              <Eye size={16} />
+            <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-(--muted-text)">
+              <Eye size={13} className="sm:hidden" />
+              <Eye size={16} className="hidden sm:block" />
               <span>{blog.views || 0} lượt xem</span>
             </div>
           </div>
 
           <h2
             className="
-              mb-4 line-clamp-2 text-2xl font-black leading-tight
-              tracking-[-0.035em] text-[var(--text-primary)]
+              mb-3 sm:mb-4 line-clamp-2
+              text-lg sm:text-2xl md:text-3xl
+              font-black leading-tight
+              tracking-[-0.03em] sm:tracking-[-0.035em] text-(--text-primary)
               transition-colors duration-300
               group-hover:text-white
-              md:text-3xl
             "
           >
             {blog.title}
           </h2>
 
-          <p className="line-clamp-3 max-w-3xl text-base font-medium leading-8 text-[var(--muted-text)]">
+          <p className="hidden sm:block line-clamp-3 max-w-3xl text-sm sm:text-base font-medium leading-7 sm:leading-8 text-(--muted-text)">
             {blog.excerpt}
           </p>
 
-          <div className="mt-8 flex items-center justify-between border-t border-[var(--border-color)] pt-5">
+          <div className="mt-4 sm:mt-8 flex items-center justify-between border-t border-(--border-color) pt-3 sm:pt-5">
             <div className="min-w-0">
-              <p className="text-xs font-medium text-[var(--muted-text)]">
+              <p className="text-[10px] sm:text-xs font-medium text-(--muted-text)">
                 Tác giả
               </p>
 
-              <p className="mt-1 truncate text-sm font-bold text-[var(--text-primary)]">
+              <p className="mt-0.5 sm:mt-1 truncate text-xs sm:text-sm font-bold text-(--text-primary)">
                 {blog.author?.email || 'EventHub Editorial'}
               </p>
             </div>
@@ -108,21 +109,25 @@ function BlogItem({ blog }) {
               type="button"
               onClick={handleButtonClick}
               className="
-                inline-flex items-center gap-2 rounded-full
-                border border-[var(--border-color)]
-                bg-[var(--soft-surface-color)] px-5 py-3
-                text-sm font-black text-[var(--text-primary)]
+                inline-flex items-center gap-1.5 sm:gap-2 rounded-full
+                border border-(--border-color)
+                bg-(--soft-surface-color) px-4 sm:px-5 py-2.5 sm:py-3
+                text-xs sm:text-sm font-black text-(--text-primary)
                 transition-all duration-300
-                hover:border-[var(--primary-color)]/60
-                hover:bg-[var(--primary-color)]
+                hover:border-(--primary-color)/60
+                hover:bg-(--primary-color)
                 hover:text-white
                 active:scale-95
               "
             >
               Đọc tiếp
               <ArrowRight
+                size={14}
+                className="transition-transform duration-300 sm:hidden group-hover:translate-x-1"
+              />
+              <ArrowRight
                 size={16}
-                className="transition-transform duration-300 group-hover:translate-x-1"
+                className="hidden transition-transform duration-300 sm:block group-hover:translate-x-1"
               />
             </button>
           </div>

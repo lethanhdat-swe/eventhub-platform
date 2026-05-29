@@ -8,6 +8,7 @@ import { artistService } from '@/lib/services/admin/artistService';
 import PageHeader from '@/pages/(admin)/components/PageHeader';
 import EventForm from '@/pages/(admin)/Events/components/EventForm';
 import { buildEventPayload } from '@/pages/(admin)/Events/data';
+import { toast } from 'sonner';
 
 function CreateEvent() {
   const navigate = useNavigate();
@@ -41,16 +42,29 @@ function CreateEvent() {
 
   const saveEvent = async (form, statusOverride) => {
     setSubmitting(true);
-    setFormError('');
+    setFormError("");
+
     try {
       const payload = buildEventPayload({
         ...form,
         status: statusOverride ?? form.status,
       });
+
       const created = await eventService.create(payload);
-      navigate(created?.id ? `/admin/events/${created.id}` : '/admin/events');
+
+      toast.success("Tạo sự kiện thành công");
+
+      navigate(
+        created?.id
+          ? `/admin/events/${created.id}`
+          : "/admin/events"
+      );
     } catch (e) {
-      setFormError(getErrorMessage(e));
+      const message = getErrorMessage(e);
+
+      setFormError(message);
+
+      toast.error(message || "Có lỗi xảy ra");
     } finally {
       setSubmitting(false);
     }

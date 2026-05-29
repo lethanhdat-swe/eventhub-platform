@@ -16,6 +16,7 @@ import {
 import BlogTable from '@/pages/(admin)/Blogs/components/BlogTable';
 import DeleteBlogDialog from '@/pages/(admin)/Blogs/components/DeleteBlogDialog';
 import { mapBlogRow } from '@/pages/(admin)/Blogs/data';
+import { toast } from 'sonner';
 
 const PAGE_SIZE = 10;
 
@@ -111,6 +112,7 @@ function Blogs() {
       if (deleteDialog.type === 'bulk') {
         await blogService.deleteMany([...selectedIds]);
         setSelectedIds(new Set());
+        toast.success(`Đã xóa ${selectedIds.size} bài viết`);
       } else {
         await blogService.deleteMany([deleteDialog.blog.id]);
         setSelectedIds((prev) => {
@@ -118,12 +120,14 @@ function Blogs() {
           next.delete(deleteDialog.blog.id);
           return next;
         });
+        toast.success(`Đã xóa bài viết "${deleteDialog.blog.title}"`);
       }
-
       setDeleteDialog(null);
       await loadBlogs();
     } catch (e) {
-      setError(getErrorMessage(e));
+      const message = getErrorMessage(e);
+      setError(message);
+      toast.error(message || 'Xóa bài viết thất bại');
     } finally {
       setDeleteSubmitting(false);
     }
@@ -154,7 +158,7 @@ function Blogs() {
 
       {error && blogs.length > 0 ? (
         <div
-          className="flex flex-col gap-2 rounded-lg border border-destructive/25 bg-destructive/5 px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
+          className="flex flex-col gap-2 px-3 py-2 border rounded-lg border-destructive/25 bg-destructive/5 sm:flex-row sm:items-center sm:justify-between"
           role="alert"
         >
           <p className="text-sm text-destructive">{error}</p>
@@ -162,7 +166,7 @@ function Blogs() {
             type="button"
             variant="outline"
             size="sm"
-            className="h-8 shrink-0 cursor-pointer"
+            className="h-8 cursor-pointer shrink-0"
             onClick={() => void loadBlogs()}
           >
             Thử lại
@@ -183,7 +187,7 @@ function Blogs() {
         <Button
           type="button"
           variant="destructive"
-          className="h-9 px-3"
+          className="px-3 h-9"
           onClick={() => setDeleteDialog({ type: 'bulk' })}
         >
           Xóa đã chọn

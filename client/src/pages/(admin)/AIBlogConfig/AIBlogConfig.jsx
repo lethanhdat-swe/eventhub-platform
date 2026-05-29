@@ -12,6 +12,7 @@ import AIModelCard from "./components/AIBlogConfigForm/components/AIModelCard/AI
 import PromptActionBar from "./components/PromptActionBar/PromptActionBar";
 
 import { aiBlogConfigService } from "@/lib/services/aiBlog";
+import { toast } from "sonner";
 
 function AIBlogConfig() {
   const [config, setConfig] =
@@ -89,41 +90,33 @@ function AIBlogConfig() {
         {
           ideaModel,
           ideaPrompt,
-
           blogModel,
           blogPrompt,
-
           thumbnailModel,
-
           isActive: true,
         }
       );
-
+      toast.success('Lưu cấu hình thành công');
       setSaved(true);
-
       setTimeout(() => {
         setSaved(false);
       }, 2000);
     } catch (err) {
+      toast.error(err?.message || 'Lưu cấu hình thất bại');
       console.error(err);
     }
   };
 
-  const handleGenerateIdeas = async (
-      quantity
-    ) => {
-      try {
-        await aiBlogConfigService.createIdeaAiWithQuantity(
-          {
-            quantity,
-          }
-        );
-        fetchBlogIdeas()
-
-      } catch (err) {
-        console.error(err);
-      }
-    };
+  const handleGenerateIdeas = async (quantity) => {
+    try {
+      await aiBlogConfigService.createIdeaAiWithQuantity({ quantity });
+      toast.success('Tạo ý tưởng thành công');
+      fetchBlogIdeas();
+    } catch (err) {
+      toast.error(err?.message || 'Tạo ý tưởng thất bại');
+      console.error(err);
+    }
+  };
 
   return (
     <div className="space-y-2">

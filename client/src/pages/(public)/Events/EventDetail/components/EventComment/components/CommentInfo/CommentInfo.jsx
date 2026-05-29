@@ -8,35 +8,23 @@ function CommentInfo({ comment, setComments }) {
   const [replying, setReplying] = useState(false);
   const [replyText, setReplyText] = useState('');
   const [loading, setLoading] = useState(false);
-
   const [editingReplyId, setEditingReplyId] = useState(null);
-
   const [editReplyText, setEditReplyText] = useState('');
 
   const handleReply = async () => {
     const trimmed = replyText.trim();
-
     if (!trimmed || loading) return;
-
     setLoading(true);
-
     try {
       const newReply = await commentService.create(comment.eventId, {
         content: trimmed,
         parentId: comment.id,
       });
-
       setComments((prev) =>
         prev.map((c) =>
-          c.id === comment.id
-            ? {
-                ...c,
-                replies: [...(c.replies ?? []), newReply],
-              }
-            : c
+          c.id === comment.id ? { ...c, replies: [...(c.replies ?? []), newReply] } : c
         )
       );
-
       setReplyText('');
       setReplying(false);
     } catch (err) {
@@ -55,23 +43,15 @@ function CommentInfo({ comment, setComments }) {
 
   const handleUpdateReply = async (replyId) => {
     const trimmed = editReplyText.trim();
-
     if (!trimmed) return;
-
     try {
-      const updated = await commentService.update(replyId, {
-        content: trimmed,
-      });
-
+      const updated = await commentService.update(replyId, { content: trimmed });
       setComments((prev) =>
         prev.map((c) => ({
           ...c,
-          replies: (c.replies ?? []).map((r) =>
-            r.id === replyId ? updated : r
-          ),
+          replies: (c.replies ?? []).map((r) => (r.id === replyId ? updated : r)),
         }))
       );
-
       setEditingReplyId(null);
       setEditReplyText('');
     } catch (err) {
@@ -82,7 +62,6 @@ function CommentInfo({ comment, setComments }) {
   const handleDeleteReply = async (replyId) => {
     try {
       await commentService.deleteOne(replyId);
-
       setComments((prev) =>
         prev.map((c) => ({
           ...c,
@@ -95,32 +74,31 @@ function CommentInfo({ comment, setComments }) {
   };
 
   return (
-    <div className="w-full">
-      <div className="flex items-start gap-4">
+    <div className="w-full min-w-0">
+      <div className="flex items-start gap-3 sm:gap-4">
         <img
           src={resolvePublicAssetUrl(comment.user.avatarUrl)}
           alt=""
-          className="h-10 w-10 shrink-0 rounded-full object-cover ring-1 ring-(--border-color)"
+          className="h-8 w-8 sm:h-10 sm:w-10 shrink-0 rounded-full object-cover ring-1 ring-(--border-color)"
         />
 
-        <div className="flex-1 space-y-3">
-          <div className="flex items-center gap-3">
-            <h1 className="text-(--text-primary) text-lg font-semibold">
+        <div className="flex-1 min-w-0 space-y-2 sm:space-y-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            <h1 className="text-(--text-primary) text-sm sm:text-lg font-semibold">
               {comment.user.fullName}
             </h1>
-
-            <span className="text-(--text-primary)/40 text-sm">
+            <span className="text-(--text-primary)/40 text-xs sm:text-sm">
               {new Date(comment.createdAt).toLocaleString('vi-VN')}
             </span>
           </div>
 
-          <p className="text-(--text-primary)/80 leading-relaxed">
+          <p className="text-(--text-primary)/80 text-sm sm:text-base leading-relaxed wrap-break-word">
             {comment.content}
           </p>
 
           <button
             onClick={() => setReplying(!replying)}
-            className="cursor-pointer text-(--text-primary)/60 text-sm hover:text-(--primary-color)"
+            className="cursor-pointer text-(--text-primary)/60 text-xs sm:text-sm hover:text-(--primary-color)"
           >
             Reply
           </button>

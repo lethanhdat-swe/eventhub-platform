@@ -14,6 +14,7 @@ import {
   mapEventRow,
   mapEventToFormValues,
 } from '@/pages/(admin)/Events/data';
+import { toast } from 'sonner';
 
 function EditEvent() {
   const { id } = useParams();
@@ -67,18 +68,33 @@ function EditEvent() {
   }, [loadCategories, loadArtists, loadEvent]);
 
   const handleSubmit = async (form) => {
-    if (!id) return;
-    setSubmitting(true);
-    setFormError('');
-    try {
-      await eventService.update(id, buildEventPayload(form));
-      navigate(`/admin/events/${id}`);
-    } catch (e) {
-      setFormError(getErrorMessage(e));
-    } finally {
-      setSubmitting(false);
-    }
-  };
+      if (!id) return;
+
+      setSubmitting(true);
+      setFormError("");
+
+      const toastId = toast.loading("Đang cập nhật sự kiện...");
+
+      try {
+        await eventService.update(id, buildEventPayload(form));
+
+        toast.success("Cập nhật sự kiện thành công", {
+          id: toastId,
+        });
+
+        navigate(`/admin/events/${id}`);
+      } catch (e) {
+        const message = getErrorMessage(e);
+
+        setFormError(message);
+
+        toast.error(message || "Cập nhật sự kiện thất bại", {
+          id: toastId,
+        });
+      } finally {
+        setSubmitting(false);
+      }
+    };
 
   if (isLoading) {
     return (

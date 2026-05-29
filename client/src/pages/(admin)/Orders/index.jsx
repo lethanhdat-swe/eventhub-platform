@@ -18,6 +18,7 @@ import DeleteOrderDialog from '@/pages/(admin)/Orders/components/DeleteOrderDial
 import OrderDetailDialog from '@/pages/(admin)/Orders/components/OrderDetailDialog';
 import OrderTable from '@/pages/(admin)/Orders/components/OrderTable';
 import { mapOrderRow, ORDER_STATUS_LABELS } from '@/pages/(admin)/Orders/data';
+import { toast } from 'sonner';
 
 const PAGE_SIZE = 10;
 
@@ -124,6 +125,7 @@ function Orders() {
       if (deleteDialog.type === 'bulk') {
         await orderService.deleteMany([...selectedIds]);
         setSelectedIds(new Set());
+        toast.success(`Đã xóa ${selectedIds.size} đơn hàng`);
       } else {
         await orderService.deleteMany([deleteDialog.order.id]);
         setSelectedIds((prev) => {
@@ -131,11 +133,14 @@ function Orders() {
           next.delete(deleteDialog.order.id);
           return next;
         });
+        toast.success(`Đã xóa đơn hàng "${deleteDialog.order.id}"`);
       }
       setDeleteDialog(null);
       await loadOrders();
     } catch (e) {
-      setError(getErrorMessage(e));
+      const message = getErrorMessage(e);
+      setError(message);
+      toast.error(message || 'Xóa đơn hàng thất bại');
     } finally {
       setDeleteSubmitting(false);
     }
@@ -176,7 +181,7 @@ function Orders() {
 
       {error && orders.length > 0 ? (
         <div
-          className="flex flex-col gap-2 rounded-lg border border-destructive/25 bg-destructive/5 px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
+          className="flex flex-col gap-2 px-3 py-2 border rounded-lg border-destructive/25 bg-destructive/5 sm:flex-row sm:items-center sm:justify-between"
           role="alert"
         >
           <p className="text-sm text-destructive">{error}</p>
@@ -212,7 +217,7 @@ function Orders() {
         <Button
           type="button"
           variant="destructive"
-          className="h-9 px-3"
+          className="px-3 h-9"
           disabled={selectedIds.size === 0}
           onClick={() => setDeleteDialog({ type: 'bulk' })}
         >

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import {
   CheckCircle,
-  Lock,
   Mail,
   Phone,
   Send,
@@ -72,32 +71,29 @@ function ContactForm() {
   return (
     <div>
       <div className="flex items-center gap-3">
-        <Send color="var(--primary-color)" />
-        <h1 className="text-(--text-primary) text-xl uppercase font-medium">
+        <Send color="var(--primary-color)" size={20} />
+        <h1 className="text-(--text-primary) text-lg sm:text-xl uppercase font-medium">
           gửi liên hệ cho chúng tôi
         </h1>
       </div>
 
       <form
-        className="flex flex-col gap-6 mt-7"
+        className="flex flex-col gap-5 mt-6 sm:gap-6 sm:mt-7"
         onSubmit={handleSubmit}
         noValidate
       >
-        {}
+        {/* Họ và tên */}
         <div className="flex flex-col items-start gap-2">
-          <label
-            htmlFor="fullName"
-            className="text-(--text-primary) font-light"
-          >
+          <label htmlFor="fullName" className="text-(--text-primary) font-light text-sm sm:text-base">
             Họ và tên <span className="ml-1 text-red-500">*</span>
           </label>
           <div
-            className={`group flex w-full items-center gap-4 border px-4 py-3 rounded-lg transition-all duration-300
+            className={`group flex w-full items-center gap-3 sm:gap-4 border px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-all duration-300
                         ${errors.fullName ? 'border-red-500' : 'border-(--text-primary)/10 hover:border-(--text-primary)/30 focus-within:border-(--primary-color) focus-within:shadow-[0_0_0_3px_rgba(var(--primary-rgb),0.15)]'}`}
           >
             <User
-              size={20}
-              className={`transition-colors duration-300 ${errors.fullName ? 'text-red-500' : 'text-gray-500 group-focus-within:text-(--primary-color)'}`}
+              size={18}
+              className={`shrink-0 transition-colors duration-300 ${errors.fullName ? 'text-red-500' : 'text-gray-500 group-focus-within:text-(--primary-color)'}`}
             />
             <input
               type="text"
@@ -110,22 +106,22 @@ function ContactForm() {
             />
           </div>
           {errors.fullName && (
-            <p className="text-red-500 text-xs mt-1">{errors.fullName}</p>
+            <p className="mt-1 text-xs text-red-500">{errors.fullName}</p>
           )}
         </div>
 
-        {}
+        {/* Email */}
         <div className="flex flex-col items-start gap-2">
-          <label htmlFor="email" className="text-(--text-primary) font-light">
+          <label htmlFor="email" className="text-(--text-primary) font-light text-sm sm:text-base">
             Email <span className="ml-1 text-red-500">*</span>
           </label>
           <div
-            className={`group flex w-full items-center gap-4 border px-4 py-3 rounded-lg transition-all duration-300
+            className={`group flex w-full items-center gap-3 sm:gap-4 border px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-all duration-300
                         ${errors.email ? 'border-red-500' : 'border-(--text-primary)/10 hover:border-(--text-primary)/30 focus-within:border-(--primary-color) focus-within:shadow-[0_0_0_3px_rgba(var(--primary-rgb),0.15)]'}`}
           >
             <Mail
-              size={20}
-              className={`transition-colors duration-300 ${errors.email ? 'text-red-500' : 'text-gray-500 group-focus-within:text-(--primary-color)'}`}
+              size={18}
+              className={`shrink-0 transition-colors duration-300 ${errors.email ? 'text-red-500' : 'text-gray-500 group-focus-within:text-(--primary-color)'}`}
             />
             <input
               type="email"
@@ -138,25 +134,22 @@ function ContactForm() {
             />
           </div>
           {errors.email && (
-            <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+            <p className="mt-1 text-xs text-red-500">{errors.email}</p>
           )}
         </div>
 
-        {}
+        {/* Số điện thoại */}
         <div className="flex flex-col items-start gap-2">
-          <label
-            htmlFor="phoneNumber"
-            className="text-(--text-primary) font-light"
-          >
+          <label htmlFor="phoneNumber" className="text-(--text-primary) font-light text-sm sm:text-base">
             Số điện thoại <span className="ml-1 text-red-500">*</span>
           </label>
           <div
-            className={`group flex w-full items-center gap-4 border px-4 py-3 rounded-lg transition-all duration-300
+            className={`group flex w-full items-center gap-3 sm:gap-4 border px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-all duration-300
                         ${errors.phoneNumber ? 'border-red-500' : 'border-(--text-primary)/10 hover:border-(--text-primary)/30 focus-within:border-(--primary-color) focus-within:shadow-[0_0_0_3px_rgba(var(--primary-rgb),0.15)]'}`}
           >
             <Phone
-              size={20}
-              className={`transition-colors duration-300 ${errors.phoneNumber ? 'text-red-500' : 'text-gray-500 group-focus-within:text-(--primary-color)'}`}
+              size={18}
+              className={`shrink-0 transition-colors duration-300 ${errors.phoneNumber ? 'text-red-500' : 'text-gray-500 group-focus-within:text-(--primary-color)'}`}
             />
             <input
               type="tel"
@@ -169,13 +162,13 @@ function ContactForm() {
             />
           </div>
           {errors.phoneNumber && (
-            <p className="text-red-500 text-xs mt-1">{errors.phoneNumber}</p>
+            <p className="mt-1 text-xs text-red-500">{errors.phoneNumber}</p>
           )}
         </div>
 
-        {}
+        {/* Nội dung */}
         <div className="flex flex-col items-start gap-2">
-          <label htmlFor="message" className="text-(--text-primary) font-light">
+          <label htmlFor="message" className="text-(--text-primary) font-light text-sm sm:text-base">
             Nội dung liên hệ <span className="ml-1 text-red-500">*</span>
           </label>
           <textarea
@@ -184,38 +177,41 @@ function ContactForm() {
             value={formData.message}
             onChange={handleChange}
             placeholder="Bạn cần hỗ trợ vấn đề gì?"
-            className={`w-full text-sm text-(--text-primary) bg-transparent outline-none placeholder:text-gray-600 border px-4 py-3 rounded-lg transition-all duration-300 h-40 resize-none
+            className={`w-full text-sm text-(--text-primary) bg-transparent outline-none placeholder:text-gray-600 border px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-all duration-300 h-32 sm:h-40 resize-none
                             ${errors.message ? 'border-red-500' : 'border-(--text-primary)/10 hover:border-(--text-primary)/30 focus:border-(--primary-color) focus:shadow-[0_0_0_3px_rgba(var(--primary-rgb),0.15)]'}`}
           />
           {errors.message && (
-            <p className="text-red-500 text-xs mt-1">{errors.message}</p>
+            <p className="mt-1 text-xs text-red-500">{errors.message}</p>
           )}
         </div>
 
-        {}
+        {/* Messages */}
         {successMessage && (
-          <div className="flex items-center gap-2 bg-green-500/10 border border-green-500/30 text-green-400 rounded-lg px-4 py-3 text-sm">
-            <CheckCircle size={18} className="shrink-0" />
+          <div className="flex items-center gap-2 px-3 py-3 text-xs text-green-400 border rounded-lg bg-green-500/10 border-green-500/30 sm:px-4 sm:text-sm">
+            <CheckCircle size={16} className="shrink-0 sm:hidden" />
+            <CheckCircle size={18} className="hidden shrink-0 sm:block" />
             <p>{successMessage}</p>
           </div>
         )}
         {errorMessage && (
-          <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/30 text-red-400 rounded-lg px-4 py-3 text-sm">
-            <XCircle size={18} className="shrink-0" />
+          <div className="flex items-center gap-2 px-3 py-3 text-xs text-red-400 border rounded-lg bg-red-500/10 border-red-500/30 sm:px-4 sm:text-sm">
+            <XCircle size={16} className="shrink-0 sm:hidden" />
+            <XCircle size={18} className="hidden shrink-0 sm:block" />
             <p>{errorMessage}</p>
           </div>
         )}
 
-        {}
+        {/* Submit */}
         <button
           type="submit"
           disabled={loading}
-          className="uppercase bg-(--primary-color) flex items-center justify-center gap-2 p-4 rounded-lg w-full transition-all duration-300 hover:brightness-110 hover:shadow-[0_4px_20px_rgba(var(--primary-rgb),0.4)] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:brightness-100"
+          className="uppercase bg-(--primary-color) flex items-center justify-center gap-2 p-3.5 sm:p-4 rounded-lg w-full transition-all duration-300 hover:brightness-110 hover:shadow-[0_4px_20px_rgba(var(--primary-rgb),0.4)] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:brightness-100"
         >
-          <p className="font-medium text-white">
+          <p className="text-sm font-medium text-white sm:text-base">
             {loading ? 'Đang gửi...' : 'Gửi liên hệ'}
           </p>
-          <Send size={18} color="white" />
+          <Send size={16} color="white" className="sm:hidden" />
+          <Send size={18} color="white" className="hidden sm:block" />
         </button>
       </form>
     </div>

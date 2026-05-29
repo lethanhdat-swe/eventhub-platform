@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { isAdminUser } from '@/lib/auth/authRole';
-import { signInWithGoogle } from '@/lib/firebase/googleAuth';
+// import { signInWithGoogle } from '@/lib/firebase/googleAuth';
 import { parseApiError } from '@/lib/http/apiError';
 import { getApiData } from '@/lib/http/unwrapApiSuccess';
 import { authService } from '@/lib/services/auth';
@@ -169,7 +169,7 @@ function RegisterPage() {
     return (
       <div className="w-full max-w-[420px]">
         <Card className="overflow-hidden rounded-3xl border border-(--border-color) bg-(--card-surface-color) shadow-[0_20px_70px_rgba(0,0,0,0.16)] backdrop-blur-xl">
-          <CardHeader className="px-7 pb-6 pt-8 text-center">
+          <CardHeader className="pt-8 pb-6 text-center px-7">
             <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-(--primary-color)/10 text-(--primary-color)">
               <CheckCircle2 aria-hidden className="size-8" />
             </div>
@@ -207,7 +207,7 @@ function RegisterPage() {
   return (
     <div className="w-full max-w-[520px]">
       <Card className="rounded-3xl border border-(--border-color) bg-(--card-surface-color) shadow-[0_20px_70px_rgba(0,0,0,0.16)] backdrop-blur-xl">
-        <CardHeader className="px-8 pb-4 pt-8 text-center">
+        <CardHeader className="px-8 pt-8 pb-4 text-center">
           <CardTitle className="text-2xl font-black text-(--text-primary)">
             Tạo tài khoản
           </CardTitle>
@@ -217,10 +217,10 @@ function RegisterPage() {
           </CardDescription>
         </CardHeader>
 
-        <CardContent className="space-y-5 px-8 pb-8">
+        <CardContent className="px-8 pb-8 space-y-5">
           {apiError && (
             <p
-              className="rounded-xl bg-red-500/10 px-4 py-3 text-sm text-red-500"
+              className="px-4 py-3 text-sm text-red-500 rounded-xl bg-red-500/10"
               role="alert"
             >
               {apiError}
@@ -366,12 +366,12 @@ function RegisterPage() {
             <Separator className="flex-1 bg-(--border-color)" />
           </div>
 
-          <GoogleAuthButton
+          {/* <GoogleAuthButton
             label={googleLoading ? 'Đang đăng ký…' : 'Tiếp tục với Google'}
             loading={googleLoading}
             disabled={loading}
             onClick={handleGoogleRegister}
-          />
+          /> */}
 
           <p className="text-center text-sm text-(--muted-text)">
             Đã có tài khoản?{' '}

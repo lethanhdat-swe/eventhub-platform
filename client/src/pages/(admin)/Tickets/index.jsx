@@ -20,6 +20,7 @@ import DeleteTicketDialog from '@/pages/(admin)/Tickets/components/DeleteTicketD
 import TicketDetailDialog from '@/pages/(admin)/Tickets/components/TicketDetailDialog';
 import TicketTable from '@/pages/(admin)/Tickets/components/TicketTable';
 import { mapTicketRow } from '@/pages/(admin)/Tickets/data';
+import { toast } from 'sonner';
 
 const PAGE_SIZE = 10;
 
@@ -155,9 +156,12 @@ function Tickets() {
         isCheckedIn: true,
         checkedInAt: new Date().toISOString(),
       });
+      toast.success(`Check-in thành công cho vé ${ticket.ticketCode}`);
       await loadTickets();
     } catch (e) {
-      setError(getErrorMessage(e));
+      const message = getErrorMessage(e);
+      setError(message);
+      toast.error(message || 'Check-in thất bại');
     }
   };
 
@@ -170,6 +174,7 @@ function Tickets() {
       if (deleteDialog.type === 'bulk') {
         await ticketService.deleteMany([...selectedIds]);
         setSelectedIds(new Set());
+        toast.success(`Đã xóa ${selectedIds.size} vé`);
       } else {
         await ticketService.deleteOne(deleteDialog.ticket.id);
         setSelectedIds((prev) => {
@@ -177,11 +182,14 @@ function Tickets() {
           next.delete(deleteDialog.ticket.id);
           return next;
         });
+        toast.success(`Đã xóa vé ${deleteDialog.ticket.ticketCode}`);
       }
       setDeleteDialog(null);
       await loadTickets();
     } catch (e) {
-      setError(getErrorMessage(e));
+      const message = getErrorMessage(e);
+      setError(message);
+      toast.error(message || 'Xóa vé thất bại');
     } finally {
       setDeleteSubmitting(false);
     }
@@ -196,8 +204,10 @@ function Tickets() {
       const full = await ticketService.getById(ticket.id);
       setDetailTicket(full);
     } catch (e) {
+      const message = getErrorMessage(e);
       setDetailOpen(false);
-      setError(getErrorMessage(e));
+      setError(message);
+      toast.error(message || 'Không thể tải chi tiết vé');
     } finally {
       setDetailLoading(false);
     }
@@ -222,7 +232,7 @@ function Tickets() {
 
       {error && tickets.length > 0 ? (
         <div
-          className="flex flex-col gap-2 rounded-lg border border-destructive/25 bg-destructive/5 px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
+          className="flex flex-col gap-2 px-3 py-2 border rounded-lg border-destructive/25 bg-destructive/5 sm:flex-row sm:items-center sm:justify-between"
           role="alert"
         >
           <p className="text-sm text-destructive">{error}</p>
@@ -264,7 +274,7 @@ function Tickets() {
         <Button
           type="button"
           variant="destructive"
-          className="h-9 px-3"
+          className="px-3 h-9"
           disabled={selectedIds.size === 0}
           onClick={() => setDeleteDialog({ type: 'bulk' })}
         >

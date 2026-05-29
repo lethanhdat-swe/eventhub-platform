@@ -10,6 +10,7 @@ import AddRowDialog from '@/pages/(admin)/DefaultSeats/components/AddRowDialog';
 import AddSeatDialog from '@/pages/(admin)/DefaultSeats/components/AddSeatDialog';
 import SeatEditDialog from '@/pages/(admin)/DefaultSeats/components/SeatEditDialog';
 import SeatMapCard from '@/pages/(admin)/DefaultSeats/components/SeatMapCard';
+import { toast } from 'sonner';
 
 function DefaultSeats() {
   const [seats, setSeats] = useState([]);
@@ -65,26 +66,54 @@ function DefaultSeats() {
 
   const handleSaveSeat = async (id, body) => {
     setError(null);
-    await seatService.update(id, body);
-    await loadSeats();
+    try {
+      await seatService.update(id, body);
+      toast.success('Cập nhật ghế thành công');
+      await loadSeats();
+    } catch (e) {
+      const message = getErrorMessage(e);
+      setError(message);
+      toast.error(message || 'Cập nhật ghế thất bại');
+    }
   };
 
   const handleDeleteSeat = async (id) => {
     setError(null);
-    await seatService.deleteMany([id]);
-    await loadSeats();
+    try {
+      await seatService.deleteMany([id]);
+      toast.success('Đã xóa ghế');
+      await loadSeats();
+    } catch (e) {
+      const message = getErrorMessage(e);
+      setError(message);
+      toast.error(message || 'Xóa ghế thất bại');
+    }
   };
 
   const handleAddSeat = async (body) => {
     setError(null);
-    await seatService.create(body);
-    await loadSeats();
+    try {
+      await seatService.create(body);
+      toast.success('Thêm ghế thành công');
+      await loadSeats();
+    } catch (e) {
+      const message = getErrorMessage(e);
+      setError(message);
+      toast.error(message || 'Thêm ghế thất bại');
+    }
   };
 
   const handleAddRow = async (body) => {
     setError(null);
-    await seatService.createRow(body);
-    await loadSeats();
+    try {
+      await seatService.createRow(body);
+      toast.success('Thêm hàng ghế thành công');
+      await loadSeats();
+    } catch (e) {
+      const message = getErrorMessage(e);
+      setError(message);
+      toast.error(message || 'Thêm hàng ghế thất bại');
+    }
   };
 
   return (
@@ -117,7 +146,7 @@ function DefaultSeats() {
 
       {error && seats.length > 0 ? (
         <div
-          className="flex flex-col gap-2 rounded-lg border border-destructive/25 bg-destructive/5 px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
+          className="flex flex-col gap-2 px-3 py-2 border rounded-lg border-destructive/25 bg-destructive/5 sm:flex-row sm:items-center sm:justify-between"
           role="alert"
         >
           <p className="text-sm text-destructive">{error}</p>

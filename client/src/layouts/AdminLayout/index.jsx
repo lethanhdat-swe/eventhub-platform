@@ -5,20 +5,22 @@ import AdminHeader from '@/layouts/AdminLayout/components/AdminHeader';
 import AdminSidebar from '@/layouts/AdminLayout/components/AdminSidebar';
 
 import '@/styles/admin.css';
+import { Toaster } from '@/components/ui/sonner';
 
 function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="admin-font fixed inset-0 flex overflow-hidden bg-background text-foreground">
+    <div className="fixed inset-0 flex overflow-hidden admin-font bg-background text-foreground">
       <AdminSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+      <div className="flex flex-col flex-1 min-w-0 min-h-0 overflow-hidden">
         <AdminHeader onMenuToggle={() => setSidebarOpen((prev) => !prev)} />
 
-        <main className="min-h-0 flex-1 overflow-y-auto p-4 md:p-5 lg:p-6">
+        <main className="flex-1 min-h-0 p-4 overflow-y-auto md:p-5 lg:p-6">
           <Outlet />
         </main>
+        <Toaster /> 
       </div>
     </div>
   );

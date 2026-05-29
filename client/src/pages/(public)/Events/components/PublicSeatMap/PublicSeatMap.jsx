@@ -20,11 +20,7 @@ function groupSeatsByRow(seats) {
     .filter((item) => item?.seat)
     .reduce((rows, item) => {
       const rowLabel = item.seat.rowLabel || '-';
-
-      if (!rows[rowLabel]) {
-        rows[rowLabel] = [];
-      }
-
+      if (!rows[rowLabel]) rows[rowLabel] = [];
       rows[rowLabel].push(item);
       return rows;
     }, {});
@@ -32,13 +28,11 @@ function groupSeatsByRow(seats) {
 
 function getTicketTypes(seats) {
   const ticketMap = new Map();
-
   seats.forEach((item) => {
     if (item?.ticketType?.id && !ticketMap.has(item.ticketType.id)) {
       ticketMap.set(item.ticketType.id, item.ticketType);
     }
   });
-
   return Array.from(ticketMap.values());
 }
 
@@ -58,7 +52,6 @@ function PublicSeatMap({
 
   const handleToggleSeat = (seat) => {
     const isClickable = mode === 'booking' && seat.status === 'AVAILABLE';
-
     if (!isClickable) return;
     onToggleSeat?.(seat);
   };
@@ -66,71 +59,60 @@ function PublicSeatMap({
   return (
     <Card
       className={cn(
-        'rounded-2xl border border-(--text-primary)/10 bg-(--surface-color) text-(--text-primary) shadow-2xl shadow-black/10',
+        'rounded-xl sm:rounded-2xl border border-(--text-primary)/10 bg-(--surface-color) text-(--text-primary) shadow-2xl shadow-black/10',
         className
       )}
     >
-      <CardHeader className="gap-2 px-5 pt-5 sm:px-6">
-        <div className="flex items-start justify-between gap-4">
+      <CardHeader className="gap-2 px-4 pt-4 sm:px-6 sm:pt-5">
+        <div className="flex items-start justify-between gap-3 sm:gap-4">
           <div>
-            <CardTitle className="text-xl font-semibold text-(--text-primary)">
+            <CardTitle className="text-base sm:text-xl font-semibold text-(--text-primary)">
               Seat Map
             </CardTitle>
-            <CardDescription className="mt-1 text-sm text-(--text-primary)/55">
+            <CardDescription className="mt-1 text-xs sm:text-sm text-(--text-primary)/55">
               Choose your preferred seats from the interactive event layout.
             </CardDescription>
           </div>
 
-          <span className="rounded-full border border-(--text-primary)/10 bg-(--background-color)/40 px-3 py-1 text-xs font-medium uppercase tracking-[0.24em] text-(--text-primary)/60">
+          <span className="rounded-full border border-(--text-primary)/10 bg-(--background-color)/40 px-2.5 py-1 sm:px-3 text-[10px] sm:text-xs font-medium uppercase tracking-[0.24em] text-(--text-primary)/60 whitespace-nowrap">
             {mode}
           </span>
         </div>
       </CardHeader>
 
-      <CardContent className="px-5 pb-5 sm:px-6">
-        <div className="rounded-2xl border border-(--text-primary)/10 bg-(--background-color)/40 p-4 sm:p-6">
+      <CardContent className="px-4 pb-4 sm:px-6 sm:pb-5">
+        <div className="rounded-xl sm:rounded-2xl border border-(--text-primary)/10 bg-(--background-color)/40 p-3 sm:p-6">
           {rowLabels.length > 0 ? (
             <div className="flex flex-col items-center">
               {showStage && (
-                <div className="flex w-full justify-center">
-                  <div className="w-[min(100%,640px)] rounded-full border border-fuchsia-300/30 bg-linear-to-r from-fuchsia-500/25 via-violet-500/40 to-cyan-400/25 px-6 py-3 text-center text-xs font-bold uppercase tracking-[0.42em] text-white shadow-lg shadow-violet-500/20 sm:w-[76%] sm:min-w-[420px]">
+                <div className="flex justify-center w-full">
+                  <div className="w-full sm:w-[76%] sm:min-w-105 max-w-160 rounded-full border border-fuchsia-300/30 bg-linear-to-r from-fuchsia-500/25 via-violet-500/40 to-cyan-400/25 px-4 sm:px-6 py-2 sm:py-3 text-center text-[10px] sm:text-xs font-bold uppercase tracking-[0.42em] text-white shadow-lg shadow-violet-500/20">
                     Stage
                   </div>
                 </div>
               )}
 
-              <div
-                className={cn(
-                  'w-full overflow-x-auto p-2',
-                  showStage && 'mt-20'
-                )}
-              >
-                <div className="mx-auto flex w-fit min-w-max flex-col gap-4 px-1">
+              <div className={cn('w-full overflow-x-auto p-2', showStage && 'mt-10 sm:mt-20')}>
+                <div className="mx-auto flex w-fit min-w-max flex-col gap-2.5 sm:gap-4 px-1">
                   {rowLabels.map((rowLabel) => (
                     <div
                       key={rowLabel}
-                      className="grid grid-cols-[24px_1fr] items-center gap-4"
+                      className="grid grid-cols-[18px_1fr] sm:grid-cols-[24px_1fr] items-center gap-2.5 sm:gap-4"
                     >
-                      <span className="text-center text-sm font-semibold text-(--text-primary)/50">
+                      <span className="text-center text-[10px] sm:text-sm font-semibold text-(--text-primary)/50">
                         {rowLabel}
                       </span>
 
-                      <div className="grid grid-flow-col auto-cols-[40px] gap-3 sm:auto-cols-[52px] sm:gap-3.5">
+                      <div className="grid grid-flow-col auto-cols-[32px] gap-2 sm:auto-cols-[52px] sm:gap-3.5">
                         {rows[rowLabel]
-                          .sort(
-                            (a, b) =>
-                              Number(a.seat.seatNumber) -
-                              Number(b.seat.seatNumber)
-                          )
+                          .sort((a, b) => Number(a.seat.seatNumber) - Number(b.seat.seatNumber))
                           .map((item) => {
                             const isSelected = selectedIds.has(item.id);
                             const isAvailable = item.status === 'AVAILABLE';
                             const isDisabled = item.status === 'DISABLED';
                             const isBooked = item.status === 'BOOKED';
-                            const isClickable =
-                              mode === 'booking' && isAvailable;
-                            const seatColor =
-                              item.ticketType?.color || '#8b5cf6';
+                            const isClickable = mode === 'booking' && isAvailable;
+                            const seatColor = item.ticketType?.color || '#8b5cf6';
 
                             return (
                               <button
@@ -140,7 +122,7 @@ function PublicSeatMap({
                                 title={`${rowLabel}${item.seat.seatNumber} - ${item.status}`}
                                 onClick={() => handleToggleSeat(item)}
                                 className={cn(
-                                  'relative flex size-10 shrink-0 items-center justify-center rounded-xl border text-xs font-semibold transition-all duration-200 sm:size-[50px]',
+                                  'relative flex size-8 sm:size-12.5 shrink-0 items-center justify-center rounded-lg sm:rounded-xl border text-[9px] sm:text-xs font-semibold transition-all duration-200',
                                   'border-(--text-primary)/10 text-(--text-primary) shadow-sm',
                                   isClickable &&
                                     'cursor-pointer hover:-translate-y-0.5 hover:shadow-lg active:scale-95',
@@ -154,15 +136,12 @@ function PublicSeatMap({
                                 )}
                                 style={
                                   isAvailable
-                                    ? {
-                                        backgroundColor: seatColor,
-                                        color: '#11111a',
-                                      }
+                                    ? { backgroundColor: seatColor, color: '#11111a' }
                                     : undefined
                                 }
                               >
                                 {isBooked ? (
-                                  <Lock className="size-3.5" />
+                                  <Lock className="size-2.5 sm:size-3.5" />
                                 ) : (
                                   item.seat.seatNumber
                                 )}
@@ -176,21 +155,21 @@ function PublicSeatMap({
               </div>
             </div>
           ) : (
-            <div className="flex min-h-52 items-center justify-center rounded-2xl border border-dashed border-(--text-primary)/10 bg-(--background-color)/30 text-sm text-(--text-primary)/45">
+            <div className="flex min-h-40 sm:min-h-52 items-center justify-center rounded-xl sm:rounded-2xl border border-dashed border-(--text-primary)/10 bg-(--background-color)/30 text-xs sm:text-sm text-(--text-primary)/45">
               No seat map available for this event.
             </div>
           )}
         </div>
 
         {showLegend && (
-          <div className="mt-6 flex flex-wrap justify-center gap-3 text-sm text-(--text-primary)/65">
+          <div className="mt-4 sm:mt-6 flex flex-wrap justify-center gap-2 sm:gap-3 text-xs sm:text-sm text-(--text-primary)/65">
             {ticketTypes.map((ticketType) => (
               <div
                 key={ticketType.id}
-                className="flex items-center gap-2 rounded-full border border-(--text-primary)/10 bg-(--background-color)/40 px-3 py-2"
+                className="flex items-center gap-1.5 sm:gap-2 rounded-full border border-(--text-primary)/10 bg-(--background-color)/40 px-2.5 sm:px-3 py-1.5 sm:py-2"
               >
                 <span
-                  className="size-3 rounded-full"
+                  className="size-2.5 sm:size-3 rounded-full shrink-0"
                   style={{ backgroundColor: ticketType.color || '#8b5cf6' }}
                 />
                 <span>{ticketType.name}</span>
@@ -202,15 +181,15 @@ function PublicSeatMap({
               </div>
             ))}
 
-            <div className="flex items-center gap-2 rounded-full border border-(--text-primary)/10 bg-(--background-color)/40 px-3 py-2">
-              <span className="flex size-4 items-center justify-center rounded bg-(--text-primary)/10 text-(--text-primary)/50">
-                <Lock className="size-2.5" />
+            <div className="flex items-center gap-1.5 sm:gap-2 rounded-full border border-(--text-primary)/10 bg-(--background-color)/40 px-2.5 sm:px-3 py-1.5 sm:py-2">
+              <span className="flex size-3.5 sm:size-4 items-center justify-center rounded bg-(--text-primary)/10 text-(--text-primary)/50">
+                <Lock className="size-2 sm:size-2.5" />
               </span>
               <span>Booked</span>
             </div>
 
-            <div className="flex items-center gap-2 rounded-full border border-(--text-primary)/10 bg-(--background-color)/40 px-3 py-2">
-              <span className="size-4 rounded bg-[repeating-linear-gradient(135deg,rgba(120,120,130,0.28)_0,rgba(120,120,130,0.28)_4px,rgba(120,120,130,0.65)_4px,rgba(120,120,130,0.65)_6px)]" />
+            <div className="flex items-center gap-1.5 sm:gap-2 rounded-full border border-(--text-primary)/10 bg-(--background-color)/40 px-2.5 sm:px-3 py-1.5 sm:py-2">
+              <span className="size-3.5 sm:size-4 rounded bg-[repeating-linear-gradient(135deg,rgba(120,120,130,0.28)_0,rgba(120,120,130,0.28)_4px,rgba(120,120,130,0.65)_4px,rgba(120,120,130,0.65)_6px)]" />
               <span>Disabled</span>
             </div>
           </div>

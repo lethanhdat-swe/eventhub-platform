@@ -27,15 +27,16 @@ function EventSeat({ eventSeats = [], isLoading = false, error = null }) {
   );
 
   return (
-    <section className="mt-8 border-t border-(--border-color) pt-8">
-      <div className="mb-5 flex items-end justify-between gap-4">
+    <section className="mt-6 sm:mt-8 border-t border-(--border-color) pt-6 sm:pt-8">
+      <div className="flex items-end justify-between gap-3 mb-4 sm:mb-5 sm:gap-4">
         <div>
-          <p className="mb-2 flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-(--primary-color)">
-            <Armchair size={15} />
+          <p className="mb-1.5 sm:mb-2 flex items-center gap-2 text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-(--primary-color)">
+            <Armchair size={13} className="sm:hidden" />
+            <Armchair size={15} className="hidden sm:block" />
             Sơ đồ chỗ ngồi
           </p>
 
-          <h2 className="text-2xl font-black tracking-tight text-(--text-primary)">
+          <h2 className="text-xl sm:text-2xl font-black tracking-tight text-(--text-primary)">
             Chọn vị trí của bạn
           </h2>
         </div>
@@ -46,15 +47,15 @@ function EventSeat({ eventSeats = [], isLoading = false, error = null }) {
       </div>
 
       {isLoading ? (
-        <div className="rounded-2xl border border-(--border-color) bg-(--surface-color) p-5 text-sm text-(--muted-text)">
+        <div className="rounded-xl sm:rounded-2xl border border-(--border-color) bg-(--surface-color) p-4 sm:p-5 text-xs sm:text-sm text-(--muted-text)">
           Đang tải sơ đồ chỗ ngồi...
         </div>
       ) : error ? (
-        <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-5 text-sm text-red-300">
+        <div className="p-4 text-xs text-red-300 border rounded-xl sm:rounded-2xl border-red-500/20 bg-red-500/10 sm:p-5 sm:text-sm">
           {error}
         </div>
       ) : eventSeatItems.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-(--border-color) bg-(--soft-surface-color) p-5 text-sm text-(--muted-text)">
+        <div className="rounded-xl sm:rounded-2xl border border-dashed border-(--border-color) bg-(--soft-surface-color) p-4 sm:p-5 text-xs sm:text-sm text-(--muted-text)">
           Sự kiện này chưa có sơ đồ chỗ ngồi.
         </div>
       ) : (

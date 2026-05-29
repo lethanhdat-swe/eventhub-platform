@@ -6,30 +6,16 @@ export function SearchDropdown({ open, value, onChange, onSubmit, inputRef }) {
     <AnimatePresence>
       {open && (
         <motion.div
-          initial={{
-            opacity: 0,
-            y: -12,
-            scale: 0.96,
-          }}
-          animate={{
-            opacity: 1,
-            y: 0,
-            scale: 1,
-          }}
-          exit={{
-            opacity: 0,
-            y: -8,
-            scale: 0.97,
-          }}
-          transition={{
-            duration: 0.2,
-            ease: 'easeOut',
-          }}
+          initial={{ opacity: 0, y: -12, scale: 0.96 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -8, scale: 0.97 }}
+          transition={{ duration: 0.2, ease: 'easeOut' }}
           className="
-            absolute right-0 top-12 z-50 w-[380px]
-            rounded-3xl border border-white/10
+            fixed left-3 right-3 top-[68px] z-50
+            sm:absolute sm:left-auto sm:right-0 sm:top-12 sm:w-[380px]
+            rounded-2xl sm:rounded-3xl border border-white/10
             bg-[var(--surface-color)]/90
-            p-3
+            p-2.5 sm:p-3
             shadow-[0_20px_80px_rgba(0,0,0,0.45)]
             backdrop-blur-2xl
           "
@@ -37,19 +23,19 @@ export function SearchDropdown({ open, value, onChange, onSubmit, inputRef }) {
           <form
             onSubmit={onSubmit}
             className="
-              group flex items-center gap-3
-              rounded-2xl border border-white/10
+              group flex items-center gap-2.5 sm:gap-3
+              rounded-xl sm:rounded-2xl border border-white/10
               bg-black/20
-              px-4 py-2
+              px-3 sm:px-4 py-2
               transition-all duration-300
               focus-within:border-[var(--primary-color)]/50
               focus-within:shadow-[0_0_30px_rgba(124,58,237,0.18)]
             "
           >
             <Search
-              size={18}
+              size={16}
               className="
-                text-[var(--primary-color)]
+                shrink-0 text-[var(--primary-color)]
                 transition-transform duration-300
                 group-focus-within:scale-110
               "
@@ -79,7 +65,7 @@ export function SearchDropdown({ open, value, onChange, onSubmit, inputRef }) {
                   type="button"
                   onClick={() => onChange('')}
                   className="
-                    rounded-full p-1
+                    shrink-0 rounded-full p-1
                     text-[var(--text-primary)]/40
                     transition-all
                     hover:bg-white/5

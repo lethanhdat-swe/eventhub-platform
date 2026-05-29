@@ -7,6 +7,7 @@ import { blogCategoryService } from '@/lib/services/blogCategory/blogCategorySer
 import PageHeader from '@/pages/(admin)/components/PageHeader';
 import BlogForm from '@/pages/(admin)/Blogs/components/BlogForm';
 import { buildBlogPayload } from '@/pages/(admin)/Blogs/data';
+import { toast } from 'sonner';
 
 function CreateBlog() {
   const navigate = useNavigate();
@@ -32,9 +33,12 @@ function CreateBlog() {
     setFormError('');
     try {
       await blogService.create(buildBlogPayload(form));
+      toast.success('Tạo bài viết thành công');
       navigate('/admin/blogs');
     } catch (e) {
-      setFormError(getErrorMessage(e));
+      const message = getErrorMessage(e);
+      setFormError(message);
+      toast.error(message || 'Tạo bài viết thất bại');
     } finally {
       setSubmitting(false);
     }

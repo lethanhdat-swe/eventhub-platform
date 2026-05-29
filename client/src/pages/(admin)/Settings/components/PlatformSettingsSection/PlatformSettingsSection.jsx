@@ -6,6 +6,7 @@ import { ThumbnailUploadField } from '@/components/form';
 import { siteSettingService } from '@/lib/services/siteSetting/siteSettingService';
 import SettingsSectionCard from '../SettingsSectionCard/SettingsSectionCard';
 import SettingsField from '../SettingsField/SettingsField';
+import { toast } from 'sonner';
 
 const DEFAULT_FORM = {
   websiteName: '',
@@ -79,12 +80,15 @@ function PlatformSettingsSection() {
 
       if (settingId) {
         await siteSettingService.updateSiteSetting(payload);
+        toast.success('Cập nhật cài đặt thành công');
       } else {
         const created = await siteSettingService.createSiteSetting(payload);
-        console.log('create: ',created)
+        console.log('create: ', created);
         if (created?.id) setSettingId(created.id);
+        toast.success('Tạo cài đặt thành công');
       }
     } catch (error) {
+      toast.error(error?.message || 'Lưu cài đặt thất bại');
       console.error(error);
     } finally {
       setIsSaving(false);
@@ -95,9 +99,11 @@ function PlatformSettingsSection() {
     if (!settingId) return;
     try {
       await siteSettingService.deleteSiteSetting();
+      toast.success('Đã xóa cài đặt');
       setForm(DEFAULT_FORM);
       setSettingId(null);
     } catch (error) {
+      toast.error(error?.message || 'Xóa cài đặt thất bại');
       console.error(error);
     }
   };

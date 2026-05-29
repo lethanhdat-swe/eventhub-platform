@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ChevronRight } from 'lucide-react';
 import { userService } from '@/lib/services/admin';
+import { toast } from 'sonner';
 
 function ChangePasswordPopover() {
   const [open, setOpen] = useState(false);
@@ -10,14 +11,10 @@ function ChangePasswordPopover() {
     newPassword: '',
     confirmPassword: '',
   });
-
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSubmit = async () => {
@@ -30,31 +27,37 @@ function ChangePasswordPopover() {
         confirmPassword: formData.confirmPassword,
       });
 
-      console.log('res: ', res);
+      toast.success(res.message || "Đổi mật khẩu thành công");
 
-      alert(res.message || 'Đổi mật khẩu thành công');
-      setFormData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      setFormData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+
       setOpen(false);
-
     } catch (error) {
-      console.log(error);
-
       const message =
         error.response?.data?.message ||
         error.message ||
-        'Có lỗi xảy ra';
+        "Có lỗi xảy ra";
 
-      // API trả 400 nhưng thực ra thành công
       const isActuallySuccess =
-        message.toLowerCase().includes('success') ||
-        message.toLowerCase().includes('thành công');
+        message.toLowerCase().includes("success") ||
+        message.toLowerCase().includes("thành công");
 
       if (isActuallySuccess) {
-        alert(message);
-        setFormData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+        toast.success(message);
+
+        setFormData({
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        });
+
         setOpen(false);
       } else {
-        alert(message);
+        toast.error(message);
       }
     } finally {
       setLoading(false);
@@ -66,10 +69,9 @@ function ChangePasswordPopover() {
       <PopoverTrigger asChild>
         <div
           className="
-            mt-8 flex items-center gap-2 rounded-full
-            bg-(--primary-color)
-            text-white
-            px-5 py-3 text-sm font-semibold 
+            mt-6 sm:mt-8 inline-flex items-center gap-2 rounded-full
+            bg-(--primary-color) text-white
+            px-4 sm:px-5 py-2.5 sm:py-3 text-sm font-semibold
             shadow-[0_0_30px_rgba(168,85,247,0.35)]
             transition-all duration-300
             hover:scale-[1.03]
@@ -78,7 +80,6 @@ function ChangePasswordPopover() {
           "
         >
           Đổi mật khẩu
-
           <ChevronRight className="w-4 h-4" />
         </div>
       </PopoverTrigger>
@@ -86,67 +87,42 @@ function ChangePasswordPopover() {
       <PopoverContent
         align="start"
         className="
-          w-96 rounded-3xl border border-white/10
+          w-[calc(100vw-2rem)] max-w-sm sm:w-96
+          rounded-3xl border border-white/10
           bg-[#0B1120]/95
-          p-6 backdrop-blur-2xl
+          p-5 sm:p-6 backdrop-blur-2xl
         "
       >
-        <div className="space-y-5">
+        <div className="space-y-4 sm:space-y-5">
           <div>
-            <h3 className="text-lg font-semibold text-white">
+            <h3 className="text-base font-semibold text-white sm:text-lg">
               Đổi mật khẩu
             </h3>
-
             <p className="mt-1 text-sm text-gray-400">
               Cập nhật mật khẩu mới cho tài khoản của bạn.
             </p>
           </div>
 
-          <div className="space-y-4">
-            <div>
-              <label className="block mb-2 text-sm text-gray-300">
-                Mật khẩu hiện tại
-              </label>
-
-              <input
-                type="password"
-                name="currentPassword"
-                value={formData.currentPassword}
-                onChange={handleChange}
-                placeholder="••••••••"
-                className="w-full h-12 px-4 text-white transition-all duration-300 border outline-none rounded-xl border-white/10 bg-white/5 placeholder:text-gray-500 focus:border-purple-500/40 focus:bg-purple-500/5"
-              />
-            </div>
-
-            <div>
-              <label className="block mb-2 text-sm text-gray-300">
-                Mật khẩu mới
-              </label>
-
-              <input
-                type="password"
-                name="newPassword"
-                value={formData.newPassword}
-                onChange={handleChange}
-                placeholder="••••••••"
-                className="w-full h-12 px-4 text-white transition-all duration-300 border outline-none rounded-xl border-white/10 bg-white/5 placeholder:text-gray-500 focus:border-purple-500/40 focus:bg-purple-500/5"
-              />
-            </div>
-
-            <div>
-              <label className="block mb-2 text-sm text-gray-300">
-                Xác nhận mật khẩu
-              </label>
-
-              <input
-                type="password"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                placeholder="••••••••"
-                className="w-full h-12 px-4 text-white transition-all duration-300 border outline-none rounded-xl border-white/10 bg-white/5 placeholder:text-gray-500 focus:border-purple-500/40 focus:bg-purple-500/5"
-              />
-            </div>
+          <div className="space-y-3 sm:space-y-4">
+            {[
+              { label: 'Mật khẩu hiện tại', name: 'currentPassword' },
+              { label: 'Mật khẩu mới', name: 'newPassword' },
+              { label: 'Xác nhận mật khẩu', name: 'confirmPassword' },
+            ].map(({ label, name }) => (
+              <div key={name}>
+                <label className="block mb-1.5 sm:mb-2 text-sm text-gray-300">
+                  {label}
+                </label>
+                <input
+                  type="password"
+                  name={name}
+                  value={formData[name]}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  className="w-full px-4 text-white transition-all duration-300 border outline-none h-11 sm:h-12 rounded-xl border-white/10 bg-white/5 placeholder:text-gray-500 focus:border-purple-500/40 focus:bg-purple-500/5"
+                />
+              </div>
+            ))}
           </div>
 
           <button
@@ -154,10 +130,11 @@ function ChangePasswordPopover() {
             disabled={loading}
             className="
               w-full rounded-xl bg-(--primary-color)
-              py-3 font-semibold text-white
+              py-2.5 sm:py-3 font-semibold text-white text-sm
               transition-all duration-300
               hover:scale-[1.02]
               disabled:opacity-50
+              cursor-pointer
             "
           >
             {loading ? 'Đang cập nhật...' : 'Cập nhật mật khẩu'}

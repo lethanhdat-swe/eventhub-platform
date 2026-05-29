@@ -62,7 +62,7 @@ function EventDetail() {
   if (!event) {
     return (
       <main className="min-h-screen bg-(--background-color) pt-(--header-height) text-(--text-primary)">
-        <div className="mx-auto flex min-h-[60vh] max-w-[1320px] items-center justify-center px-5">
+        <div className="mx-auto flex min-h-[60vh] max-w-330 items-center justify-center px-5">
           <div className="rounded-2xl border border-(--border-color) bg-(--card-surface-color) px-6 py-4 text-sm text-(--muted-text)">
             Loading event...
           </div>
@@ -73,12 +73,12 @@ function EventDetail() {
 
   return (
     <main className="min-h-screen overflow-hidden bg-(--background-color) pt-(--header-height) text-(--text-primary)">
-      <div className="pointer-events-none fixed inset-0 -z-0">
-        <div className="absolute left-1/2 top-0 h-[420px] w-[720px] -translate-x-1/2 rounded-full bg-(--primary-color)/10 blur-[120px]" />
-        <div className="absolute right-0 top-[320px] h-[360px] w-[360px] rounded-full bg-(--primary-color)/5 blur-[100px]" />
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <div className="absolute left-1/2 top-0 h-105 w-180 -translate-x-1/2 rounded-full bg-(--primary-color)/10 blur-[120px]" />
+        <div className="absolute right-0 top-80 h-90 w-90 rounded-full bg-(--primary-color)/5 blur-[100px]" />
       </div>
 
-      <div className="relative z-10 mx-auto w-full container px-4 pb-16 pt-8 sm:px-5 lg:px-8">
+      <div className="container relative z-10 w-full px-4 pt-8 pb-16 mx-auto sm:px-5 lg:px-8">
         <div className="grid grid-cols-12 gap-6 lg:gap-6">
           <section className="col-span-12 space-y-5 lg:col-span-8">
             <EventHero event={event} />
