@@ -16,11 +16,6 @@ function BlogMeta({ blog }) {
           <CalendarDays size={17} className="text-[var(--text-primary)]" />
           <span>{blog.date}</span>
         </div>
-
-        <div className="flex items-center gap-2 rounded-full border border-[var(--border-color)] bg-[var(--soft-surface-color)] px-4 py-2.5">
-          <Eye size={17} className="text-[var(--text-primary)]" />
-          <span>{blog.views || 0} lượt xem</span>
-        </div>
       </div>
 
       <div className="flex items-center gap-3">

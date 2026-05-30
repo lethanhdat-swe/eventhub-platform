@@ -1,13 +1,15 @@
-import ContactForm from "./components/ContactForm/ContactForm";
-import ContactInfo from "./components/ContactInfo/ContactInfo";
+import ContactForm from './components/ContactForm/ContactForm';
+import ContactInfo from './components/ContactInfo/ContactInfo';
 
 function ContactSection() {
-    return ( 
-        <div className="grid grid-cols-1 gap-10 p-5 lg:grid-cols-2 lg:gap-20 sm:p-8 lg:p-10">
-            <ContactForm />
-            <ContactInfo />  
-        </div>
-     );
+  return (
+    <section className="container">
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-20 pt-10">
+        <ContactForm />
+        <ContactInfo />
+      </div>
+    </section>
+  );
 }
 
 export default ContactSection;

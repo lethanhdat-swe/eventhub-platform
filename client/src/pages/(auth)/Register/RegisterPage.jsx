@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { isAdminUser } from '@/lib/auth/authRole';
-// import { signInWithGoogle } from '@/lib/firebase/googleAuth';
+import { signInWithGoogle } from '@/lib/firebase/googleAuth';
 import { parseApiError } from '@/lib/http/apiError';
 import { getApiData } from '@/lib/http/unwrapApiSuccess';
 import { authService } from '@/lib/services/auth';
@@ -366,12 +366,12 @@ function RegisterPage() {
             <Separator className="flex-1 bg-(--border-color)" />
           </div>
 
-          {/* <GoogleAuthButton
+          <GoogleAuthButton
             label={googleLoading ? 'Đang đăng ký…' : 'Tiếp tục với Google'}
             loading={googleLoading}
             disabled={loading}
             onClick={handleGoogleRegister}
-          /> */}
+          />
 
           <p className="text-center text-sm text-(--muted-text)">
             Đã có tài khoản?{' '}

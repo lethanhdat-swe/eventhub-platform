@@ -48,23 +48,29 @@ function CategoryBrowse() {
 
   return (
     <section className="container mt-16">
-      <div className="mb-7 flex items-end justify-between gap-4">
-        <div>
-          <p className="mb-2 text-sm font-black uppercase tracking-[0.24em] text-(--primary-color)">
-            Danh mục sự kiện
-          </p>
+      <div className="mb-7 flex items-start justify-between gap-4 md:gap-6">
+        <div className="flex items-start gap-3">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-(--primary-color)/10 text-(--primary-color)">
+            <Sparkles size={23} />
+          </div>
 
-          <h2 className="text-2xl font-black tracking-tight text-(--text-primary) md:text-3xl">
-            Khám phá theo sở thích của bạn
-          </h2>
+          <div>
+            <p className="mb-2 text-sm font-black uppercase tracking-[0.24em] text-(--primary-color)">
+              Danh mục sự kiện
+            </p>
 
-          <p className="mt-2 max-w-xl text-sm leading-6 text-(--text-primary)/55">
-            Chọn nhanh nhóm sự kiện bạn quan tâm và bắt đầu khám phá những trải
-            nghiệm phù hợp.
-          </p>
+            <h2 className="text-2xl font-black tracking-tight text-(--text-primary) md:text-3xl">
+              Khám phá theo sở thích của bạn
+            </h2>
+
+            <p className="mt-2 max-w-xl text-sm leading-6 text-(--text-primary)/55">
+              Chọn nhanh nhóm sự kiện bạn quan tâm và bắt đầu khám phá những
+              trải nghiệm phù hợp.
+            </p>
+          </div>
         </div>
 
-        <button className="group hidden items-center gap-2 rounded-full border border-(--text-primary)/10 bg-(--surface-color) px-5 py-2.5 text-sm font-bold text-(--text-primary)/80 shadow-sm transition hover:border-(--primary-color)/40 hover:text-(--primary-color) sm:flex">
+        <button className="group hidden shrink-0 items-center gap-2 rounded-full border border-(--text-primary)/10 bg-(--surface-color) px-5 py-2.5 text-sm font-bold whitespace-nowrap text-(--text-primary)/80 shadow-sm transition hover:border-(--primary-color)/40 hover:text-(--primary-color) sm:flex md:px-6 md:py-3">
           Xem tất cả
           <ArrowRight
             size={17}

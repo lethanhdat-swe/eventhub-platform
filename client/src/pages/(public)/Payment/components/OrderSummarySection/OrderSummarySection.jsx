@@ -8,29 +8,29 @@ function OrderSummarySection({ event, ticketItems = [] }) {
   const imageUrl = resolvePublicAssetUrl(event?.thumbnailUrl) || images.home;
 
   return (
-    <div>
-      <div className="flex items-center gap-2 mt-6 mb-3">
+    <section>
+      <div className="mt-6 mb-3 flex items-center gap-2">
         <ReceiptText color="var(--primary-color)" size={20} />
-        <p className="text-(--text-primary) font-medium">Chi tiết sự kiện</p>
+        <p className="font-medium text-(--text-primary)">Chi tiết sự kiện</p>
       </div>
 
-      <div className="bg-(--background-color)/90 border border-(--text-primary)/10 rounded-xl p-4 sm:p-5 space-y-4 md:space-y-0 md:grid md:grid-cols-12 md:gap-5">
-        <div className="md:col-span-4">
-          <div className="aspect-[16/9] sm:aspect-[5/4] md:aspect-[5/5] w-full overflow-hidden rounded-2xl">
+      <div className="rounded-xl border border-(--text-primary)/10 bg-(--background-color)/90 p-4 sm:p-5 md:grid md:grid-cols-12 md:gap-5 md:space-y-0 lg:gap-6">
+        <div className="mb-4 md:col-span-4 md:mb-0 lg:col-span-3">
+          <div className="aspect-[16/9] w-full overflow-hidden rounded-2xl sm:aspect-[5/4] md:aspect-[4/3] lg:aspect-[3/4]">
             <img
               src={imageUrl}
               alt={event?.title ?? 'Event'}
-              className="object-cover w-full h-full"
+              className="h-full w-full object-cover"
             />
           </div>
         </div>
 
-        <div className="space-y-4 md:col-span-8">
+        <div className="space-y-4 md:col-span-8 lg:col-span-9">
           <EventInfoCard event={event} />
           <TicketTable items={ticketItems} />
         </div>
       </div>
-    </div>
+    </section>
   );
 }
 

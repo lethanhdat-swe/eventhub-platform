@@ -14,9 +14,10 @@ function BlogItem({ blog }) {
     event.stopPropagation();
     navigate(detailPath);
   };
+  console.log(blog.author);
 
   return (
-    <article className="container mt-4 sm:mt-6">
+    <article className="mt-4 sm:mt-6">
       <div
         onClick={handleNavigate}
         className="
@@ -69,12 +70,6 @@ function BlogItem({ blog }) {
               <CalendarDays size={16} className="hidden sm:block" />
               <span>{blog.date}</span>
             </div>
-
-            <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-(--muted-text)">
-              <Eye size={13} className="sm:hidden" />
-              <Eye size={16} className="hidden sm:block" />
-              <span>{blog.views || 0} lượt xem</span>
-            </div>
           </div>
 
           <h2
@@ -101,7 +96,7 @@ function BlogItem({ blog }) {
               </p>
 
               <p className="mt-0.5 sm:mt-1 truncate text-xs sm:text-sm font-bold text-(--text-primary)">
-                {blog.author?.email || 'EventHub Editorial'}
+                {blog.author?.fullName || 'EventHub Editorial'}
               </p>
             </div>
 
@@ -120,7 +115,7 @@ function BlogItem({ blog }) {
                 active:scale-95
               "
             >
-              Đọc tiếp
+              Xem chi tiết
               <ArrowRight
                 size={14}
                 className="transition-transform duration-300 sm:hidden group-hover:translate-x-1"

@@ -56,7 +56,7 @@ function Events() {
       <section className="relative">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(124,58,237,0.16),transparent_32%),radial-gradient(circle_at_top_left,rgba(168,85,247,0.1),transparent_28%)]" />
 
-        <div className="px-10 relative z-10 py-14">
+        <div className="container relative z-10 py-14">
           <EventExplorer
             events={events}
             currentPage={currentPage}

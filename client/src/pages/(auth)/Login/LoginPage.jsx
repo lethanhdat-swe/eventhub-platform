@@ -16,7 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { isAdminUser } from '@/lib/auth/authRole';
-// import { signInWithGoogle } from '@/lib/firebase/googleAuth';
+import { signInWithGoogle } from '@/lib/firebase/googleAuth';
 import { parseApiError } from '@/lib/http/apiError';
 import { getApiData } from '@/lib/http/unwrapApiSuccess';
 import { authService } from '@/lib/services/auth';
@@ -139,24 +139,24 @@ function LoginPage() {
     }
   }
 
-  // async function handleGoogleLogin() {
-  //   setApiError('');
-  //   setGoogleLoading(true);
+  async function handleGoogleLogin() {
+    setApiError('');
+    setGoogleLoading(true);
 
-  //   try {
-  //     const { idToken } = await signInWithGoogle();
+    try {
+      const { idToken } = await signInWithGoogle();
 
-  //     const body = await authService.googleLogin({ idToken });
-  //     const data = getApiData(body);
+      const body = await authService.googleLogin({ idToken });
+      const data = getApiData(body);
 
-  //     setAuth(data);
-  //     redirectAfterLogin(data);
-  //   } catch (e) {
-  //     setApiError(mapGoogleLoginError(e));
-  //   } finally {
-  //     setGoogleLoading(false);
-  //   }
-  // }
+      setAuth(data);
+      redirectAfterLogin(data);
+    } catch (e) {
+      setApiError(mapGoogleLoginError(e));
+    } finally {
+      setGoogleLoading(false);
+    }
+  }
 
   return (
     <div className="w-full max-w-[520px]">
@@ -262,12 +262,12 @@ function LoginPage() {
             <Separator className="flex-1 bg-(--border-color)" />
           </div>
 
-          {/* <GoogleAuthButton
+          <GoogleAuthButton
             label={googleLoading ? 'Đang đăng nhập…' : 'Tiếp tục với Google'}
             loading={googleLoading}
             disabled={loading}
             onClick={handleGoogleLogin}
-          /> */}
+          />
 
           <p className="text-center text-sm text-(--muted-text)">
             Chưa có tài khoản?{' '}

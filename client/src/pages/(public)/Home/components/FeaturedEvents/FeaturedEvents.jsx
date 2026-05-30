@@ -19,7 +19,7 @@ function FeaturedEvents({ events = [] }) {
   return (
     <section className="overflow-x-clip mt-16">
       <div className="container overflow-visible">
-        <div className="mb-7 flex items-end justify-between gap-4">
+        <div className="mb-7 flex items-center justify-between gap-4">
           <div className="flex items-start gap-3">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-(--primary-color)/10 text-(--primary-color)">
               <CalendarHeart size={23} />
@@ -99,6 +99,7 @@ function FeaturedEvents({ events = [] }) {
                 disableOnInteraction: false,
                 pauseOnMouseEnter: true,
               }}
+              loop
               speed={800}
               navigation={{
                 prevEl: '.featured-prev',

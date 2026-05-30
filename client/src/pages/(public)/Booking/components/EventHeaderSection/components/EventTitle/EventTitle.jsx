@@ -1,46 +1,54 @@
-import { ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
+import { ArrowLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 function EventTitle({ event, isLoading }) {
-    const title = isLoading ? 'Loading event...' : event?.title ?? 'Event';
-    const categoryName = event?.category?.name;
+  const title = isLoading ? 'Loading event...' : (event?.title ?? 'Event');
+  const categoryName = event?.category?.name;
 
-    return ( 
-        <>
-            {/* Back link */}
-            <Link
-            to="/events"
-            className="flex items-center gap-2 transition-all duration-200 w-fit group"
-            >
-            <ArrowLeft
-                color="var(--text-primary)"
-                className="transition-transform duration-200 group-hover:-translate-x-1"
-            />
-            <p className="text-(--text-primary)/60 group-hover:text-(--text-primary) transition-colors duration-200">
-                Quay lại sự kiện
-            </p>
-            </Link>
+  return (
+    <div className="space-y-5">
+      <Link
+        to="/events"
+        className="
+          group inline-flex w-fit items-center gap-2 rounded-full
+          border border-(--text-primary)/10 bg-white/[0.03]
+          px-3.5 py-2 text-sm font-medium text-(--text-primary)/65
+          transition-all duration-300
+          hover:border-(--primary-color)/35 hover:bg-(--primary-color)/10 hover:text-(--text-primary)
+        "
+      >
+        <ArrowLeft
+          size={17}
+          className="transition-transform duration-300 group-hover:-translate-x-1"
+        />
+        Quay lại sự kiện
+      </Link>
 
-            {/* Title + badge */}
-            <div className="flex flex-wrap items-center gap-4">
-            <p className="text-(--text-primary) text-2xl lg:text-3xl font-bold tracking-tight">
-                {title}
-            </p>
-            {categoryName ? (
-              <p
-                className="text-xs px-2 py-0.5 rounded-sm uppercase border text-center shrink-0"
-                style={{
-                color: "var(--primary-color)",
-                backgroundColor: "color-mix(in srgb, var(--primary-color) 15%, transparent)",
-                borderColor: "color-mix(in srgb, var(--primary-color) 30%, transparent)",
-                }}
-            >
-                {categoryName}
-              </p>
-            ) : null}
-            </div>
-        </>
-     );
+      <div className="space-y-3">
+        {categoryName ? (
+          <span
+            className="
+              inline-flex w-fit items-center rounded-full border
+              px-3 py-1 text-xs font-black uppercase tracking-[0.12em]
+            "
+            style={{
+              color: 'var(--primary-color)',
+              backgroundColor:
+                'color-mix(in srgb, var(--primary-color) 14%, transparent)',
+              borderColor:
+                'color-mix(in srgb, var(--primary-color) 35%, transparent)',
+            }}
+          >
+            {categoryName}
+          </span>
+        ) : null}
+
+        <h1 className="max-w-3xl text-3xl font-black leading-tight tracking-[-0.035em] text-(--text-primary) md:text-[38px] lg:text-[42px]">
+          {title}
+        </h1>
+      </div>
+    </div>
+  );
 }
 
 export default EventTitle;

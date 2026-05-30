@@ -1,5 +1,13 @@
 import { useState } from 'react';
-import { Bell, ChevronDown, Loader2, LogOut, Menu, Settings, User } from 'lucide-react';
+import {
+  Bell,
+  ChevronDown,
+  Loader2,
+  LogOut,
+  Menu,
+  Settings,
+  User,
+} from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
@@ -43,7 +51,7 @@ function AdminHeader({ onMenuToggle }) {
   }
 
   return (
-    <header className="flex items-center gap-3 px-4 border-b h-30 lg:h-14 shrink-0 border-border bg-background md:px-6">
+    <header className="flex items-center gap-3 px-4 border-b h-16 lg:h-14 shrink-0 border-border bg-background md:px-6">
       <Button
         type="button"
         variant="ghost"
@@ -59,7 +67,10 @@ function AdminHeader({ onMenuToggle }) {
         <ol className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
           <li className="text-muted-foreground">Quản trị</li>
           {breadcrumbs.map((crumb, index) => (
-            <li key={`${crumb.label}-${index}`} className="flex items-center gap-1.5">
+            <li
+              key={`${crumb.label}-${index}`}
+              className="flex items-center gap-1.5"
+            >
               <span aria-hidden>/</span>
               <span
                 className={cn(
@@ -88,7 +99,9 @@ function AdminHeader({ onMenuToggle }) {
                 <span className="flex items-center justify-center text-xs font-medium rounded-full size-8 shrink-0 bg-muted text-muted-foreground">
                   Q
                 </span>
-                <span className="hidden font-medium sm:inline">Quản trị viên</span>
+                <span className="hidden font-medium sm:inline">
+                  Quản trị viên
+                </span>
                 <ChevronDown className="size-4 shrink-0 text-muted-foreground" />
               </button>
             }

@@ -136,7 +136,7 @@ function Booking() {
   };
 
   return (
-    <div className="pt-(--header-height) mx-auto mb-10 w-full max-w-[1380px] space-y-4 px-5 lg:px-8">
+    <div className="pt-(--header-height) mx-auto mb-10 w-full container space-y-4 ">
       {error ? (
         <div className="rounded-xl border border-(--text-primary)/10 bg-(--background-color)/90 p-6 text-(--text-primary)/70">
           {error}

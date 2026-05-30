@@ -78,13 +78,27 @@ function EventDetail() {
         <div className="absolute right-0 top-80 h-90 w-90 rounded-full bg-(--primary-color)/5 blur-[100px]" />
       </div>
 
-      <div className="container relative z-10 w-full px-4 pt-8 pb-16 mx-auto sm:px-5 lg:px-8">
-        <div className="grid grid-cols-12 gap-6 lg:gap-6">
-          <section className="col-span-12 space-y-5 lg:col-span-8">
+      <div className="container relative z-10 w-full pt-8 pb-16">
+        <div className="grid grid-cols-12 gap-6 lg:items-start">
+          {/* Main top content */}
+          <section className="order-1 col-span-12 space-y-5 lg:col-span-8">
             <EventHero event={event} />
             <EventInfoBar event={event} />
             <EventAbout event={event} />
+          </section>
 
+          {/* Booking sidebar - mobile/tablet sẽ lên trước seat + comment */}
+          <aside className="order-2 col-span-12 lg:col-span-4">
+            <div className="space-y-4 lg:sticky lg:top-24">
+              <EventOrganizer event={event} />
+              <EventBooking eventId={event.id} />
+              <EventTickets tickets={tickets} />
+              <EventInformation event={event} />
+            </div>
+          </aside>
+
+          {/* Main bottom content */}
+          <section className="order-3 col-span-12 space-y-5 lg:col-span-8">
             <EventSeat
               eventSeats={eventSeats}
               isLoading={isSeatsLoading}
@@ -97,15 +111,6 @@ function EventDetail() {
               setComments={setComments}
             />
           </section>
-
-          <aside className="col-span-12 lg:col-span-4">
-            <div className="space-y-4">
-              <EventOrganizer event={event} />
-              <EventBooking eventId={event.id} />
-              <EventTickets tickets={tickets} />
-              <EventInformation event={event} />
-            </div>
-          </aside>
         </div>
 
         <div className="mt-14">

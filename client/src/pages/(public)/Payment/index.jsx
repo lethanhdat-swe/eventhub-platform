@@ -35,10 +35,13 @@ function groupTicketItems(selectedSeats) {
 
   selectedSeats.forEach((seat) => {
     const ticketName = seat.ticketType?.name ?? 'Ticket';
+    const ticketColor = seat.ticketType?.color ?? 'var(--primary-color)';
     const price = Number(seat.ticketType?.price ?? 0);
     const key = `${ticketName}-${price}`;
+
     const current = map.get(key) ?? {
       ticketType: ticketName,
+      color: ticketColor,
       quantity: 0,
       seats: [],
       price,
@@ -48,6 +51,7 @@ function groupTicketItems(selectedSeats) {
     current.quantity += 1;
     current.seats.push(getSeatLabel(seat));
     current.total += price;
+
     map.set(key, current);
   });
 
@@ -92,7 +96,9 @@ function Payment() {
     Number(appliedCoupon?.finalAmount ?? subtotal),
     0
   );
-  const totalFromOrder = Number(createdOrder?.totalAmount ?? previewTotalAmount);
+  const totalFromOrder = Number(
+    createdOrder?.totalAmount ?? previewTotalAmount
+  );
   const discountAmount = createdOrder
     ? Math.max(subtotal - totalFromOrder, 0)
     : previewDiscountAmount;

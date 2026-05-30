@@ -85,7 +85,9 @@ class BlogService {
                     publishedAt: true,
                     createdAt: true,
                     updatedAt: true,
-                    author: { select: { id: true, email: true } },
+                    author: {
+                        select: { id: true, email: true, fullName: true },
+                    },
                     category: { select: { id: true, name: true, slug: true } },
                 },
             }),

@@ -1,13 +1,16 @@
-import { BadgeCheck, Bookmark, CalendarDays, MapPin } from 'lucide-react';
-import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
-import { saveEventService } from '@/lib/services/saveEvent';
 import { useEffect, useState } from 'react';
+import { BadgeCheck, Bookmark, CalendarDays, MapPin } from 'lucide-react';
+import { toast } from 'sonner';
+
 import LikeButton from '@/components/LikeButton';
+import { saveEventService } from '@/lib/services/saveEvent';
+import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
 
 function EventHero({ event }) {
-  const startDate = new Date(event.startDate);
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const startDate = new Date(event.startDate);
 
   useEffect(() => {
     let mounted = true;
@@ -15,9 +18,15 @@ function EventHero({ event }) {
     const fetchSavedEvents = async () => {
       try {
         const data = await saveEventService.list();
+
         if (!mounted) return;
 
-        const isSaved = data.some((item) => item.event.id === event.id);
+        const savedEvents = data ?? [];
+
+        const isSaved = savedEvents.some(
+          (item) => item.event?.id === event.id || item.eventId === event.id
+        );
+
         setSaved(isSaved);
       } catch (error) {
         console.error('Failed to fetch saved events:', error);
@@ -31,20 +40,34 @@ function EventHero({ event }) {
     return () => {
       mounted = false;
     };
-  }, [event.id]);
+  }, [event?.id]);
 
   const handleBookmark = async (e) => {
     e.stopPropagation();
 
-    if (loading) return;
+    if (loading || !event?.id) return;
 
+    const previousSaved = saved;
+    const nextSaved = !previousSaved;
+
+    setSaved(nextSaved);
     setLoading(true);
 
     try {
-      const nextSaved = await saveEventService.toggle(event.id);
-      setSaved(nextSaved);
+      const result = await saveEventService.toggle(event.id);
+
+      const isSaved = result?.isSaved ?? nextSaved;
+
+      setSaved(isSaved);
+
+      toast.success(
+        isSaved ? 'Sự kiện đã được lưu!' : 'Sự kiện đã được bỏ lưu!'
+      );
     } catch (error) {
       console.error('Failed to toggle save:', error);
+
+      setSaved(previousSaved);
+      toast.error('Không thể cập nhật trạng thái lưu sự kiện.');
     } finally {
       setLoading(false);
     }
@@ -100,8 +123,21 @@ function EventHero({ event }) {
           type="button"
           onClick={handleBookmark}
           disabled={loading}
-          aria-label={saved ? 'Remove saved event' : 'Save event'}
-          className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-white/15 bg-black/45 text-white/80 backdrop-blur-xl transition-all duration-200 hover:border-(--primary-color)/70 hover:bg-(--primary-color)/15 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+          aria-label={saved ? 'Bỏ lưu sự kiện' : 'Lưu sự kiện'}
+          className={`
+            flex h-10 w-10 cursor-pointer items-center justify-center
+            rounded-full border border-white/15 bg-black/45 text-white/80
+            backdrop-blur-xl transition-all duration-200
+            hover:border-(--primary-color)/70
+            hover:bg-(--primary-color)/15
+            hover:text-white
+            disabled:cursor-not-allowed disabled:opacity-60
+            ${
+              saved
+                ? 'border-(--primary-color)/70 bg-(--primary-color)/20 text-white'
+                : ''
+            }
+          `}
         >
           <Bookmark
             className="h-4 w-4"

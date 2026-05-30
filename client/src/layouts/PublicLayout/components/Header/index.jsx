@@ -21,28 +21,28 @@ function Header() {
 
   return (
     <>
-    <header
-      className={`
-        fixed top-0 left-0 right-0 z-50
-        flex items-center justify-between
-        md:px-12 md:py-5 h-18 p-2
-        transition-all duration-300
+      <header
+        className={`
+    fixed top-0 left-0 right-0 z-50
+    flex items-center justify-between
+    h-18 px-3 py-2 md:px-8 md:py-3 lg:px-12 lg:py-5
+    transition-all duration-300
 
-        ${visible ? 'translate-y-0' : '-translate-y-full'}
+    ${visible ? 'translate-y-0' : '-translate-y-full'}
 
-        ${
-          scrolled
-            ? 'bg-(--background-color)/80 backdrop-blur-2xl border-b border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.25)]'
-            : 'bg-transparent'
-        }
-      `}
-    >
-      <HeaderLogo scrolled={scrolled} />
-      <div className="hidden lg:block">
+    ${
+      scrolled
+        ? 'bg-(--background-color)/80 backdrop-blur-2xl border-b border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.25)]'
+        : 'bg-transparent'
+    }
+  `}
+      >
+        <HeaderLogo scrolled={scrolled} />
+        <div className="hidden lg:block">
           <HeaderNav scrolled={scrolled} />
         </div>
 
-      <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3">
           <HeaderSearch />
           <HeaderThemeToggle scrolled={scrolled} />
 
@@ -65,22 +65,22 @@ function Header() {
               }
             `}
           >
-           <Menu
-            className="w-5 h-5"
-            color={isDarkHero && !scrolled ? 'white' : 'var(--text-primary)'}
-          />
+            <Menu
+              className="w-5 h-5"
+              color={isDarkHero && !scrolled ? 'white' : 'var(--text-primary)'}
+            />
           </button>
         </div>
-    </header>
+      </header>
 
-    {/* Mobile sidebar */}
+      {/* Mobile sidebar */}
       <MobileMenu
         open={mobileOpen}
         onClose={() => setMobileOpen(false)}
         scrolled={scrolled}
         isAuthenticated={isAuthenticated}
       />
-      </>
+    </>
   );
 }
 

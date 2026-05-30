@@ -15,7 +15,7 @@ function TrendEvent({ trendingEvents = [] }) {
   return (
     <section className="overflow-x-clip pt-12">
       <div className="container overflow-visible">
-        <div className="mb-7 flex items-end justify-between gap-4">
+        <div className="mb-7 flex items-center justify-between gap-4">
           <div className="flex items-start gap-3">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-orange-500/10 text-orange-500">
               <Flame size={23} />
@@ -85,10 +85,11 @@ function TrendEvent({ trendingEvents = [] }) {
             <Swiper
               modules={[Autoplay, Navigation, Pagination]}
               autoplay={{
-                delay: 4000,
+                delay: 3000,
                 disableOnInteraction: false,
                 pauseOnMouseEnter: true,
               }}
+              loop
               speed={800}
               navigation={{
                 prevEl: '.trending-prev',

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getLikeInfo, toggleLike } from '@/lib/services/likeService';
+import { toast } from 'sonner';
 
 const useEventLike = (eventId) => {
   const [likeCount, setLikeCount] = useState(0);
@@ -45,12 +46,19 @@ const useEventLike = (eventId) => {
     const currentLiked = isLiked;
     const currentCount = likeCount;
     setIsLiked(!currentLiked);
-    setLikeCount(currentLiked ? Math.max(0, currentCount - 1) : currentCount + 1);
+    setLikeCount(
+      currentLiked ? Math.max(0, currentCount - 1) : currentCount + 1
+    );
 
     try {
       const data = await toggleLike(eventId);
       setLikeCount(data.likeCount ?? 0);
       setIsLiked(Boolean(data.isLiked));
+      toast.success(
+        data.isLiked
+          ? 'Bạn đã thích sự kiện này!'
+          : 'Bạn đã bỏ thích sự kiện này!'
+      );
     } catch (err) {
       setIsLiked(currentLiked);
       setLikeCount(currentCount);

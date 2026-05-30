@@ -121,30 +121,38 @@ function Blog() {
   return (
     <div className="mb-10">
       <BlogHero />
+
       <BlogFilter
         categories={filterCategories}
         selectedCategory={selectedCategory}
         onSelectCategory={handleCategoryChange}
       />
-      {isLoading ? (
-        <p className="container mt-8 text-center text-(--text-primary)/70">
-          Loading blogs...
-        </p>
-      ) : error ? (
-        <p className="container mt-8 text-center text-red-400">{error}</p>
-      ) : blogs.length > 0 ? (
-        blogs.map((blog) => <BlogItem key={blog.id} blog={blog} />)
-      ) : (
-        <p className="container mt-8 text-center text-(--text-primary)/70">
-          No blogs found.
-        </p>
-      )}
 
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-      />
+      <section className="container mt-8">
+        {isLoading ? (
+          <p className="text-center text-(--text-primary)/70">
+            Loading blogs...
+          </p>
+        ) : error ? (
+          <p className="text-center text-red-400">{error}</p>
+        ) : blogs.length > 0 ? (
+          <div className="space-y-6">
+            {blogs.map((blog) => (
+              <BlogItem key={blog.id} blog={blog} />
+            ))}
+          </div>
+        ) : (
+          <p className="text-center text-(--text-primary)/70">
+            No blogs found.
+          </p>
+        )}
+
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
+      </section>
     </div>
   );
 }
