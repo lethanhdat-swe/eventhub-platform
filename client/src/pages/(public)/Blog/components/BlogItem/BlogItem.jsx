@@ -34,7 +34,7 @@ function BlogItem({ blog }) {
       >
         {/* Thumbnail */}
         <div className="col-span-12 overflow-hidden rounded-xl sm:rounded-[24px] lg:col-span-5">
-          <div className="relative h-50 sm:h-60 lg:h-65 overflow-hidden rounded-xl sm:rounded-[24px]">
+          <div className="relative h-50 sm:h-60 lg:h-full overflow-hidden rounded-xl sm:rounded-[24px]">
             <img
               src={resolvePublicAssetUrl(blog.thumbnailUrl)}
               alt={blog.title}

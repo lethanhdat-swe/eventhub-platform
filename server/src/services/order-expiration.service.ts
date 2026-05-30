@@ -1,7 +1,7 @@
 import paymentService from "./payment.service";
 import { prisma } from "../utils/prisma";
 
-const ORDER_EXPIRE_MINUTES = 15;
+const ORDER_EXPIRE_MINUTES = 1;
 
 class OrderExpirationService {
     async expirePendingOrders() {

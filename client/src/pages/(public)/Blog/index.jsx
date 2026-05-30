@@ -1,10 +1,19 @@
 import { useEffect, useMemo, useState } from 'react';
+import { motion } from 'motion/react';
+
 import { images } from '@/assets';
 import Pagination from '@/components/Pagination/Pagination';
+import {
+  fadeInVariants,
+  fadeUpVariants,
+  motionTransition,
+  staggerContainerVariants,
+} from '@/constants/motion';
 import { parseApiError } from '@/lib/http/apiError';
 import { blogService } from '@/lib/services/blog/blogService';
 import { blogCategoryService } from '@/lib/services/blogCategory/blogCategoryService';
 import { getUploadPreviewSrc } from '@/lib/upload/uploadAsset';
+
 import BlogFilter from './components/BlogFilter/BlogFilter';
 import BlogHero from './components/BlogHero/BlogHero';
 import BlogItem from './components/BlogItem/BlogItem';
@@ -122,37 +131,152 @@ function Blog() {
     <div className="mb-10">
       <BlogHero />
 
-      <BlogFilter
-        categories={filterCategories}
-        selectedCategory={selectedCategory}
-        onSelectCategory={handleCategoryChange}
-      />
+      <motion.div
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.2 }}
+        variants={fadeUpVariants}
+      >
+        <BlogFilter
+          categories={filterCategories}
+          selectedCategory={selectedCategory}
+          onSelectCategory={handleCategoryChange}
+        />
+      </motion.div>
 
       <section className="container mt-8">
         {isLoading ? (
-          <p className="text-center text-(--text-primary)/70">
-            Loading blogs...
-          </p>
-        ) : error ? (
-          <p className="text-center text-red-400">{error}</p>
-        ) : blogs.length > 0 ? (
-          <div className="space-y-6">
-            {blogs.map((blog) => (
-              <BlogItem key={blog.id} blog={blog} />
+          <motion.div
+            variants={staggerContainerVariants}
+            initial="hidden"
+            animate="show"
+            className="space-y-6"
+          >
+            {Array.from({ length: ITEMS_PER_PAGE }).map((_, index) => (
+              <motion.div key={index} variants={fadeUpVariants}>
+                <BlogItemSkeleton />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
+        ) : error ? (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              y: motionTransition.smooth,
+              opacity: motionTransition.opacity,
+            }}
+            className="
+              flex min-h-[220px] items-center justify-center rounded-[24px]
+              border border-dashed border-red-400/30 bg-red-400/5
+              px-5 text-center
+            "
+          >
+            <p className="text-sm font-semibold text-red-400">{error}</p>
+          </motion.div>
+        ) : blogs.length > 0 ? (
+          <motion.div
+            variants={staggerContainerVariants}
+            initial="hidden"
+            animate="show"
+            className="space-y-6"
+          >
+            {blogs.map((blog, index) => {
+              const delay = Math.min(index * 0.1, 0.4);
+
+              return (
+                <motion.div
+                  key={blog.id}
+                  initial={{ opacity: 0, x: index % 2 === 0 ? -18 : 18 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{
+                    x: {
+                      ...motionTransition.smooth,
+                      delay,
+                    },
+                    opacity: {
+                      ...motionTransition.opacity,
+                      delay,
+                    },
+                  }}
+                >
+                  <BlogItem blog={blog} />
+                </motion.div>
+              );
+            })}
+          </motion.div>
         ) : (
-          <p className="text-center text-(--text-primary)/70">
-            No blogs found.
-          </p>
+          <motion.div
+            variants={fadeInVariants}
+            initial="hidden"
+            animate="show"
+            className="
+              flex min-h-[220px] items-center justify-center rounded-[24px]
+              border border-dashed border-[var(--border-color)]
+              bg-[var(--soft-surface-color)]
+              px-5 text-center
+            "
+          >
+            <p className="text-sm font-medium text-[var(--muted-text)]">
+              No blogs found.
+            </p>
+          </motion.div>
         )}
 
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-        />
+        {totalPages > 1 && (
+          <motion.div
+            variants={fadeUpVariants}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.2 }}
+            className="mt-8"
+          >
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          </motion.div>
+        )}
       </section>
+    </div>
+  );
+}
+
+function BlogItemSkeleton() {
+  return (
+    <div
+      className="
+        overflow-hidden rounded-[24px] border border-[var(--border-color)]
+        bg-[var(--card-surface-color)] shadow-[0_18px_50px_rgba(0,0,0,0.12)]
+        backdrop-blur-xl
+      "
+    >
+      <div className="grid gap-0 md:grid-cols-[280px_1fr]">
+        <div className="h-56 animate-pulse bg-[var(--background-color)] md:h-full" />
+
+        <div className="space-y-4 p-5">
+          <div className="flex items-center gap-3">
+            <div className="h-7 w-24 animate-pulse rounded-full bg-[var(--background-color)]" />
+            <div className="h-4 w-20 animate-pulse rounded-lg bg-[var(--background-color)]" />
+          </div>
+
+          <div className="space-y-2">
+            <div className="h-6 w-4/5 animate-pulse rounded-lg bg-[var(--background-color)]" />
+            <div className="h-6 w-3/5 animate-pulse rounded-lg bg-[var(--background-color)]" />
+          </div>
+
+          <div className="space-y-2">
+            <div className="h-4 w-full animate-pulse rounded-lg bg-[var(--background-color)]" />
+            <div className="h-4 w-5/6 animate-pulse rounded-lg bg-[var(--background-color)]" />
+          </div>
+
+          <div className="flex items-center justify-between pt-2">
+            <div className="h-9 w-28 animate-pulse rounded-full bg-[var(--background-color)]" />
+            <div className="h-5 w-20 animate-pulse rounded-lg bg-[var(--background-color)]" />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,3 +1,14 @@
+import MotionButton from '@/components/motion/MotionButton';
+import MotionSection from '@/components/motion/MotionSection';
+import {
+  cardHoverMotion,
+  fadeInVariants,
+  fadeUpVariants,
+  motionTransition,
+  scaleInVariants,
+  staggerContainerVariants,
+  tapMotion,
+} from '@/constants/motion';
 import {
   ArrowRight,
   CalendarSearch,
@@ -5,6 +16,7 @@ import {
   QrCode,
   Sparkles,
 } from 'lucide-react';
+import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
 
 const steps = [
@@ -48,53 +60,94 @@ const highlights = [
 
 function HowItWorks() {
   return (
-    <section className="container mt-20">
+    <MotionSection className="container mt-20">
       <div className="grid items-center gap-10 lg:grid-cols-[0.9fr_1.1fr]">
-        <div>
-          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-(--primary-color)/20 bg-(--primary-color)/10 px-4 py-2 text-sm font-bold text-(--primary-color)">
+        <motion.div variants={staggerContainerVariants}>
+          <motion.div
+            variants={fadeUpVariants}
+            className="mb-5 inline-flex items-center gap-2 rounded-full border border-(--primary-color)/20 bg-(--primary-color)/10 px-4 py-2 text-sm font-bold text-(--primary-color)"
+          >
             <Sparkles size={16} />
             Cách EventHub hoạt động
-          </div>
+          </motion.div>
 
-          <h2 className="max-w-xl text-3xl font-black leading-tight tracking-tight text-(--text-primary) md:text-5xl">
+          <motion.h2
+            variants={fadeUpVariants}
+            className="max-w-xl text-3xl leading-tight font-black tracking-tight text-(--text-primary) md:text-5xl"
+          >
             Từ khám phá sự kiện đến check-in chỉ trong vài bước
-          </h2>
+          </motion.h2>
 
-          <p className="mt-5 max-w-lg text-sm leading-7 text-[var(--muted-text)] md:text-base">
+          <motion.p
+            variants={fadeUpVariants}
+            className="mt-5 max-w-lg text-sm leading-7 text-[var(--muted-text)] md:text-base"
+          >
             EventHub giúp bạn tìm sự kiện phù hợp, đặt vé online và sử dụng vé
             điện tử để tham gia sự kiện một cách nhanh chóng.
-          </p>
+          </motion.p>
 
-          <div className="mt-7 flex flex-wrap items-center gap-3">
-            <Link
-              to="/events"
-              className="
-                group inline-flex items-center gap-2 rounded-full
-                bg-(--primary-color) px-5 py-3 text-sm font-bold text-white
-                shadow-[0_14px_35px_rgba(168,85,247,0.28)]
-                transition-all duration-300
-                hover:-translate-y-0.5 hover:shadow-[0_18px_45px_rgba(168,85,247,0.34)]
-                active:scale-95
-              "
+          <motion.div
+            variants={fadeUpVariants}
+            className="mt-7 flex flex-wrap items-center gap-3"
+          >
+            <MotionButton>
+              <Link
+                to="/events"
+                className="
+                  group inline-flex items-center gap-2 rounded-full
+                  bg-(--primary-color) px-5 py-3 text-sm font-bold text-white
+                  shadow-[0_14px_35px_rgba(168,85,247,0.28)]
+                  transition-shadow duration-300
+                  hover:shadow-[0_18px_45px_rgba(168,85,247,0.34)]
+                "
+              >
+                Khám phá sự kiện
+                <ArrowRight
+                  size={17}
+                  className="transition-transform duration-300 group-hover:translate-x-1"
+                />
+              </Link>
+            </MotionButton>
+
+            <motion.span
+              whileHover={{ y: -2 }}
+              transition={motionTransition.fast}
+              className="rounded-full border border-[var(--border-color)] bg-[var(--soft-surface-color)] px-4 py-2 text-sm font-semibold text-[var(--muted-text)]"
             >
-              Khám phá sự kiện
-              <ArrowRight
-                size={17}
-                className="transition-transform duration-300 group-hover:translate-x-1"
-              />
-            </Link>
-
-            <span className="rounded-full border border-[var(--border-color)] bg-[var(--soft-surface-color)] px-4 py-2 text-sm font-semibold text-[var(--muted-text)]">
               Không cần in vé giấy
-            </span>
-          </div>
-        </div>
+            </motion.span>
+          </motion.div>
+        </motion.div>
 
-        <div className="relative">
-          <div className="pointer-events-none absolute -left-10 top-10 h-52 w-52 rounded-full bg-(--primary-color)/20 blur-3xl" />
-          <div className="pointer-events-none absolute -right-8 bottom-4 h-56 w-56 rounded-full bg-orange-500/10 blur-3xl" />
+        <motion.div variants={fadeUpVariants} className="relative">
+          <motion.div
+            animate={{
+              scale: [1, 1.08, 1],
+              opacity: [0.65, 1, 0.65],
+            }}
+            transition={{
+              duration: 7,
+              ease: 'linear',
+              repeat: Infinity,
+            }}
+            className="pointer-events-none absolute top-10 -left-10 h-52 w-52 rounded-full bg-(--primary-color)/20 blur-3xl"
+          />
 
-          <div
+          <motion.div
+            animate={{
+              scale: [1, 1.1, 1],
+              opacity: [0.45, 0.75, 0.45],
+            }}
+            transition={{
+              duration: 8,
+              ease: 'linear',
+              repeat: Infinity,
+            }}
+            className="pointer-events-none absolute right-8 bottom-4 h-56 w-56 rounded-full bg-orange-500/10 blur-3xl"
+          />
+
+          <motion.div
+            variants={scaleInVariants}
             className="
               relative rounded-[2rem] border border-[var(--border-color)]
               bg-[var(--soft-surface-color)] p-4
@@ -104,30 +157,41 @@ function HowItWorks() {
           >
             <div className="pointer-events-none absolute inset-0 rounded-[2rem] bg-[radial-gradient(circle_at_top_left,rgba(124,58,237,0.12),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(249,115,22,0.08),transparent_30%)]" />
 
-            <div className="relative z-10 space-y-4">
+            <motion.div
+              variants={staggerContainerVariants}
+              className="relative z-10 space-y-4"
+            >
               {steps.map((step, index) => {
                 const Icon = step.icon;
 
                 return (
-                  <div
+                  <motion.div
                     key={step.number}
+                    variants={fadeUpVariants}
+                    whileHover={cardHoverMotion}
+                    whileTap={tapMotion}
+                    transition={motionTransition.fast}
                     className={`
                       group relative overflow-hidden rounded-3xl border
                       border-[var(--border-color)] bg-[var(--card-surface-color)]
-                      p-5 transition-all duration-300
-                      hover:-translate-y-1 hover:border-(--primary-color)/40
+                      p-5 transition-[border-color,background-color,box-shadow] duration-300
+                      hover:border-(--primary-color)/40
                       hover:bg-[var(--card-hover-color)]
                       hover:shadow-[0_14px_35px_rgba(168,85,247,0.12)]
                       ${index === 1 ? 'md:ml-8' : ''}
                       ${index === 2 ? 'md:ml-16' : ''}
                     `}
                   >
-                    <div className="pointer-events-none absolute -right-16 -top-16 h-36 w-36 rounded-full bg-(--primary-color)/10 blur-2xl transition group-hover:bg-(--primary-color)/20" />
+                    <div className="pointer-events-none absolute -top-16 -right-16 h-36 w-36 rounded-full bg-(--primary-color)/10 blur-2xl transition-colors duration-300 group-hover:bg-(--primary-color)/20" />
 
                     <div className="relative z-10 flex gap-4">
-                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-(--primary-color)/25 bg-(--primary-color)/10 text-(--primary-color)">
+                      <motion.div
+                        whileHover={{ rotate: -4, scale: 1.06 }}
+                        transition={motionTransition.fast}
+                        className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-(--primary-color)/25 bg-(--primary-color)/10 text-(--primary-color)"
+                      >
                         <Icon size={24} />
-                      </div>
+                      </motion.div>
 
                       <div className="min-w-0 flex-1">
                         <div className="mb-2 flex items-center justify-between gap-3">
@@ -135,7 +199,7 @@ function HowItWorks() {
                             {step.title}
                           </h3>
 
-                          <span className="text-3xl font-black leading-none text-[var(--decorative-number-color)]">
+                          <span className="text-3xl leading-none font-black text-[var(--decorative-number-color)]">
                             {step.number}
                           </span>
                         </div>
@@ -145,15 +209,21 @@ function HowItWorks() {
                         </p>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })}
-            </div>
+            </motion.div>
 
-            <div className="relative z-10 mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <motion.div
+              variants={staggerContainerVariants}
+              className="relative z-10 mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3"
+            >
               {highlights.map((item) => (
-                <div
+                <motion.div
                   key={item.value}
+                  variants={fadeInVariants}
+                  whileHover={{ y: -3 }}
+                  transition={motionTransition.fast}
                   className="
                     rounded-2xl border border-[var(--border-color)]
                     bg-[var(--card-surface-color)] p-4
@@ -165,13 +235,13 @@ function HowItWorks() {
                   <p className="mt-1 text-xs text-[var(--muted-text)]">
                     {item.label}
                   </p>
-                </div>
+                </motion.div>
               ))}
-            </div>
-          </div>
-        </div>
+            </motion.div>
+          </motion.div>
+        </motion.div>
       </div>
-    </section>
+    </MotionSection>
   );
 }
 

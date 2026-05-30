@@ -1,10 +1,21 @@
+import MotionButton from '@/components/motion/MotionButton';
+import MotionSection from '@/components/motion/MotionSection';
+import {
+  fadeInVariants,
+  fadeUpVariants,
+  motionTransition,
+  scaleInVariants,
+  staggerContainerVariants,
+} from '@/constants/motion';
 import { ArrowRight, Sparkles } from 'lucide-react';
+import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
 
 function HomeCTA() {
   return (
-    <section className="container mt-20">
-      <div
+    <MotionSection className="container mt-20">
+      <motion.div
+        variants={scaleInVariants}
         className="
           relative overflow-hidden rounded-[2rem]
           border border-[var(--border-color)]
@@ -14,14 +25,56 @@ function HomeCTA() {
           md:px-10 md:py-16
         "
       >
-        <div className="pointer-events-none absolute left-1/2 top-0 h-80 w-80 -translate-x-1/2 rounded-full bg-(--primary-color)/20 blur-3xl" />
-        <div className="pointer-events-none absolute -left-24 bottom-0 h-72 w-72 rounded-full bg-orange-500/10 blur-3xl" />
-        <div className="pointer-events-none absolute -right-24 bottom-0 h-72 w-72 rounded-full bg-(--primary-color)/10 blur-3xl" />
+        <motion.div
+          animate={{
+            scale: [1, 1.08, 1],
+            opacity: [0.55, 0.9, 0.55],
+          }}
+          transition={{
+            duration: 7,
+            ease: 'linear',
+            repeat: Infinity,
+          }}
+          className="pointer-events-none absolute top-0 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full bg-(--primary-color)/20 blur-3xl"
+        />
 
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(124,58,237,0.14),transparent_34%)]" />
+        <motion.div
+          animate={{
+            scale: [1, 1.1, 1],
+            opacity: [0.35, 0.65, 0.35],
+          }}
+          transition={{
+            duration: 8,
+            ease: 'linear',
+            repeat: Infinity,
+          }}
+          className="pointer-events-none absolute bottom-0 -left-24 h-72 w-72 rounded-full bg-orange-500/10 blur-3xl"
+        />
 
-        <div className="relative z-10 mx-auto max-w-3xl">
-          <div
+        <motion.div
+          animate={{
+            scale: [1, 1.1, 1],
+            opacity: [0.35, 0.65, 0.35],
+          }}
+          transition={{
+            duration: 8.5,
+            ease: 'linear',
+            repeat: Infinity,
+          }}
+          className="pointer-events-none absolute -right-24 bottom-0 h-72 w-72 rounded-full bg-(--primary-color)/10 blur-3xl"
+        />
+
+        <motion.div
+          variants={fadeInVariants}
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(124,58,237,0.14),transparent_34%)]"
+        />
+
+        <motion.div
+          variants={staggerContainerVariants}
+          className="relative z-10 mx-auto max-w-3xl"
+        >
+          <motion.div
+            variants={fadeUpVariants}
             className="
               mb-5 inline-flex items-center gap-2 rounded-full
               border border-(--primary-color)/20 bg-(--primary-color)/10
@@ -30,54 +83,66 @@ function HomeCTA() {
           >
             <Sparkles size={14} />
             Khám phá cùng EventHub
-          </div>
+          </motion.div>
 
-          <h2 className="text-3xl font-black leading-tight tracking-tight text-(--text-primary) md:text-5xl">
+          <motion.h2
+            variants={fadeUpVariants}
+            className="text-3xl leading-tight font-black tracking-tight text-(--text-primary) md:text-5xl"
+          >
             Cùng EventHub tìm trải nghiệm tiếp theo của bạn
-          </h2>
+          </motion.h2>
 
-          <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-[var(--muted-text)] md:text-base">
+          <motion.p
+            variants={fadeUpVariants}
+            className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-[var(--muted-text)] md:text-base"
+          >
             Từ những đêm nhạc đầy cảm xúc đến workshop, festival và các buổi gặp
             gỡ cộng đồng — mọi trải nghiệm đáng nhớ đều bắt đầu từ một lựa chọn
             nhỏ.
-          </p>
+          </motion.p>
 
-          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Link
-              to="/events"
-              className="
-                group inline-flex h-12 items-center justify-center gap-2
-                rounded-full bg-(--primary-color) px-7 text-sm font-black
-                text-white shadow-[0_16px_40px_rgba(168,85,247,0.28)]
-                transition-all duration-300
-                hover:-translate-y-0.5 hover:brightness-110
-                active:scale-95
-              "
-            >
-              Bắt đầu khám phá
-              <ArrowRight
-                size={17}
-                className="transition-transform duration-300 group-hover:translate-x-1"
-              />
-            </Link>
+          <motion.div
+            variants={fadeUpVariants}
+            className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row"
+          >
+            <MotionButton>
+              <Link
+                to="/events"
+                className="
+                  group inline-flex h-12 items-center justify-center gap-2
+                  rounded-full bg-(--primary-color) px-7 text-sm font-black
+                  text-white shadow-[0_16px_40px_rgba(168,85,247,0.28)]
+                  transition-[filter,box-shadow] duration-300
+                  hover:brightness-110
+                "
+              >
+                Bắt đầu khám phá
+                <ArrowRight
+                  size={17}
+                  className="transition-transform duration-300 group-hover:translate-x-1"
+                />
+              </Link>
+            </MotionButton>
 
-            <Link
-              to="/events"
-              className="
-                inline-flex h-12 items-center justify-center rounded-full
-                border border-[var(--border-color)]
-                bg-[var(--soft-surface-color)] px-7
-                text-sm font-bold text-[var(--muted-text)]
-                transition-all duration-300
-                hover:border-(--primary-color)/35 hover:text-(--primary-color)
-              "
-            >
-              Xem tất cả sự kiện
-            </Link>
-          </div>
-        </div>
-      </div>
-    </section>
+            <MotionButton>
+              <Link
+                to="/events"
+                className="
+                  inline-flex h-12 items-center justify-center rounded-full
+                  border border-[var(--border-color)]
+                  bg-[var(--soft-surface-color)] px-7
+                  text-sm font-bold text-[var(--muted-text)]
+                  transition-colors duration-300
+                  hover:border-(--primary-color)/35 hover:text-(--primary-color)
+                "
+              >
+                Xem tất cả sự kiện
+              </Link>
+            </MotionButton>
+          </motion.div>
+        </motion.div>
+      </motion.div>
+    </MotionSection>
   );
 }
 

@@ -1,43 +1,52 @@
 import { useHeaderVisibility } from '@/hooks/useHeaderVisibility';
 import { useAuthStore } from '@/stores/authStore';
-import { HeaderSearch } from './components/HeaderSearch/HeaderSearch';
+import { motion } from 'motion/react';
+import { Menu } from 'lucide-react';
+import { useState } from 'react';
+import { useLocation } from 'react-router-dom';
+
+import { motionTransition } from '@/constants/motion';
 import HeaderLogo from './components/HeaderLogo/HeaderLogo';
 import HeaderNav from './components/HeaderNav/HeaderNav';
 import HeaderAuth from './components/HeaderAuth/HeaderAuth';
 import HeaderThemeToggle from './components/HeaderThemeToggle/HeaderThemeToggle';
 import HeaderProfileButton from './components/HeaderProfileButton/HeaderProfileButton';
-import { Menu } from 'lucide-react';
-import { useState } from 'react';
 import MobileMenu from './components/MobileMenu/MobileMenu';
-import { useLocation } from 'react-router-dom';
+import { HeaderSearch } from './components/HeaderSearch/HeaderSearch';
+
+const DARK_HERO_ROUTES = ['/', '/events', '/blogs', '/contact'];
 
 function Header() {
   const { visible, scrolled } = useHeaderVisibility();
   const [mobileOpen, setMobileOpen] = useState(false);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const { pathname } = useLocation();
-  const DARK_HERO_ROUTES = ['/', '/events', '/blogs', '/contact'];
+
   const isDarkHero = DARK_HERO_ROUTES.includes(pathname);
 
   return (
     <>
-      <header
+      <motion.header
+        initial={{ y: -72, opacity: 0 }}
+        animate={{
+          y: visible ? 0 : -84,
+          opacity: visible ? 1 : 0,
+        }}
+        transition={motionTransition.smooth}
         className={`
-    fixed top-0 left-0 right-0 z-50
-    flex items-center justify-between
-    h-18 px-3 py-2 md:px-8 md:py-3 lg:px-12 lg:py-5
-    transition-all duration-300
-
-    ${visible ? 'translate-y-0' : '-translate-y-full'}
-
-    ${
-      scrolled
-        ? 'bg-(--background-color)/80 backdrop-blur-2xl border-b border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.25)]'
-        : 'bg-transparent'
-    }
-  `}
+          fixed top-0 right-0 left-0 z-50
+          flex h-18 items-center justify-between
+          px-3 py-2 md:px-8 md:py-3 lg:px-12 lg:py-5
+          transition-[background-color,border-color,box-shadow,backdrop-filter] duration-300
+          ${
+            scrolled
+              ? 'border-b border-white/10 bg-(--background-color)/80 shadow-[0_8px_30px_rgba(0,0,0,0.25)] backdrop-blur-2xl'
+              : 'bg-transparent'
+          }
+        `}
       >
         <HeaderLogo scrolled={scrolled} />
+
         <div className="hidden lg:block">
           <HeaderNav scrolled={scrolled} />
         </div>
@@ -46,18 +55,19 @@ function Header() {
           <HeaderSearch />
           <HeaderThemeToggle scrolled={scrolled} />
 
-          {/* Auth / Profile — ẩn trên < lg, hiện trong sidebar */}
-          <div className="items-center hidden gap-4 lg:flex">
+          <div className="hidden items-center gap-4 lg:flex">
             {isAuthenticated ? <HeaderProfileButton /> : <HeaderAuth />}
           </div>
 
-          {/* Hamburger — chỉ hiện trên < lg */}
-          <button
+          <motion.button
             type="button"
             onClick={() => setMobileOpen(true)}
             aria-label="Mở menu"
+            whileHover={{ scale: 1.06 }}
+            whileTap={{ scale: 0.94 }}
+            transition={motionTransition.fast}
             className={`
-              lg:hidden p-2 rounded-full transition-all duration-300 cursor-pointer
+              cursor-pointer rounded-full p-2 transition-colors duration-300 lg:hidden
               ${
                 scrolled
                   ? 'text-(--text-primary) hover:bg-(--primary-color-hover)'
@@ -66,14 +76,13 @@ function Header() {
             `}
           >
             <Menu
-              className="w-5 h-5"
+              className="h-5 w-5"
               color={isDarkHero && !scrolled ? 'white' : 'var(--text-primary)'}
             />
-          </button>
+          </motion.button>
         </div>
-      </header>
+      </motion.header>
 
-      {/* Mobile sidebar */}
       <MobileMenu
         open={mobileOpen}
         onClose={() => setMobileOpen(false)}
