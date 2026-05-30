@@ -6,6 +6,8 @@ import { orderService } from '@/lib/services/admin/orderService';
 import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
 import OrderCard from './components/OrderCard/OrderCard';
 import OrderFilter from './components/OrderFilter/OrderFilter';
+import { Link } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
 
 const statusLabels = {
   PAID: 'Đã đặt',
@@ -128,12 +130,34 @@ function TicketOrder() {
   }, [activeStatus, orders]);
 
   return (
-    <div className="space-y-3">
-      <OrderFilter
-        value={activeStatus}
-        counts={counts}
-        onChange={setActiveStatus}
-      />
+    <div className="space-y-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <OrderFilter
+          value={activeStatus}
+          counts={counts}
+          onChange={setActiveStatus}
+        />
+
+        <Link
+          to="/my-tickets"
+          className="
+          inline-flex items-center justify-center gap-2
+          rounded-full border border-[var(--border-color)]
+          bg-[var(--card-surface-color)]
+          px-4 py-2.5
+          text-sm font-medium text-[var(--text-primary)]
+          shadow-[0_14px_35px_rgba(0,0,0,0.16)]
+          transition-all duration-300
+          hover:border-[var(--primary-color)]/50
+          hover:bg-[var(--soft-surface-color)]
+          hover:text-[var(--primary-color)]
+          active:scale-95
+        "
+        >
+          Xem tất cả vé
+          <ArrowRight size={16} />
+        </Link>
+      </div>
 
       {isLoading ? (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">

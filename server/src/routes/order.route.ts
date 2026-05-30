@@ -30,6 +30,7 @@ router.get(
     validate(listMyOrderSchema),
     orderController.myOrders
 );
+
 router.get(
     "/my/:id",
     isAuth,
@@ -47,15 +48,7 @@ router.get(
 // Admin routes
 router.use(isAuth, restrictTo("ADMIN"));
 
-router.get(
-    "/",
-    validate(listOrderSchema),
-    orderController.list
-);
-router.delete(
-    "/",
-    validate(deleteOrderSchema),
-    orderController.delete
-);
+router.get("/", validate(listOrderSchema), orderController.list);
+router.delete("/", validate(deleteOrderSchema), orderController.delete);
 
 export default router;

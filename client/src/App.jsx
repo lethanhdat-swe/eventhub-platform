@@ -47,6 +47,7 @@ import PaymentStatus from './pages/(public)/PaymentStatus';
 import EventCheckInPage from './pages/(public)/EventCheckInPage';
 import ContactPage from './pages/(admin)/Contact';
 import AIBlogConfig from './pages/(admin)/AIBlogConfig/AIBlogConfig';
+import MyTickets from './pages/(public)/MyTickets/MyTickets';
 
 function App() {
   return (
@@ -62,10 +63,17 @@ function App() {
         <Route path="/booking" element={<Booking />} />
         <Route path="/payment" element={<Payment />} />
         <Route path="/payment/qr/:orderId" element={<PaymentQrPage />} />
-        <Route path="/payment-success/:orderId" element={<PaymentSuccessPage />} />
-        <Route path="/payment-failed/:orderId" element={<PaymentFailedPage />} />
+        <Route
+          path="/payment-success/:orderId"
+          element={<PaymentSuccessPage />}
+        />
+        <Route
+          path="/payment-failed/:orderId"
+          element={<PaymentFailedPage />}
+        />
         <Route path="/payment-status" element={<PaymentStatus />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/my-tickets" element={<MyTickets />} />
         <Route path="/event-checkin/:id" element={<EventCheckInPage />} />
       </Route>
 
@@ -98,7 +106,10 @@ function App() {
           <Route path="default-seats" element={<DefaultSeats />} />
           <Route path="ticket-types" element={<TicketTypes />} />
           <Route path="orders" element={<Orders />} />
-          <Route path="payment-transactions" element={<PaymentTransactions />} />
+          <Route
+            path="payment-transactions"
+            element={<PaymentTransactions />}
+          />
           <Route path="tickets" element={<Tickets />} />
           <Route path="coupons" element={<Coupons />} />
           <Route path="blogs/create" element={<CreateBlog />} />

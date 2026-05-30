@@ -1,5 +1,6 @@
 function EventTickets({ tickets = [] }) {
   if (!tickets.length) return null;
+  console.log(tickets);
 
   return (
     <section className="mt-4 rounded-2xl border border-(--border-color) bg-(--card-surface-color) p-4 shadow-xl shadow-black/10 backdrop-blur-xl">
@@ -29,11 +30,6 @@ function EventTickets({ tickets = [] }) {
                 <h3 className="truncate text-sm font-bold text-(--text-primary)">
                   {ticket.name}
                 </h3>
-
-                <p className="mt-1 text-xs text-(--muted-text)">
-                  Còn {ticket.eventSeatCount ?? ticket.defaultSeatCount ?? 0}{' '}
-                  ghế
-                </p>
               </div>
             </div>
 
