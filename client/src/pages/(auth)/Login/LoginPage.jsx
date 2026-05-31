@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -27,29 +28,75 @@ function isValidEmail(value) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
+function normalizeMessage(message) {
+  return String(message || '')
+    .trim()
+    .toLowerCase();
+}
+
 function mapLoginApiError(error) {
   const parsed = parseApiError(error);
   const status = parsed.status;
-  const msg = (parsed.message || '').trim();
+  const rawMessage = parsed.message || '';
+  const msg = normalizeMessage(rawMessage);
 
-  if (status === 403) {
-    if (msg.toLowerCase().includes('verify your email')) {
-      return 'Vui lòng xác thực email trước khi đăng nhập. Kiểm tra hộp thư và bấm liên kết kích hoạt tài khoản.';
+  if (status === 400) {
+    if (msg.includes('email') && msg.includes('required')) {
+      return 'Vui lòng nhập email.';
     }
+
+    if (msg.includes('password') && msg.includes('required')) {
+      return 'Vui lòng nhập mật khẩu.';
+    }
+
+    if (msg.includes('does not support password login')) {
+      return 'Tài khoản này không hỗ trợ đăng nhập bằng mật khẩu. Vui lòng đăng nhập bằng Google.';
+    }
+
+    return 'Thông tin đăng nhập không hợp lệ. Vui lòng kiểm tra lại.';
   }
 
-  if (status === 401 || msg === 'Invalid email or password') {
+  if (status === 401) {
+    if (msg.includes('invalid email or password')) {
+      return 'Email hoặc mật khẩu không đúng.';
+    }
+
+    if (msg.includes('invalid password')) {
+      return 'Mật khẩu không đúng.';
+    }
+
+    if (msg.includes('user not found') || msg.includes('account not found')) {
+      return 'Tài khoản không tồn tại.';
+    }
+
     return 'Email hoặc mật khẩu không đúng.';
   }
 
-  if (
-    status === 400 &&
-    msg.includes('This account does not support password login')
-  ) {
-    return 'Tài khoản này không đăng nhập bằng mật khẩu. Hãy đăng nhập bằng Google.';
+  if (status === 403) {
+    if (
+      msg.includes('verify your email') ||
+      msg.includes('email is not verified') ||
+      msg.includes('email not verified')
+    ) {
+      return 'Vui lòng xác thực email trước khi đăng nhập. Kiểm tra hộp thư và bấm liên kết kích hoạt tài khoản.';
+    }
+
+    if (msg.includes('blocked') || msg.includes('disabled')) {
+      return 'Tài khoản của bạn đang bị khóa hoặc không còn hoạt động.';
+    }
+
+    return 'Bạn không có quyền đăng nhập vào hệ thống.';
   }
 
-  return msg || 'Đăng nhập thất bại. Vui lòng thử lại.';
+  if (status === 404) {
+    return 'Tài khoản không tồn tại.';
+  }
+
+  if (status >= 500) {
+    return 'Hệ thống đang gặp sự cố. Vui lòng thử lại sau.';
+  }
+
+  return rawMessage || 'Đăng nhập thất bại. Vui lòng thử lại.';
 }
 
 function mapGoogleLoginError(error) {
@@ -63,14 +110,52 @@ function mapGoogleLoginError(error) {
     return 'Yêu cầu đăng nhập Google đã bị hủy.';
   }
 
-  const parsed = parseApiError(error);
-  const msg = (parsed.message || '').trim();
+  if (code === 'auth/popup-blocked') {
+    return 'Trình duyệt đã chặn cửa sổ đăng nhập Google. Vui lòng cho phép popup và thử lại.';
+  }
 
-  if (msg === 'Google account mismatch') {
+  if (code === 'auth/network-request-failed') {
+    return 'Không thể kết nối tới Google. Vui lòng kiểm tra mạng và thử lại.';
+  }
+
+  const parsed = parseApiError(error);
+  const status = parsed.status;
+  const rawMessage = parsed.message || '';
+  const msg = normalizeMessage(rawMessage);
+
+  if (status === 400) {
+    if (msg.includes('id token')) {
+      return 'Phiên đăng nhập Google không hợp lệ. Vui lòng thử lại.';
+    }
+
+    return 'Đăng nhập Google không hợp lệ. Vui lòng thử lại.';
+  }
+
+  if (status === 401) {
+    return 'Không thể xác thực tài khoản Google. Vui lòng thử lại.';
+  }
+
+  if (status === 403) {
+    if (msg.includes('mismatch')) {
+      return 'Tài khoản Google không khớp với tài khoản đã liên kết.';
+    }
+
+    if (msg.includes('blocked') || msg.includes('disabled')) {
+      return 'Tài khoản của bạn đang bị khóa hoặc không còn hoạt động.';
+    }
+
+    return 'Bạn không có quyền đăng nhập bằng Google.';
+  }
+
+  if (status >= 500) {
+    return 'Hệ thống đang gặp sự cố. Vui lòng thử lại sau.';
+  }
+
+  if (msg.includes('google account mismatch')) {
     return 'Tài khoản Google không khớp với tài khoản đã liên kết.';
   }
 
-  return msg || 'Đăng nhập Google thất bại. Vui lòng thử lại.';
+  return rawMessage || 'Đăng nhập Google thất bại. Vui lòng thử lại.';
 }
 
 function LoginPage() {
@@ -101,17 +186,23 @@ function LoginPage() {
     const next = { email: '', password: '' };
 
     if (!email.trim()) {
-      next.email = 'Vui lòng nhập email';
+      next.email = 'Vui lòng nhập email.';
     } else if (!isValidEmail(email)) {
-      next.email = 'Email không hợp lệ';
+      next.email = 'Email không hợp lệ.';
     }
 
     if (!password) {
-      next.password = 'Vui lòng nhập mật khẩu';
+      next.password = 'Vui lòng nhập mật khẩu.';
     }
 
     setErrors(next);
-    return !next.email && !next.password;
+
+    if (next.email || next.password) {
+      toast.error('Vui lòng kiểm tra lại thông tin đăng nhập.');
+      return false;
+    }
+
+    return true;
   }
 
   async function handleSubmit(event) {
@@ -131,9 +222,15 @@ function LoginPage() {
       const data = getApiData(body);
 
       setAuth(data);
+
+      toast.success('Đăng nhập thành công.');
+
       redirectAfterLogin(data);
     } catch (e) {
-      setApiError(mapLoginApiError(e));
+      const message = mapLoginApiError(e);
+
+      setApiError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -147,12 +244,19 @@ function LoginPage() {
       const { idToken } = await signInWithGoogle();
 
       const body = await authService.googleLogin({ idToken });
+
       const data = getApiData(body);
 
       setAuth(data);
+
+      toast.success('Đăng nhập Google thành công.');
+
       redirectAfterLogin(data);
     } catch (e) {
-      setApiError(mapGoogleLoginError(e));
+      const message = mapGoogleLoginError(e);
+
+      setApiError(message);
+      toast.error(message);
     } finally {
       setGoogleLoading(false);
     }
@@ -195,7 +299,11 @@ function LoginPage() {
                 autoComplete="email"
                 id="login-email"
                 name="email"
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setErrors((prev) => ({ ...prev, email: '' }));
+                  setApiError('');
+                }}
                 placeholder="ban@vidu.com"
                 type="email"
                 value={email}
@@ -229,7 +337,11 @@ function LoginPage() {
                 autoComplete="current-password"
                 id="login-password"
                 name="password"
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setErrors((prev) => ({ ...prev, password: '' }));
+                  setApiError('');
+                }}
                 type="password"
                 value={password}
                 className="h-[52px] rounded-2xl border-(--border-color) bg-(--soft-surface-color) px-4 text-(--text-primary)"

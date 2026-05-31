@@ -1,10 +1,16 @@
 /**
  * Chuẩn hóa URL ảnh tĩnh khi FE chạy domain/port khác API.
  * @param {string | null | undefined} urlOrPath
+ * @param {string} fallbackUrl
  * @returns {string}
  */
-export function resolvePublicAssetUrl(urlOrPath) {
-  if (urlOrPath == null || urlOrPath === '') return '';
+export function resolvePublicAssetUrl(
+  urlOrPath,
+  fallbackUrl = '/default-avatar.jpg'
+) {
+  if (urlOrPath == null || String(urlOrPath).trim() === '') {
+    return fallbackUrl;
+  }
 
   const value = String(urlOrPath).trim();
 

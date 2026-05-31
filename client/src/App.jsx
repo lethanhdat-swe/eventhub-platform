@@ -58,6 +58,7 @@ function App() {
         <Route index element={<Home />} />
         <Route path="events" element={<Events />} />
         <Route path="events/:slug" element={<EventDetail />} />
+        <Route path="/profile" element={<Profile />} />
         <Route path="blogs" element={<Blog />} />
         <Route path="blog/:id" element={<BlogDetail />} />
         <Route path="contact" element={<Contact />} />
@@ -74,7 +75,6 @@ function App() {
           element={<PaymentFailedPage />}
         />
         <Route path="/payment-status" element={<PaymentStatus />} />
-        <Route path="/profile" element={<Profile />} />
         <Route path="/my-tickets" element={<MyTickets />} />
         <Route path="/event-checkin/:id" element={<EventCheckInPage />} />
         <Route path="*" element={<NotFound />} />

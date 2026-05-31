@@ -16,6 +16,7 @@ function EventsSection({ keyword }) {
         setIsLoading(true);
 
         const res = await searchService.search(keyword);
+        console.log(res);
 
         if (isMounted) {
           setEvents(res?.events || []);
@@ -41,7 +42,7 @@ function EventsSection({ keyword }) {
   }, [keyword]);
 
   return (
-    <section className="container mt-14">
+    <section className="container my-14">
       <div className="mb-6 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-(--primary-color)/10 text-(--primary-color)">

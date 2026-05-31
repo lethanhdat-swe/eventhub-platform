@@ -7,11 +7,59 @@ import EventInformation from './components/EventInformation/EventInformation';
 import EventBooking from './components/EventBooking/EventBooking';
 import EventComment from './components/EventComment/EventComment';
 import { useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { eventService, ticketTypeService } from '@/lib/services/admin';
 import { commentService } from '@/lib/services/comment';
 import EventSeat from './components/EventSeat/EventSeat';
 import EventRelated from './components/EventRelated/EventRelated';
+
+const appendReplyToTree = (items = [], parentId, newReply) => {
+  return items.map((item) => {
+    if (item.id === parentId) {
+      return {
+        ...item,
+        replies: [...(item.replies ?? []), newReply],
+      };
+    }
+
+    return {
+      ...item,
+      replies: appendReplyToTree(item.replies ?? [], parentId, newReply),
+    };
+  });
+};
+
+const updateCommentInTree = (items = [], commentId, updatedComment) => {
+  return items.map((item) => {
+    if (item.id === commentId) {
+      return {
+        ...item,
+        ...updatedComment,
+        replies: Array.isArray(updatedComment.replies)
+          ? updatedComment.replies
+          : (item.replies ?? []),
+      };
+    }
+
+    return {
+      ...item,
+      replies: updateCommentInTree(
+        item.replies ?? [],
+        commentId,
+        updatedComment
+      ),
+    };
+  });
+};
+
+const removeCommentFromTree = (items = [], commentId) => {
+  return items
+    .filter((item) => item.id !== commentId)
+    .map((item) => ({
+      ...item,
+      replies: removeCommentFromTree(item.replies ?? [], commentId),
+    }));
+};
 
 function EventDetail() {
   const { slug } = useParams();
@@ -23,6 +71,30 @@ function EventDetail() {
   const [eventSeats, setEventSeats] = useState([]);
   const [isSeatsLoading, setIsSeatsLoading] = useState(false);
   const [seatsError, setSeatsError] = useState(null);
+
+  const addRootComment = useCallback((newComment) => {
+    setComments((prev) => [newComment, ...(Array.isArray(prev) ? prev : [])]);
+  }, []);
+
+  const addReply = useCallback((parentId, newReply) => {
+    setComments((prev) =>
+      Array.isArray(prev) ? appendReplyToTree(prev, parentId, newReply) : prev
+    );
+  }, []);
+
+  const updateComment = useCallback((commentId, updatedComment) => {
+    setComments((prev) =>
+      Array.isArray(prev)
+        ? updateCommentInTree(prev, commentId, updatedComment)
+        : prev
+    );
+  }, []);
+
+  const removeComment = useCallback((commentId) => {
+    setComments((prev) =>
+      Array.isArray(prev) ? removeCommentFromTree(prev, commentId) : prev
+    );
+  }, []);
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -108,7 +180,10 @@ function EventDetail() {
             <EventComment
               eventId={event.id}
               comments={comments}
-              setComments={setComments}
+              onAddComment={addRootComment}
+              onAddReply={addReply}
+              onUpdateComment={updateComment}
+              onRemoveComment={removeComment}
             />
           </section>
         </div>

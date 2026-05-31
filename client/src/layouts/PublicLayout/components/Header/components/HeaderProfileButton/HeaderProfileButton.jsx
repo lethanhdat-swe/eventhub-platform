@@ -84,7 +84,7 @@ function HeaderProfileButton() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild disabled={isLoggingOut}>
-        <button
+        <div
           type="button"
           disabled={isLoggingOut}
           className="
@@ -127,7 +127,7 @@ function HeaderProfileButton() {
               initials
             )}
           </span>
-        </button>
+        </div>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent

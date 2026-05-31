@@ -8,13 +8,9 @@ import {
 
 const router = Router();
 
-router.use(isAuth, restrictTo("ADMIN"));
+router.use(isAuth);
 
 router.post("/image", uploadSingleImage, uploadController.uploadImage);
-router.post(
-    "/images",
-    uploadMultipleImages,
-    uploadController.uploadImages
-);
+router.post("/images", uploadMultipleImages, uploadController.uploadImages);
 
 export default router;

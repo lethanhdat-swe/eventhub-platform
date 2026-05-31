@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { BadgeCheck, Bookmark, CalendarDays, MapPin } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -6,9 +6,39 @@ import LikeButton from '@/components/LikeButton';
 import { saveEventService } from '@/lib/services/saveEvent';
 import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
 
+function getStoredUser() {
+  try {
+    const rawUser =
+      localStorage.getItem('user') ||
+      localStorage.getItem('currentUser') ||
+      localStorage.getItem('authUser');
+
+    if (!rawUser) return null;
+
+    return JSON.parse(rawUser);
+  } catch {
+    return null;
+  }
+}
+
+function getStoredToken() {
+  return (
+    localStorage.getItem('accessToken') ||
+    localStorage.getItem('token') ||
+    localStorage.getItem('authToken')
+  );
+}
+
 function EventHero({ event }) {
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const isLoggedIn = useMemo(() => {
+    const user = getStoredUser();
+    const token = getStoredToken();
+
+    return Boolean(user?.id || user?._id || token);
+  }, []);
 
   const startDate = new Date(event.startDate);
 
@@ -16,6 +46,11 @@ function EventHero({ event }) {
     let mounted = true;
 
     const fetchSavedEvents = async () => {
+      if (!isLoggedIn) {
+        setSaved(false);
+        return;
+      }
+
       try {
         const data = await saveEventService.list();
 
@@ -40,10 +75,15 @@ function EventHero({ event }) {
     return () => {
       mounted = false;
     };
-  }, [event?.id]);
+  }, [event?.id, isLoggedIn]);
 
   const handleBookmark = async (e) => {
     e.stopPropagation();
+
+    if (!isLoggedIn) {
+      toast.error('Vui lòng đăng nhập để lưu sự kiện.');
+      return;
+    }
 
     if (loading || !event?.id) return;
 
@@ -71,6 +111,15 @@ function EventHero({ event }) {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGuestLikeClick = (e) => {
+    if (isLoggedIn) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    toast.error('Vui lòng đăng nhập để thả tim sự kiện.');
   };
 
   const day = startDate.getDate();
@@ -117,7 +166,9 @@ function EventHero({ event }) {
       </div>
 
       <div className="absolute right-5 top-5 flex items-center gap-2">
-        <LikeButton eventId={event.id} size={18} showCount={true} />
+        <div onClickCapture={handleGuestLikeClick}>
+          <LikeButton eventId={event.id} size={18} showCount={true} />
+        </div>
 
         <button
           type="button"

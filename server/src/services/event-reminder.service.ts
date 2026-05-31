@@ -1,5 +1,6 @@
 import { prisma } from "../utils/prisma";
 import mailService from "./mail.service";
+import systemJobService from "./system-job.service";
 
 type ReminderUser = {
     userId: string;
@@ -56,7 +57,7 @@ class EventReminderService {
                 }
 
                 try {
-                    await mailService.sendEventReminderEmail({
+                    await systemJobService.createSendEventReminderEmailJob({
                         email: user.email,
                         fullName: user.fullName,
                         event: {

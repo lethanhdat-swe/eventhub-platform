@@ -1,60 +1,91 @@
-import { prisma } from "../utils/prisma";
-import { AppError } from "../utils/AppError";
 import { EventStatus } from "@prisma/client";
+import { AppError } from "../utils/AppError";
+import { prisma } from "../utils/prisma";
 
 class SearchService {
-    async search(
-        query: string,
-        options: { eventLimit: number; artistLimit: number }
-    ) {
-        if (!query || query.trim() === "") {
+    async search(query: string) {
+        const keyword = query.trim();
+
+        if (!keyword) {
             throw new AppError("Search query is required", 400);
         }
 
-        const { eventLimit, artistLimit } = options;
-
-        const [events, artists] = await Promise.all([
-            prisma.event.findMany({
-                where: {
-                    OR: [
-                        { title: { contains: query } },
-                        { slug: { contains: query } },
-                    ],
-                    status: EventStatus.PUBLISHED, // chỉ lấy event public
+        const events = await prisma.event.findMany({
+            where: {
+                status: EventStatus.PUBLISHED,
+                OR: [
+                    {
+                        title: {
+                            contains: keyword,
+                        },
+                    },
+                    {
+                        location: {
+                            contains: keyword,
+                        },
+                    },
+                    {
+                        description: {
+                            contains: keyword,
+                        },
+                    },
+                    {
+                        category: {
+                            name: {
+                                contains: keyword,
+                            },
+                        },
+                    },
+                    {
+                        eventArtists: {
+                            some: {
+                                artist: {
+                                    name: {
+                                        contains: keyword,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                ],
+            },
+            orderBy: {
+                createdAt: "desc",
+            },
+            select: {
+                id: true,
+                title: true,
+                slug: true,
+                description: true,
+                thumbnailUrl: true,
+                startDate: true,
+                endDate: true,
+                location: true,
+                category: {
+                    select: {
+                        id: true,
+                        name: true,
+                        slug: true,
+                    },
                 },
-                take: eventLimit,
-                orderBy: { createdAt: "desc" },
-                select: {
-                    id: true,
-                    title: true,
-                    slug: true,
-                    thumbnailUrl: true,
-                    startDate: true,
-                    location: true,
+                eventArtists: {
+                    select: {
+                        artist: {
+                            select: {
+                                id: true,
+                                name: true,
+                                slug: true,
+                                avatarUrl: true,
+                            },
+                        },
+                        role: true,
+                    },
                 },
-            }),
-
-            prisma.artist.findMany({
-                where: {
-                    OR: [
-                        { name: { contains: query } },
-                        { slug: { contains: query } },
-                    ],
-                },
-                take: artistLimit,
-                orderBy: { createdAt: "desc" },
-                select: {
-                    id: true,
-                    name: true,
-                    slug: true,
-                    avatarUrl: true,
-                },
-            }),
-        ]);
+            },
+        });
 
         return {
             events,
-            artists,
         };
     }
 }

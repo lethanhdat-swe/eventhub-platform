@@ -12,6 +12,7 @@ import { SepayWebhookInput } from "../schema/payment.schema";
 import qrService from "./qr.service";
 import mailService from "./mail.service";
 import notificationService from "./notification.service";
+import systemJobService from "./system-job.service";
 
 type PaymentSuccessInput = {
     orderCode: string;
@@ -223,7 +224,7 @@ class PaymentService {
                 }))
             );
 
-            await mailService.sendTicketsEmail(
+            await systemJobService.createSendTicketAfterPaymentEmailJob(
                 paidOrder.customerEmail,
                 paidOrder.customerName ??
                     paidOrder.user?.fullName ??

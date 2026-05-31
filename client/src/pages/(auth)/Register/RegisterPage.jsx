@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { CheckCircle2, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -28,15 +29,72 @@ function isValidEmail(value) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
-function mapRegisterError(error) {
-  const { message } = parseApiError(error);
-  const msg = (message || '').trim();
+function normalizeMessage(message) {
+  return String(message || '')
+    .trim()
+    .toLowerCase();
+}
 
-  if (msg === 'Email already exists') {
-    return 'Email đã được sử dụng. Hãy đăng nhập hoặc dùng email khác.';
+function mapRegisterError(error) {
+  const parsed = parseApiError(error);
+  const status = parsed.status;
+  const rawMessage = parsed.message || '';
+  const msg = normalizeMessage(rawMessage);
+
+  if (status === 400 || status === 409) {
+    if (
+      msg.includes('email already exists') ||
+      msg.includes('email already used') ||
+      msg.includes('email is already taken') ||
+      msg.includes('email exists')
+    ) {
+      return 'Email đã được sử dụng. Vui lòng đăng nhập hoặc dùng email khác.';
+    }
+
+    if (msg.includes('phone number already exists')) {
+      return 'Số điện thoại đã được sử dụng. Vui lòng dùng số điện thoại khác.';
+    }
+
+    if (msg.includes('email') && msg.includes('required')) {
+      return 'Vui lòng nhập email.';
+    }
+
+    if (
+      (msg.includes('full name') ||
+        msg.includes('fullname') ||
+        msg.includes('name')) &&
+      msg.includes('required')
+    ) {
+      return 'Vui lòng nhập họ và tên.';
+    }
+
+    if (
+      (msg.includes('phone') || msg.includes('phone number')) &&
+      msg.includes('required')
+    ) {
+      return 'Vui lòng nhập số điện thoại.';
+    }
+
+    if (msg.includes('password') && msg.includes('required')) {
+      return 'Vui lòng nhập mật khẩu.';
+    }
+
+    if (msg.includes('invalid email')) {
+      return 'Email không hợp lệ.';
+    }
+
+    if (msg.includes('invalid phone') || msg.includes('invalid phone number')) {
+      return 'Số điện thoại không hợp lệ.';
+    }
+
+    return 'Thông tin đăng ký không hợp lệ. Vui lòng kiểm tra lại.';
   }
 
-  return msg || 'Đăng ký thất bại. Vui lòng thử lại.';
+  if (status >= 500) {
+    return 'Hệ thống đang gặp sự cố. Vui lòng thử lại sau.';
+  }
+
+  return rawMessage || 'Đăng ký thất bại. Vui lòng thử lại.';
 }
 
 function mapGoogleRegisterError(error) {
@@ -50,14 +108,52 @@ function mapGoogleRegisterError(error) {
     return 'Yêu cầu đăng nhập Google đã bị hủy.';
   }
 
-  const parsed = parseApiError(error);
-  const msg = (parsed.message || '').trim();
+  if (code === 'auth/popup-blocked') {
+    return 'Trình duyệt đã chặn cửa sổ đăng nhập Google. Vui lòng cho phép popup và thử lại.';
+  }
 
-  if (msg === 'Google account mismatch') {
+  if (code === 'auth/network-request-failed') {
+    return 'Không thể kết nối tới Google. Vui lòng kiểm tra mạng và thử lại.';
+  }
+
+  const parsed = parseApiError(error);
+  const status = parsed.status;
+  const rawMessage = parsed.message || '';
+  const msg = normalizeMessage(rawMessage);
+
+  if (status === 400) {
+    if (msg.includes('id token')) {
+      return 'Phiên đăng nhập Google không hợp lệ. Vui lòng thử lại.';
+    }
+
+    return 'Đăng ký bằng Google không hợp lệ. Vui lòng thử lại.';
+  }
+
+  if (status === 401) {
+    return 'Không thể xác thực tài khoản Google. Vui lòng thử lại.';
+  }
+
+  if (status === 403) {
+    if (msg.includes('mismatch')) {
+      return 'Tài khoản Google không khớp với tài khoản đã liên kết.';
+    }
+
+    if (msg.includes('blocked') || msg.includes('disabled')) {
+      return 'Tài khoản của bạn đang bị khóa hoặc không còn hoạt động.';
+    }
+
+    return 'Bạn không có quyền đăng nhập bằng Google.';
+  }
+
+  if (status >= 500) {
+    return 'Hệ thống đang gặp sự cố. Vui lòng thử lại sau.';
+  }
+
+  if (msg.includes('google account mismatch')) {
     return 'Tài khoản Google không khớp với tài khoản đã liên kết.';
   }
 
-  return msg || 'Đăng ký bằng Google thất bại. Vui lòng thử lại.';
+  return rawMessage || 'Đăng ký bằng Google thất bại. Vui lòng thử lại.';
 }
 
 function RegisterPage() {
@@ -90,35 +186,51 @@ function RegisterPage() {
   function validate() {
     const next = {};
 
-    if (!form.fullName.trim() || form.fullName.trim().length < 2) {
-      next.fullName = 'Họ tên cần ít nhất 2 ký tự';
+    if (!form.fullName.trim()) {
+      next.fullName = 'Vui lòng nhập họ và tên.';
+    } else if (form.fullName.trim().length < 2) {
+      next.fullName = 'Họ và tên cần ít nhất 2 ký tự.';
     }
 
     if (!form.email.trim()) {
-      next.email = 'Vui lòng nhập email';
+      next.email = 'Vui lòng nhập email.';
     } else if (!isValidEmail(form.email)) {
-      next.email = 'Email không hợp lệ';
+      next.email = 'Email không hợp lệ.';
     }
 
-    if (!/^[0-9]{10,15}$/.test(form.phoneNumber)) {
-      next.phoneNumber = 'Số điện thoại cần 10–15 chữ số';
+    if (!form.phoneNumber.trim()) {
+      next.phoneNumber = 'Vui lòng nhập số điện thoại.';
+    } else if (!/^[0-9]{10,15}$/.test(form.phoneNumber.trim())) {
+      next.phoneNumber = 'Số điện thoại cần từ 10 đến 15 chữ số.';
     }
 
-    if (form.password.length < 6) {
-      next.password = 'Mật khẩu cần ít nhất 6 ký tự';
+    if (!form.password) {
+      next.password = 'Vui lòng nhập mật khẩu.';
+    } else if (form.password.length < 6) {
+      next.password = 'Mật khẩu cần ít nhất 6 ký tự.';
     }
 
-    if (form.password !== form.confirmPassword) {
-      next.confirmPassword = 'Mật khẩu xác nhận không khớp';
+    if (!form.confirmPassword) {
+      next.confirmPassword = 'Vui lòng xác nhận mật khẩu.';
+    } else if (form.password !== form.confirmPassword) {
+      next.confirmPassword = 'Mật khẩu xác nhận không khớp.';
     }
 
     setErrors(next);
-    return Object.keys(next).length === 0;
+
+    if (Object.keys(next).length > 0) {
+      toast.error('Vui lòng kiểm tra lại thông tin đăng ký.');
+      return false;
+    }
+
+    return true;
   }
 
   function handleChange(field) {
     return (e) => {
       setForm((prev) => ({ ...prev, [field]: e.target.value }));
+      setErrors((prev) => ({ ...prev, [field]: '' }));
+      setApiError('');
     };
   }
 
@@ -138,9 +250,16 @@ function RegisterPage() {
         password: form.password,
       });
 
+      toast.success(
+        'Đăng ký thành công. Vui lòng kiểm tra email để xác thực tài khoản.'
+      );
+
       setSubmitted(true);
     } catch (e) {
-      setApiError(mapRegisterError(e));
+      const message = mapRegisterError(e);
+
+      setApiError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -157,9 +276,15 @@ function RegisterPage() {
       const data = getApiData(body);
 
       setAuth(data);
+
+      toast.success('Đăng nhập Google thành công.');
+
       redirectAfterAuth(data);
     } catch (e) {
-      setApiError(mapGoogleRegisterError(e));
+      const message = mapGoogleRegisterError(e);
+
+      setApiError(message);
+      toast.error(message);
     } finally {
       setGoogleLoading(false);
     }

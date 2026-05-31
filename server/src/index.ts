@@ -8,7 +8,6 @@ import { rateLimitMiddleware } from "./middlewares/rate-limit.middleware";
 import { responseMiddleware } from "./middlewares/response.middleware";
 import { notFoundMiddleware } from "./middlewares/notfound.middleware";
 import { errorMiddleware } from "./middlewares/error.middleware";
-import { startCronJobs } from "./jobs";
 
 dotenv.config();
 
@@ -28,9 +27,6 @@ app.use("/uploads", express.static(UPLOADS_DIR));
 // Error Handling Middlewares
 app.use(notFoundMiddleware);
 app.use(errorMiddleware);
-
-// Start Cron Jobs
-startCronJobs();
 
 const PORT = process.env.PORT || 8000;
 

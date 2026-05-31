@@ -5,14 +5,20 @@ import { AppError } from "../utils/AppError";
 class CommentController {
     create = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            if (!req.user) throw new AppError("User not authenticated", 401);
+            if (!req.user) {
+                throw new AppError("User not authenticated", 401);
+            }
 
             const result = await commentService.create(
                 req.user.id,
                 req.params.eventId as string,
                 req.body
             );
-            return res.success({ message: "Comment posted successfully", data: result });
+
+            return res.success({
+                message: "Comment posted successfully",
+                data: result,
+            });
         } catch (error) {
             next(error);
         }
@@ -20,12 +26,21 @@ class CommentController {
 
     list = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const { page, limit } = req.query as any;
-            const result = await commentService.listByEvent(req.params.eventId as string, Number(page) || 1, Number(limit) || 10);
+            const { page, limit } = req.query as unknown as {
+                page: number;
+                limit: number;
+            };
+
+            const result = await commentService.listByEvent(
+                req.params.eventId as string,
+                page,
+                limit
+            );
+
             return res.success({
                 message: "Comments fetched successfully",
                 data: result.items,
-                meta: result.meta
+                meta: result.meta,
             });
         } catch (error) {
             next(error);
@@ -34,17 +49,19 @@ class CommentController {
 
     update = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            if (!req.user) throw new AppError("User not authenticated", 401);
+            if (!req.user) {
+                throw new AppError("User not authenticated", 401);
+            }
 
-            const { commentId } = req.params;
-            const { content } = req.body;
-            const userId = req.user.id;
-
-            const result = await commentService.update(userId, commentId as string, content);
+            const result = await commentService.update(
+                req.user.id,
+                req.params.commentId as string,
+                req.body
+            );
 
             return res.success({
                 message: "Comment updated successfully",
-                data: result
+                data: result,
             });
         } catch (error) {
             next(error);
@@ -53,15 +70,17 @@ class CommentController {
 
     delete = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            if (!req.user) throw new AppError("User not authenticated", 401);
+            if (!req.user) {
+                throw new AppError("User not authenticated", 401);
+            }
 
-            const { commentId } = req.params;
-            const userId = req.user.id;
-
-            await commentService.delete(userId, commentId as string);
+            await commentService.delete(
+                req.user.id,
+                req.params.commentId as string
+            );
 
             return res.success({
-                message: "Comment deleted successfully"
+                message: "Comment deleted successfully",
             });
         } catch (error) {
             next(error);

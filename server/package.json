@@ -1,6 +1,8 @@
 {
     "scripts": {
         "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+        "queue": "ts-node-dev --respawn --transpile-only src/queue.ts",
+        "schedule": "ts-node-dev --respawn --transpile-only src/schedule.ts",
         "prisma:generate": "prisma generate",
         "prisma:migrate": "prisma migrate dev",
         "prisma:deploy": "prisma migrate deploy",

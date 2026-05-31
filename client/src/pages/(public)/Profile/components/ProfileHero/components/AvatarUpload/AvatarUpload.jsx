@@ -38,6 +38,7 @@ export function AvatarUpload() {
       <img
         src={resolvePublicAssetUrl(user.avatarUrl)}
         alt="avatar"
+        referrerPolicy="no-referrer"
         className="object-cover w-full h-full border border-(--primary-color)"
         style={{ borderRadius: 'calc(1.25rem - 3px)' }}
       />
