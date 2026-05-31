@@ -147,6 +147,10 @@
     background: var(--primary-color) !important;
     box-shadow: 0 0 16px rgba(168, 85, 247, 0.45);
   }
+
+  button {
+    cursor: pointer;
+  }
 }
 
 @theme inline {

@@ -12,6 +12,7 @@ import {
     listMyOrderSchema,
     deleteOrderSchema,
     getOrderSchema,
+    exportMyOrderTicketPdfSchema,
 } from "../schema/order.schema";
 
 const router = Router();
@@ -22,6 +23,13 @@ router.post(
     optionalAuth,
     validate(createOrderSchema),
     orderController.create
+);
+
+router.get(
+    "/my/:id/ticket-pdf",
+    validate(exportMyOrderTicketPdfSchema),
+    isAuth,
+    orderController.exportMyOrderTicketPdf
 );
 
 router.get(

@@ -6,6 +6,8 @@ import jwt from "jsonwebtoken";
 import ms from "ms";
 import { AppError } from "../utils/AppError";
 import firebaseApp from "../config/firebase";
+import notificationService from "./notification.service";
+import { NotificationType } from "@prisma/client";
 
 class AuthService {
     async googleLogin(idToken: string) {
@@ -35,6 +37,12 @@ class AuthService {
                         providerId: uid,
                         isEmailVerified: true,
                     },
+                });
+
+                await notificationService.createNotification({
+                    type: NotificationType.USER_REGISTERED,
+                    title: "Người dùng mới đăng ký",
+                    message: `${user.fullName} vừa tạo tài khoản mới bằng Google.`,
                 });
             } else {
                 if (user.providerId && user.providerId !== uid) {
@@ -125,6 +133,12 @@ class AuthService {
                 type: "VERIFY_EMAIL",
                 expiresAt,
             },
+        });
+
+        await notificationService.createNotification({
+            type: NotificationType.USER_REGISTERED,
+            title: "Người dùng mới đăng ký",
+            message: `${fullName} vừa tạo tài khoản mới.`,
         });
 
         // 5. Send verification email

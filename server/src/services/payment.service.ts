@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import {
     EventSeatStatus,
+    NotificationType,
     OrderStatus,
     PaymentTransactionStatus,
 } from "@prisma/client";
@@ -10,6 +11,7 @@ import { AppError } from "../utils/AppError";
 import { SepayWebhookInput } from "../schema/payment.schema";
 import qrService from "./qr.service";
 import mailService from "./mail.service";
+import notificationService from "./notification.service";
 
 type PaymentSuccessInput = {
     orderCode: string;
@@ -66,6 +68,12 @@ class PaymentService {
                 gateway: payload.gateway,
                 status: PaymentTransactionStatus.PENDING,
             },
+        });
+
+        await notificationService.createNotification({
+            type: NotificationType.PAYMENT_CREATED,
+            title: "Giao dịch thanh toán mới",
+            message: `Hệ thống vừa nhận giao dịch ${paymentTransaction.transactionId} với số tiền ${paymentTransaction.amount.toLocaleString("vi-VN")}đ.`,
         });
 
         if (!orderCode) {

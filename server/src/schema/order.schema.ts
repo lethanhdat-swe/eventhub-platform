@@ -62,3 +62,9 @@ export const deleteOrderSchema = z.object({
 export const getOrderSchema = z.object({
     params: paramsIdSchema,
 });
+
+export const exportMyOrderTicketPdfSchema = z.object({
+    params: z.object({
+        id: z.string().uuid("Invalid order id."),
+    }),
+});

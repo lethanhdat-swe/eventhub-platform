@@ -48,6 +48,8 @@ import EventCheckInPage from './pages/(public)/EventCheckInPage';
 import ContactPage from './pages/(admin)/Contact';
 import AIBlogConfig from './pages/(admin)/AIBlogConfig/AIBlogConfig';
 import MyTickets from './pages/(public)/MyTickets/MyTickets';
+import AdminNotificationsPage from './pages/(admin)/Notifications/Notifications';
+import NotFound from './pages/(public)/NotFound/NotFound';
 
 function App() {
   return (
@@ -75,6 +77,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/my-tickets" element={<MyTickets />} />
         <Route path="/event-checkin/:id" element={<EventCheckInPage />} />
+        <Route path="*" element={<NotFound />} />
       </Route>
 
       <Route path="/auth" element={<Navigate replace to="/login" />} />
@@ -122,6 +125,7 @@ function App() {
           <Route path="settings" element={<Settings />} />
           <Route path="contact" element={<ContactPage />} />
           <Route path="ai-blog-config" element={<AIBlogConfig />} />
+          <Route path="notifications" element={<AdminNotificationsPage />} />
         </Route>
       </Route>
     </Routes>

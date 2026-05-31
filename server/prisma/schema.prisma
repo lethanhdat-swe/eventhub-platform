@@ -25,12 +25,13 @@ model User {
   createdAt       DateTime  @default(now()) @map("created_at")
   updatedAt       DateTime  @updatedAt @map("updated_at")
 
-  orders      Order[]
-  userTokens  UserToken[]
-  blogs       Blog[]
-  likedEvents LikeEvent[]
-  savedEvents SaveEvent[]
-  comments    Comment[]
+  orders            Order[]
+  userTokens        UserToken[]
+  blogs             Blog[]
+  likedEvents       LikeEvent[]
+  savedEvents       SaveEvent[]
+  comments          Comment[]
+  eventReminderLogs EventReminderLog[]
 
   @@map("users")
 }
@@ -158,11 +159,12 @@ model Event {
   categoryId String?   @map("category_id")
   category   Category? @relation(fields: [categoryId], references: [id])
 
-  eventSeats   EventSeat[]
-  eventArtists EventArtist[]
-  likedByUsers LikeEvent[]
-  savedByUsers SaveEvent[]
-  comments     Comment[]
+  eventSeats        EventSeat[]
+  eventArtists      EventArtist[]
+  likedByUsers      LikeEvent[]
+  savedByUsers      SaveEvent[]
+  comments          Comment[]
+  eventReminderLogs EventReminderLog[]
 
   @@map("events")
 }
@@ -494,14 +496,55 @@ model SiteSetting {
   supportEmail String?  @map("support_email")
   workingHours String?  @map("working_hours")
   mapUrl       String?  @map("map_url") @db.Text
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
   @@map("site_settings")
 }
+
 model Banner {
-  id       String @id @default(uuid())
-  imageUrl String @map("image_url")
+  id        String   @id @default(uuid())
+  imageUrl  String   @map("image_url")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+
   @@map("banners")
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  type      NotificationType
+  title     String
+  message   String           @db.Text
+  isRead    Boolean          @default(false) @map("is_read")
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  @@index([type])
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+enum NotificationType {
+  USER_REGISTERED
+  ORDER_CREATED
+  PAYMENT_CREATED
+  CONTACT_CREATED
+  CHECKIN_CREATED
+}
+
+model EventReminderLog {
+  id      String   @id @default(uuid())
+  eventId String   @map("event_id")
+  userId  String   @map("user_id")
+  sentAt  DateTime @default(now()) @map("sent_at")
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+  @@index([eventId])
+  @@index([userId])
+  @@index([sentAt])
+  @@map("event_reminder_logs")
 }

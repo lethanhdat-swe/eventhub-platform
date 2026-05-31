@@ -79,4 +79,15 @@ export const orderService = {
   deleteMany: async (ids) => {
     await axiosInstance.delete(resourceBase, { data: { ids } });
   },
+
+  exportMyOrderTicketPdf: async (id) => {
+    const response = await axiosInstance.get(
+      `${resourceBase}/my/${id}/ticket-pdf`,
+      {
+        responseType: 'blob',
+      }
+    );
+
+    return response instanceof Blob ? response : response.data;
+  },
 };

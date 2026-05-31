@@ -1,40 +1,81 @@
-import { images } from "@/assets";
+import EmptyQrState from '../EmptyQrState/EmptyQrState';
+import ExportPdf from '../ExportPdf/ExportPdf';
+import StatusBadge from '../StatusBadge/StatusBadge';
 
-function QRCheckInCard() {
+function QrCheckInCard({
+  order,
+  isPaid,
+  hasTickets,
+  qrUrl,
+  selectedTicketStatus,
+  selectedSeatLabel,
+  selectedTicketTypeName,
+}) {
   return (
-    <div className="relative flex flex-col items-center gap-4 p-6 rounded-3xl border border-(--primary-color)/40 bg-(--surface-color) overflow-hidden group hover:border-(--primary-color)/70 transition-all duration-500 hover:shadow-[0_0_32px_var(--primary-color)] w-fit">
-      
-      {/* Góc trang trí */}
-      <span className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-(--primary-color) rounded-tl-3xl" />
-      <span className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-(--primary-color) rounded-tr-3xl" />
-      <span className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-(--primary-color) rounded-bl-3xl" />
-      <span className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-(--primary-color) rounded-br-3xl" />
+    <section className="overflow-hidden rounded-3xl border border-(--primary-color)/25 bg-[#080B16]/90 p-5 shadow-[0_0_42px_rgba(168,85,247,0.14)] backdrop-blur-xl">
+      <div className="mb-5 flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.26em] text-(--primary-color)">
+            Mã check-in
+          </p>
 
-      {/* Scan line animation */}
-      <div className="absolute left-6 right-6 h-px bg-(--primary-color)/60 top-[30%] animate-[scanline_2.5s_ease-in-out_infinite]" />
+          <h2 className="mt-1 text-2xl font-bold text-(--text-primary)">
+            {selectedTicketStatus.title}
+          </h2>
 
-      {/* Title */}
-      <h1 className="text-(--primary-color) text-sm font-semibold tracking-[0.25em] uppercase opacity-80">
-        --- Mã Check In ---
-      </h1>
+          <p className="mt-2 text-sm leading-6 text-(--text-primary)/55">
+            {selectedTicketStatus.description}
+          </p>
+        </div>
 
-      {/* QR wrapper */}
-      <div className="relative p-3 rounded-2xl border border-(--primary-color)/20 bg-(--surface-color) group-hover:scale-105 transition-transform duration-500">
-        <img
-          src={images.qr}
-          alt="QR Check In"
-          className="object-cover w-48 h-48 rounded-xl"
-        />
-        {/* Overlay shimmer */}
-        <div className="absolute inset-0 rounded-2xl bg-linear-to-tr from-(--primary-color)/0 via-(--primary-color)/10 to-(--primary-color)/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+        <StatusBadge tone={selectedTicketStatus.tone}>
+          {selectedTicketStatus.label}
+        </StatusBadge>
       </div>
 
-      {/* Footer */}
-      <p className="text-(--text-primary) text-xs opacity-40 tracking-widest uppercase">
-        Quét để xác nhận
-      </p>
-    </div>
+      <div
+        className={`rounded-3xl p-4 ${
+          qrUrl
+            ? 'bg-white'
+            : 'border border-(--text-primary)/10 bg-(--text-primary)/5'
+        }`}
+      >
+        {qrUrl ? (
+          <img
+            src={qrUrl}
+            alt="QR check-in"
+            className="mx-auto aspect-square w-full max-w-[320px] rounded-2xl object-contain"
+          />
+        ) : (
+          <EmptyQrState status={selectedTicketStatus} />
+        )}
+      </div>
+
+      <div className="mt-5 grid grid-cols-2 gap-3 rounded-2xl border border-(--text-primary)/10 bg-(--text-primary)/5 p-4">
+        <div>
+          <p className="text-xs text-(--text-primary)/45">Ghế</p>
+
+          <p className="mt-1 text-lg font-bold text-(--text-primary)">
+            {selectedSeatLabel}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-xs text-(--text-primary)/45">Hạng vé</p>
+
+          <p className="mt-1 text-lg font-bold text-(--text-primary)">
+            {selectedTicketTypeName}
+          </p>
+        </div>
+      </div>
+
+      <ExportPdf
+        orderId={order?.id}
+        orderCode={order?.orderCode}
+        disabled={!isPaid || !hasTickets}
+      />
+    </section>
   );
 }
 
-export default QRCheckInCard;
+export default QrCheckInCard;

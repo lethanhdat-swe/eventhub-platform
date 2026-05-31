@@ -9,9 +9,12 @@ import {
     PaymentTransactionStatus,
     PaymentMethod,
     Prisma,
+    NotificationType,
 } from "@prisma/client";
 import paymentService from "./payment.service";
 import qrService from "./qr.service";
+import ticketPdfService from "./ticketPdf.service";
+import notificationService from "./notification.service";
 
 class OrderService {
     private getPaidAt(order: any) {
@@ -268,6 +271,12 @@ class OrderService {
             };
         });
 
+        await notificationService.createNotification({
+            type: NotificationType.ORDER_CREATED,
+            title: "Đơn hàng mới",
+            message: `${result.customerName || result.customerEmail} vừa đặt ${result.ticketCount} vé cho sự kiện ${result.event?.title || "không xác định"}.`,
+        });
+
         return {
             order: result,
             sepay: paymentService.buildSepayPaymentInfo(
@@ -481,7 +490,8 @@ class OrderService {
                     paymentMethod: order.paymentMethod,
                     createdAt: order.createdAt,
                     paidAt: this.getPaidAt(order),
-                    ticketCount: ticketEventSeats.length || orderEventSeats.length,
+                    ticketCount:
+                        ticketEventSeats.length || orderEventSeats.length,
                     event: this.mapEvent(eventSeats[0]?.event),
                     ticketTypes: this.summarizeTicketTypes(eventSeats),
                 };
@@ -768,6 +778,102 @@ class OrderService {
                 },
             });
         });
+    }
+
+    async exportMyOrderTicketPdf(userId: string, orderId: string) {
+        const order = await prisma.order.findFirst({
+            where: {
+                id: orderId,
+                userId,
+            },
+            select: {
+                id: true,
+                userId: true,
+                customerEmail: true,
+                customerPhone: true,
+                customerName: true,
+                totalAmount: true,
+                status: true,
+                paymentMethod: true,
+                orderCode: true,
+                createdAt: true,
+                user: {
+                    select: {
+                        id: true,
+                        email: true,
+                        fullName: true,
+                        phoneNumber: true,
+                    },
+                },
+                paymentTransactions: {
+                    where: {
+                        status: "MATCHED",
+                    },
+                    orderBy: {
+                        createdAt: "desc",
+                    },
+                    take: 1,
+                    select: {
+                        id: true,
+                        amount: true,
+                        gateway: true,
+                        createdAt: true,
+                    },
+                },
+                tickets: {
+                    orderBy: {
+                        id: "asc",
+                    },
+                    select: {
+                        id: true,
+                        qrSecureToken: true,
+                        isCheckedIn: true,
+                        checkedInAt: true,
+                        eventSeat: {
+                            select: {
+                                id: true,
+                                rowLabel: true,
+                                seatNumber: true,
+                                event: {
+                                    select: {
+                                        id: true,
+                                        title: true,
+                                        location: true,
+                                        startDate: true,
+                                        endDate: true,
+                                        thumbnailUrl: true,
+                                    },
+                                },
+                                ticketType: {
+                                    select: {
+                                        id: true,
+                                        name: true,
+                                        price: true,
+                                        color: true,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        if (!order) {
+            throw new AppError("Order not found.", 404);
+        }
+
+        if (order.status !== "PAID") {
+            throw new AppError("Only paid orders can export ticket PDF.", 400);
+        }
+
+        if (!order.tickets.length) {
+            throw new AppError("No tickets found for this order.", 400);
+        }
+
+        const pdfBuffer = await ticketPdfService.generateOrderTicketPdf(order);
+
+        return pdfBuffer;
     }
 }
 

@@ -1,5 +1,15 @@
 import nodemailer from "nodemailer";
 
+type SendEventReminderEmailParams = {
+    email: string;
+    fullName: string;
+    event: {
+        title: string;
+        location: string | null;
+        startDate: Date | null;
+    };
+};
+
 class MailService {
     private transporter;
 
@@ -173,6 +183,94 @@ class MailService {
             console.log(`Tickets email sent to ${email}`);
         } catch (error) {
             console.error("Error sending tickets email:", error);
+        }
+    }
+
+    async sendEventReminderEmail({
+        email,
+        fullName,
+        event,
+    }: SendEventReminderEmailParams) {
+        const eventDate = event.startDate
+            ? event.startDate.toLocaleString("vi-VN", {
+                  dateStyle: "full",
+                  timeStyle: "short",
+                  timeZone: "Asia/Ho_Chi_Minh",
+              })
+            : "sắp diễn ra";
+
+        const mailOptions = {
+            from: `"EventHub" <${process.env.MAIL_USER}>`,
+            to: email,
+            subject: `Nhắc nhở sự kiện: ${event.title}`,
+            html: `
+            <div style="margin:0;padding:0;background:#f4f4f5;font-family:Arial,sans-serif;color:#18181b;">
+                <div style="max-width:640px;margin:0 auto;padding:32px 16px;">
+                    <div style="background:#ffffff;border-radius:20px;padding:32px;border:1px solid #e4e4e7;">
+                        <div style="margin-bottom:28px;">
+                            <div style="font-size:14px;color:#71717a;margin-bottom:8px;">
+                                EventHub
+                            </div>
+
+                            <h1 style="margin:0;font-size:28px;line-height:1.3;color:#09090b;">
+                                Sự kiện của bạn sắp diễn ra
+                            </h1>
+                        </div>
+
+                        <p style="font-size:16px;line-height:1.7;margin:0 0 16px;">
+                            Chào <strong>${fullName}</strong>,
+                        </p>
+
+                        <p style="font-size:15px;line-height:1.7;margin:0 0 24px;color:#3f3f46;">
+                            EventHub nhắc bạn rằng sự kiện <strong>${event.title}</strong>
+                            mà bạn đã đặt vé sẽ sắp diễn ra.
+                        </p>
+
+                        <div style="background:#fafafa;border:1px solid #e4e4e7;border-radius:16px;padding:18px;margin:24px 0;">
+                            <p style="margin:0 0 10px;font-size:15px;line-height:1.6;color:#27272a;">
+                                <strong>Thời gian:</strong> ${eventDate}
+                            </p>
+
+                            ${
+                                event.location
+                                    ? `
+                                        <p style="margin:0;font-size:15px;line-height:1.6;color:#27272a;">
+                                            <strong>Địa điểm:</strong> ${event.location}
+                                        </p>
+                                    `
+                                    : ""
+                            }
+                        </div>
+
+                        <p style="font-size:15px;line-height:1.7;margin:0 0 16px;color:#3f3f46;">
+                            Bạn vui lòng chuẩn bị mã QR vé và đến đúng giờ để quá trình check-in diễn ra thuận tiện.
+                        </p>
+
+                        <div style="background:#fafafa;border:1px solid #e4e4e7;border-radius:16px;padding:16px;margin-top:24px;">
+                            <p style="margin:0;font-size:14px;line-height:1.6;color:#52525b;">
+                                Lưu ý: Mỗi mã QR chỉ dùng cho một ghế. Vui lòng không chia sẻ mã QR cho người khác.
+                            </p>
+                        </div>
+
+                        <p style="font-size:14px;line-height:1.6;color:#71717a;margin:28px 0 0;">
+                            Cảm ơn bạn đã sử dụng EventHub.<br/>
+                            Hẹn gặp bạn tại sự kiện!
+                        </p>
+                    </div>
+
+                    <p style="text-align:center;font-size:12px;color:#a1a1aa;margin:20px 0 0;">
+                        © ${new Date().getFullYear()} EventHub. All rights reserved.
+                    </p>
+                </div>
+            </div>
+        `,
+        };
+
+        try {
+            await this.transporter.sendMail(mailOptions);
+            console.log(`Event reminder email sent to ${email}`);
+        } catch (error) {
+            console.error("Error sending event reminder email:", error);
         }
     }
 }

@@ -24,6 +24,7 @@ import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/authStore';
 
 import { getAdminBreadcrumbs } from './AdminNavConfig';
+import NotificationBell from './NotificationBell';
 
 function AdminHeader({ onMenuToggle }) {
   const { pathname } = useLocation();
@@ -87,6 +88,7 @@ function AdminHeader({ onMenuToggle }) {
       </nav>
 
       <div className="flex items-center gap-2 shrink-0 sm:gap-3">
+        <NotificationBell />
         <DropdownMenu>
           <DropdownMenuTrigger
             disabled={isLoggingOut}

@@ -60,11 +60,7 @@ class OrderController {
         }
     };
 
-    myOrderDetail = async (
-        req: Request,
-        res: Response,
-        next: NextFunction
-    ) => {
+    myOrderDetail = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const result = await orderService.myOrderDetail(
                 req.user!.id,
@@ -90,6 +86,25 @@ class OrderController {
         } catch (error) {
             next(error);
         }
+    };
+
+    exportMyOrderTicketPdf = async (req: any, res: any) => {
+        const { id } = req.params;
+        const userId = req.user.id;
+
+        const { buffer, fileName } = await orderService.exportMyOrderTicketPdf(
+            userId,
+            id
+        );
+
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader(
+            "Content-Disposition",
+            `attachment; filename="${fileName}"`
+        );
+        res.setHeader("Content-Length", buffer.length);
+
+        return res.send(buffer);
     };
 }
 

@@ -14,7 +14,9 @@ function EventComment({ eventId, comments = [], setComments }) {
     if (!trimmed || loading) return;
     setLoading(true);
     try {
-      const newComment = await commentService.create(eventId, { content: trimmed });
+      const newComment = await commentService.create(eventId, {
+        content: trimmed,
+      });
       setComments((prev) => [newComment, ...prev]);
       setText('');
     } catch (error) {
@@ -61,7 +63,7 @@ function EventComment({ eventId, comments = [], setComments }) {
           />
         ) : (
           <div className="flex h-9 w-9 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-full bg-(--primary-color) text-xs sm:text-sm font-black text-white">
-            {user.name.charAt(0).toUpperCase()}
+            {user?.name?.charAt(0)?.toUpperCase() || 'U'}
           </div>
         )}
 
@@ -90,12 +92,17 @@ function EventComment({ eventId, comments = [], setComments }) {
       {comments.length > 0 ? (
         <div className="space-y-2.5 sm:space-y-3">
           {comments.map((comment) => (
-            <CommentItem key={comment.id} comment={comment} setComments={setComments} />
+            <CommentItem
+              key={comment.id}
+              comment={comment}
+              setComments={setComments}
+            />
           ))}
         </div>
       ) : (
         <div className="rounded-xl sm:rounded-2xl border border-dashed border-(--border-color) bg-(--soft-surface-color) p-4 sm:p-5 text-xs sm:text-sm text-(--muted-text)">
-          Chưa có bình luận nào. Hãy là người đầu tiên chia sẻ cảm nhận về sự kiện này.
+          Chưa có bình luận nào. Hãy là người đầu tiên chia sẻ cảm nhận về sự
+          kiện này.
         </div>
       )}
     </section>
