@@ -32,6 +32,7 @@ model User {
   savedEvents       SaveEvent[]
   comments          Comment[]
   eventReminderLogs EventReminderLog[]
+  refundRequests    RefundRequest[]
 
   @@map("users")
 }
@@ -304,6 +305,7 @@ model Order {
   tickets             Ticket[]
   orderSeats          OrderSeat[]
   paymentTransactions PaymentTransaction[]
+  refundRequests      RefundRequest[]
 
   @@map("orders")
 }
@@ -312,6 +314,8 @@ enum OrderStatus {
   PENDING
   PAID
   CANCELLED
+  REFUND_PENDING
+  REFUNDED
 }
 
 enum PaymentMethod {
@@ -573,6 +577,8 @@ enum SystemJobType {
   SEND_FORGOT_PASSWORD_EMAIL
   SEND_EVENT_REMINDER_EMAIL
   SEND_TICKET_AFTER_PAYMENT_EMAIL
+  SEND_REFUND_REQUEST_RECEIVED_EMAIL
+  SEND_REFUND_RESULT_EMAIL
 }
 
 enum SystemJobStatus {
@@ -580,4 +586,44 @@ enum SystemJobStatus {
   RUNNING
   COMPLETED
   FAILED
+}
+
+model RefundRequest {
+  id String @id @default(uuid())
+
+  orderId String  @map("order_id")
+  userId  String? @map("user_id")
+
+  customerName  String @map("customer_name")
+  customerEmail String @map("customer_email")
+  customerPhone String @map("customer_phone")
+
+  bankName          String @map("bank_name")
+  bankAccountNumber String @map("bank_account_number")
+  bankAccountHolder String @map("bank_account_holder")
+
+  note String? @db.Text
+
+  refundPercent Int   @map("refund_percent")
+  refundAmount  Float @map("refund_amount")
+
+  status RefundRequestStatus @default(PENDING)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  order Order @relation(fields: [orderId], references: [id])
+  user  User? @relation(fields: [userId], references: [id])
+
+  @@index([orderId])
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("refund_requests")
+}
+
+enum RefundRequestStatus {
+  PENDING
+  COMPLETED
+  REJECTED
 }

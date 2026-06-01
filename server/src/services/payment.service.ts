@@ -4,6 +4,7 @@ import {
     NotificationType,
     OrderStatus,
     PaymentTransactionStatus,
+    Prisma,
 } from "@prisma/client";
 
 import { prisma } from "../utils/prisma";
@@ -224,11 +225,26 @@ class PaymentService {
                 }))
             );
 
+            const event = ticketsWithQr[0]?.eventSeat?.event;
+
             await systemJobService.createSendTicketAfterPaymentEmailJob(
                 paidOrder.customerEmail,
                 paidOrder.customerName ??
                     paidOrder.user?.fullName ??
                     "Customer",
+                {
+                    orderCode: paidOrder.orderCode ?? orderCode,
+                    totalAmount: paidOrder.totalAmount ?? 0,
+                    paymentMethod:
+                        paidOrder.paymentMethod === "SEPAY"
+                            ? "SePay"
+                            : String(paidOrder.paymentMethod),
+                    paidAt: paidOrder.updatedAt,
+                    createdAt: paidOrder.createdAt,
+                    eventTitle: event?.title ?? null,
+                    eventStartDate: event?.startDate ?? null,
+                    eventLocation: event?.location ?? null,
+                },
                 ticketsWithQr.map((ticket) => ({
                     seatLabel: `${ticket.eventSeat?.rowLabel ?? ""}${
                         ticket.eventSeat?.seatNumber ?? ""
@@ -326,6 +342,9 @@ class PaymentService {
                 customerName: true,
                 status: true,
                 totalAmount: true,
+                paymentMethod: true,
+                createdAt: true,
+                updatedAt: true,
                 sepayTransactionId: true,
                 orderCode: true,
                 user: {
@@ -344,6 +363,13 @@ class PaymentService {
                             select: {
                                 rowLabel: true,
                                 seatNumber: true,
+                                event: {
+                                    select: {
+                                        title: true,
+                                        startDate: true,
+                                        location: true,
+                                    },
+                                },
                             },
                         },
                     },
@@ -362,6 +388,51 @@ class PaymentService {
         }
 
         return paidOrder;
+    }
+
+    async releaseBookedSeatsForRefund(
+        tx: Prisma.TransactionClient,
+        orderId: string
+    ) {
+        const orderSeats = await tx.orderSeat.findMany({
+            where: {
+                orderId,
+            },
+            select: {
+                eventSeatId: true,
+            },
+        });
+
+        const eventSeatIds = orderSeats.map(
+            (orderSeat) => orderSeat.eventSeatId
+        );
+
+        if (eventSeatIds.length === 0) {
+            throw new AppError("Order has no seats", 400);
+        }
+
+        const seatUpdate = await tx.eventSeat.updateMany({
+            where: {
+                id: {
+                    in: eventSeatIds,
+                },
+                status: EventSeatStatus.BOOKED,
+            },
+            data: {
+                status: EventSeatStatus.AVAILABLE,
+            },
+        });
+
+        if (seatUpdate.count !== eventSeatIds.length) {
+            throw new AppError(
+                "Seat booking state mismatch; cannot complete refund",
+                409
+            );
+        }
+
+        return {
+            releasedSeatCount: seatUpdate.count,
+        };
     }
 }
 

@@ -15,220 +15,233 @@ import PaymentMethodSection from './components/PaymentMethodSection/PaymentMetho
 const EMPTY_SELECTED_SEATS = [];
 
 function getSeatLabel(seat) {
-  return `${seat.seat?.rowLabel ?? ''}${seat.seat?.seatNumber ?? ''}`;
+    return `${seat.seat?.rowLabel ?? ''}${seat.seat?.seatNumber ?? ''}`;
 }
 
 function getCustomerInfo(stateCustomerInfo, authUser) {
-  return {
-    name: stateCustomerInfo?.name || authUser?.fullName || authUser?.name || '',
-    email: stateCustomerInfo?.email || authUser?.email || '',
-    phone:
-      stateCustomerInfo?.phone ||
-      authUser?.phoneNumber ||
-      authUser?.phone ||
-      '',
-  };
+    return {
+        name:
+            stateCustomerInfo?.name ||
+            authUser?.fullName ||
+            authUser?.name ||
+            '',
+        email: stateCustomerInfo?.email || authUser?.email || '',
+        phone:
+            stateCustomerInfo?.phone ||
+            authUser?.phoneNumber ||
+            authUser?.phone ||
+            '',
+    };
 }
 
 function groupTicketItems(selectedSeats) {
-  const map = new Map();
+    const map = new Map();
 
-  selectedSeats.forEach((seat) => {
-    const ticketName = seat.ticketType?.name ?? 'Ticket';
-    const ticketColor = seat.ticketType?.color ?? 'var(--primary-color)';
-    const price = Number(seat.ticketType?.price ?? 0);
-    const key = `${ticketName}-${price}`;
+    selectedSeats.forEach((seat) => {
+        const ticketName = seat.ticketType?.name ?? 'Ticket';
+        const ticketColor = seat.ticketType?.color ?? 'var(--primary-color)';
+        const price = Number(seat.ticketType?.price ?? 0);
+        const key = `${ticketName}-${price}`;
 
-    const current = map.get(key) ?? {
-      ticketType: ticketName,
-      color: ticketColor,
-      quantity: 0,
-      seats: [],
-      price,
-      total: 0,
-    };
+        const current = map.get(key) ?? {
+            ticketType: ticketName,
+            color: ticketColor,
+            quantity: 0,
+            seats: [],
+            price,
+            total: 0,
+        };
 
-    current.quantity += 1;
-    current.seats.push(getSeatLabel(seat));
-    current.total += price;
+        current.quantity += 1;
+        current.seats.push(getSeatLabel(seat));
+        current.total += price;
 
-    map.set(key, current);
-  });
+        map.set(key, current);
+    });
 
-  return Array.from(map.values());
+    return Array.from(map.values());
 }
 
 function Payment() {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const authUser = useAuthStore((state) => state.user);
-  const checkoutState = location.state ?? {};
-  const event = checkoutState.event ?? null;
-  const selectedSeats = checkoutState.selectedSeats ?? EMPTY_SELECTED_SEATS;
-  const selectedSeatIds =
-    checkoutState.selectedSeatIds ?? selectedSeats.map((seat) => seat.id);
-  const customerInfo = getCustomerInfo(checkoutState.customerInfo, authUser);
-  const [couponCode, setCouponCode] = useState('');
-  const latestCouponCodeRef = useRef('');
-  const [appliedCoupon, setAppliedCoupon] = useState(null);
-  const [couponError, setCouponError] = useState('');
-  const [couponSuccess, setCouponSuccess] = useState('');
-  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState('');
-  const [createdOrder, setCreatedOrder] = useState(null);
-  const [paymentInfo, setPaymentInfo] = useState(null);
+    const location = useLocation();
+    const navigate = useNavigate();
+    const authUser = useAuthStore((state) => state.user);
+    const checkoutState = location.state ?? {};
+    const event = checkoutState.event ?? null;
+    const selectedSeats = checkoutState.selectedSeats ?? EMPTY_SELECTED_SEATS;
+    const selectedSeatIds =
+        checkoutState.selectedSeatIds ?? selectedSeats.map((seat) => seat.id);
+    const customerInfo = getCustomerInfo(checkoutState.customerInfo, authUser);
+    const [couponCode, setCouponCode] = useState('');
+    const latestCouponCodeRef = useRef('');
+    const [appliedCoupon, setAppliedCoupon] = useState(null);
+    const [couponError, setCouponError] = useState('');
+    const [couponSuccess, setCouponSuccess] = useState('');
+    const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitError, setSubmitError] = useState('');
+    const [createdOrder, setCreatedOrder] = useState(null);
+    const [paymentInfo, setPaymentInfo] = useState(null);
 
-  const ticketItems = useMemo(
-    () => groupTicketItems(selectedSeats),
-    [selectedSeats]
-  );
-  const subtotal = useMemo(
-    () =>
-      selectedSeats.reduce(
-        (sum, seat) => sum + Number(seat.ticketType?.price ?? 0),
+    const ticketItems = useMemo(
+        () => groupTicketItems(selectedSeats),
+        [selectedSeats]
+    );
+    const subtotal = useMemo(
+        () =>
+            selectedSeats.reduce(
+                (sum, seat) => sum + Number(seat.ticketType?.price ?? 0),
+                0
+            ),
+        [selectedSeats]
+    );
+    const previewDiscountAmount = Number(appliedCoupon?.discountAmount ?? 0);
+    const previewTotalAmount = Math.max(
+        Number(appliedCoupon?.finalAmount ?? subtotal),
         0
-      ),
-    [selectedSeats]
-  );
-  const previewDiscountAmount = Number(appliedCoupon?.discountAmount ?? 0);
-  const previewTotalAmount = Math.max(
-    Number(appliedCoupon?.finalAmount ?? subtotal),
-    0
-  );
-  const totalFromOrder = Number(
-    createdOrder?.totalAmount ?? previewTotalAmount
-  );
-  const discountAmount = createdOrder
-    ? Math.max(subtotal - totalFromOrder, 0)
-    : previewDiscountAmount;
-  const canSubmit = selectedSeatIds.length > 0 && !createdOrder;
-  const backTo = event?.id ? `/booking?eventId=${event.id}` : '/booking';
+    );
+    const totalFromOrder = Number(
+        createdOrder?.totalAmount ?? previewTotalAmount
+    );
+    const discountAmount = createdOrder
+        ? Math.max(subtotal - totalFromOrder, 0)
+        : previewDiscountAmount;
+    const canSubmit = selectedSeatIds.length > 0 && !createdOrder;
+    const backTo = event?.id ? `/booking?eventId=${event.id}` : '/booking';
 
-  const handleCouponCodeChange = (value) => {
-    setCouponCode(value);
-    latestCouponCodeRef.current = value;
-    setAppliedCoupon(null);
-    setCouponError('');
-    setCouponSuccess('');
-  };
+    const handleCouponCodeChange = (value) => {
+        setCouponCode(value);
+        latestCouponCodeRef.current = value;
+        setAppliedCoupon(null);
+        setCouponError('');
+        setCouponSuccess('');
+    };
 
-  const handleApplyCoupon = async () => {
-    const trimmedCouponCode = couponCode.trim();
-    if (!trimmedCouponCode || isApplyingCoupon) return;
+    const handleApplyCoupon = async () => {
+        const trimmedCouponCode = couponCode.trim();
+        if (!trimmedCouponCode || isApplyingCoupon) return;
 
-    setIsApplyingCoupon(true);
-    setAppliedCoupon(null);
-    setCouponError('');
-    setCouponSuccess('');
+        setIsApplyingCoupon(true);
+        setAppliedCoupon(null);
+        setCouponError('');
+        setCouponSuccess('');
 
-    try {
-      const verifiedCoupon = await couponService.verify({
-        code: trimmedCouponCode,
-        orderAmount: subtotal,
-      });
+        try {
+            const verifiedCoupon = await couponService.verify({
+                code: trimmedCouponCode,
+                orderAmount: subtotal,
+            });
 
-      if (latestCouponCodeRef.current.trim() !== trimmedCouponCode) return;
+            if (latestCouponCodeRef.current.trim() !== trimmedCouponCode)
+                return;
 
-      setAppliedCoupon(verifiedCoupon);
-      latestCouponCodeRef.current =
-        verifiedCoupon.code ?? trimmedCouponCode.toUpperCase();
-      setCouponCode(verifiedCoupon.code ?? trimmedCouponCode.toUpperCase());
-      setCouponSuccess('Áp dụng mã giảm giá thành công.');
-    } catch (error) {
-      if (latestCouponCodeRef.current.trim() !== trimmedCouponCode) return;
+            setAppliedCoupon(verifiedCoupon);
+            latestCouponCodeRef.current =
+                verifiedCoupon.code ?? trimmedCouponCode.toUpperCase();
+            setCouponCode(
+                verifiedCoupon.code ?? trimmedCouponCode.toUpperCase()
+            );
+            setCouponSuccess('Áp dụng mã giảm giá thành công.');
+        } catch (error) {
+            if (latestCouponCodeRef.current.trim() !== trimmedCouponCode)
+                return;
 
-      setAppliedCoupon(null);
-      setCouponError(getErrorMessage(error));
-    } finally {
-      setIsApplyingCoupon(false);
-    }
-  };
+            setAppliedCoupon(null);
+            setCouponError(getErrorMessage(error));
+        } finally {
+            setIsApplyingCoupon(false);
+        }
+    };
 
-  const handleSubmitOrder = async () => {
-    if (selectedSeatIds.length === 0) {
-      setSubmitError('Vui lòng chọn ít nhất một ghế trước khi thanh toán.');
-      return;
-    }
+    const handleSubmitOrder = async () => {
+        if (selectedSeatIds.length === 0) {
+            setSubmitError(
+                'Vui lòng chọn ít nhất một ghế trước khi thanh toán.'
+            );
+            return;
+        }
 
-    if (!customerInfo.name || !customerInfo.email || !customerInfo.phone) {
-      setSubmitError(
-        'Vui lòng cập nhật đầy đủ họ tên, email và số điện thoại.'
-      );
-      return;
-    }
+        if (!customerInfo.name || !customerInfo.email || !customerInfo.phone) {
+            setSubmitError(
+                'Vui lòng cập nhật đầy đủ họ tên, email và số điện thoại.'
+            );
+            return;
+        }
 
-    setIsSubmitting(true);
-    setSubmitError('');
+        setIsSubmitting(true);
+        setSubmitError('');
 
-    try {
-      const response = await orderService.create({
-        customerName: customerInfo.name,
-        customerEmail: customerInfo.email,
-        customerPhone: customerInfo.phone,
-        eventSeatIds: selectedSeatIds,
-        couponCode: appliedCoupon?.code || undefined,
-      });
+        try {
+            const response = await orderService.create({
+                customerName: customerInfo.name,
+                customerEmail: customerInfo.email,
+                customerPhone: customerInfo.phone,
+                eventSeatIds: selectedSeatIds,
+                couponCode: appliedCoupon?.code || undefined,
+            });
 
-      const order = response.order ?? response;
-      const sepay = response.sepay ?? response.payment ?? null;
+            const order = response.order ?? response;
+            const sepay = response.sepay ?? response.payment ?? null;
 
-      setCreatedOrder(order);
-      setPaymentInfo(sepay);
-      sessionStorage.setItem(
-        'eventhub:lastPayment',
-        JSON.stringify({ order, sepay })
-      );
-      navigate(`/payment/qr/${order.id ?? sepay?.orderCode ?? 'mock-order'}`, {
-        state: {
-          order,
-          sepay,
-        },
-      });
-    } catch (error) {
-      setSubmitError(getErrorMessage(error));
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+            setCreatedOrder(order);
+            setPaymentInfo(sepay);
+            sessionStorage.setItem(
+                'eventhub:lastPayment',
+                JSON.stringify({ order, sepay })
+            );
+            navigate(
+                `/payment/qr/${order.id ?? sepay?.orderCode ?? 'mock-order'}`,
+                {
+                    state: {
+                        order,
+                        sepay,
+                    },
+                }
+            );
+        } catch (error) {
+            setSubmitError(getErrorMessage(error));
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
-  return (
-    <div className="pt-[calc(var(--header-height)+10px)] container space-y-3 pb-10">
-      <PaymentHero />
-      {selectedSeatIds.length === 0 ? (
-        <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-500">
-          Chưa có ghế nào được chọn. Vui lòng quay lại trang đặt vé.
+    return (
+        <div className="pt-[calc(var(--header-height)+10px)] container space-y-3 pb-10">
+            <PaymentHero />
+            {selectedSeatIds.length === 0 ? (
+                <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-500">
+                    Chưa có ghế nào được chọn. Vui lòng quay lại trang đặt vé.
+                </div>
+            ) : null}
+            {submitError ? (
+                <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-500">
+                    {submitError}
+                </div>
+            ) : null}
+            <OrderSummarySection event={event} ticketItems={ticketItems} />
+            <PaymentMethodSection
+                subtotal={subtotal}
+                discountAmount={discountAmount}
+                totalAmount={totalFromOrder}
+                ticketCount={selectedSeatIds.length}
+                couponCode={couponCode}
+                onCouponCodeChange={handleCouponCodeChange}
+                onApplyCoupon={handleApplyCoupon}
+                appliedCouponCode={appliedCoupon?.code}
+                couponError={couponError}
+                couponSuccess={couponSuccess}
+                isApplyingCoupon={isApplyingCoupon}
+            />
+            <BankTransferMethod paymentInfo={paymentInfo} />
+            <ContactInformationSection customerInfo={customerInfo} />
+            <PaymentActionSection
+                canSubmit={canSubmit}
+                isSubmitting={isSubmitting}
+                onSubmit={handleSubmitOrder}
+                backTo={backTo}
+            />
         </div>
-      ) : null}
-      {submitError ? (
-        <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-500">
-          {submitError}
-        </div>
-      ) : null}
-      <OrderSummarySection event={event} ticketItems={ticketItems} />
-      <PaymentMethodSection
-        subtotal={subtotal}
-        discountAmount={discountAmount}
-        totalAmount={totalFromOrder}
-        ticketCount={selectedSeatIds.length}
-        couponCode={couponCode}
-        onCouponCodeChange={handleCouponCodeChange}
-        onApplyCoupon={handleApplyCoupon}
-        appliedCouponCode={appliedCoupon?.code}
-        couponError={couponError}
-        couponSuccess={couponSuccess}
-        isApplyingCoupon={isApplyingCoupon}
-      />
-      <BankTransferMethod paymentInfo={paymentInfo} />
-      <ContactInformationSection customerInfo={customerInfo} />
-      <PaymentActionSection
-        canSubmit={canSubmit}
-        isSubmitting={isSubmitting}
-        onSubmit={handleSubmitOrder}
-        backTo={backTo}
-      />
-    </div>
-  );
+    );
 }
 
 export default Payment;

@@ -1,4 +1,10 @@
-import { AlertTriangle, Ban, LockKeyhole, ShieldCheck } from 'lucide-react';
+import {
+  AlertTriangle,
+  Ban,
+  LockKeyhole,
+  RefreshCcw,
+  ShieldCheck,
+} from 'lucide-react';
 
 export const moneyFormatter = new Intl.NumberFormat('vi-VN', {
   style: 'currency',
@@ -92,6 +98,10 @@ export function isPaidOrder(order) {
   return order?.status === 'PAID';
 }
 
+export function hasCompletedPayment(order) {
+  return ['PAID', 'REFUND_PENDING', 'REFUNDED'].includes(order?.status);
+}
+
 export function isCancelledOrder(order) {
   return order?.status === 'CANCELLED';
 }
@@ -117,6 +127,7 @@ export function getOrderStatusMeta(order) {
         description:
           'Sau khi thanh toán thành công, hệ thống sẽ phát hành vé và mã QR check-in.',
         icon: AlertTriangle,
+        orderId: order?.id,
       };
 
     case 'CANCELLED':
@@ -126,6 +137,26 @@ export function getOrderStatusMeta(order) {
         title: 'Đơn hàng không thành công',
         description:
           'Đơn hàng đã bị hủy hoặc thanh toán không hoàn tất, nên vé chưa được phát hành.',
+        icon: Ban,
+      };
+
+    case 'REFUND_PENDING':
+      return {
+        tone: 'warning',
+        label: 'Đang chờ hoàn tiền',
+        title: 'Yêu cầu hoàn tiền đang xử lý',
+        description:
+          'Yêu cầu hoàn vé đã được gửi và đang chờ quản trị viên xử lý. Vé tạm thời không thể dùng để check-in.',
+        icon: RefreshCcw,
+      };
+
+    case 'REFUNDED':
+      return {
+        tone: 'destructive',
+        label: 'Đã hoàn tiền',
+        title: 'Đơn hàng đã hoàn tiền',
+        description:
+          'Đơn hàng đã được hoàn tiền. Vé không còn hiệu lực và không thể check-in.',
         icon: Ban,
       };
 

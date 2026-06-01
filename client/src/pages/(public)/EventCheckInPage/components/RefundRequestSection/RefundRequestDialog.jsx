@@ -1,0 +1,400 @@
+import { useEffect, useMemo, useState } from 'react';
+import { Loader2, X } from 'lucide-react';
+import { toast } from 'sonner';
+
+import { getErrorMessage } from '@/lib/http/apiError';
+import { refundService } from '@/lib/services/admin/refundService';
+
+const initialForm = {
+    orderCode: '',
+    customerName: '',
+    customerEmail: '',
+    customerPhone: '',
+    bankName: '',
+    bankAccountNumber: '',
+    bankAccountHolder: '',
+    note: '',
+};
+
+function getOrderValue(order, keyList) {
+    for (const key of keyList) {
+        if (order?.[key]) return order[key];
+    }
+
+    return '';
+}
+
+function formatCurrency(value) {
+    return new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND',
+        maximumFractionDigits: 0,
+    }).format(Number(value || 0));
+}
+
+function buildInitialForm(order) {
+    return {
+        orderCode: getOrderValue(order, ['orderCode', 'order_code']),
+        customerName: getOrderValue(order, ['customerName', 'customer_name']),
+        customerEmail: getOrderValue(order, [
+            'customerEmail',
+            'customer_email',
+        ]),
+        customerPhone: getOrderValue(order, [
+            'customerPhone',
+            'customer_phone',
+        ]),
+        bankName: '',
+        bankAccountNumber: '',
+        bankAccountHolder: '',
+        note: '',
+    };
+}
+
+function Field({
+    label,
+    name,
+    value,
+    onChange,
+    placeholder,
+    required,
+    readOnly,
+    type = 'text',
+}) {
+    return (
+        <label className="block">
+            <span className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
+                {label}
+                {required ? <span className="ml-1 text-red-400">*</span> : null}
+            </span>
+
+            <input
+                type={type}
+                name={name}
+                value={value}
+                readOnly={readOnly}
+                onChange={onChange}
+                placeholder={placeholder}
+                className="h-11 w-full rounded-xl border border-[var(--border-color)] bg-[var(--soft-surface-color)] px-3.5 text-sm text-[var(--text-primary)] outline-none transition placeholder:text-[var(--muted-text)] focus:border-[var(--primary-color)] read-only:cursor-not-allowed read-only:opacity-70"
+            />
+        </label>
+    );
+}
+
+function getRefundErrorMessage(error) {
+    const message = getErrorMessage(error);
+
+    const errorMap = {
+        'Order not found': 'Không tìm thấy đơn hàng.',
+        'Only paid orders can be refunded':
+            'Chỉ đơn hàng đã thanh toán mới có thể yêu cầu hoàn vé.',
+        'Order information does not match':
+            'Thông tin đơn hàng không khớp. Vui lòng kiểm tra lại mã đơn, email và số điện thoại.',
+        'Refund request already exists':
+            'Đơn hàng này đã có yêu cầu hoàn vé đang chờ xử lý.',
+        'Event start date is missing':
+            'Không thể kiểm tra thời gian sự kiện để hoàn vé.',
+        'Refund is not allowed after the event has started':
+            'Sự kiện đã diễn ra hoặc đã đến ngày diễn ra nên không thể hoàn vé.',
+    };
+
+    return errorMap[message] || message || 'Gửi yêu cầu hoàn vé thất bại.';
+}
+
+function RefundRequestDialog({
+    open,
+    onOpenChange,
+    order,
+    expectedRefundPercent,
+    onSuccess,
+}) {
+    const [form, setForm] = useState(initialForm);
+    const [submitting, setSubmitting] = useState(false);
+
+    useEffect(() => {
+        if (open) {
+            setForm(buildInitialForm(order));
+        }
+    }, [open, order]);
+
+    const totalAmount = Number(order?.totalAmount || order?.total_amount || 0);
+
+    const expectedRefundAmount = useMemo(() => {
+        if (!expectedRefundPercent) return 0;
+        return totalAmount * (expectedRefundPercent / 100);
+    }, [expectedRefundPercent, totalAmount]);
+
+    if (!open) return null;
+
+    function handleChange(event) {
+        const { name, value } = event.target;
+
+        setForm((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
+    }
+
+    function validateForm() {
+        const requiredFields = [
+            ['orderCode', 'Mã đơn hàng'],
+            ['customerName', 'Họ tên'],
+            ['customerEmail', 'Email'],
+            ['customerPhone', 'Số điện thoại'],
+            ['bankName', 'Tên ngân hàng'],
+            ['bankAccountNumber', 'Số tài khoản'],
+            ['bankAccountHolder', 'Tên chủ tài khoản'],
+        ];
+
+        for (const [key, label] of requiredFields) {
+            if (!String(form[key] || '').trim()) {
+                return `${label} không được để trống`;
+            }
+        }
+
+        if (!/^\S+@\S+\.\S+$/.test(form.customerEmail.trim())) {
+            return 'Email không hợp lệ';
+        }
+
+        return '';
+    }
+
+    async function handleSubmit(event) {
+        event.preventDefault();
+
+        const validationMessage = validateForm();
+        if (validationMessage) {
+            toast.error(validationMessage);
+            return;
+        }
+
+        setSubmitting(true);
+
+        try {
+            const payload = {
+                orderCode: form.orderCode.trim(),
+                customerName: form.customerName.trim(),
+                customerEmail: form.customerEmail.trim(),
+                customerPhone: form.customerPhone.trim(),
+                bankName: form.bankName.trim(),
+                bankAccountNumber: form.bankAccountNumber.trim(),
+                bankAccountHolder: form.bankAccountHolder.trim(),
+                note: form.note.trim() || undefined,
+            };
+
+            const result = await refundService.create(payload);
+
+            toast.success(
+                `Đã gửi yêu cầu hoàn vé. Số tiền dự kiến: ${formatCurrency(
+                    result?.refundAmount || expectedRefundAmount
+                )}`
+            );
+
+            onOpenChange(false);
+            onSuccess?.();
+        } catch (error) {
+            toast.error(getRefundErrorMessage(error));
+        } finally {
+            setSubmitting(false);
+        }
+    }
+
+    return (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center px-4 py-6">
+            <button
+                type="button"
+                aria-label="Đóng"
+                className="absolute inset-0 bg-black/60"
+                onClick={() => {
+                    if (!submitting) onOpenChange(false);
+                }}
+            />
+
+            <div className="relative z-10 flex max-h-[88vh] w-full max-w-[900px] flex-col overflow-hidden rounded-2xl border border-[var(--border-color)] bg-[var(--surface-color)] shadow-2xl">
+                <div className="flex items-start justify-between gap-4 border-b border-[var(--border-color)] px-5 py-4">
+                    <div>
+                        <h3 className="text-xl font-semibold text-[var(--text-primary)]">
+                            Yêu cầu hoàn vé
+                        </h3>
+                        <p className="mt-1.5 text-sm leading-5 text-[var(--muted-text)]">
+                            Nhập thông tin đơn hàng và tài khoản ngân hàng để
+                            quản trị viên xử lý hoàn tiền.
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        disabled={submitting}
+                        onClick={() => onOpenChange(false)}
+                        className="flex size-9 shrink-0 items-center justify-center rounded-full text-[var(--muted-text)] transition hover:bg-[var(--soft-surface-color)] hover:text-[var(--text-primary)] disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                        <X className="size-5" />
+                    </button>
+                </div>
+
+                <form
+                    onSubmit={handleSubmit}
+                    className="min-h-0 flex-1 overflow-y-auto"
+                >
+                    <div className="space-y-5 px-5 py-5">
+                        <div className="grid gap-3 rounded-xl border border-[var(--border-color)] bg-[var(--soft-surface-color)] p-4 sm:grid-cols-3">
+                            <div>
+                                <p className="text-xs text-[var(--muted-text)]">
+                                    Tỷ lệ hoàn
+                                </p>
+                                <p className="mt-1 text-base font-semibold text-[var(--text-primary)]">
+                                    {expectedRefundPercent || 0}%
+                                </p>
+                            </div>
+
+                            <div>
+                                <p className="text-xs text-[var(--muted-text)]">
+                                    Tổng đơn
+                                </p>
+                                <p className="mt-1 text-base font-semibold text-[var(--text-primary)]">
+                                    {formatCurrency(totalAmount)}
+                                </p>
+                            </div>
+
+                            <div>
+                                <p className="text-xs text-[var(--muted-text)]">
+                                    Dự kiến hoàn
+                                </p>
+                                <p className="mt-1 text-base font-semibold text-[var(--primary-color)]">
+                                    {formatCurrency(expectedRefundAmount)}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 className="mb-3 text-sm font-semibold text-[var(--text-primary)]">
+                                Thông tin đơn hàng
+                            </h4>
+
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                <Field
+                                    label="Mã đơn hàng"
+                                    name="orderCode"
+                                    value={form.orderCode}
+                                    onChange={handleChange}
+                                    required
+                                    readOnly
+                                />
+
+                                <Field
+                                    label="Họ tên"
+                                    name="customerName"
+                                    value={form.customerName}
+                                    onChange={handleChange}
+                                    placeholder="Nhập họ tên"
+                                    required
+                                />
+
+                                <Field
+                                    label="Email đặt vé"
+                                    name="customerEmail"
+                                    type="email"
+                                    value={form.customerEmail}
+                                    onChange={handleChange}
+                                    placeholder="email@example.com"
+                                    required
+                                />
+
+                                <Field
+                                    label="Số điện thoại đặt vé"
+                                    name="customerPhone"
+                                    value={form.customerPhone}
+                                    onChange={handleChange}
+                                    placeholder="Nhập số điện thoại"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 className="mb-3 text-sm font-semibold text-[var(--text-primary)]">
+                                Thông tin nhận tiền
+                            </h4>
+
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                <Field
+                                    label="Tên ngân hàng"
+                                    name="bankName"
+                                    value={form.bankName}
+                                    onChange={handleChange}
+                                    placeholder="VD: Vietcombank"
+                                    required
+                                />
+
+                                <Field
+                                    label="Số tài khoản"
+                                    name="bankAccountNumber"
+                                    value={form.bankAccountNumber}
+                                    onChange={handleChange}
+                                    placeholder="Nhập số tài khoản"
+                                    required
+                                />
+
+                                <div className="sm:col-span-2">
+                                    <Field
+                                        label="Tên chủ tài khoản"
+                                        name="bankAccountHolder"
+                                        value={form.bankAccountHolder}
+                                        onChange={handleChange}
+                                        placeholder="VD: LE THANH DAT"
+                                        required
+                                    />
+                                </div>
+
+                                <label className="block sm:col-span-2">
+                                    <span className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
+                                        Ghi chú
+                                    </span>
+
+                                    <textarea
+                                        name="note"
+                                        value={form.note}
+                                        onChange={handleChange}
+                                        rows={3}
+                                        placeholder="Nhập ghi chú nếu có..."
+                                        className="w-full resize-none rounded-xl border border-[var(--border-color)] bg-[var(--soft-surface-color)] px-3.5 py-3 text-sm text-[var(--text-primary)] outline-none transition placeholder:text-[var(--muted-text)] focus:border-[var(--primary-color)]"
+                                    />
+                                </label>
+                            </div>
+                        </div>
+
+                        <p className="rounded-xl border border-[var(--border-color)] bg-[var(--soft-surface-color)] px-4 py-3 text-sm leading-5 text-[var(--muted-text)]">
+                            Yêu cầu hoàn vé sẽ được đưa vào hàng chờ. Quản trị
+                            viên sẽ kiểm tra và chuyển khoản thủ công theo chính
+                            sách hoàn vé.
+                        </p>
+                    </div>
+
+                    <div className="sticky bottom-0 flex justify-end gap-3 border-t border-[var(--border-color)] bg-[var(--surface-color)] px-5 py-4">
+                        <button
+                            type="button"
+                            disabled={submitting}
+                            onClick={() => onOpenChange(false)}
+                            className="inline-flex h-10 items-center justify-center rounded-xl border border-[var(--border-color)] bg-transparent px-5 text-sm font-medium text-[var(--text-primary)] transition hover:bg-[var(--soft-surface-color)] disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                            Hủy
+                        </button>
+
+                        <button
+                            type="submit"
+                            disabled={submitting}
+                            className="inline-flex h-10 items-center justify-center rounded-xl bg-[var(--primary-color)] px-5 text-sm font-medium text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                            {submitting ? (
+                                <Loader2 className="mr-2 size-4 animate-spin" />
+                            ) : null}
+                            Gửi yêu cầu
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+}
+
+export default RefundRequestDialog;

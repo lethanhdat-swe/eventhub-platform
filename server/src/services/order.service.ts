@@ -594,6 +594,18 @@ class OrderService {
         const firstTicketEvent = order.tickets[0]?.eventSeat.event;
         const firstOrderSeatEvent = order.orderSeats[0]?.eventSeat.event;
 
+        const canReturnToPayment =
+            order.status === "PENDING" &&
+            order.paymentMethod === "SEPAY" &&
+            Boolean(order.orderCode);
+
+        const sepay = canReturnToPayment
+            ? paymentService.buildSepayPaymentInfo(
+                  order.orderCode as string,
+                  Number(order.totalAmount || 0)
+              )
+            : null;
+
         return {
             id: order.id,
             orderCode: order.orderCode,
@@ -624,6 +636,7 @@ class OrderService {
                 },
                 ticketType: ticket.eventSeat.ticketType,
             })),
+            sepay,
         };
     }
 

@@ -13,6 +13,8 @@ const statusLabels = {
   PAID: 'Đã đặt',
   PENDING: 'Đang xử lý',
   CANCELLED: 'Đã hủy',
+  REFUND_PENDING: 'Đang chờ hoàn tiền',
+  REFUNDED: 'Đã hoàn tiền',
 };
 
 const dateFormatter = new Intl.DateTimeFormat('vi-VN', {
@@ -115,7 +117,14 @@ function TicketOrder() {
           acc[order.status] = (acc[order.status] ?? 0) + 1;
           return acc;
         },
-        { all: 0, PAID: 0, PENDING: 0, CANCELLED: 0 }
+        {
+          all: 0,
+          PAID: 0,
+          PENDING: 0,
+          CANCELLED: 0,
+          REFUND_PENDING: 0,
+          REFUNDED: 0,
+        }
       ),
     [orders]
   );

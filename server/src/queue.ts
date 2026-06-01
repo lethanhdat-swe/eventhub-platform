@@ -5,6 +5,8 @@ import { sendVerifyEmailJob } from "./queue-jobs/sendVerifyEmail.job";
 import { sendForgotPasswordEmailJob } from "./queue-jobs/sendForgotPasswordEmail.job";
 import { sendTicketAfterPaymentEmailJob } from "./queue-jobs/sendTicketAfterPaymentEmail.job";
 import { sendEventReminderEmailJob } from "./queue-jobs/sendEventReminderEmail.job";
+import { sendRefundResultEmailJob } from "./queue-jobs/sendRefundResultEmail.job";
+import { sendRefundRequestReceivedEmailJob } from "./queue-jobs/sendRefundRequestReceivedEmail";
 
 const QUEUE_INTERVAL_MS = 3000;
 
@@ -36,6 +38,14 @@ async function runJob(jobId: string) {
 
         case SystemJobType.SEND_TICKET_AFTER_PAYMENT_EMAIL:
             await sendTicketAfterPaymentEmailJob(job);
+            break;
+
+        case SystemJobType.SEND_REFUND_REQUEST_RECEIVED_EMAIL:
+            await sendRefundRequestReceivedEmailJob(job.payload as any);
+            break;
+
+        case SystemJobType.SEND_REFUND_RESULT_EMAIL:
+            await sendRefundResultEmailJob(job.payload as any);
             break;
 
         default:

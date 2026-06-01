@@ -25,6 +25,20 @@ function OrderCard({ order }) {
           dot: 'bg-red-400 shadow-[0_0_12px_rgba(248,113,113,0.9)]',
         };
 
+      case 'Đang chờ hoàn tiền':
+        return {
+          badge:
+            'border-amber-400/35 bg-amber-500/20 text-amber-300 shadow-[0_0_24px_rgba(245,158,11,0.25)]',
+          dot: 'bg-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.9)]',
+        };
+
+      case 'Đã hoàn tiền':
+        return {
+          badge:
+            'border-orange-400/35 bg-orange-500/20 text-orange-300 shadow-[0_0_24px_rgba(249,115,22,0.28)]',
+          dot: 'bg-orange-400 shadow-[0_0_12px_rgba(251,146,60,0.9)]',
+        };
+
       default:
         return {
           badge:

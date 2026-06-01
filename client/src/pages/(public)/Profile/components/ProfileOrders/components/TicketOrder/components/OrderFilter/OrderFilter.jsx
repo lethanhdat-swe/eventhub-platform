@@ -24,6 +24,18 @@ function OrderFilter({ value = 'all', counts = {}, onChange }) {
       style: 'border-red-500/30 bg-red-500/10 text-red-400',
       badge: 'bg-red-500/20 text-(--text-primary)',
     },
+    {
+      label: 'Chờ hoàn tiền',
+      value: 'REFUND_PENDING',
+      style: 'border-amber-500/30 bg-amber-500/10 text-amber-400',
+      badge: 'bg-amber-500/20 text-(--text-primary)',
+    },
+    {
+      label: 'Đã hoàn tiền',
+      value: 'REFUNDED',
+      style: 'border-orange-500/30 bg-orange-500/10 text-orange-400',
+      badge: 'bg-orange-500/20 text-(--text-primary)',
+    },
   ];
 
   return (

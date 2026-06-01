@@ -50,86 +50,112 @@ import AIBlogConfig from './pages/(admin)/AIBlogConfig/AIBlogConfig';
 import MyTickets from './pages/(public)/MyTickets/MyTickets';
 import AdminNotificationsPage from './pages/(admin)/Notifications/Notifications';
 import NotFound from './pages/(public)/NotFound/NotFound';
+import Refunds from './pages/(admin)/Refunds';
 
 function App() {
-  return (
-    <Routes>
-      <Route path="/" element={<PublicLayout />}>
-        <Route index element={<Home />} />
-        <Route path="events" element={<Events />} />
-        <Route path="events/:slug" element={<EventDetail />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="blogs" element={<Blog />} />
-        <Route path="blog/:id" element={<BlogDetail />} />
-        <Route path="contact" element={<Contact />} />
-        <Route path="/search" element={<Search />} />
-        <Route path="/booking" element={<Booking />} />
-        <Route path="/payment" element={<Payment />} />
-        <Route path="/payment/qr/:orderId" element={<PaymentQrPage />} />
-        <Route
-          path="/payment-success/:orderId"
-          element={<PaymentSuccessPage />}
-        />
-        <Route
-          path="/payment-failed/:orderId"
-          element={<PaymentFailedPage />}
-        />
-        <Route path="/payment-status" element={<PaymentStatus />} />
-        <Route path="/my-tickets" element={<MyTickets />} />
-        <Route path="/event-checkin/:id" element={<EventCheckInPage />} />
-        <Route path="*" element={<NotFound />} />
-      </Route>
+    return (
+        <Routes>
+            <Route path="/" element={<PublicLayout />}>
+                <Route index element={<Home />} />
+                <Route path="events" element={<Events />} />
+                <Route path="events/:slug" element={<EventDetail />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="blogs" element={<Blog />} />
+                <Route path="blog/:id" element={<BlogDetail />} />
+                <Route path="contact" element={<Contact />} />
+                <Route path="/search" element={<Search />} />
+                <Route path="/booking" element={<Booking />} />
+                <Route path="/payment" element={<Payment />} />
+                <Route
+                    path="/payment/qr/:orderId"
+                    element={<PaymentQrPage />}
+                />
+                <Route
+                    path="/payment-success/:orderId"
+                    element={<PaymentSuccessPage />}
+                />
+                <Route
+                    path="/payment-failed/:orderId"
+                    element={<PaymentFailedPage />}
+                />
+                <Route path="/payment-status" element={<PaymentStatus />} />
+                <Route path="/my-tickets" element={<MyTickets />} />
+                <Route
+                    path="/event-checkin/:id"
+                    element={<EventCheckInPage />}
+                />
+                <Route path="*" element={<NotFound />} />
+            </Route>
 
-      <Route path="/auth" element={<Navigate replace to="/login" />} />
-      <Route
-        path="/auth/register"
-        element={<Navigate replace to="/register" />}
-      />
+            <Route path="/auth" element={<Navigate replace to="/login" />} />
+            <Route
+                path="/auth/register"
+                element={<Navigate replace to="/register" />}
+            />
 
-      <Route element={<AuthGuestRoute />}>
-        <Route element={<AuthLayout />}>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/verify-email" element={<VerifyEmailPage />} />
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
-        </Route>
-      </Route>
+            <Route element={<AuthGuestRoute />}>
+                <Route element={<AuthLayout />}>
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/register" element={<RegisterPage />} />
+                    <Route path="/verify-email" element={<VerifyEmailPage />} />
+                    <Route
+                        path="/forgot-password"
+                        element={<ForgotPasswordPage />}
+                    />
+                    <Route
+                        path="/reset-password"
+                        element={<ResetPasswordPage />}
+                    />
+                </Route>
+            </Route>
 
-      <Route path="/admin" element={<ProtectedRoute />}>
-        <Route element={<AdminLayout />}>
-          <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="events/create" element={<CreateEvent />} />
-          <Route path="events/:id/edit" element={<EditEvent />} />
-          <Route path="events/:id" element={<AdminEventDetail />} />
-          <Route path="events" element={<AdminEvents />} />
-          <Route path="event-categories" element={<EventCategories />} />
-          <Route path="artists" element={<Artists />} />
-          <Route path="default-seats" element={<DefaultSeats />} />
-          <Route path="ticket-types" element={<TicketTypes />} />
-          <Route path="orders" element={<Orders />} />
-          <Route
-            path="payment-transactions"
-            element={<PaymentTransactions />}
-          />
-          <Route path="tickets" element={<Tickets />} />
-          <Route path="coupons" element={<Coupons />} />
-          <Route path="blogs/create" element={<CreateBlog />} />
-          <Route path="blogs/:id/edit" element={<EditBlog />} />
-          <Route path="blogs" element={<Blogs />} />
-          <Route path="blog-categories" element={<BlogCategories />} />
-          <Route path="check-in" element={<CheckIn />} />
-          <Route path="check-in-logs" element={<CheckInLogs />} />
-          <Route path="users" element={<Users />} />
-          <Route path="settings" element={<Settings />} />
-          <Route path="contact" element={<ContactPage />} />
-          <Route path="ai-blog-config" element={<AIBlogConfig />} />
-          <Route path="notifications" element={<AdminNotificationsPage />} />
-        </Route>
-      </Route>
-    </Routes>
-  );
+            <Route path="/admin" element={<ProtectedRoute />}>
+                <Route element={<AdminLayout />}>
+                    <Route
+                        index
+                        element={<Navigate to="dashboard" replace />}
+                    />
+                    <Route path="dashboard" element={<Dashboard />} />
+                    <Route path="events/create" element={<CreateEvent />} />
+                    <Route path="events/:id/edit" element={<EditEvent />} />
+                    <Route path="events/:id" element={<AdminEventDetail />} />
+                    <Route path="events" element={<AdminEvents />} />
+                    <Route
+                        path="event-categories"
+                        element={<EventCategories />}
+                    />
+                    <Route path="artists" element={<Artists />} />
+                    <Route path="default-seats" element={<DefaultSeats />} />
+                    <Route path="ticket-types" element={<TicketTypes />} />
+                    <Route path="orders" element={<Orders />} />
+                    <Route path="refunds" element={<Refunds />} />
+                    <Route
+                        path="payment-transactions"
+                        element={<PaymentTransactions />}
+                    />
+                    <Route path="tickets" element={<Tickets />} />
+                    <Route path="coupons" element={<Coupons />} />
+                    <Route path="blogs/create" element={<CreateBlog />} />
+                    <Route path="blogs/:id/edit" element={<EditBlog />} />
+                    <Route path="blogs" element={<Blogs />} />
+                    <Route
+                        path="blog-categories"
+                        element={<BlogCategories />}
+                    />
+                    <Route path="check-in" element={<CheckIn />} />
+                    <Route path="check-in-logs" element={<CheckInLogs />} />
+                    <Route path="users" element={<Users />} />
+                    <Route path="settings" element={<Settings />} />
+                    <Route path="contact" element={<ContactPage />} />
+                    <Route path="ai-blog-config" element={<AIBlogConfig />} />
+                    <Route
+                        path="notifications"
+                        element={<AdminNotificationsPage />}
+                    />
+                </Route>
+            </Route>
+        </Routes>
+    );
 }
 
 export default App;
