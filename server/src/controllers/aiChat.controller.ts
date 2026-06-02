@@ -2,6 +2,33 @@ import { NextFunction, Request, Response } from "express";
 import aiChatService from "../services/ai-chat.service";
 
 class AIChatController {
+    listSessions = async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) => {
+        try {
+            const { page, limit, search } = req.query as unknown as {
+                page: number;
+                limit: number;
+                search?: string;
+            };
+
+            const result = await aiChatService.listSessions({
+                page,
+                limit,
+                search,
+            });
+
+            return res.success({
+                message: "Chat sessions retrieved successfully.",
+                data: result,
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
     createSession = async (
         req: Request,
         res: Response,
@@ -9,7 +36,7 @@ class AIChatController {
     ) => {
         try {
             const userId = req.user?.id;
-            const guestId = req.body?.guestId;
+            const { guestId } = req.body || {};
 
             const session = await aiChatService.createSession({
                 userId,
@@ -33,17 +60,23 @@ class AIChatController {
     ) => {
         try {
             const userId = req.user?.id;
+            const isAdmin = req.user?.role === "ADMIN";
+
             const { sessionId } = req.params;
-            const { page, limit } = req.query as unknown as {
+
+            const { page, limit, guestId } = req.query as unknown as {
                 page: number;
                 limit: number;
+                guestId?: string;
             };
 
             const result = await aiChatService.getMessages({
                 sessionId: sessionId as string,
                 userId,
+                guestId,
                 page,
                 limit,
+                isAdmin,
             });
 
             return res.success({
@@ -63,11 +96,12 @@ class AIChatController {
         try {
             const userId = req.user?.id;
             const { sessionId } = req.params;
-            const { message } = req.body;
+            const { message, guestId } = req.body;
 
             const result = await aiChatService.sendMessage({
                 sessionId: sessionId as string,
                 userId,
+                guestId,
                 message,
             });
 
