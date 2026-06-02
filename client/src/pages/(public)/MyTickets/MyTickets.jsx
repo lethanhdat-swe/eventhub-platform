@@ -130,24 +130,24 @@ function MyTickets() {
   }, [activeStatus, orders]);
 
   return (
-    <main className="min-h-screen bg-[var(--background-color)] pt-[calc(var(--header-height)+10px)] pb-14">
+    <main className="min-h-screen bg-(--background-color) pt-[calc(var(--header-height)+10px)] pb-14">
       <section className="container space-y-7">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <Link
               to="/profile"
-              className="mb-5 inline-flex items-center gap-2 text-sm font-bold text-[var(--muted-text)] transition-colors hover:text-[var(--primary-color)]"
+              className="mb-5 inline-flex items-center gap-2 text-sm font-bold text-(--muted-text) transition-colors hover:text-(--primary-color)"
             >
               <ArrowLeft size={16} />
               Quay lại trang cá nhân
             </Link>
 
             <div className="max-w-3xl">
-              <h1 className="mt-5 max-w-2xl text-3xl font-black leading-tight tracking-[-0.04em] text-[var(--text-primary)] sm:text-5xl">
+              <h1 className="mt-5 max-w-2xl text-3xl font-black leading-tight tracking-[-0.04em] text-(--text-primary) sm:text-5xl">
                 Quản lý vé của bạn
               </h1>
 
-              <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--muted-text)] sm:text-base">
+              <p className="mt-4 max-w-2xl text-sm leading-7 text-(--muted-text) sm:text-base">
                 Xem lại các vé đã đặt, kiểm tra trạng thái đơn hàng và mở mã
                 check-in cho từng sự kiện khi cần.
               </p>
@@ -166,31 +166,31 @@ function MyTickets() {
             {Array.from({ length: 8 }).map((_, index) => (
               <div
                 key={index}
-                className="h-96 animate-pulse rounded-3xl border border-[var(--border-color)] bg-[var(--soft-surface-color)]"
+                className="h-96 animate-pulse rounded-3xl border border-(--border-color) bg-(--soft-surface-color)"
               />
             ))}
           </div>
         ) : error ? (
-          <div className="rounded-3xl border border-red-500/20 bg-red-500/10 p-5 text-sm font-semibold text-red-300">
+          <div className="p-5 text-sm font-semibold text-red-300 border rounded-3xl border-red-500/20 bg-red-500/10">
             {error}
           </div>
         ) : visibleOrders.length === 0 ? (
-          <div className="rounded-3xl border border-[var(--border-color)] bg-[var(--card-surface-color)] p-10 text-center">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--primary-color)]/10 text-[var(--primary-color)]">
+          <div className="rounded-3xl border border-(--border-color) bg-(--card-surface-color) p-10 text-center">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-(--primary-color)/10 text-(--primary-color)">
               <Ticket size={26} />
             </div>
 
-            <h2 className="text-lg font-black text-[var(--text-primary)]">
+            <h2 className="text-lg font-black text-(--text-primary)">
               Chưa có vé nào
             </h2>
 
-            <p className="mt-2 text-sm text-[var(--muted-text)]">
+            <p className="mt-2 text-sm text-(--muted-text)">
               Khi bạn đặt vé thành công, vé sẽ xuất hiện tại đây.
             </p>
 
             <Link
               to="/events"
-              className="mt-6 inline-flex items-center justify-center rounded-full bg-[var(--primary-color)] px-5 py-2.5 text-sm font-black text-white transition-transform active:scale-95"
+              className="mt-6 inline-flex items-center justify-center rounded-full bg-(--primary-color) px-5 py-2.5 text-sm font-black text-white transition-transform active:scale-95"
             >
               Khám phá sự kiện
             </Link>

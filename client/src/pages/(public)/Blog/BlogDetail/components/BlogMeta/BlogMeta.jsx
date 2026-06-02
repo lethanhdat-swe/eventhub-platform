@@ -1,5 +1,5 @@
 import { FacebookIcon, InstagramIcon, TwitterIcon } from '@/assets/icons';
-import { CalendarDays, Clock4, Eye, Link as LinkIcon } from 'lucide-react';
+import { CalendarDays, Link as LinkIcon } from 'lucide-react';
 
 function BlogMeta({ blog }) {
   const shareItems = [
@@ -10,16 +10,16 @@ function BlogMeta({ blog }) {
   ];
 
   return (
-    <div className="my-7 flex flex-wrap items-center justify-between gap-5">
-      <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-[var(--muted-text)]">
-        <div className="flex items-center gap-2 rounded-full border border-[var(--border-color)] bg-[var(--soft-surface-color)] px-4 py-2.5">
-          <CalendarDays size={17} className="text-[var(--text-primary)]" />
+    <div className="flex flex-wrap items-center justify-between gap-5 my-7">
+      <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-(--muted-text)">
+        <div className="flex items-center gap-2 rounded-full border border-(--border-color) bg-(--soft-surface-color) px-4 py-2.5">
+          <CalendarDays size={17} className="text-(--text-primary)" />
           <span>{blog.date}</span>
         </div>
       </div>
 
       <div className="flex items-center gap-3">
-        <span className="text-sm font-bold text-[var(--muted-text)]">
+        <span className="text-sm font-bold text-(--muted-text)">
           Chia sẻ
         </span>
 
@@ -31,13 +31,13 @@ function BlogMeta({ blog }) {
               aria-label={label}
               className="
                 flex size-10 items-center justify-center rounded-full
-                border border-[var(--border-color)]
-                bg-[var(--soft-surface-color)]
-                text-[var(--text-primary)]
+                border border-(--border-color)
+                bg-(--soft-surface-color)
+                text-(--text-primary)
                 transition-all duration-300
                 hover:-translate-y-0.5
-                hover:border-[var(--primary-color)]/55
-                hover:bg-[var(--primary-color)]
+                hover:border-(--primary-color)/55
+                hover:bg-(--primary-color)
                 hover:text-white
                 active:scale-95
               "

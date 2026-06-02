@@ -1,226 +1,239 @@
 import { Plus } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-
+import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { getErrorMessage } from '@/lib/http/apiError';
 import { couponService } from '@/lib/services/admin/couponService';
-import AdminFilterDropdown from '@/pages/(admin)/components/AdminFilterDropdown';
-import AdminToolbar from '@/pages/(admin)/components/AdminToolbar';
-import {
-  AdminBulkActions,
-  AdminEmptyState,
-  AdminLoadingState,
-  AdminPagination,
-  ADMIN_EMPTY_STATES,
-} from '@/pages/(admin)/components/table';
-
 import PageHeader from '@/pages/(admin)/components/PageHeader';
-import CouponFormDialog from '@/pages/(admin)/Coupons/components/CouponFormDialog';
-import CouponTable from '@/pages/(admin)/Coupons/components/CouponTable';
-import DeleteCouponDialog from '@/pages/(admin)/Coupons/components/DeleteCouponDialog';
 import {
   buildCouponPayload,
-  COUPON_STATUS_OPTIONS,
-  mapCouponRow,
 } from '@/pages/(admin)/Coupons/data';
 import { toast } from 'sonner';
-
-const PAGE_SIZE = 10;
+import { useCoupons } from '@/hooks/useCoupons';
+import CouponFilters from './components/CouponFilters/CouponFilters';
+import CouponBulkActions from './components/CouponBulkActions/CouponBulkActions';
+import CouponContent from './components/CouponContent/CouponContent';
+import CouponDialogs from './components/CouponDialogs/CouponDialogs';
 
 function Coupons() {
-  const [coupons, setCoupons] = useState([]);
-  const [searchInput, setSearchInput] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [validityFilter, setValidityFilter] = useState('all');
-  const [page, setPage] = useState(1);
-  const [meta, setMeta] = useState({
-    totalItems: 0,
-    totalPages: 1,
-    currentPage: 1,
-    itemsPerPage: PAGE_SIZE,
-  });
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [selectedIds, setSelectedIds] = useState(() => new Set());
-  const [formDialog, setFormDialog] = useState(null);
-  const [deleteDialog, setDeleteDialog] = useState(null);
-  const [deleteSubmitting, setDeleteSubmitting] = useState(false);
+  const {
+    coupons,
 
-  const couponStatusFilterOptions = useMemo(
-    () => [
-      { value: 'all', label: 'Tất cả' },
-      ...COUPON_STATUS_OPTIONS.map((o) => ({
-        value: o.value,
-        label: o.label,
-      })),
-    ],
-    []
-  );
+    searchInput,
+    setSearchInput,
 
-  const couponValidityFilterOptions = useMemo(
-    () => [
-      { value: 'all', label: 'Tất cả' },
-      { value: 'valid', label: 'Còn hạn' },
-      { value: 'expired', label: 'Đã hết hạn' },
-    ],
-    []
-  );
+    statusFilter,
+    setStatusFilter,
 
-  useEffect(() => {
-    const t = setTimeout(() => {
-      setDebouncedSearch(searchInput.trim());
-    }, 300);
-    return () => clearTimeout(t);
-  }, [searchInput]);
+    validityFilter,
+    setValidityFilter,
 
-  useEffect(() => {
-    setPage(1);
-  }, [debouncedSearch, statusFilter, validityFilter]);
+    meta,
 
-  const loadCoupons = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const payload = await couponService.list({
-        page,
-        limit: PAGE_SIZE,
-        search: debouncedSearch,
-        status: statusFilter,
-        validity: validityFilter,
-      });
-      const rows = payload.data ?? [];
-      setCoupons(rows.map(mapCouponRow));
-      const m = payload.meta ?? {};
-      setMeta({
-        totalItems: m.totalItems ?? 0,
-        totalPages: Math.max(1, m.totalPages ?? 1),
-        currentPage: m.currentPage ?? page,
-        itemsPerPage: m.itemsPerPage ?? PAGE_SIZE,
-      });
-    } catch (e) {
-      setError(getErrorMessage(e));
-      setCoupons([]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [page, debouncedSearch, statusFilter, validityFilter]);
+    isLoading,
 
-  useEffect(() => {
-    void loadCoupons();
-  }, [loadCoupons]);
+    error,
+    setError,
 
-  const handleSelectAll = (checked) => {
-    if (checked) {
-      setSelectedIds(new Set(coupons.map((coupon) => coupon.id)));
-    } else {
-      setSelectedIds(new Set());
-    }
-  };
+    selectedIds,
+    setSelectedIds,
 
-  const handleSelectRow = (id, checked) => {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      if (checked) {
-        next.add(id);
-      } else {
-        next.delete(id);
-      }
-      return next;
+    couponStatusFilterOptions,
+    couponValidityFilterOptions,
+
+    loadCoupons,
+
+    handleSelectAll,
+    handleSelectRow,
+
+    setPage,
+  } = useCoupons();
+
+  const [formDialog, setFormDialog] =
+    useState(null);
+
+  const [deleteDialog, setDeleteDialog] =
+    useState(null);
+
+  const [deleteSubmitting,
+    setDeleteSubmitting] =
+    useState(false);
+
+  const handleEdit = (coupon) => {
+    setFormDialog({
+      mode: 'edit',
+      coupon,
     });
   };
 
-  const handleSaveCoupon = async (values) => {
-    setError(null);
-    const body = buildCouponPayload(values);
+  const handleDelete = (coupon) => {
+    setDeleteDialog({
+      type: 'single',
+      coupon,
+    });
+  };
 
-    try {
-      if (formDialog?.mode === 'create') {
-        await couponService.create(body);
-        toast.success('Tạo mã giảm giá thành công');
+  const handleSaveCoupon =
+    async (values) => {
+      setError(null);
+
+      try {
+        const payload =
+          buildCouponPayload(
+            values
+          );
+
+        if (
+          formDialog?.mode ===
+          'create'
+        ) {
+          await couponService.create(
+            payload
+          );
+
+          toast.success(
+            'Tạo mã giảm giá thành công'
+          );
+
+          setFormDialog(null);
+
+          await loadCoupons();
+
+          return;
+        }
+
+        await couponService.update(
+          formDialog.coupon.id,
+          {
+            ...payload,
+            description:
+              values.description ||
+              undefined,
+
+            validUntil:
+              values.validUntil,
+
+            usageLimit:
+              values.usageLimit,
+          }
+        );
+
+        toast.success(
+          'Cập nhật mã giảm giá thành công'
+        );
+
         setFormDialog(null);
+
         await loadCoupons();
+      } catch (e) {
+        const message =
+          getErrorMessage(e);
+
+        setError(message);
+
+        toast.error(
+          message ||
+            'Có lỗi xảy ra'
+        );
+      }
+    };
+
+  const handleDeleteConfirm =
+    async () => {
+      if (
+        !deleteDialog ||
+        deleteSubmitting
+      ) {
         return;
       }
 
-      if (formDialog?.mode === 'edit' && formDialog.coupon) {
-        const updateBody = {
-          ...body,
-          description: values.description || undefined,
-          validUntil: values.validUntil,
-          usageLimit: values.usageLimit,
-        };
-        await couponService.update(formDialog.coupon.id, updateBody);
-        toast.success('Cập nhật mã giảm giá thành công');
-        setFormDialog(null);
-        await loadCoupons();
-      }
-    } catch (e) {
-      const message = getErrorMessage(e);
-      setError(message);
-      toast.error(message || 'Có lỗi xảy ra');
-    }
-  };
+      setDeleteSubmitting(
+        true
+      );
 
-  const handleDeleteConfirm = async () => {
-    if (!deleteDialog || deleteSubmitting) return;
+      setError(null);
 
-    setDeleteSubmitting(true);
-    setError(null);
-    try {
-      if (deleteDialog.type === 'bulk') {
-        await couponService.deleteMany([...selectedIds]);
-        setSelectedIds(new Set());
-        toast.success(`Đã xóa ${selectedIds.size} mã giảm giá`);
-      } else {
-        await couponService.deleteOne(deleteDialog.coupon.id);
-        setSelectedIds((prev) => {
-          const next = new Set(prev);
-          next.delete(deleteDialog.coupon.id);
-          return next;
-        });
-        toast.success(`Đã xóa mã giảm giá "${deleteDialog.coupon.code}"`);
-      }
-      setDeleteDialog(null);
-      await loadCoupons();
-    } catch (e) {
-      const message = getErrorMessage(e);
-      setError(message);
-      toast.error(message || 'Xóa mã giảm giá thất bại');
-    } finally {
-      setDeleteSubmitting(false);
-    }
-  };
+      try {
+        if (
+          deleteDialog.type ===
+          'bulk'
+        ) {
+          await couponService.deleteMany(
+            [...selectedIds]
+          );
 
-  const formDialogOpen = Boolean(formDialog);
-  const formInitialValues =
-    formDialog?.mode === 'edit'
-      ? {
-          ...formDialog.coupon,
-          validUntil: formDialog.coupon.validUntil,
+          toast.success(
+            `Đã xóa ${selectedIds.size} mã giảm giá`
+          );
+
+          setSelectedIds(
+            new Set()
+          );
+        } else {
+          await couponService.deleteOne(
+            deleteDialog.coupon.id
+          );
+
+          setSelectedIds(
+            (prev) => {
+              const next =
+                new Set(prev);
+
+              next.delete(
+                deleteDialog.coupon.id
+              );
+
+              return next;
+            }
+          );
+
+          toast.success(
+            `Đã xóa mã giảm giá "${deleteDialog.coupon.code}"`
+          );
         }
-      : {
-          code: '',
-          description: '',
-          discountPercent: '',
-          usageLimit: '',
-          validUntil: '',
-          status: 'ACTIVE',
+
+        setDeleteDialog(null);
+
+        await loadCoupons();
+      } catch (e) {
+        const message =
+          getErrorMessage(e);
+
+        setError(message);
+
+        toast.error(
+          message ||
+            'Xóa mã giảm giá thất bại'
+        );
+      } finally {
+        setDeleteSubmitting(
+          false
+        );
+      }
+    };
+
+  const formInitialValues =
+    useMemo(() => {
+      if (
+        formDialog?.mode ===
+        'edit'
+      ) {
+        return {
+          ...formDialog.coupon,
+          validUntil:
+            formDialog.coupon
+              .validUntil,
         };
+      }
 
-  const deleteDialogOpen = Boolean(deleteDialog);
-  const deleteIsBulk = deleteDialog?.type === 'bulk';
-  const deleteCouponCode = deleteDialog?.coupon?.code ?? '';
-
-  const handleEdit = (coupon) => {
-    setFormDialog({ mode: 'edit', coupon });
-  };
-
-  const handleDelete = (coupon) => {
-    setDeleteDialog({ type: 'single', coupon });
-  };
-
-  const isEmpty = !isLoading && coupons.length === 0;
+      return {
+        code: '',
+        description: '',
+        discountPercent: '',
+        usageLimit: '',
+        validUntil: '',
+        status: 'ACTIVE',
+      };
+    }, [formDialog]);
 
   return (
     <div className="space-y-4">
@@ -228,117 +241,138 @@ function Coupons() {
         title="Quản lý mã giảm giá"
         description="Tạo và quản lý mã giảm giá cho đơn đặt vé."
         actionLabel="Thêm mã giảm giá"
-        actionIcon={<Plus className="size-4" />}
-        onAction={() => setFormDialog({ mode: 'create' })}
+        actionIcon={
+          <Plus className="size-4" />
+        }
+        onAction={() =>
+          setFormDialog({
+            mode: 'create',
+          })
+        }
       />
 
-      {error && coupons.length > 0 ? (
+      {error &&
+      coupons.length > 0 ? (
         <div
           className="flex flex-col gap-2 px-3 py-2 border rounded-lg border-destructive/25 bg-destructive/5 sm:flex-row sm:items-center sm:justify-between"
           role="alert"
         >
-          <p className="text-sm text-destructive">{error}</p>
+          <p className="text-sm text-destructive">
+            {error}
+          </p>
+
           <Button
             type="button"
             variant="outline"
             size="sm"
             className="h-8 shrink-0"
-            onClick={() => void loadCoupons()}
+            onClick={() =>
+              void loadCoupons()
+            }
           >
             Thử lại
           </Button>
         </div>
       ) : null}
 
-      <AdminToolbar
-        searchPlaceholder="Tìm kiếm mã giảm giá..."
-        searchValue={searchInput}
-        onSearchChange={setSearchInput}
-      >
-        <AdminFilterDropdown
-          label="Trạng thái"
-          options={couponStatusFilterOptions}
-          value={statusFilter}
-          onChange={setStatusFilter}
-        />
-        <AdminFilterDropdown
-          label="Hạn sử dụng"
-          options={couponValidityFilterOptions}
-          value={validityFilter}
-          onChange={setValidityFilter}
-        />
-      </AdminToolbar>
-
-      <AdminBulkActions
-        selectedCount={selectedIds.size}
-        label={`Đã chọn ${selectedIds.size} mã giảm giá`}
-      >
-        <Button
-          type="button"
-          variant="destructive"
-          className="px-3 h-9"
-          disabled={selectedIds.size === 0}
-          onClick={() => setDeleteDialog({ type: 'bulk' })}
-        >
-          Xóa đã chọn
-        </Button>
-      </AdminBulkActions>
-
-      {isLoading ? (
-        <AdminLoadingState rows={6} columns={8} minWidth="min-w-[900px]" />
-      ) : isEmpty ? (
-        <AdminEmptyState
-          {...(error
-            ? {
-                title: 'Không tải được danh sách',
-                description: error,
-                actionLabel: 'Thử lại',
-                onAction: () => void loadCoupons(),
-              }
-            : {
-                ...ADMIN_EMPTY_STATES.coupons,
-                onAction: () => setFormDialog({ mode: 'create' }),
-              })}
-        />
-      ) : (
-        <>
-          <CouponTable
-            coupons={coupons}
-            selectedIds={selectedIds}
-            onSelectAll={handleSelectAll}
-            onSelectRow={handleSelectRow}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
-          <AdminPagination
-            currentPage={meta.currentPage}
-            totalPages={meta.totalPages}
-            totalItems={meta.totalItems}
-            pageSize={meta.itemsPerPage}
-            onPageChange={setPage}
-          />
-        </>
-      )}
-
-      <CouponFormDialog
-        open={formDialogOpen}
-        mode={formDialog?.mode ?? 'create'}
-        initialValues={formInitialValues}
-        onOpenChange={(isOpen) => {
-          if (!isOpen) setFormDialog(null);
-        }}
-        onSave={handleSaveCoupon}
+      <CouponFilters
+        searchInput={
+          searchInput
+        }
+        setSearchInput={
+          setSearchInput
+        }
+        statusFilter={
+          statusFilter
+        }
+        setStatusFilter={
+          setStatusFilter
+        }
+        validityFilter={
+          validityFilter
+        }
+        setValidityFilter={
+          setValidityFilter
+        }
+        couponStatusFilterOptions={
+          couponStatusFilterOptions
+        }
+        couponValidityFilterOptions={
+          couponValidityFilterOptions
+        }
       />
 
-      <DeleteCouponDialog
-        open={deleteDialogOpen}
-        isBulk={deleteIsBulk}
-        couponCode={deleteCouponCode}
-        selectedCount={selectedIds.size}
-        isDeleting={deleteSubmitting}
-        onConfirm={() => void handleDeleteConfirm()}
-        onCancel={() => {
-          if (!deleteSubmitting) setDeleteDialog(null);
+      <CouponBulkActions
+        selectedCount={
+          selectedIds.size
+        }
+        onDelete={() =>
+          setDeleteDialog({
+            type: 'bulk',
+          })
+        }
+      />
+
+      <CouponContent
+        coupons={coupons}
+        meta={meta}
+        error={error}
+        isLoading={isLoading}
+        selectedIds={
+          selectedIds
+        }
+        onRetry={() =>
+          void loadCoupons()
+        }
+        onPageChange={setPage}
+        onSelectAll={
+          handleSelectAll
+        }
+        onSelectRow={
+          handleSelectRow
+        }
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        onCreate={() =>
+          setFormDialog({
+            mode: 'create',
+          })
+        }
+      />
+
+      <CouponDialogs
+        formDialog={
+          formDialog
+        }
+        deleteDialog={
+          deleteDialog
+        }
+        selectedCount={
+          selectedIds.size
+        }
+        deleteSubmitting={
+          deleteSubmitting
+        }
+        formInitialValues={
+          formInitialValues
+        }
+        onSave={
+          handleSaveCoupon
+        }
+        onCloseForm={() =>
+          setFormDialog(null)
+        }
+        onDeleteConfirm={() =>
+          void handleDeleteConfirm()
+        }
+        onDeleteClose={() => {
+          if (
+            !deleteSubmitting
+          ) {
+            setDeleteDialog(
+              null
+            );
+          }
         }}
       />
     </div>

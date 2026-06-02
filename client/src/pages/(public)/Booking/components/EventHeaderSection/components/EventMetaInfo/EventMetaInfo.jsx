@@ -43,7 +43,7 @@ function EventMetaInfo({ event, isLoading }) {
 
   return (
     <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:max-w-2xl">
-      <div className="flex items-start gap-3 rounded-2xl border border-(--text-primary)/10 bg-white/[0.025] px-4 py-3">
+      <div className="flex items-start gap-3 rounded-2xl border border-(--text-primary)/10 bg-white/2.5 px-4 py-3">
         <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-(--primary-color)/10 text-(--primary-color)">
           <Calendar size={17} />
         </div>
@@ -65,7 +65,7 @@ function EventMetaInfo({ event, isLoading }) {
         </div>
       </div>
 
-      <div className="flex items-start gap-3 rounded-2xl border border-(--text-primary)/10 bg-white/[0.025] px-4 py-3">
+      <div className="flex items-start gap-3 rounded-2xl border border-(--text-primary)/10 bg-white/2.5 px-4 py-3">
         <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-(--primary-color)/10 text-(--primary-color)">
           <MapPin size={17} />
         </div>

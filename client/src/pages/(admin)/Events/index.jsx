@@ -16,14 +16,13 @@ import {
   AdminPagination,
   ADMIN_EMPTY_STATES,
 } from '@/pages/(admin)/components/table';
-
-import DeleteEventDialog from '@/pages/(admin)/Events/components/DeleteEventDialog';
-import EventTable from '@/pages/(admin)/Events/components/EventTable';
 import {
   EVENT_STATUS_OPTIONS,
   mapEventRow,
 } from '@/pages/(admin)/Events/data';
 import { toast } from 'sonner';
+import EventTable from './components/EventTable/EventTable';
+import DeleteEventDialog from './components/DeleteEventDialog/DeleteEventDialog';
 
 const PAGE_SIZE = 10;
 

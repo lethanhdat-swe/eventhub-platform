@@ -120,21 +120,21 @@ function RefundRequestSection({ order, onRefundSuccess }) {
 
     return (
         <>
-            <section className="rounded-[24px] border border-[var(--border-color)] bg-[var(--card-surface-color)] p-6 shadow-[0_18px_60px_rgba(0,0,0,0.18)]">
+            <section className="rounded-[24px] border border-(--border-color) bg-(--card-surface-color) p-6 shadow-[0_18px_60px_rgba(0,0,0,0.18)]">
                 <div className="">
                     <div>
-                        <div className="min-w-0 flex-1">
-                            <div className="mb-5 flex items-center justify-between">
-                                <div className="mb-3 flex items-center gap-2">
-                                    <span className="flex size-9 items-center justify-center rounded-full bg-[var(--soft-surface-color)] text-[var(--primary-color)]">
+                        <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between mb-5">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <span className="flex size-9 items-center justify-center rounded-full bg-(--soft-surface-color) text-(--primary-color)">
                                         <RefreshCcw className="size-4" />
                                     </span>
 
                                     <div>
-                                        <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-[var(--primary-color)]">
+                                        <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-(--primary-color)">
                                             Hoàn vé
                                         </p>
-                                        <h2 className="mt-1 text-xl font-bold text-[var(--text-primary)]">
+                                        <h2 className="mt-1 text-xl font-bold text-(--text-primary)">
                                             Chính sách hoàn vé
                                         </h2>
                                     </div>
@@ -143,55 +143,55 @@ function RefundRequestSection({ order, onRefundSuccess }) {
                                     <button
                                         type="button"
                                         onClick={() => setDialogOpen(true)}
-                                        className="inline-flex h-11 shrink-0 items-center justify-center rounded-full border border-[var(--border-color)] bg-[var(--primary-color)] px-5 text-sm font-bold text-white transition hover:opacity-90"
+                                        className="inline-flex h-11 shrink-0 items-center justify-center rounded-full border border-(--border-color) bg-(--primary-color) px-5 text-sm font-bold text-white transition hover:opacity-90"
                                     >
                                         Yêu cầu hoàn vé
                                     </button>
                                 ) : null}
                             </div>
 
-                            <p className="max-w-2xl text-sm leading-6 text-[var(--muted-text)]">
+                            <p className="max-w-2xl text-sm leading-6 text-(--muted-text)">
                                 Bạn có thể gửi yêu cầu hoàn vé nếu sự kiện chưa
                                 diễn ra. Hệ thống sẽ kiểm tra mã đơn, email và
                                 số điện thoại để bảo mật thông tin đơn hàng.
                             </p>
 
-                            <div className="mt-4 grid gap-3 text-sm sm:grid-cols-3">
-                                <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--soft-surface-color)] p-4">
-                                    <p className="text-xs uppercase tracking-[0.2em] text-[var(--muted-text)]">
+                            <div className="grid gap-3 mt-4 text-sm sm:grid-cols-3">
+                                <div className="rounded-2xl border border-(--border-color) bg-(--soft-surface-color) p-4">
+                                    <p className="text-xs uppercase tracking-[0.2em] text-(--muted-text)">
                                         Trước 3 ngày
                                     </p>
-                                    <p className="mt-2 text-lg font-bold text-[var(--text-primary)]">
+                                    <p className="mt-2 text-lg font-bold text-(--text-primary)">
                                         Hoàn 100%
                                     </p>
                                 </div>
 
-                                <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--soft-surface-color)] p-4">
-                                    <p className="text-xs uppercase tracking-[0.2em] text-[var(--muted-text)]">
+                                <div className="rounded-2xl border border-(--border-color) bg-(--soft-surface-color) p-4">
+                                    <p className="text-xs uppercase tracking-[0.2em] text-(--muted-text)">
                                         Trong 3 ngày
                                     </p>
-                                    <p className="mt-2 text-lg font-bold text-[var(--text-primary)]">
+                                    <p className="mt-2 text-lg font-bold text-(--text-primary)">
                                         Hoàn 50%
                                     </p>
                                 </div>
 
-                                <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--soft-surface-color)] p-4">
-                                    <p className="text-xs uppercase tracking-[0.2em] text-[var(--muted-text)]">
+                                <div className="rounded-2xl border border-(--border-color) bg-(--soft-surface-color) p-4">
+                                    <p className="text-xs uppercase tracking-[0.2em] text-(--muted-text)">
                                         Đến ngày diễn ra
                                     </p>
-                                    <p className="mt-2 text-lg font-bold text-[var(--text-primary)]">
+                                    <p className="mt-2 text-lg font-bold text-(--text-primary)">
                                         Không hoàn
                                     </p>
                                 </div>
                             </div>
 
-                            <div className="mt-4 flex items-start gap-2 rounded-2xl border border-[var(--border-color)] bg-[var(--soft-surface-color)] px-4 py-3">
-                                <ShieldCheck className="mt-0.5 size-4 shrink-0 text-[var(--primary-color)]" />
+                            <div className="mt-4 flex items-start gap-2 rounded-2xl border border-(--border-color) bg-(--soft-surface-color) px-4 py-3">
+                                <ShieldCheck className="mt-0.5 size-4 shrink-0 text-(--primary-color)" />
                                 <div>
-                                    <p className="text-sm font-semibold text-[var(--text-primary)]">
+                                    <p className="text-sm font-semibold text-(--text-primary)">
                                         {refundMeta.statusText}
                                     </p>
-                                    <p className="mt-1 text-sm leading-5 text-[var(--muted-text)]">
+                                    <p className="mt-1 text-sm leading-5 text-(--muted-text)">
                                         {refundMeta.description}
                                     </p>
                                 </div>

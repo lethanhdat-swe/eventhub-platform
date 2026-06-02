@@ -14,7 +14,7 @@ import HeaderProfileButton from './components/HeaderProfileButton/HeaderProfileB
 import MobileMenu from './components/MobileMenu/MobileMenu';
 import { HeaderSearch } from './components/HeaderSearch/HeaderSearch';
 
-const DARK_HERO_ROUTES = ['/', '/events', '/blogs', '/contact'];
+const DARK_HERO_ROUTES = ['/', '/events', '/blogs', '/contact', '/search'];
 
 function Header() {
   const { visible, scrolled } = useHeaderVisibility();
@@ -55,7 +55,7 @@ function Header() {
           <HeaderSearch />
           <HeaderThemeToggle scrolled={scrolled} />
 
-          <div className="hidden items-center gap-4 lg:flex">
+          <div className="items-center hidden gap-4 lg:flex">
             {isAuthenticated ? <HeaderProfileButton /> : <HeaderAuth />}
           </div>
 
@@ -76,7 +76,7 @@ function Header() {
             `}
           >
             <Menu
-              className="h-5 w-5"
+              className="w-5 h-5"
               color={isDarkHero && !scrolled ? 'white' : 'var(--text-primary)'}
             />
           </motion.button>

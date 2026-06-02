@@ -29,7 +29,7 @@ function AdminFilterDropdown({ label, options, value, onChange, contentClassName
       />
       <DropdownMenuContent
         align="end"
-        className={contentClassName ?? 'min-w-[var(--anchor-width)]'}
+        className={contentClassName ?? 'min-w-(--anchor-width)'}
       >
         {options.map((option) => (
           <DropdownMenuItem

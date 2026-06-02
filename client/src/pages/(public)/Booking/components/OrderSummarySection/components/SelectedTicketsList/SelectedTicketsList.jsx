@@ -13,8 +13,8 @@ function SelectedTicketsList({ selectedSeats = [] }) {
   );
 
   return (
-    <div className="rounded-xl border border-(--text-primary)/10 bg-white/[0.025] p-4">
-      <div className="mb-4 flex items-center justify-between gap-3">
+    <div className="rounded-xl border border-(--text-primary)/10 bg-white/2.5 p-4">
+      <div className="flex items-center justify-between gap-3 mb-4">
         <div>
           <p className="text-sm font-semibold text-(--text-primary)">
             Chi tiết vé
@@ -53,7 +53,7 @@ function SelectedTicketsList({ selectedSeats = [] }) {
                 "
               >
                 <div
-                  className="pointer-events-none absolute inset-y-0 left-0 w-1"
+                  className="absolute inset-y-0 left-0 w-1 pointer-events-none"
                   style={{ backgroundColor: ticketColor }}
                 />
 

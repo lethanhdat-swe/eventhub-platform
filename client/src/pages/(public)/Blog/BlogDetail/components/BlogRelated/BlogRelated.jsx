@@ -6,17 +6,17 @@ function BlogRelated({ relatedBlogs = [] }) {
   if (!relatedBlogs.length) return null;
 
   return (
-    <section className="mt-16 border-t border-[var(--border-color)] pt-10">
-      <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+    <section className="mt-16 border-t border-(--border-color) pt-10">
+      <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
         <div>
-          <div className="mb-3 flex items-center gap-2 text-[var(--primary-color)]">
+          <div className="mb-3 flex items-center gap-2 text-(--primary-color)">
             <Sparkles size={16} />
             <p className="text-xs font-black uppercase tracking-[0.24em]">
               Gợi ý cho bạn
             </p>
           </div>
 
-          <h2 className="text-2xl font-black tracking-[-0.035em] text-[var(--text-primary)] md:text-3xl">
+          <h2 className="text-2xl font-black tracking-[-0.035em] text-(--text-primary) md:text-3xl">
             Bài viết liên quan
           </h2>
         </div>
@@ -25,13 +25,13 @@ function BlogRelated({ relatedBlogs = [] }) {
           to="/blogs"
           className="
             group inline-flex items-center gap-2 rounded-full
-            border border-[var(--border-color)]
-            bg-[var(--soft-surface-color)] px-5 py-3
-            text-sm font-black text-[var(--text-primary)]
+            border border-(--border-color)
+            bg-(--soft-surface-color) px-5 py-3
+            text-sm font-black text-(--text-primary)
             transition-all duration-300
             hover:-translate-y-0.5
-            hover:border-[var(--primary-color)]/55
-            hover:bg-[var(--primary-color)]
+            hover:border-(--primary-color)/55
+            hover:bg-(--primary-color)
             hover:text-white
             active:scale-95
           "

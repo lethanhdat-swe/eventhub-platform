@@ -49,7 +49,7 @@ function ContactTable({
 
   return (
     <AdminTableWrapper>
-      <Table className="min-w-[760px]">
+      <Table className="min-w-190">
         <TableHeader>
           <TableRow className="bg-muted/40 hover:bg-muted/40">
             <TableHead className="w-10 px-2 h-9">
@@ -123,7 +123,7 @@ function ContactTable({
                 {contact.phoneNumber ?? '—'}
               </TableCell>
 
-              <TableCell className="px-2 py-1.5 max-w-[260px]">
+              <TableCell className="px-2 py-1.5 max-w-65">
                 <p className="text-sm truncate text-muted-foreground">
                   {contact.message}
                 </p>

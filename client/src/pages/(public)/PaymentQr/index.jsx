@@ -267,7 +267,7 @@ function PaymentQrPage() {
 
   if (!hasPaymentInfo) {
     return (
-      <div className="pt-(--header-height) mx-auto mb-8 flex min-h-[calc(100vh-var(--header-height))] w-full max-w-[760px] items-center px-4 sm:px-5 lg:px-8">
+      <div className="pt-(--header-height) mx-auto mb-8 flex min-h-[calc(100vh-var(--header-height))] w-full max-w-190 items-center px-4 sm:px-5 lg:px-8">
         <section className="w-full rounded-3xl border border-(--text-primary)/10 bg-(--surface-color)/80 p-5 sm:p-6 text-center shadow-[0_24px_80px_rgba(0,0,0,0.10)] lg:p-8">
           <div className="flex items-center justify-center mx-auto size-14 rounded-2xl bg-amber-500/10 text-amber-500">
             <AlertCircle size={28} />
@@ -294,7 +294,7 @@ function PaymentQrPage() {
   }
 
   return (
-    <div className="pt-(--header-height) mx-auto mb-8 w-full max-w-[1320px] px-4 sm:px-5 lg:px-8">
+    <div className="pt-(--header-height) mx-auto mb-8 w-full max-w-330 px-4 sm:px-5 lg:px-8">
       <div className="flex flex-col gap-4 mt-4">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <Link

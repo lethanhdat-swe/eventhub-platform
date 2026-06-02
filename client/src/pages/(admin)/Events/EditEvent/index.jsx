@@ -8,7 +8,7 @@ import { categoryService } from '@/lib/services/admin/categoryService';
 import { eventService } from '@/lib/services/admin/eventService';
 import { artistService } from '@/lib/services/admin/artistService';
 import PageHeader from '@/pages/(admin)/components/PageHeader';
-import EventForm from '@/pages/(admin)/Events/components/EventForm';
+import EventForm from '@/pages/(admin)/Events/components/EventForm/EventForm';
 import {
   buildEventPayload,
   mapEventRow,

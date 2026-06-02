@@ -167,7 +167,7 @@ function Blog() {
               opacity: motionTransition.opacity,
             }}
             className="
-              flex min-h-[220px] items-center justify-center rounded-[24px]
+              flex min-h-55 items-center justify-center rounded-[24px]
               border border-dashed border-red-400/30 bg-red-400/5
               px-5 text-center
             "
@@ -211,13 +211,13 @@ function Blog() {
             initial="hidden"
             animate="show"
             className="
-              flex min-h-[220px] items-center justify-center rounded-[24px]
-              border border-dashed border-[var(--border-color)]
-              bg-[var(--soft-surface-color)]
+              flex min-h-55 items-center justify-center rounded-[24px]
+              border border-dashed border-(--border-color)
+              bg-(--soft-surface-color)
               px-5 text-center
             "
           >
-            <p className="text-sm font-medium text-[var(--muted-text)]">
+            <p className="text-sm font-medium text-(--muted-text)">
               No blogs found.
             </p>
           </motion.div>
@@ -247,33 +247,33 @@ function BlogItemSkeleton() {
   return (
     <div
       className="
-        overflow-hidden rounded-[24px] border border-[var(--border-color)]
-        bg-[var(--card-surface-color)] shadow-[0_18px_50px_rgba(0,0,0,0.12)]
+        overflow-hidden rounded-[24px] border border-(--border-color)
+        bg-(--card-surface-color) shadow-[0_18px_50px_rgba(0,0,0,0.12)]
         backdrop-blur-xl
       "
     >
       <div className="grid gap-0 md:grid-cols-[280px_1fr]">
-        <div className="h-56 animate-pulse bg-[var(--background-color)] md:h-full" />
+        <div className="h-56 animate-pulse bg-(--background-color) md:h-full" />
 
-        <div className="space-y-4 p-5">
+        <div className="p-5 space-y-4">
           <div className="flex items-center gap-3">
-            <div className="h-7 w-24 animate-pulse rounded-full bg-[var(--background-color)]" />
-            <div className="h-4 w-20 animate-pulse rounded-lg bg-[var(--background-color)]" />
+            <div className="h-7 w-24 animate-pulse rounded-full bg-(--background-color)" />
+            <div className="h-4 w-20 animate-pulse rounded-lg bg-(--background-color)" />
           </div>
 
           <div className="space-y-2">
-            <div className="h-6 w-4/5 animate-pulse rounded-lg bg-[var(--background-color)]" />
-            <div className="h-6 w-3/5 animate-pulse rounded-lg bg-[var(--background-color)]" />
+            <div className="h-6 w-4/5 animate-pulse rounded-lg bg-(--background-color)" />
+            <div className="h-6 w-3/5 animate-pulse rounded-lg bg-(--background-color)" />
           </div>
 
           <div className="space-y-2">
-            <div className="h-4 w-full animate-pulse rounded-lg bg-[var(--background-color)]" />
-            <div className="h-4 w-5/6 animate-pulse rounded-lg bg-[var(--background-color)]" />
+            <div className="h-4 w-full animate-pulse rounded-lg bg-(--background-color)" />
+            <div className="h-4 w-5/6 animate-pulse rounded-lg bg-(--background-color)" />
           </div>
 
           <div className="flex items-center justify-between pt-2">
-            <div className="h-9 w-28 animate-pulse rounded-full bg-[var(--background-color)]" />
-            <div className="h-5 w-20 animate-pulse rounded-lg bg-[var(--background-color)]" />
+            <div className="h-9 w-28 animate-pulse rounded-full bg-(--background-color)" />
+            <div className="h-5 w-20 animate-pulse rounded-lg bg-(--background-color)" />
           </div>
         </div>
       </div>

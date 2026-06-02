@@ -9,14 +9,14 @@ function PaymentSuccessPage() {
   const orderLabel = order?.orderCode ? 'Mã đơn hàng' : 'Mã tham chiếu';
 
   return (
-    <div className="relative isolate mx-auto flex min-h-[calc(100vh+160px)] w-full max-w-[1180px] items-center justify-center overflow-hidden px-5 py-[calc(var(--header-height)+48px)] lg:px-8">
+    <div className="relative isolate mx-auto flex min-h-[calc(100vh+160px)] w-full max-w-295 items-center justify-center overflow-hidden px-5 py-[calc(var(--header-height)+48px)] lg:px-8">
       <div className="absolute left-1/2 top-28 -z-10 size-80 -translate-x-1/2 rounded-full bg-(--primary-color)/20 blur-3xl" />
-      <div className="absolute right-12 top-36 -z-10 size-56 rounded-full bg-emerald-500/15 blur-3xl" />
+      <div className="absolute rounded-full right-12 top-36 -z-10 size-56 bg-emerald-500/15 blur-3xl" />
       <div className="absolute bottom-28 left-10 -z-10 size-64 rounded-full bg-(--primary-color)/10 blur-3xl" />
 
-      <section className="relative w-full max-w-[860px] overflow-hidden rounded-3xl border border-(--text-primary)/10 bg-(--surface-color)/90 p-6 text-center shadow-[0_32px_110px_rgba(0,0,0,0.18)] backdrop-blur-xl lg:p-10">
+      <section className="relative w-full max-w-215 overflow-hidden rounded-3xl border border-(--text-primary)/10 bg-(--surface-color)/90 p-6 text-center shadow-[0_32px_110px_rgba(0,0,0,0.18)] backdrop-blur-xl lg:p-10">
         <div className="absolute inset-x-10 top-0 h-px bg-linear-to-r from-transparent via-(--primary-color)/80 to-transparent" />
-        <div className="absolute -right-20 -top-20 size-48 rounded-full bg-emerald-500/10 blur-3xl" />
+        <div className="absolute rounded-full -right-20 -top-20 size-48 bg-emerald-500/10 blur-3xl" />
 
         <div className="mx-auto flex size-24 items-center justify-center rounded-full bg-linear-to-br from-emerald-400/25 via-emerald-500/15 to-(--primary-color)/20 p-2 shadow-[0_24px_70px_rgba(16,185,129,0.22)]">
           <div className="flex size-full items-center justify-center rounded-full border border-emerald-500/25 bg-(--background-color)/80 text-emerald-500">
@@ -51,7 +51,7 @@ function PaymentSuccessPage() {
             </div>
 
             <div className="flex items-start gap-3 border-t border-(--text-primary)/10 pt-4">
-              <div className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-500">
+              <div className="flex items-center justify-center size-10 shrink-0 rounded-2xl bg-emerald-500/10 text-emerald-500">
                 <ShieldCheck size={20} />
               </div>
               <div>
@@ -76,7 +76,7 @@ function PaymentSuccessPage() {
           </div>
         </div>
 
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+        <div className="flex flex-col gap-3 mt-8 sm:flex-row sm:justify-center">
           <Link
             to="/profile"
             className="inline-flex items-center justify-center gap-2 rounded-2xl bg-(--primary-color) px-6 py-3 font-semibold text-white shadow-[0_16px_50px_rgba(124,58,237,0.32)] transition hover:-translate-y-0.5 hover:opacity-90"

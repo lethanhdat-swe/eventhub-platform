@@ -32,7 +32,7 @@ function HeroHome() {
   }, [heroImages.length]);
 
   return (
-    <section className="relative h-[86vh] min-h-[620px] overflow-hidden bg-black md:h-[88vh] md:min-h-[680px] lg:h-screen lg:min-h-180">
+    <section className="relative h-[86vh] min-h-155 overflow-hidden bg-black md:h-[88vh] md:min-h-170 lg:h-screen lg:min-h-180">
       {heroImages.map((image, index) => {
         const isActive = index === activeIndex;
 
@@ -54,7 +54,7 @@ function HeroHome() {
       <div className="absolute inset-0 bg-linear-to-r from-black/90 via-black/55 to-black/25 md:from-black/95 md:via-black/70 md:to-black/35 lg:from-black/90 lg:via-black/55 lg:to-black/25" />
       <div className="absolute inset-0 bg-linear-to-t from-black/70 via-transparent to-black/25 md:from-black/80 md:to-black/30 lg:from-black/70 lg:to-black/25" />
 
-      <div className="relative z-10 flex h-full items-center">
+      <div className="relative z-10 flex items-center h-full">
         <div className="container">
           <HeroTitle />
         </div>

@@ -37,19 +37,19 @@ function PublicEventCard({ event }) {
       className="group relative block overflow-hidden rounded-[28px] border border-(--text-primary)/10 bg-(--surface-color) transition-all duration-300 hover:-translate-y-1 hover:border-(--primary-color)/45 hover:shadow-[0_24px_80px_rgba(124,58,237,0.18)]"
     >
       {/* Image */}
-      <div className="relative h-[250px] overflow-hidden">
+      <div className="relative h-62.5 overflow-hidden">
         <img
           src={imageUrl}
           alt={event.title}
-          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+          className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-105"
         />
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-black/5" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/45 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/35 to-black/5" />
+        <div className="absolute inset-0 bg-linear-to-r from-black/45 via-transparent to-transparent" />
 
         {/* Top badges */}
-        <div className="absolute left-4 right-4 top-4 flex items-start justify-between gap-3">
-          <div className="flex h-[58px] w-[58px] flex-col items-center justify-center rounded-2xl bg-black/50 text-white backdrop-blur-md ring-1 ring-white/10">
+        <div className="absolute flex items-start justify-between gap-3 left-4 right-4 top-4">
+          <div className="flex h-14.5 w-14.5 flex-col items-center justify-center rounded-2xl bg-black/50 text-white backdrop-blur-md ring-1 ring-white/10">
             <span className="text-xl font-black leading-none">{day}</span>
             <span className="mt-1 text-[10px] font-bold tracking-[0.16em] text-white/65">
               {month}
@@ -84,7 +84,7 @@ function PublicEventCard({ event }) {
         </div>
 
         <div className="mt-5 flex items-center justify-between gap-4 border-t border-(--text-primary)/10 pt-4">
-          <div className="flex min-w-0 items-center gap-2">
+          <div className="flex items-center min-w-0 gap-2">
             {visibleArtists.length > 0 ? (
               <div className="flex -space-x-2">
                 {visibleArtists.map((item) => (

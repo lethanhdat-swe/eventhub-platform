@@ -89,10 +89,10 @@ function HeaderProfileButton() {
           disabled={isLoggingOut}
           className="
             group relative grid size-11 place-items-center rounded-full
-            cursor-pointer border border-white/10 bg-white/[0.04]
+            cursor-pointer border border-white/10 bg-white/4
             transition-all duration-300
-            hover:border-[var(--primary-color)]/40
-            hover:bg-[var(--primary-color)]/10
+            hover:border-(--primary-color)/40
+            hover:bg-(--primary-color)/10
             hover:shadow-[0_0_24px_rgba(124,58,237,0.22)]
             active:scale-95
             disabled:pointer-events-none disabled:opacity-50
@@ -121,7 +121,7 @@ function HeaderProfileButton() {
                 src={resolvePublicAssetUrl(user.avatarUrl)}
                 alt={user.fullName}
                 referrerPolicy="no-referrer"
-                className="h-full w-full object-cover"
+                className="object-cover w-full h-full"
               />
             ) : (
               initials
@@ -153,7 +153,7 @@ function HeaderProfileButton() {
               <img
                 src={resolvePublicAssetUrl(user.avatarUrl)}
                 alt={user?.fullName || 'Avatar'}
-                className="h-full w-full object-cover"
+                className="object-cover w-full h-full"
               />
             ) : (
               initials
@@ -161,15 +161,15 @@ function HeaderProfileButton() {
           </div>
 
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-white">
+            <p className="text-sm font-semibold text-white truncate">
               {user?.fullName || 'Người dùng'}
             </p>
 
-            <p className="truncate text-xs text-white/40">{user?.email}</p>
+            <p className="text-xs truncate text-white/40">{user?.email}</p>
           </div>
         </div>
 
-        <div className="my-1 h-px bg-white/10" />
+        <div className="h-px my-1 bg-white/10" />
 
         {/* Profile */}
         <DropdownMenuItem asChild>
@@ -180,9 +180,9 @@ function HeaderProfileButton() {
               px-2.5 py-2 text-sm
               text-white/75
               transition-colors
-              hover:bg-white/[0.06]
+              hover:bg-white/6
               hover:text-white
-              focus:bg-white/[0.06]
+              focus:bg-white/6
             "
           >
             <User size={15} className="text-white/45" />
@@ -200,9 +200,9 @@ function HeaderProfileButton() {
                 px-2.5 py-2 text-sm
                 text-white/75
                 transition-colors
-                hover:bg-white/[0.06]
+                hover:bg-white/6
                 hover:text-white
-                focus:bg-white/[0.06]
+                focus:bg-white/6
               "
             >
               <LayoutDashboard size={15} className="text-white/45" />

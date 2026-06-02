@@ -11,10 +11,10 @@ export function SearchDropdown({ open, value, onChange, onSubmit, inputRef }) {
           exit={{ opacity: 0, y: -8, scale: 0.97 }}
           transition={{ duration: 0.2, ease: 'easeOut' }}
           className="
-            fixed left-3 right-3 top-[68px] z-50
-            sm:absolute sm:left-auto sm:right-0 sm:top-12 sm:w-[380px]
+            fixed left-3 right-3 top-17 z-50
+            sm:absolute sm:left-auto sm:right-0 sm:top-12 sm:w-95
             rounded-2xl sm:rounded-3xl border border-white/10
-            bg-[var(--surface-color)]/90
+            bg-(--surface-color)/90
             p-2.5 sm:p-3
             shadow-[0_20px_80px_rgba(0,0,0,0.45)]
             backdrop-blur-2xl
@@ -28,14 +28,14 @@ export function SearchDropdown({ open, value, onChange, onSubmit, inputRef }) {
               bg-black/20
               px-3 sm:px-4 py-2
               transition-all duration-300
-              focus-within:border-[var(--primary-color)]/50
+              focus-within:border-(--primary-color)/50
               focus-within:shadow-[0_0_30px_rgba(124,58,237,0.18)]
             "
           >
             <Search
               size={16}
               className="
-                shrink-0 text-[var(--primary-color)]
+                shrink-0 text-(--primary-color)
                 transition-transform duration-300
                 group-focus-within:scale-110
               "
@@ -48,7 +48,7 @@ export function SearchDropdown({ open, value, onChange, onSubmit, inputRef }) {
               placeholder="Tìm sự kiện, nghệ sĩ, địa điểm..."
               className="
                 min-w-0 flex-1 bg-transparent
-                text-sm text-[var(--text-primary)]
+                text-sm text-(--text-primary)
                 outline-none
                 placeholder:text-gray-500
               "
@@ -66,10 +66,10 @@ export function SearchDropdown({ open, value, onChange, onSubmit, inputRef }) {
                   onClick={() => onChange('')}
                   className="
                     shrink-0 rounded-full p-1
-                    text-[var(--text-primary)]/40
+                    text-(--text-primary)/40
                     transition-all
                     hover:bg-white/5
-                    hover:text-[var(--text-primary)]
+                    hover:text-(--text-primary)
                   "
                 >
                   <X size={14} />

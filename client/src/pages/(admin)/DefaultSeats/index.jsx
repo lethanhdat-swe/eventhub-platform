@@ -6,10 +6,10 @@ import { getErrorMessage } from '@/lib/http/apiError';
 import { seatService } from '@/lib/services/admin/seatService';
 import { ticketTypeService } from '@/lib/services/admin/ticketTypeService';
 import PageHeader from '@/pages/(admin)/components/PageHeader';
-import AddRowDialog from '@/pages/(admin)/DefaultSeats/components/AddRowDialog';
-import AddSeatDialog from '@/pages/(admin)/DefaultSeats/components/AddSeatDialog';
-import SeatEditDialog from '@/pages/(admin)/DefaultSeats/components/SeatEditDialog';
-import SeatMapCard from '@/pages/(admin)/DefaultSeats/components/SeatMapCard';
+import AddRowDialog from '@/pages/(admin)/DefaultSeats/components/AddRowDialog/AddRowDialog';
+import AddSeatDialog from '@/pages/(admin)/DefaultSeats/components/AddSeatDialog/AddSeatDialog';
+import SeatEditDialog from '@/pages/(admin)/DefaultSeats/components/SeatEditDialog/SeatEditDialog';
+import SeatMapCard from '@/pages/(admin)/DefaultSeats/components/SeatMapCard/SeatMapCard';
 import { toast } from 'sonner';
 
 function DefaultSeats() {

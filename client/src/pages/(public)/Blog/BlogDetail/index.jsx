@@ -8,7 +8,6 @@ import BackButton from './components/BackButton/BackButton';
 import BlogMeta from './components/BlogMeta/BlogMeta';
 import BlogTitle from './components/BlogTitle/BlogTitle';
 import BlogContent from './components/BlogContent/BlogContent';
-import FeedbackActions from './components/FeedbackActions/FeedbackActions';
 import BlogRelated from './components/BlogRelated/BlogRelated';
 
 function formatBlogDate(value) {

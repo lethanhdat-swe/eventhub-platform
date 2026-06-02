@@ -60,7 +60,7 @@ function FeaturedEvents({ events = [], loading = false }) {
       <div className="container overflow-visible">
         <motion.div
           variants={staggerContainerVariants}
-          className="mb-7 flex items-center justify-between gap-4"
+          className="flex items-center justify-between gap-4 mb-7"
         >
           <motion.div
             variants={titleLeftVariants}
@@ -157,11 +157,11 @@ function FeaturedEvents({ events = [], loading = false }) {
             </>
           )}
 
-          <div className="overflow-hidden py-4">
+          <div className="py-4 overflow-hidden">
             {loading ? (
               <motion.div
                 variants={staggerContainerVariants}
-                className="grid grid-cols-1 gap-5 sm:grid-cols-[repeat(2,minmax(0,1fr))] xl:grid-cols-3"
+                className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3"
               >
                 {Array.from({ length: 3 }).map((_, index) => (
                   <motion.div key={index} variants={fadeUpVariants}>
@@ -238,7 +238,7 @@ function FeaturedEvents({ events = [], loading = false }) {
           {!loading && (
             <motion.div
               variants={fadeInVariants}
-              className="featured-pagination mt-5 flex justify-center"
+              className="flex justify-center mt-5 featured-pagination"
             />
           )}
         </motion.div>
@@ -269,7 +269,7 @@ function FeaturedEventSkeleton() {
     <div className="overflow-hidden rounded-[24px] border border-(--text-primary)/10 bg-(--surface-color)">
       <div className="relative h-56 animate-pulse bg-(--background-color)" />
 
-      <div className="space-y-4 p-4">
+      <div className="p-4 space-y-4">
         <div className="h-5 w-3/4 animate-pulse rounded-lg bg-(--background-color)" />
         <div className="h-4 w-1/2 animate-pulse rounded-lg bg-(--background-color)" />
 

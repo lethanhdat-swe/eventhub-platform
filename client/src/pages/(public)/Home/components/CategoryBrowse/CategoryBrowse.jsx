@@ -92,7 +92,7 @@ function CategoryBrowse() {
     <MotionSection className="container mt-16">
       <motion.div
         variants={staggerContainerVariants}
-        className="mb-7 flex items-start justify-between gap-4 md:gap-6"
+        className="flex items-start justify-between gap-4 mb-7 md:gap-6"
       >
         <motion.div
           variants={titleLeftVariants}
@@ -171,8 +171,8 @@ function CategoryCard({ category }) {
 
       <div className="pointer-events-none absolute -top-16 -right-16 h-32 w-32 rounded-full bg-(--primary-color)/12 blur-3xl transition-colors duration-300 group-hover:bg-(--primary-color)/25" />
 
-      <div className="relative z-10 flex min-h-[128px] flex-col">
-        <div className="mb-6 flex items-start justify-between gap-3">
+      <div className="relative z-10 flex flex-col min-h-32">
+        <div className="flex items-start justify-between gap-3 mb-6">
           <motion.div
             whileHover={{ rotate: -4, scale: 1.06 }}
             transition={motionTransition.fast}
@@ -209,8 +209,8 @@ function CategoryCardSkeleton() {
     <div className="relative overflow-hidden rounded-[22px] border border-(--text-primary)/10 bg-(--surface-color) p-5">
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.05)_0%,transparent_42%,rgba(124,58,237,0.12)_100%)]" />
 
-      <div className="relative z-10 flex min-h-[128px] flex-col">
-        <div className="mb-6 flex items-start justify-between gap-3">
+      <div className="relative z-10 flex flex-col min-h-32">
+        <div className="flex items-start justify-between gap-3 mb-6">
           <div className="h-11 w-11 animate-pulse rounded-2xl bg-(--background-color)" />
           <div className="h-6 w-20 animate-pulse rounded-full bg-(--background-color)" />
         </div>

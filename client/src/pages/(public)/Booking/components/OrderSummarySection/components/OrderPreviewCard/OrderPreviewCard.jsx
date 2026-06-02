@@ -40,19 +40,19 @@ function OrderPreviewCard({ event }) {
   const categoryName = event?.category?.name;
 
   return (
-    <div className="rounded-2xl border border-(--text-primary)/10 bg-white/[0.025] p-4 xl:border-r xl:border-(--text-primary)/10">
+    <div className="rounded-2xl border border-(--text-primary)/10 bg-white/2.5 p-4 xl:border-r xl:border-(--text-primary)/10">
       <div className="grid grid-cols-12 gap-4">
         <div className="col-span-4 sm:col-span-3 xl:col-span-4">
           <div className="overflow-hidden rounded-2xl bg-black/20">
             <img
               src={imageUrl}
               alt={event?.title ?? 'Event'}
-              className="aspect-[3/4] h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+              className="object-cover w-full h-full transition-transform duration-500 aspect-3/4 hover:scale-105"
             />
           </div>
         </div>
 
-        <div className="col-span-8 min-w-0 sm:col-span-9 xl:col-span-8">
+        <div className="min-w-0 col-span-8 sm:col-span-9 xl:col-span-8">
           <div className="mb-4">
             <h3 className="line-clamp-2 text-base font-black tracking-tight text-(--text-primary)">
               {event?.title ?? 'Event'}
@@ -75,7 +75,7 @@ function OrderPreviewCard({ event }) {
           </div>
 
           <div className="space-y-3 text-sm">
-            <div className="flex items-start gap-3 rounded-xl bg-black/15 p-3">
+            <div className="flex items-start gap-3 p-3 rounded-xl bg-black/15">
               <Calendar
                 size={17}
                 color="var(--text-primary)"
@@ -92,7 +92,7 @@ function OrderPreviewCard({ event }) {
               </div>
             </div>
 
-            <div className="flex items-start gap-3 rounded-xl bg-black/15 p-3">
+            <div className="flex items-start gap-3 p-3 rounded-xl bg-black/15">
               <MapPin
                 size={17}
                 color="var(--text-primary)"

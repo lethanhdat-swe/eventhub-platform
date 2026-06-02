@@ -44,7 +44,7 @@ function RefundActionDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[460px]">
+            <DialogContent className="sm:max-w-115">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <Icon className={`size-5 ${config?.iconClass ?? ''}`} />
@@ -58,7 +58,7 @@ function RefundActionDialog({
                     </p>
 
                     {refund ? (
-                        <div className="rounded-lg border bg-muted/30 p-3">
+                        <div className="p-3 border rounded-lg bg-muted/30">
                             <div className="grid grid-cols-[120px_1fr] gap-y-2">
                                 <span className="text-muted-foreground">
                                     Mã đơn
@@ -99,7 +99,7 @@ function RefundActionDialog({
                     ) : null}
                 </div>
 
-                <DialogFooter className="-mx-0 -mb-0 flex flex-row flex-nowrap items-center justify-between gap-2">
+                <DialogFooter className="flex flex-row items-center justify-between gap-2 mx-0 mb-0 flex-nowrap">
                     <Button
                         type="button"
                         variant="outline"

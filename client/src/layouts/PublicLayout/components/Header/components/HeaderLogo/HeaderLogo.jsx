@@ -7,7 +7,7 @@ import { getUploadPreviewSrc } from '@/lib/upload/uploadAsset';
 function HeaderLogo({ scrolled }) {
   const [siteSetting, setSiteSetting] = useState({ websiteName: 'EventHub', logoUrl: '' });
   const { pathname } = useLocation();
-  const DARK_HERO_ROUTES = ['/', '/events', '/blogs', '/contact'];
+  const DARK_HERO_ROUTES = ['/', '/events', '/blogs', '/contact', '/search'];
   const isDarkHero = DARK_HERO_ROUTES.includes(pathname);
 
   useEffect(() => {

@@ -16,7 +16,7 @@ function BookingPanel({ selectedSeats = [], onRemove, onClear }) {
 
   return (
     <div className="rounded-xl border border-(--text-primary)/10 bg-(--surface-color) p-4 shadow-xl shadow-black/10">
-      <div className="mb-3 flex items-start justify-between gap-3">
+      <div className="flex items-start justify-between gap-3 mb-3">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.14em] text-(--text-primary)">
             Ghế đã chọn
@@ -35,7 +35,7 @@ function BookingPanel({ selectedSeats = [], onRemove, onClear }) {
       </div>
 
       {selectedSeats.length === 0 ? (
-        <div className="flex min-h-[130px] flex-col items-center justify-center rounded-xl border border-dashed border-(--text-primary)/10 bg-(--background-color)/35 px-4 py-5 text-center">
+        <div className="flex min-h-32.5 flex-col items-center justify-center rounded-xl border border-dashed border-(--text-primary)/10 bg-(--background-color)/35 px-4 py-5 text-center">
           <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-(--primary-color)/10 text-(--primary-color)">
             <Armchair size={18} />
           </div>
@@ -69,7 +69,7 @@ function BookingPanel({ selectedSeats = [], onRemove, onClear }) {
                   "
                 >
                   <div
-                    className="pointer-events-none absolute inset-y-0 left-0 w-1"
+                    className="absolute inset-y-0 left-0 w-1 pointer-events-none"
                     style={{ backgroundColor: ticketColor }}
                   />
 

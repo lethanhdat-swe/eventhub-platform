@@ -79,7 +79,7 @@ export function HeaderSearch() {
           cursor-pointer
           backdrop-blur-xl
           transition-all duration-300
-          hover:border-[var(--primary-color)]/50
+          hover:border-(--primary-color)/50
           hover:shadow-[0_0_30px_rgba(124,58,237,0.2)]
         "
       >
@@ -95,7 +95,7 @@ export function HeaderSearch() {
         <Search
           size={18}
           className="
-            relative z-10 text-[var(--primary-color)]
+            relative z-10 text-(--primary-color)
             transition-transform duration-300
             group-hover:scale-110
           "

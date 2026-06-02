@@ -50,7 +50,7 @@ function Events() {
   };
 
   return (
-    <main className="min-h-screen bg-[var(--background-color)] text-[var(--text-primary)]">
+    <main className="min-h-screen bg-(--background-color) text-(--text-primary)">
       <EventsTitle totalEvents={totalItems} />
 
       <section className="relative">

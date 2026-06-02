@@ -137,7 +137,7 @@ function EventCheckInPage() {
 
     return (
         <div className="px-4 pt-[calc(var(--header-height)+32px)] pb-10 sm:px-8">
-            <div className="mx-auto flex max-w-[1180px] flex-col gap-5">
+            <div className="flex flex-col gap-5 mx-auto max-w-295">
                 <EventHeroSection
                     event={pageData.event}
                     bannerUrl={pageData.bannerUrl}

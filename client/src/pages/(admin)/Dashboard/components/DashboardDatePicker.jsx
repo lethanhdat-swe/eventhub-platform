@@ -65,7 +65,7 @@ function DashboardDatePicker({ value, onChange, className }) {
         }
       >
         <CalendarRange className="size-4 text-muted-foreground" />
-        <span className="max-w-[200px] truncate sm:max-w-[260px]">
+        <span className="truncate max-w-50 sm:max-w-65">
           {rangeLabel}
         </span>
         <ChevronDown className="size-4 text-muted-foreground" />
@@ -147,7 +147,7 @@ function DashboardDatePicker({ value, onChange, className }) {
             <Button
               type="button"
               size="sm"
-              className="h-8 w-full"
+              className="w-full h-8"
               disabled={!draftFrom || !draftTo}
               onClick={handleApplyCustom}
             >

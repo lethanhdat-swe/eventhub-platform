@@ -18,8 +18,8 @@ function AdminLoadingState({ rows = 6, columns = 6, minWidth, className }) {
         <TableHeader>
           <TableRow className="bg-muted/40 hover:bg-muted/40">
             {Array.from({ length: columns }).map((_, index) => (
-              <TableHead key={index} className="h-9 px-2">
-                <Skeleton className="h-4 w-full max-w-[120px]" />
+              <TableHead key={index} className="px-2 h-9">
+                <Skeleton className="w-full h-4 max-w-30" />
               </TableHead>
             ))}
           </TableRow>
@@ -29,7 +29,7 @@ function AdminLoadingState({ rows = 6, columns = 6, minWidth, className }) {
             <TableRow key={rowIndex} className="hover:bg-transparent">
               {Array.from({ length: columns }).map((__, colIndex) => (
                 <TableCell key={colIndex} className="px-2 py-2">
-                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="w-full h-4" />
                 </TableCell>
               ))}
             </TableRow>

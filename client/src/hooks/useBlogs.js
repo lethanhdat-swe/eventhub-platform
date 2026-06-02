@@ -1,0 +1,81 @@
+import { useCallback, useEffect, useState } from 'react';
+import { blogService } from '@/lib/services/blog/blogService';
+import { getErrorMessage } from '@/lib/http/apiError';
+import { mapBlogRow } from '@/pages/(admin)/Blogs/data';
+
+const PAGE_SIZE = 10;
+
+export function useBlogs() {
+  const [blogs, setBlogs] = useState([]);
+  const [searchInput, setSearchInput] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [page, setPage] = useState(1);
+
+  const [meta, setMeta] = useState({
+    totalItems: 0,
+    totalPages: 1,
+    currentPage: 1,
+    itemsPerPage: PAGE_SIZE,
+  });
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchInput.trim());
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch]);
+
+  const loadBlogs = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const payload = await blogService.list({
+        page,
+        limit: PAGE_SIZE,
+        search: debouncedSearch,
+      });
+
+      setBlogs((payload.items ?? []).map(mapBlogRow));
+
+      const m = payload.meta ?? {};
+
+      setMeta({
+        totalItems: m.totalItems ?? 0,
+        totalPages: Math.max(1, m.totalPages ?? 1),
+        currentPage: m.currentPage ?? page,
+        itemsPerPage: m.itemsPerPage ?? PAGE_SIZE,
+      });
+    } catch (e) {
+      setError(getErrorMessage(e));
+      setBlogs([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [page, debouncedSearch]);
+
+  useEffect(() => {
+    void loadBlogs();
+  }, [loadBlogs]);
+
+  return {
+    blogs,
+    meta,
+    page,
+    setPage,
+    searchInput,
+    setSearchInput,
+    isLoading,
+    error,
+    setError,
+    loadBlogs,
+  };
+}
