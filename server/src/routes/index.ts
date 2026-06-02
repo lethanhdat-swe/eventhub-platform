@@ -27,6 +27,7 @@ import aiContentConfigRouter from "./ai-content-config.routes";
 import appSettingRouter from "./app-setting.route";
 import notificationRoute from "./notification.route";
 import refundRoute from "./refund.route";
+import aiChatRouter from "./aiChat.route";
 
 const router = Router();
 
@@ -58,5 +59,6 @@ router.use("/ai-content-config", aiContentConfigRouter);
 router.use("/app-settings", appSettingRouter);
 router.use("/notifications", notificationRoute);
 router.use("/refunds", refundRoute);
+router.use("/ai-chat", aiChatRouter);
 
 export default router;
