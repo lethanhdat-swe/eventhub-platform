@@ -5,11 +5,11 @@ function EventHeroVisual({ event }) {
   const imageUrl = resolvePublicAssetUrl(event?.thumbnailUrl) || images.home;
 
   return (
-    <div className="mx-auto flex h-56 w-full max-w-full items-center justify-center overflow-hidden rounded-xl md:h-72 lg:ml-auto lg:max-w-[460px]">
+    <div className="flex items-center justify-center w-full h-56 max-w-full mx-auto overflow-hidden rounded-xl md:h-72 lg:ml-auto lg:max-w-115">
       <img
         src={imageUrl}
         alt={event?.title ?? 'Event'}
-        className="h-full w-full rounded-xl object-cover transition-transform duration-500 hover:scale-105"
+        className="object-cover w-full h-full transition-transform duration-500 rounded-xl hover:scale-105"
       />
     </div>
   );

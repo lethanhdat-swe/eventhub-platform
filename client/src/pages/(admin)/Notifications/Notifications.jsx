@@ -166,13 +166,13 @@ function AdminNotificationsPage() {
         </div>
       </div>
 
-      <div className="mt-5 min-h-[420px]">
+      <div className="mt-5 min-h-105">
         {isLoading ? (
-          <div className="flex h-[420px] items-center justify-center text-zinc-500">
+          <div className="flex items-center justify-center h-105 text-zinc-500">
             <Loader2 size={24} className="animate-spin" />
           </div>
         ) : notifications.length === 0 ? (
-          <div className="flex h-[420px] flex-col items-center justify-center px-4 text-center">
+          <div className="flex flex-col items-center justify-center px-4 text-center h-105">
             <div className="mb-3 flex h-12! w-12! items-center justify-center rounded-full bg-zinc-100 text-zinc-500">
               <Bell size={22} />
             </div>
@@ -201,7 +201,7 @@ function AdminNotificationsPage() {
                   notification.isRead ? 'bg-white' : 'bg-red-50'
                 } hover:bg-zinc-50`}
               >
-                <div className="min-w-0 flex-1">
+                <div className="flex-1 min-w-0">
                   <div className="mb-1 flex flex-wrap items-center gap-2 text-xs! text-zinc-500">
                     <span className="font-medium text-zinc-700">
                       {notificationTypeLabel[notification.type] || 'Hệ thống'}

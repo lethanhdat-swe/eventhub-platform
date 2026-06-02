@@ -19,7 +19,7 @@ function DetailRow({ label, children }) {
     return (
         <div className="grid grid-cols-[130px_1fr] gap-x-4 gap-y-1 text-sm">
             <span className="text-muted-foreground">{label}</span>
-            <div className="min-w-0 font-medium break-words">{children}</div>
+            <div className="min-w-0 font-medium wrap-break-word">{children}</div>
         </div>
     );
 }
@@ -39,17 +39,17 @@ function RefundDetailDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="flex max-h-[90vh] flex-col gap-0 overflow-hidden p-0 sm:max-w-[520px]">
-                <DialogHeader className="border-b px-5 py-4">
+            <DialogContent className="flex max-h-[90vh] flex-col gap-0 overflow-hidden p-0 sm:max-w-130">
+                <DialogHeader className="px-5 py-4 border-b">
                     <div className="flex items-start justify-between gap-3 pr-6">
                         <DialogTitle>Chi tiết yêu cầu hoàn vé</DialogTitle>
                         <RefundStatusBadge status={refund.status} />
                     </div>
                 </DialogHeader>
 
-                <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-5 py-4">
+                <div className="flex-1 min-h-0 px-5 py-4 space-y-5 overflow-y-auto">
                     <section className="space-y-3">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        <p className="text-xs font-semibold tracking-wide uppercase text-muted-foreground">
                             Đơn hàng
                         </p>
                         <div className="space-y-2.5 rounded-lg border bg-muted/30 p-3">
@@ -66,7 +66,7 @@ function RefundDetailDialog({
                     </section>
 
                     <section className="space-y-3">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        <p className="text-xs font-semibold tracking-wide uppercase text-muted-foreground">
                             Khách hàng
                         </p>
                         <div className="space-y-2.5 rounded-lg border bg-muted/30 p-3">
@@ -83,7 +83,7 @@ function RefundDetailDialog({
                     </section>
 
                     <section className="space-y-3">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        <p className="text-xs font-semibold tracking-wide uppercase text-muted-foreground">
                             Ngân hàng nhận hoàn
                         </p>
                         <div className="space-y-2.5 rounded-lg border bg-muted/30 p-3">
@@ -100,7 +100,7 @@ function RefundDetailDialog({
                     </section>
 
                     <section className="space-y-3">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        <p className="text-xs font-semibold tracking-wide uppercase text-muted-foreground">
                             Hoàn tiền
                         </p>
                         <div className="space-y-2.5 rounded-lg border bg-muted/30 p-3">
@@ -117,10 +117,10 @@ function RefundDetailDialog({
 
                     {refund.note ? (
                         <section className="space-y-3">
-                            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                            <p className="text-xs font-semibold tracking-wide uppercase text-muted-foreground">
                                 Ghi chú
                             </p>
-                            <p className="rounded-lg border bg-muted/30 p-3 text-sm leading-6">
+                            <p className="p-3 text-sm leading-6 border rounded-lg bg-muted/30">
                                 {refund.note}
                             </p>
                         </section>
@@ -139,12 +139,12 @@ function RefundDetailDialog({
                 </div>
 
                 <DialogFooter
-                    className={`-mx-0 -mb-0 flex flex-row flex-nowrap items-center gap-3 border-t bg-muted/20 px-5 py-4 ${
+                    className={`mx-0 mb-0 flex flex-row flex-nowrap items-center gap-3 border-t bg-muted/20 px-5 py-4 ${
                         isPending ? 'justify-between' : 'justify-end'
                     }`}
                 >
                     {isPending ? (
-                        <div className="flex shrink-0 flex-nowrap items-center gap-2">
+                        <div className="flex items-center gap-2 shrink-0 flex-nowrap">
                             <Button
                                 type="button"
                                 className="h-9 gap-1.5"

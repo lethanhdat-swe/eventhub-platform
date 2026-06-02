@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
-import OrderStatusBadge from '@/pages/(admin)/Orders/components/OrderStatusBadge';
+import OrderStatusBadge from '@/pages/(admin)/Orders/components/OrderStatusBadge/OrderStatusBadge';
 import { formatPriceVnd } from '@/pages/(admin)/Orders/data';
 
 function RecentOrdersCard({

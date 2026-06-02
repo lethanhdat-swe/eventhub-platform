@@ -11,7 +11,7 @@ function EventTitle({ event, isLoading }) {
         to="/events"
         className="
           group inline-flex w-fit items-center gap-2 rounded-full
-          border border-(--text-primary)/10 bg-white/[0.03]
+          border border-(--text-primary)/10 bg-white/3
           px-3.5 py-2 text-sm font-medium text-(--text-primary)/65
           transition-all duration-300
           hover:border-(--primary-color)/35 hover:bg-(--primary-color)/10 hover:text-(--text-primary)

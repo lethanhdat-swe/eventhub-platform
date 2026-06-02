@@ -4,12 +4,12 @@ import { Button } from '@/components/ui/button';
 import { getErrorMessage } from '@/lib/http/apiError';
 import { eventService } from '@/lib/services/admin/eventService';
 import { ticketTypeService } from '@/lib/services/admin/ticketTypeService';
-import EventSeatMap from './EventSeatMap';
-import AddRowDialog from './AddRowDialog';
-import AddSeatDialog from './AddSeatDialog';
-import EditSeatDialog from './EditSeatDialog';
-import BulkActions from './BulkActions';
-import TicketTypeLegend from './TicketTypeLegend';
+import EventSeatMap from './components/EventSeatMap/EventSeatMap';
+import AddRowDialog from './components/AddRowDialog/AddRowDialog';
+import AddSeatDialog from './components/AddSeatDialog/AddSeatDialog';
+import EditSeatDialog from './components/EditSeatDialog/EditSeatDialog';
+import BulkActions from './components/BulkActions/BulkActions';
+import TicketTypeLegend from './components/TicketTypeLegend/TicketTypeLegend';
 
 export default function EventSeats({ eventId }) {
   const [seats, setSeats] = useState([]);
@@ -177,7 +177,7 @@ export default function EventSeats({ eventId }) {
           />
         </div>
 
-        <div className="w-48 hidden md:block">
+        <div className="hidden w-48 md:block">
           <TicketTypeLegend ticketTypes={ticketTypes} />
         </div>
       </div>
@@ -198,7 +198,7 @@ export default function EventSeats({ eventId }) {
             className="h-10 px-4"
             onClick={() => setAddRowOpen(true)}
           >
-            <Plus className="mr-2 h-4 w-4" />
+            <Plus className="w-4 h-4 mr-2" />
             Thêm hàng
           </Button>
           <Button
@@ -207,7 +207,7 @@ export default function EventSeats({ eventId }) {
             className="h-10 px-4"
             onClick={() => setAddSeatOpen(true)}
           >
-            <Plus className="mr-2 h-4 w-4" />
+            <Plus className="w-4 h-4 mr-2" />
             Thêm ghế
           </Button>
         </div>

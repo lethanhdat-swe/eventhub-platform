@@ -72,7 +72,7 @@ export default function AIModelCard({
           </SelectValue>
         </SelectTrigger>
 
-        <SelectContent className="max-h-[400px]">
+        <SelectContent className="max-h-100">
           <SelectGroup>
             <SelectLabel>
               Danh sách AI Models

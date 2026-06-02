@@ -91,29 +91,29 @@ function EventFilters({ onApply }) {
   return (
     <aside
       className="
-        rounded-[24px] border border-[var(--border-color)]
-        bg-[var(--card-surface-color)] p-4
+        rounded-[24px] border border-(--border-color)
+        bg-(--card-surface-color) p-4
         shadow-[0_20px_60px_rgba(0,0,0,0.22)]
         backdrop-blur-xl
       "
     >
-      <div className="mb-5 flex items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-3 mb-5">
         <div className="flex items-center gap-3">
           <div
             className="
               flex size-9 items-center justify-center rounded-xl
-              bg-[var(--primary-color)]/12 text-[var(--primary-color)]
+              bg-(--primary-color)/12 text-(--primary-color)
             "
           >
             <SlidersHorizontal size={16} />
           </div>
 
           <div>
-            <h2 className="text-base font-black text-[var(--text-primary)]">
+            <h2 className="text-base font-black text-(--text-primary)">
               Bộ lọc
             </h2>
 
-            <p className="mt-0.5 text-xs font-medium text-[var(--muted-text)]">
+            <p className="mt-0.5 text-xs font-medium text-(--muted-text)">
               Tìm sự kiện phù hợp
             </p>
           </div>
@@ -124,8 +124,8 @@ function EventFilters({ onApply }) {
           onClick={handleClearAll}
           className="
             inline-flex items-center gap-1.5 rounded-full px-3 py-2
-            text-xs font-bold text-[var(--primary-color)]
-            transition hover:bg-[var(--primary-color)]/10
+            text-xs font-bold text-(--primary-color)
+            transition hover:bg-(--primary-color)/10
             active:scale-95
           "
         >
@@ -136,19 +136,19 @@ function EventFilters({ onApply }) {
 
       <div className="space-y-5">
         <div>
-          <label className="mb-2 block text-sm font-bold text-[var(--text-primary)]">
+          <label className="mb-2 block text-sm font-bold text-(--text-primary)">
             Tìm kiếm
           </label>
 
           <div
             className="
-              flex items-center gap-3 rounded-xl border border-[var(--border-color)]
-              bg-[var(--soft-surface-color)] px-3.5 py-3
-              transition focus-within:border-[var(--primary-color)]/60
-              focus-within:ring-4 focus-within:ring-[var(--primary-color)]/10
+              flex items-center gap-3 rounded-xl border border-(--border-color)
+              bg-(--soft-surface-color) px-3.5 py-3
+              transition focus-within:border-(--primary-color)/60
+              focus-within:ring-4 focus-within:ring-(--primary-color)/10
             "
           >
-            <Search size={18} className="shrink-0 text-[var(--muted-text)]" />
+            <Search size={18} className="shrink-0 text-(--muted-text)" />
 
             <input
               type="text"
@@ -156,35 +156,35 @@ function EventFilters({ onApply }) {
               onChange={(event) => updateSearch(event.target.value)}
               placeholder="Tên sự kiện..."
               className="
-                w-full bg-transparent text-sm font-medium text-[var(--text-primary)]
-                outline-none placeholder:text-[var(--muted-text)]
+                w-full bg-transparent text-sm font-medium text-(--text-primary)
+                outline-none placeholder:text-(--muted-text)
               "
             />
           </div>
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-bold text-[var(--text-primary)]">
+          <label className="mb-2 block text-sm font-bold text-(--text-primary)">
             Thời gian
           </label>
 
           <div className="space-y-3">
             <div
               className="
-                rounded-xl border border-[var(--border-color)]
-                bg-[var(--soft-surface-color)] px-3.5 py-3
-                transition focus-within:border-[var(--primary-color)]/60
-                focus-within:ring-4 focus-within:ring-[var(--primary-color)]/10
+                rounded-xl border border-(--border-color)
+                bg-(--soft-surface-color) px-3.5 py-3
+                transition focus-within:border-(--primary-color)/60
+                focus-within:ring-4 focus-within:ring-(--primary-color)/10
               "
             >
-              <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--muted-text)]">
+              <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-(--muted-text)">
                 Từ ngày
               </p>
 
               <div className="flex items-center gap-3">
                 <CalendarDays
                   size={16}
-                  className="shrink-0 text-[var(--primary-color)]"
+                  className="shrink-0 text-(--primary-color)"
                 />
 
                 <input
@@ -194,7 +194,7 @@ function EventFilters({ onApply }) {
                     updateDate('startDate', event.target.value)
                   }
                   className="
-                    w-full bg-transparent text-sm font-bold text-[var(--text-primary)]
+                    w-full bg-transparent text-sm font-bold text-(--text-primary)
                     outline-none [color-scheme:var(--color-scheme)]
                     [&::-webkit-calendar-picker-indicator]:cursor-pointer
                     [&::-webkit-calendar-picker-indicator]:opacity-60
@@ -205,20 +205,20 @@ function EventFilters({ onApply }) {
 
             <div
               className="
-                rounded-xl border border-[var(--border-color)]
-                bg-[var(--soft-surface-color)] px-3.5 py-3
-                transition focus-within:border-[var(--primary-color)]/60
-                focus-within:ring-4 focus-within:ring-[var(--primary-color)]/10
+                rounded-xl border border-(--border-color)
+                bg-(--soft-surface-color) px-3.5 py-3
+                transition focus-within:border-(--primary-color)/60
+                focus-within:ring-4 focus-within:ring-(--primary-color)/10
               "
             >
-              <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--muted-text)]">
+              <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-(--muted-text)">
                 Đến ngày
               </p>
 
               <div className="flex items-center gap-3">
                 <CalendarDays
                   size={16}
-                  className="shrink-0 text-[var(--primary-color)]"
+                  className="shrink-0 text-(--primary-color)"
                 />
 
                 <input
@@ -228,7 +228,7 @@ function EventFilters({ onApply }) {
                     updateDate('endDate', event.target.value)
                   }
                   className="
-                    w-full bg-transparent text-sm font-bold text-[var(--text-primary)]
+                    w-full bg-transparent text-sm font-bold text-(--text-primary)
                     outline-none [color-scheme:var(--color-scheme)]
                     [&::-webkit-calendar-picker-indicator]:cursor-pointer
                     [&::-webkit-calendar-picker-indicator]:opacity-60
@@ -240,7 +240,7 @@ function EventFilters({ onApply }) {
         </div>
 
         <div>
-          <label className="mb-2.5 block text-sm font-bold text-[var(--text-primary)]">
+          <label className="mb-2.5 block text-sm font-bold text-(--text-primary)">
             Danh mục
           </label>
 
@@ -261,8 +261,8 @@ function EventFilters({ onApply }) {
                       border px-3.5 py-3 text-left transition-all duration-300
                       ${
                         isSelected
-                          ? 'border-[var(--primary-color)]/60 bg-[var(--primary-color)]/14 text-[var(--text-primary)]'
-                          : 'border-[var(--border-color)] bg-[var(--soft-surface-color)] text-[var(--muted-text)] hover:border-[var(--primary-color)]/35 hover:text-[var(--text-primary)]'
+                          ? 'border-(--primary-color)/60 bg-(--primary-color)/14 text-(--text-primary)'
+                          : 'border-(--border-color) bg-(--soft-surface-color) text-(--muted-text) hover:border-(--primary-color)/35 hover:text-(--text-primary)'
                       }
                     `}
                   >
@@ -273,8 +273,8 @@ function EventFilters({ onApply }) {
                         flex size-5 items-center justify-center rounded-md border
                         ${
                           isSelected
-                            ? 'border-[var(--primary-color)] bg-[var(--primary-color)] text-white'
-                            : 'border-[var(--border-color)] text-transparent'
+                            ? 'border-(--primary-color) bg-(--primary-color) text-white'
+                            : 'border-(--border-color) text-transparent'
                         }
                       `}
                     >
@@ -286,8 +286,8 @@ function EventFilters({ onApply }) {
             ) : (
               <p
                 className="
-                  rounded-xl border border-dashed border-[var(--border-color)]
-                  px-4 py-5 text-center text-sm font-medium text-[var(--muted-text)]
+                  rounded-xl border border-dashed border-(--border-color)
+                  px-4 py-5 text-center text-sm font-medium text-(--muted-text)
                 "
               >
                 Chưa có danh mục.
@@ -301,7 +301,7 @@ function EventFilters({ onApply }) {
           onClick={handleApply}
           className="
             inline-flex w-full items-center justify-center rounded-xl
-            bg-[var(--primary-color)] px-5 py-3.5
+            bg-(--primary-color) px-5 py-3.5
             text-sm font-black text-white
             shadow-[0_14px_38px_rgba(124,58,237,0.32)]
             transition-all duration-300

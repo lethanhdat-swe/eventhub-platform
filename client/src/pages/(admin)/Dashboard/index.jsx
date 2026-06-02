@@ -81,7 +81,7 @@ function Dashboard() {
 
       {error ? (
         <div
-          className="flex flex-col gap-2 rounded-lg border border-destructive/25 bg-destructive/5 px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
+          className="flex flex-col gap-2 px-3 py-2 border rounded-lg border-destructive/25 bg-destructive/5 sm:flex-row sm:items-center sm:justify-between"
           role="alert"
         >
           <p className="text-sm text-destructive">{error}</p>
@@ -100,7 +100,7 @@ function Dashboard() {
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {isLoading && stats.length === 0
           ? Array.from({ length: 4 }).map((_, index) => (
-              <Skeleton key={index} className="h-[108px] rounded-xl" />
+              <Skeleton key={index} className="h-27 rounded-xl" />
             ))
           : stats.map((stat) => (
               <StatsCard

@@ -36,8 +36,6 @@ import PaymentTransactions from '@/pages/(admin)/PaymentTransactions';
 import Tickets from '@/pages/(admin)/Tickets';
 import Coupons from '@/pages/(admin)/Coupons';
 import Blogs from '@/pages/(admin)/Blogs';
-import CreateBlog from '@/pages/(admin)/Blogs/CreateBlog';
-import EditBlog from '@/pages/(admin)/Blogs/EditBlog';
 import BlogCategories from '@/pages/(admin)/BlogCategories';
 import CheckIn from '@/pages/(admin)/CheckIn';
 import CheckInLogs from '@/pages/(admin)/CheckInLogs';
@@ -52,6 +50,9 @@ import AdminNotificationsPage from './pages/(admin)/Notifications/Notifications'
 import NotFound from './pages/(public)/NotFound/NotFound';
 import Refunds from './pages/(admin)/Refunds';
 import AdminAIChatPage from '@/pages/(admin)/AIChat';
+import CreateBlog from './pages/(admin)/Blogs/components/CreateBlog';
+import EditBlog from './pages/(admin)/Blogs/components/EditBlog';
+
 
 function App() {
     return (

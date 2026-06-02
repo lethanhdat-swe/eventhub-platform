@@ -1,392 +1,122 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import { Link, useNavigate } from 'react-router-dom';
-
-import { Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
-
-import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
-  CardTitle,
 } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
 import { isAdminUser } from '@/lib/auth/authRole';
-import { signInWithGoogle } from '@/lib/firebase/googleAuth';
-import { parseApiError } from '@/lib/http/apiError';
-import { getApiData } from '@/lib/http/unwrapApiSuccess';
-import { authService } from '@/lib/services/auth';
 import { useAuthStore } from '@/stores/authStore';
-import GoogleAuthButton from '../components/GoogleAuthButton/GoogleAuthButton';
+import { useLogin } from '@/hooks/useLogin';
+import { validateLoginForm } from '@/utils/loginValidation';
+import LoginHeader from './components/LoginHeader/LoginHeader';
+import LoginErrorAlert from './components/LoginErrorAlert/LoginErrorAlert';
+import LoginForm from './components/LoginForm/LoginForm';
+import SocialLoginSection from './components/SocialLoginSection/SocialLoginSection';
 
-function isValidEmail(value) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-}
-
-function normalizeMessage(message) {
-  return String(message || '')
-    .trim()
-    .toLowerCase();
-}
-
-function mapLoginApiError(error) {
-  const parsed = parseApiError(error);
-  const status = parsed.status;
-  const rawMessage = parsed.message || '';
-  const msg = normalizeMessage(rawMessage);
-
-  if (status === 400) {
-    if (msg.includes('email') && msg.includes('required')) {
-      return 'Vui lòng nhập email.';
-    }
-
-    if (msg.includes('password') && msg.includes('required')) {
-      return 'Vui lòng nhập mật khẩu.';
-    }
-
-    if (msg.includes('does not support password login')) {
-      return 'Tài khoản này không hỗ trợ đăng nhập bằng mật khẩu. Vui lòng đăng nhập bằng Google.';
-    }
-
-    return 'Thông tin đăng nhập không hợp lệ. Vui lòng kiểm tra lại.';
-  }
-
-  if (status === 401) {
-    if (msg.includes('invalid email or password')) {
-      return 'Email hoặc mật khẩu không đúng.';
-    }
-
-    if (msg.includes('invalid password')) {
-      return 'Mật khẩu không đúng.';
-    }
-
-    if (msg.includes('user not found') || msg.includes('account not found')) {
-      return 'Tài khoản không tồn tại.';
-    }
-
-    return 'Email hoặc mật khẩu không đúng.';
-  }
-
-  if (status === 403) {
-    if (
-      msg.includes('verify your email') ||
-      msg.includes('email is not verified') ||
-      msg.includes('email not verified')
-    ) {
-      return 'Vui lòng xác thực email trước khi đăng nhập. Kiểm tra hộp thư và bấm liên kết kích hoạt tài khoản.';
-    }
-
-    if (msg.includes('blocked') || msg.includes('disabled')) {
-      return 'Tài khoản của bạn đang bị khóa hoặc không còn hoạt động.';
-    }
-
-    return 'Bạn không có quyền đăng nhập vào hệ thống.';
-  }
-
-  if (status === 404) {
-    return 'Tài khoản không tồn tại.';
-  }
-
-  if (status >= 500) {
-    return 'Hệ thống đang gặp sự cố. Vui lòng thử lại sau.';
-  }
-
-  return rawMessage || 'Đăng nhập thất bại. Vui lòng thử lại.';
-}
-
-function mapGoogleLoginError(error) {
-  const code = error?.code || '';
-
-  if (code === 'auth/popup-closed-by-user') {
-    return 'Bạn đã đóng cửa sổ đăng nhập Google.';
-  }
-
-  if (code === 'auth/cancelled-popup-request') {
-    return 'Yêu cầu đăng nhập Google đã bị hủy.';
-  }
-
-  if (code === 'auth/popup-blocked') {
-    return 'Trình duyệt đã chặn cửa sổ đăng nhập Google. Vui lòng cho phép popup và thử lại.';
-  }
-
-  if (code === 'auth/network-request-failed') {
-    return 'Không thể kết nối tới Google. Vui lòng kiểm tra mạng và thử lại.';
-  }
-
-  const parsed = parseApiError(error);
-  const status = parsed.status;
-  const rawMessage = parsed.message || '';
-  const msg = normalizeMessage(rawMessage);
-
-  if (status === 400) {
-    if (msg.includes('id token')) {
-      return 'Phiên đăng nhập Google không hợp lệ. Vui lòng thử lại.';
-    }
-
-    return 'Đăng nhập Google không hợp lệ. Vui lòng thử lại.';
-  }
-
-  if (status === 401) {
-    return 'Không thể xác thực tài khoản Google. Vui lòng thử lại.';
-  }
-
-  if (status === 403) {
-    if (msg.includes('mismatch')) {
-      return 'Tài khoản Google không khớp với tài khoản đã liên kết.';
-    }
-
-    if (msg.includes('blocked') || msg.includes('disabled')) {
-      return 'Tài khoản của bạn đang bị khóa hoặc không còn hoạt động.';
-    }
-
-    return 'Bạn không có quyền đăng nhập bằng Google.';
-  }
-
-  if (status >= 500) {
-    return 'Hệ thống đang gặp sự cố. Vui lòng thử lại sau.';
-  }
-
-  if (msg.includes('google account mismatch')) {
-    return 'Tài khoản Google không khớp với tài khoản đã liên kết.';
-  }
-
-  return rawMessage || 'Đăng nhập Google thất bại. Vui lòng thử lại.';
-}
 
 function LoginPage() {
-  const setAuth = useAuthStore((s) => s.setAuth);
   const navigate = useNavigate();
+
+  const setAuth = useAuthStore((state) => state.setAuth);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
-
-  const [apiError, setApiError] = useState('');
   const [errors, setErrors] = useState({
     email: '',
     password: '',
   });
 
-  function redirectAfterLogin(data) {
+  const redirectAfterLogin = (data) => {
     if (isAdminUser(data.user)) {
-      navigate('/admin/dashboard', { replace: true });
-    } else {
-      navigate('/', { replace: true });
-    }
-  }
-
-  function validate() {
-    const next = { email: '', password: '' };
-
-    if (!email.trim()) {
-      next.email = 'Vui lòng nhập email.';
-    } else if (!isValidEmail(email)) {
-      next.email = 'Email không hợp lệ.';
+      navigate('/admin/dashboard', {
+        replace: true,
+      });
+      return;
     }
 
-    if (!password) {
-      next.password = 'Vui lòng nhập mật khẩu.';
-    }
+    navigate('/', {
+      replace: true,
+    });
+  };
 
-    setErrors(next);
+  const {
+    login,
+    googleLogin,
+    loading,
+    googleLoading,
+    apiError,
+    setApiError,
+  } = useLogin(setAuth, redirectAfterLogin);
 
-    if (next.email || next.password) {
-      toast.error('Vui lòng kiểm tra lại thông tin đăng nhập.');
-      return false;
-    }
-
-    return true;
-  }
-
-  async function handleSubmit(event) {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (!validate()) return;
+    const validationErrors = validateLoginForm(
+      email,
+      password
+    );
 
-    setApiError('');
-    setLoading(true);
+    setErrors(validationErrors);
 
-    try {
-      const body = await authService.login({
-        email: email.trim(),
-        password,
-      });
-
-      const data = getApiData(body);
-
-      setAuth(data);
-
-      toast.success('Đăng nhập thành công.');
-
-      redirectAfterLogin(data);
-    } catch (e) {
-      const message = mapLoginApiError(e);
-
-      setApiError(message);
-      toast.error(message);
-    } finally {
-      setLoading(false);
+    if (
+      validationErrors.email ||
+      validationErrors.password
+    ) {
+      return;
     }
-  }
 
-  async function handleGoogleLogin() {
-    setApiError('');
-    setGoogleLoading(true);
-
-    try {
-      const { idToken } = await signInWithGoogle();
-
-      const body = await authService.googleLogin({ idToken });
-
-      const data = getApiData(body);
-
-      setAuth(data);
-
-      toast.success('Đăng nhập Google thành công.');
-
-      redirectAfterLogin(data);
-    } catch (e) {
-      const message = mapGoogleLoginError(e);
-
-      setApiError(message);
-      toast.error(message);
-    } finally {
-      setGoogleLoading(false);
-    }
-  }
+    await login({
+      email: email.trim(),
+      password,
+    });
+  };
 
   return (
-    <div className="w-full max-w-[520px]">
+    <div className="w-full max-w-130">
       <Card className="rounded-3xl border border-(--border-color) bg-(--card-surface-color) shadow-[0_20px_70px_rgba(0,0,0,0.16)] backdrop-blur-xl">
         <CardHeader className="pb-3 text-center px-7 pt-7">
-          <CardTitle className="text-2xl font-black text-(--text-primary)">
-            Đăng nhập
-          </CardTitle>
-
-          <CardDescription className="mt-2 text-sm text-(--muted-text)">
-            Chào mừng bạn quay lại EventHub.
-          </CardDescription>
+          <LoginHeader />
         </CardHeader>
 
         <CardContent className="space-y-5 px-7 pb-7">
-          {apiError && (
-            <p
-              className="px-4 py-3 text-sm text-red-500 rounded-xl bg-red-500/10"
-              role="alert"
-            >
-              {apiError}
-            </p>
-          )}
+          <LoginErrorAlert message={apiError} />
 
-          <form className="space-y-4" noValidate onSubmit={handleSubmit}>
-            <div className="space-y-2.5">
-              <Label
-                htmlFor="login-email"
-                className="text-sm font-semibold text-(--text-primary)"
-              >
-                Email
-              </Label>
+          <LoginForm
+            email={email}
+            password={password}
+            errors={errors}
+            loading={loading}
+            googleLoading={googleLoading}
+            onSubmit={handleSubmit}
+            onEmailChange={(value) => {
+              setEmail(value);
+              setApiError('');
 
-              <Input
-                aria-invalid={Boolean(errors.email)}
-                autoComplete="email"
-                id="login-email"
-                name="email"
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  setErrors((prev) => ({ ...prev, email: '' }));
-                  setApiError('');
-                }}
-                placeholder="ban@vidu.com"
-                type="email"
-                value={email}
-                className="h-[52px] rounded-2xl border-(--border-color) bg-(--soft-surface-color) px-4 text-(--text-primary) placeholder:text-(--muted-text)"
-              />
+              setErrors((prev) => ({
+                ...prev,
+                email: '',
+              }));
+            }}
+            onPasswordChange={(value) => {
+              setPassword(value);
+              setApiError('');
 
-              {errors.email && (
-                <p className="text-xs text-red-500">{errors.email}</p>
-              )}
-            </div>
-
-            <div className="space-y-2.5">
-              <div className="flex items-center justify-between">
-                <Label
-                  htmlFor="login-password"
-                  className="text-sm font-semibold text-(--text-primary)"
-                >
-                  Mật khẩu
-                </Label>
-
-                <Link
-                  to="/forgot-password"
-                  className="text-xs font-semibold text-(--primary-color)"
-                >
-                  Quên mật khẩu?
-                </Link>
-              </div>
-
-              <Input
-                aria-invalid={Boolean(errors.password)}
-                autoComplete="current-password"
-                id="login-password"
-                name="password"
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  setErrors((prev) => ({ ...prev, password: '' }));
-                  setApiError('');
-                }}
-                type="password"
-                value={password}
-                className="h-[52px] rounded-2xl border-(--border-color) bg-(--soft-surface-color) px-4 text-(--text-primary)"
-              />
-
-              {errors.password && (
-                <p className="text-xs text-red-500">{errors.password}</p>
-              )}
-            </div>
-
-            <Button
-              className="h-[52px] w-full rounded-2xl bg-(--primary-color) font-bold text-white hover:bg-(--primary-color)"
-              disabled={loading || googleLoading}
-              type="submit"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="animate-spin" />
-                  Đang đăng nhập…
-                </>
-              ) : (
-                'Đăng nhập'
-              )}
-            </Button>
-          </form>
-
-          <div className="flex items-center gap-3">
-            <Separator className="flex-1 bg-(--border-color)" />
-            <span className="text-xs text-(--muted-text)">hoặc</span>
-            <Separator className="flex-1 bg-(--border-color)" />
-          </div>
-
-          <GoogleAuthButton
-            label={googleLoading ? 'Đang đăng nhập…' : 'Tiếp tục với Google'}
-            loading={googleLoading}
-            disabled={loading}
-            onClick={handleGoogleLogin}
+              setErrors((prev) => ({
+                ...prev,
+                password: '',
+              }));
+            }}
           />
 
-          <p className="text-center text-sm text-(--muted-text)">
-            Chưa có tài khoản?{' '}
-            <Link to="/register" className="font-bold text-(--primary-color)">
-              Đăng ký ngay
-            </Link>
-          </p>
+          <SocialLoginSection
+            loading={googleLoading}
+            disabled={loading}
+            onGoogleLogin={googleLogin}
+          />
+
         </CardContent>
       </Card>
     </div>

@@ -151,15 +151,15 @@ function TicketOrder() {
           to="/my-tickets"
           className="
           inline-flex items-center justify-center gap-2
-          rounded-full border border-[var(--border-color)]
-          bg-[var(--card-surface-color)]
+          rounded-full border border-(--border-color)
+          bg-(--card-surface-color)
           px-4 py-2.5
-          text-sm font-medium text-[var(--text-primary)]
+          text-sm font-medium text-(--text-primary)
           shadow-[0_14px_35px_rgba(0,0,0,0.16)]
           transition-all duration-300
-          hover:border-[var(--primary-color)]/50
-          hover:bg-[var(--soft-surface-color)]
-          hover:text-[var(--primary-color)]
+          hover:border-(--primary-color)/50
+          hover:bg-(--soft-surface-color)
+          hover:text-(--primary-color)
           active:scale-95
         "
         >
@@ -178,7 +178,7 @@ function TicketOrder() {
           ))}
         </div>
       ) : error ? (
-        <div className="rounded-3xl border border-red-500/20 bg-red-500/10 p-5 text-sm text-red-300">
+        <div className="p-5 text-sm text-red-300 border rounded-3xl border-red-500/20 bg-red-500/10">
           {error}
         </div>
       ) : visibleOrders.length === 0 ? (

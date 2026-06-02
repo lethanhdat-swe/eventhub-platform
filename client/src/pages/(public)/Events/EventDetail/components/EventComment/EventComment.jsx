@@ -6,6 +6,7 @@ import { uploadImages } from '@/lib/services/upload/uploadService';
 import { useAuthStore } from '@/stores/authStore';
 
 import CommentItem from './components/CommentItem/CommentItem';
+import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
 
 const MAX_COMMENT_IMAGES = 5;
 const MAX_IMAGE_SIZE_MB = 5;
@@ -146,7 +147,7 @@ function EventComment({
 
   return (
     <section className="mt-6 border-t border-(--border-color) pt-6 sm:mt-8 sm:pt-8">
-      <div className="mb-4 flex items-end justify-between gap-3 sm:mb-5 sm:gap-4">
+      <div className="flex items-end justify-between gap-3 mb-4 sm:mb-5 sm:gap-4">
         <div>
           <p className="mb-1.5 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-(--primary-color) sm:mb-2 sm:text-xs">
             <MessageCircle size={13} className="sm:hidden" />
@@ -169,7 +170,7 @@ function EventComment({
           <div className="flex items-start gap-3">
             {user?.avatarUrl ? (
               <img
-                src={user.avatarUrl}
+                src={resolvePublicAssetUrl(user.avatarUrl)}
                 alt={user.name}
                 referrerPolicy="no-referrer"
                 className="h-9 w-9 shrink-0 rounded-full object-cover ring-2 ring-(--border-color) sm:h-11 sm:w-11"
@@ -180,7 +181,7 @@ function EventComment({
               </div>
             )}
 
-            <div className="min-w-0 flex-1 space-y-3">
+            <div className="flex-1 min-w-0 space-y-3">
               <div className="flex items-center gap-1.5 pb-2">
                 {[1, 2, 3, 4, 5].map((star) => {
                   const isActive = star <= rating;
@@ -191,7 +192,7 @@ function EventComment({
                       type="button"
                       onClick={() => setRating(star)}
                       disabled={loading}
-                      className="cursor-pointer transition-transform hover:scale-110 active:scale-90 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="transition-transform cursor-pointer hover:scale-110 active:scale-90 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <Star
                         size={24}
@@ -230,14 +231,14 @@ function EventComment({
                       <img
                         src={image.url}
                         alt=""
-                        className="h-full w-full object-cover"
+                        className="object-cover w-full h-full"
                       />
 
                       <button
                         type="button"
                         onClick={() => handleRemoveImage(index)}
                         disabled={loading}
-                        className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/70 text-white disabled:cursor-not-allowed disabled:opacity-50"
+                        className="absolute flex items-center justify-center w-5 h-5 text-white rounded-full right-1 top-1 bg-black/70 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         <X size={12} />
                       </button>
@@ -247,7 +248,7 @@ function EventComment({
               )}
 
               {errorMessage && (
-                <p className="rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-xs font-medium text-red-400">
+                <p className="px-3 py-2 text-xs font-medium text-red-400 border rounded-lg border-red-500/20 bg-red-500/10">
                   {errorMessage}
                 </p>
               )}

@@ -39,7 +39,7 @@ function Limit() {
             ease: 'linear',
             repeat: Infinity,
           }}
-          className="pointer-events-none absolute inset-0 opacity-60"
+          className="absolute inset-0 pointer-events-none opacity-60"
           style={{
             backgroundSize: '220% 220%',
             backgroundImage:
@@ -78,7 +78,7 @@ function Limit() {
                 Giảm 20% cho đơn hàng đầu tiên
               </h2>
 
-              <p className="mt-2 max-w-xl text-sm leading-6 text-[var(--muted-text)]">
+              <p className="mt-2 max-w-xl text-sm leading-6 text-(--muted-text)">
                 Đăng ký hôm nay và mở khóa các ưu đãi độc quyền cho các sự kiện
                 bạn yêu thích.
               </p>
@@ -96,7 +96,7 @@ function Limit() {
                   shadow-[0_14px_36px_rgba(124,58,237,0.26)]
                   transition-[filter,box-shadow] duration-300
                   hover:brightness-110
-                  lg:w-auto lg:min-w-[150px]
+                  lg:w-auto lg:min-w-37.5
                 "
               >
                 Đăng ký ngay

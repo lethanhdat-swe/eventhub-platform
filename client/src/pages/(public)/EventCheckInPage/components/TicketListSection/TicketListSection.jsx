@@ -10,7 +10,7 @@ function TicketListSection({
 }) {
   return (
     <section className="rounded-3xl border border-(--text-primary)/10 bg-(--text-primary)/4 p-4 backdrop-blur-xl sm:p-5">
-      <div className="mb-4 flex items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-3 mb-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-(--primary-color)">
             Danh sách vé
@@ -27,7 +27,7 @@ function TicketListSection({
       </div>
 
       {hasTickets ? (
-        <div className="flex gap-3 overflow-x-auto pb-1 lg:grid lg:grid-cols-2 lg:overflow-visible">
+        <div className="flex gap-3 pb-1 overflow-x-auto lg:grid lg:grid-cols-2 lg:overflow-visible">
           {ticketItems.map(({ ticket, index, seatLabel, status }) => {
             const isActive = selectedTicket?.id === ticket.id;
 
@@ -36,7 +36,7 @@ function TicketListSection({
                 key={ticket.id}
                 type="button"
                 onClick={() => onSelectTicket(ticket.id)}
-                className={`min-w-[230px] cursor-pointer rounded-2xl border p-4 text-left transition-all ${
+                className={`min-w-57.5 cursor-pointer rounded-2xl border p-4 text-left transition-all ${
                   isActive
                     ? 'border-(--primary-color)/60 bg-(--primary-color)/12 shadow-[0_0_28px_rgba(168,85,247,0.18)]'
                     : 'border-(--text-primary)/10 bg-black/15 hover:border-(--primary-color)/30'

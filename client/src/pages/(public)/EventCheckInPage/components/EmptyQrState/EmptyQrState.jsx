@@ -9,7 +9,7 @@ function EmptyQrState({ status }) {
       : 'bg-red-400/10 text-red-300';
 
   return (
-    <div className="flex aspect-square flex-col items-center justify-center rounded-2xl px-6 text-center">
+    <div className="flex flex-col items-center justify-center px-6 text-center aspect-square rounded-2xl">
       <div
         className={`mb-4 flex size-16 items-center justify-center rounded-2xl ${iconClassName}`}
       >
@@ -20,7 +20,7 @@ function EmptyQrState({ status }) {
         {status.title}
       </p>
 
-      <p className="mt-2 max-w-[280px] text-sm leading-6 text-(--text-primary)/55">
+      <p className="mt-2 max-w-70 text-sm leading-6 text-(--text-primary)/55">
         {status.description}
       </p>
     </div>

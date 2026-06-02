@@ -8,13 +8,13 @@ function NotFound() {
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-(--background-color) text-(--text-primary)">
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute left-1/2 top-[-180px] h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-(--primary-color)/25 blur-[120px]" />
-        <div className="absolute bottom-[-220px] right-[-120px] h-[420px] w-[420px] rounded-full bg-(--primary-color)/20 blur-[130px]" />
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute left-1/2 -top-45 h-105 w-105 -translate-x-1/2 rounded-full bg-(--primary-color)/25 blur-[120px]" />
+        <div className="absolute -bottom-55 -right-30 h-105 w-105 rounded-full bg-(--primary-color)/20 blur-[130px]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(124,58,237,0.18),transparent_34%),linear-gradient(to_bottom,transparent,rgba(0,0,0,0.2))]" />
       </div>
 
-      <section className="container relative z-10 flex min-h-screen items-center justify-center py-24">
+      <section className="container relative z-10 flex items-center justify-center min-h-screen py-24">
         <div className="w-full max-w-4xl text-center">
           <div className="mx-auto mb-7 flex h-16 w-16 items-center justify-center rounded-3xl border border-(--primary-color)/25 bg-(--primary-color)/10 text-(--primary-color) shadow-[0_0_45px_rgba(124,58,237,0.25)]">
             <SearchX size={30} />
@@ -24,11 +24,11 @@ function NotFound() {
             Không tìm thấy trang
           </p>
 
-          <h1 className="mx-auto max-w-3xl text-7xl font-black leading-none tracking-tight md:text-8xl lg:text-9xl">
+          <h1 className="max-w-3xl mx-auto font-black leading-none tracking-tight text-7xl md:text-8xl lg:text-9xl">
             4<span className="text-(--primary-color)">0</span>4
           </h1>
 
-          <h2 className="mx-auto mt-6 max-w-2xl text-3xl font-black leading-tight tracking-tight md:text-5xl">
+          <h2 className="max-w-2xl mx-auto mt-6 text-3xl font-black leading-tight tracking-tight md:text-5xl">
             Có vẻ bạn đã đi lạc khỏi sân khấu chính
           </h2>
 
@@ -38,7 +38,7 @@ function NotFound() {
             sự kiện nổi bật trên EventHub.
           </p>
 
-          <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <div className="flex flex-col items-center justify-center gap-3 mt-9 sm:flex-row">
             <Link
               to="/"
               className="group inline-flex h-12 items-center justify-center gap-2 rounded-full bg-(--primary-color) px-6 text-sm font-bold text-white shadow-[0_0_32px_rgba(124,58,237,0.45)] transition hover:-translate-y-0.5 hover:brightness-110"
@@ -57,7 +57,7 @@ function NotFound() {
             </button>
           </div>
 
-          <div className="mx-auto mt-14 grid max-w-3xl gap-4 md:grid-cols-3">
+          <div className="grid max-w-3xl gap-4 mx-auto mt-14 md:grid-cols-3">
             <Link
               to="/events"
               className="group rounded-3xl border border-(--border-color) bg-(--card-surface-color) p-5 text-left backdrop-blur-xl transition hover:-translate-y-1 hover:border-(--primary-color)/35 hover:bg-(--card-hover-color)"

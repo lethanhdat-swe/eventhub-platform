@@ -9,18 +9,18 @@ function OrderSummarySection({ event, ticketItems = [] }) {
 
   return (
     <section>
-      <div className="mt-6 mb-3 flex items-center gap-2">
+      <div className="flex items-center gap-2 mt-6 mb-3">
         <ReceiptText color="var(--primary-color)" size={20} />
         <p className="font-medium text-(--text-primary)">Chi tiết sự kiện</p>
       </div>
 
       <div className="rounded-xl border border-(--text-primary)/10 bg-(--background-color)/90 p-4 sm:p-5 md:grid md:grid-cols-12 md:gap-5 md:space-y-0 lg:gap-6">
         <div className="mb-4 md:col-span-4 md:mb-0 lg:col-span-3">
-          <div className="aspect-[16/9] w-full overflow-hidden rounded-2xl sm:aspect-[5/4] md:aspect-[4/3] lg:aspect-[3/4]">
+          <div className="w-full overflow-hidden aspect-video rounded-2xl sm:aspect-5/4 md:aspect-4/3 lg:aspect-3/4">
             <img
               src={imageUrl}
               alt={event?.title ?? 'Event'}
-              className="h-full w-full object-cover"
+              className="object-cover w-full h-full"
             />
           </div>
         </div>

@@ -1,5 +1,5 @@
 import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
-import { ArrowRight, CalendarDays, Eye } from 'lucide-react';
+import { ArrowRight, CalendarDays } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 function BlogItem({ blog }) {
@@ -79,7 +79,7 @@ function BlogItem({ blog }) {
               font-black leading-tight
               tracking-[-0.03em] sm:tracking-[-0.035em] text-(--text-primary)
               transition-colors duration-300
-              group-hover:text-white
+              group-hover:text-(--primary-color)
             "
           >
             {blog.title}

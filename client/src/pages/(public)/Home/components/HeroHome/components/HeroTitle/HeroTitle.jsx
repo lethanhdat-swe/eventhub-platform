@@ -18,7 +18,7 @@ function HeroTitle() {
     >
       <motion.div
         variants={fadeUpVariants}
-        className="mb-4 inline-flex items-center gap-2 sm:mb-6"
+        className="inline-flex items-center gap-2 mb-4 sm:mb-6"
       >
         <span className="text-[10px] font-bold uppercase tracking-[0.32em] text-(--primary-color) drop-shadow-[0_0_18px_rgba(124,58,237,0.8)] sm:text-xs">
           ✦ Sống trọn từng khoảnh khắc
@@ -40,7 +40,7 @@ function HeroTitle() {
 
       <motion.p
         variants={fadeUpVariants}
-        className="mb-8 max-w-2xl text-sm font-medium leading-7 text-white/68 sm:mb-10 sm:text-base sm:leading-8 lg:text-lg lg:leading-9"
+        className="max-w-2xl mb-8 text-sm font-medium leading-7 text-white/68 sm:mb-10 sm:text-base sm:leading-8 lg:text-lg lg:leading-9"
       >
         Tìm kiếm concert, lễ hội, workshop và những trải nghiệm trực tiếp nổi
         bật đang diễn ra quanh bạn.
@@ -48,7 +48,7 @@ function HeroTitle() {
 
       <motion.div
         variants={fadeUpVariants}
-        className="flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:items-center sm:gap-5"
+        className="flex flex-col items-stretch w-full gap-3 sm:w-auto sm:flex-row sm:items-center sm:gap-5"
       >
         <MotionButton>
           <Link
@@ -60,7 +60,7 @@ function HeroTitle() {
               shadow-[0_14px_40px_rgba(124,58,237,0.38)]
               transition-shadow duration-300
               hover:shadow-[0_18px_55px_rgba(124,58,237,0.5)]
-              sm:w-auto sm:min-w-[220px] sm:px-7 sm:py-3.5 sm:text-sm
+              sm:w-auto sm:min-w-55 sm:px-7 sm:py-3.5 sm:text-sm
             "
           >
             Khám phá sự kiện
@@ -81,13 +81,13 @@ function HeroTitle() {
               backdrop-blur-xl
               transition-colors duration-300
               hover:border-white/30 hover:bg-white/15
-              sm:w-auto sm:min-w-[220px] sm:px-7 sm:py-3.5 sm:text-sm
+              sm:w-auto sm:min-w-55 sm:px-7 sm:py-3.5 sm:text-sm
             "
           >
             Liên hệ chúng tôi
             <Phone
               size={15}
-              className="text-white/70 transition-transform duration-300 group-hover:scale-110"
+              className="transition-transform duration-300 text-white/70 group-hover:scale-110"
             />
           </Link>
         </MotionButton>

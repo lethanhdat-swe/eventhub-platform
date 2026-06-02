@@ -70,8 +70,8 @@ function EventExplorer({
       <motion.section
         variants={contentRightVariants}
         className="
-          col-span-12 rounded-[28px] border border-[var(--border-color)]
-          bg-[var(--card-surface-color)]
+          col-span-12 rounded-[28px] border border-(--border-color)
+          bg-(--card-surface-color)
           p-4 shadow-[0_20px_70px_rgba(0,0,0,0.24)]
           backdrop-blur-xl lg:col-span-9
         "
@@ -84,7 +84,7 @@ function EventExplorer({
 
         <motion.div
           variants={staggerContainerVariants}
-          className="mt-6 grid grid-cols-1 gap-x-3 gap-y-4 md:grid-cols-2 xl:grid-cols-3"
+          className="grid grid-cols-1 mt-6 gap-x-3 gap-y-4 md:grid-cols-2 xl:grid-cols-3"
         >
           {loading ? (
             Array.from({ length: 6 }).map((_, index) => (
@@ -121,12 +121,12 @@ function EventExplorer({
             <motion.div
               variants={fadeInVariants}
               className="
-                col-span-full flex min-h-[260px] items-center justify-center
-                rounded-[24px] border border-dashed border-[var(--border-color)]
-                bg-[var(--soft-surface-color)]
+                col-span-full flex min-h-65 items-center justify-center
+                rounded-[24px] border border-dashed border-(--border-color)
+                bg-(--soft-surface-color)
               "
             >
-              <p className="text-center text-sm font-medium text-[var(--muted-text)]">
+              <p className="text-center text-sm font-medium text-(--muted-text)">
                 Không tìm thấy sự kiện phù hợp.
               </p>
             </motion.div>
@@ -149,16 +149,16 @@ function EventExplorer({
 
 function EventItemSkeleton() {
   return (
-    <div className="overflow-hidden rounded-[24px] border border-[var(--border-color)] bg-[var(--surface-color)]">
-      <div className="h-50 animate-pulse bg-[var(--background-color)]" />
+    <div className="overflow-hidden rounded-[24px] border border-(--border-color) bg-(--surface-color)">
+      <div className="h-50 animate-pulse bg-(--background-color)" />
 
-      <div className="space-y-4 p-4">
-        <div className="h-5 w-4/5 animate-pulse rounded-lg bg-[var(--background-color)]" />
-        <div className="h-4 w-1/2 animate-pulse rounded-lg bg-[var(--background-color)]" />
+      <div className="p-4 space-y-4">
+        <div className="h-5 w-4/5 animate-pulse rounded-lg bg-(--background-color)" />
+        <div className="h-4 w-1/2 animate-pulse rounded-lg bg-(--background-color)" />
 
-        <div className="flex items-center justify-between border-t border-[var(--border-color)] pt-4">
-          <div className="h-8 w-24 animate-pulse rounded-full bg-[var(--background-color)]" />
-          <div className="h-8 w-20 animate-pulse rounded-full bg-[var(--background-color)]" />
+        <div className="flex items-center justify-between border-t border-(--border-color) pt-4">
+          <div className="h-8 w-24 animate-pulse rounded-full bg-(--background-color)" />
+          <div className="h-8 w-20 animate-pulse rounded-full bg-(--background-color)" />
         </div>
       </div>
     </div>

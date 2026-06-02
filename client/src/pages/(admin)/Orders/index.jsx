@@ -14,9 +14,9 @@ import {
 } from '@/pages/(admin)/components/table';
 
 import PageHeader from '@/pages/(admin)/components/PageHeader';
-import DeleteOrderDialog from '@/pages/(admin)/Orders/components/DeleteOrderDialog';
-import OrderDetailDialog from '@/pages/(admin)/Orders/components/OrderDetailDialog';
-import OrderTable from '@/pages/(admin)/Orders/components/OrderTable';
+import DeleteOrderDialog from '@/pages/(admin)/Orders/components/DeleteOrderDialog/DeleteOrderDialog';
+import OrderDetailDialog from '@/pages/(admin)/Orders/components/OrderDetailDialog/OrderDetailDialog';
+import OrderTable from '@/pages/(admin)/Orders/components/OrderTable/OrderTable';
 import { mapOrderRow, ORDER_STATUS_LABELS } from '@/pages/(admin)/Orders/data';
 import { toast } from 'sonner';
 

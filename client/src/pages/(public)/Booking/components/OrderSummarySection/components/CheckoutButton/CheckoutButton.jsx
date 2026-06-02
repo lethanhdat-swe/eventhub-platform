@@ -65,7 +65,7 @@ function CheckoutButton({
             transition-all duration-300
             hover:-translate-y-0.5 hover:brightness-110
             active:scale-95
-            sm:w-auto sm:min-w-[190px]
+            sm:w-auto sm:min-w-47.5
           "
         >
           Checkout

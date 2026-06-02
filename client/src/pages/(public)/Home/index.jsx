@@ -36,11 +36,11 @@ function Home() {
 
   return (
     <main className="relative mb-10 overflow-hidden bg-(--background-color)">
-      <div className="pointer-events-none absolute inset-0 z-0">
-        <div className="absolute left-[-180px] top-[760px] h-[420px] w-[420px] rounded-full bg-(--primary-color)/12 blur-[120px]" />
-        <div className="absolute right-[-220px] top-[1280px] h-[500px] w-[500px] rounded-full bg-orange-500/8 blur-[130px]" />
-        <div className="absolute left-[18%] top-[2050px] h-[360px] w-[360px] rounded-full bg-(--primary-color)/10 blur-[120px]" />
-        <div className="absolute right-[8%] bottom-[520px] h-[420px] w-[420px] rounded-full bg-(--primary-color)/10 blur-[130px]" />
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute -left-45 top-190 h-105 w-105 rounded-full bg-(--primary-color)/12 blur-[120px]" />
+        <div className="absolute -right-55 top-320 h-125 w-125 rounded-full bg-orange-500/8 blur-[130px]" />
+        <div className="absolute left-[18%] top-512.5 h-90 w-90 rounded-full bg-(--primary-color)/10 blur-[120px]" />
+        <div className="absolute right-[8%] bottom-130 h-105 w-105 rounded-full bg-(--primary-color)/10 blur-[130px]" />
       </div>
 
       <div className="relative z-10">

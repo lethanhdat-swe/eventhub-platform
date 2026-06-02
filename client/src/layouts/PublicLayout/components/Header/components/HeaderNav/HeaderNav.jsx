@@ -1,6 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom';
 
-const DARK_HERO_ROUTES = ['/', '/events', '/blogs', '/contact'];
+const DARK_HERO_ROUTES = ['/', '/events', '/blogs', '/contact', '/search'];
 
 function HeaderNav({ scrolled }) {
   const { pathname } = useLocation();

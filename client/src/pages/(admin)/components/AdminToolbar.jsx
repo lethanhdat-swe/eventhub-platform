@@ -21,8 +21,8 @@ function AdminToolbar({
       )}
     >
       {showSearch ? (
-        <div className="relative w-full sm:max-w-[360px]">
-          <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+        <div className="relative w-full sm:max-w-90">
+          <Search className="absolute -translate-y-1/2 pointer-events-none top-1/2 left-3 size-4 text-muted-foreground" />
           <Input
             type="search"
             placeholder={searchPlaceholder}
