@@ -33,8 +33,10 @@ model User {
   comments          Comment[]
   eventReminderLogs EventReminderLog[]
   refundRequests    RefundRequest[]
+  chatSessions      ChatSession[]
 
   @@map("users")
+
 }
 
 model UserToken {
@@ -626,4 +628,59 @@ enum RefundRequestStatus {
   PENDING
   COMPLETED
   REJECTED
+}
+
+///////////////////////
+// AI LIVE CHAT
+///////////////////////
+
+model ChatSession {
+  id String @id @default(uuid())
+
+  userId  String? @map("user_id")
+  guestId String? @map("guest_id")
+
+  status ChatSessionStatus @default(ACTIVE)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user     User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  messages ChatMessage[]
+
+  @@index([userId])
+  @@index([guestId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("chat_sessions")
+}
+
+model ChatMessage {
+  id String @id @default(uuid())
+
+  sessionId String          @map("session_id")
+  role      ChatMessageRole
+  content   String          @db.Text
+
+  actions Json?
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  session ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@index([role])
+  @@index([createdAt])
+  @@map("chat_messages")
+}
+
+enum ChatSessionStatus {
+  ACTIVE
+  CLOSED
+}
+
+enum ChatMessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
 }
