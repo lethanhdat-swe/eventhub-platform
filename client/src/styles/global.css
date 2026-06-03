@@ -31,57 +31,60 @@
 }
 
 @layer components {
-  .eventhub-rich-text-editor {
-    color: var(--foreground);
+S    .eventhub-rich-text-editor {
+      color: var(--foreground);
+    }
+
+    .eventhub-rich-text-editor .mantine-RichTextEditor-root,
+    .eventhub-rich-text-editor .mantine-RichTextEditor-content {
+      background: var(--card);
+      border-color: var(--border);
+    }
+
+    .eventhub-rich-text-editor .mantine-RichTextEditor-toolbar {
+      background: var(--card);
+      border-color: var(--border);
+    }
+
+    .eventhub-rich-text-editor .mantine-RichTextEditor-control {
+      color: var(--foreground);
+    }
+
+    .eventhub-rich-text-editor .mantine-RichTextEditor-control:hover {
+      background: var(--accent);
+      color: var(--accent-foreground);
   }
 
-  .eventhub-rich-text-editor .mantine-RichTextEditor-root,
-  .eventhub-rich-text-editor .mantine-RichTextEditor-content {
-    background: var(--card);
-    border-color: var(--border);
-    color: var(--foreground);
-  }
+    /* =========================
+      EDITOR: LUÔN CHỮ ĐEN
+      ========================= */
 
-  .eventhub-rich-text-editor .mantine-RichTextEditor-toolbar {
-    background: var(--card);
-    border-color: var(--border);
-  }
+    .eventhub-rich-text-editor .ProseMirror,
+    .eventhub-rich-text-editor .ProseMirror * {
+      color: #000;
+    }
 
-  .eventhub-rich-text-editor .mantine-RichTextEditor-control {
-    color: var(--foreground);
-  }
+  /* =========================
+     CONTENT: THEO THEME
+     ========================= */
 
-  .eventhub-rich-text-editor .mantine-RichTextEditor-control:hover {
-    background: var(--accent);
-    color: var(--accent-foreground);
-  }
+    .eventhub-rich-content .ProseMirror {
+      color: var(--text-primary);
+    }
 
-  .eventhub-rich-text-editor .ProseMirror,
-  .eventhub-rich-content .ProseMirror {
-    color: var(--foreground);
-  }
-
-  .eventhub-rich-text-editor .ProseMirror,
-  .eventhub-rich-content .ProseMirror,
-  .eventhub-rich-text-editor .ProseMirror,
-  .eventhub-rich-content .ProseMirror {
-    color: black;
-  }
-
-  .eventhub-rich-text-editor .ProseMirror p,
-  .eventhub-rich-text-editor .ProseMirror li,
-  .eventhub-rich-text-editor .ProseMirror h1,
-  .eventhub-rich-text-editor .ProseMirror h2,
-  .eventhub-rich-text-editor .ProseMirror h3,
-  .eventhub-rich-text-editor .ProseMirror h4,
-  .eventhub-rich-content .ProseMirror p,
-  .eventhub-rich-content .ProseMirror li,
-  .eventhub-rich-content .ProseMirror h1,
-  .eventhub-rich-content .ProseMirror h2,
-  .eventhub-rich-content .ProseMirror h3,
-  .eventhub-rich-content .ProseMirror h4 {
-    color: inherit;
-  }
+    .eventhub-rich-content .ProseMirror p,
+    .eventhub-rich-content .ProseMirror li,
+    .eventhub-rich-content .ProseMirror h1,
+    .eventhub-rich-content .ProseMirror h2,
+    .eventhub-rich-content .ProseMirror h3,
+    .eventhub-rich-content .ProseMirror h4,
+    .eventhub-rich-content .ProseMirror span,
+    .eventhub-rich-content .ProseMirror strong,
+    .eventhub-rich-content .ProseMirror em,
+    .eventhub-rich-content .ProseMirror a,
+    .eventhub-rich-content .ProseMirror blockquote {
+      color: inherit;
+    }
 
   @keyframes hero-zoom {
     from {
