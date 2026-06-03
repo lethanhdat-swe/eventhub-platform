@@ -2,14 +2,22 @@ import { Router } from "express";
 import {
     createChatSessionSchema,
     getChatMessagesSchema,
+    listChatSessionsSchema,
     sendChatMessageSchema,
 } from "../schema/aiChat.schema";
-import { optionalAuth } from "../middlewares/auth.middleware";
+import { isAuth, optionalAuth, restrictTo } from "../middlewares/auth.middleware";
 import { validate } from "../middlewares/validate.middleware";
 import aiChatController from "../controllers/aiChat.controller";
 
 const router = Router();
 
+router.get(
+    "/admin/sessions",
+    isAuth,
+    restrictTo("ADMIN"),
+    validate(listChatSessionsSchema),
+    aiChatController.listSessions
+);
 
 router.post(
     "/sessions",

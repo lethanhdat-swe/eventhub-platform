@@ -53,7 +53,6 @@ export const optionalAuth = async (
     next: NextFunction
 ) => {
     const authHeader = req.headers.authorization;
-
     // Public route: no token means continue as guest.
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
         return next();
@@ -70,7 +69,8 @@ export const optionalAuth = async (
             where: { id: decoded.id },
             select: { id: true, email: true, role: true },
         });
-
+        console.log(user);
+        
         if (user) {
             req.user = user;
         }

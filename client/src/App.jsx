@@ -49,8 +49,10 @@ import MyTickets from './pages/(public)/MyTickets/MyTickets';
 import AdminNotificationsPage from './pages/(admin)/Notifications/Notifications';
 import NotFound from './pages/(public)/NotFound/NotFound';
 import Refunds from './pages/(admin)/Refunds';
+import AdminAIChatPage from '@/pages/(admin)/AIChat';
 import CreateBlog from './pages/(admin)/Blogs/components/CreateBlog';
 import EditBlog from './pages/(admin)/Blogs/components/EditBlog';
+
 
 function App() {
     return (
@@ -148,6 +150,7 @@ function App() {
                     <Route path="settings" element={<Settings />} />
                     <Route path="contact" element={<ContactPage />} />
                     <Route path="ai-blog-config" element={<AIBlogConfig />} />
+                    <Route path="ai-chat" element={<AdminAIChatPage />} />
                     <Route
                         path="notifications"
                         element={<AdminNotificationsPage />}

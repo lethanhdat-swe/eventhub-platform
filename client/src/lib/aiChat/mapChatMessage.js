@@ -1,0 +1,53 @@
+export const WELCOME_MESSAGE = {
+  id: 'welcome',
+  role: 'assistant',
+  content:
+    'Xin chào, mình là EventHub AI. Mình có thể hỗ trợ bạn về đặt vé, thanh toán, QR ticket và hoàn vé.',
+  actions: [],
+};
+
+function mapRole(role) {
+  if (role === 'USER') return 'user';
+  if (role === 'ASSISTANT') return 'assistant';
+  if (role === 'SYSTEM') return 'system';
+  return String(role ?? '').toLowerCase();
+}
+
+function mapActions(actions) {
+  const actionItems = Array.isArray(actions?.items) ? actions.items : [];
+
+  return actionItems
+    .filter((action) => action?.type && action?.label)
+    .map((action) => ({
+      type: action.type,
+      label: action.label,
+      payload: action.payload ?? null,
+    }));
+}
+
+/**
+ * @param {{ id?: string, role?: string, content?: string, createdAt?: string, actions?: { items?: unknown[] } }} message
+ */
+export function mapApiMessageToWidget(message) {
+  if (!message) return null;
+
+  return {
+    id: message.id,
+    role: mapRole(message.role),
+    content: message.content ?? '',
+    createdAt: message.createdAt ?? null,
+    actions: mapActions(message.actions),
+  };
+}
+
+/**
+ * @param {unknown[]} items
+ */
+export function mapApiMessagesToWidget(items) {
+  return (items ?? []).map(mapApiMessageToWidget).filter(Boolean);
+}
+
+export function withWelcomeIfEmpty(messages) {
+  if (messages.length > 0) return messages;
+  return [WELCOME_MESSAGE];
+}

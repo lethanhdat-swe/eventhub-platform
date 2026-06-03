@@ -145,6 +145,12 @@ export const adminNavSections = [
                 icon: Contact,
                 match: 'exact',
             },
+            {
+                label: 'AI chat',
+                to: '/admin/ai-chat',
+                icon: Bot,
+                match: 'exact',
+            },
         ],
     },
     {
