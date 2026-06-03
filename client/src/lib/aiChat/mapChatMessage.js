@@ -13,14 +13,16 @@ function mapRole(role) {
   return String(role ?? '').toLowerCase();
 }
 
+import { isRenderableAction } from '@/components/AIChatWidget/ChatMessageActions/chatActionTypes';
+
 function mapActions(actions) {
   const actionItems = Array.isArray(actions?.items) ? actions.items : [];
 
   return actionItems
-    .filter((action) => action?.type && action?.label)
+    .filter(isRenderableAction)
     .map((action) => ({
       type: action.type,
-      label: action.label,
+      label: action.label ?? null,
       payload: action.payload ?? null,
     }));
 }

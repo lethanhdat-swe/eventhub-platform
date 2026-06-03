@@ -45,6 +45,7 @@ import PaymentStatus from './pages/(public)/PaymentStatus';
 import EventCheckInPage from './pages/(public)/EventCheckInPage';
 import ContactPage from './pages/(admin)/Contact';
 import AIBlogConfig from './pages/(admin)/AIBlogConfig/AIBlogConfig';
+import AIChatConfig from './pages/(admin)/AIChatConfig/AIChatConfig';
 import MyTickets from './pages/(public)/MyTickets/MyTickets';
 import AdminNotificationsPage from './pages/(admin)/Notifications/Notifications';
 import NotFound from './pages/(public)/NotFound/NotFound';
@@ -150,6 +151,7 @@ function App() {
                     <Route path="settings" element={<Settings />} />
                     <Route path="contact" element={<ContactPage />} />
                     <Route path="ai-blog-config" element={<AIBlogConfig />} />
+                    <Route path="ai-chat-config" element={<AIChatConfig />} />
                     <Route path="ai-chat" element={<AdminAIChatPage />} />
                     <Route
                         path="notifications"

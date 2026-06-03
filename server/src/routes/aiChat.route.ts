@@ -19,6 +19,12 @@ router.get(
     aiChatController.listSessions
 );
 
+router.get(
+    "/sessions/me/latest",
+    isAuth,
+    aiChatController.getLatestMySession
+);
+
 router.post(
     "/sessions",
     optionalAuth,

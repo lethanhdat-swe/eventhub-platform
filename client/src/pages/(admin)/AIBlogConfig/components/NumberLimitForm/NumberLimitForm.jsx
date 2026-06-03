@@ -46,7 +46,7 @@ function NumberLimitForm({
     <div className="p-5 bg-white border border-gray-200 rounded-xl">
       <div className="flex items-end gap-3">
         <div className="w-32">
-          <label className="block mb-2 text-sm font-medium text-gray-700">
+          <label className="block mb-2 text-sm font-medium text-gray-800">
             Số lượng
           </label>
 
