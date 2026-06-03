@@ -61,11 +61,11 @@
     color: var(--foreground);
   }
 
-  [data-theme='dark'] .eventhub-rich-text-editor .ProseMirror,
-  [data-theme='dark'] .eventhub-rich-content .ProseMirror,
-  [data-theme='light'] .eventhub-rich-text-editor .ProseMirror,
-  [data-theme='light'] .eventhub-rich-content .ProseMirror {
-    color: var(--text-primary);
+  .eventhub-rich-text-editor .ProseMirror,
+  .eventhub-rich-content .ProseMirror,
+  .eventhub-rich-text-editor .ProseMirror,
+  .eventhub-rich-content .ProseMirror {
+    color: black;
   }
 
   .eventhub-rich-text-editor .ProseMirror p,
