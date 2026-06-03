@@ -7,10 +7,10 @@ function InfoRow({ icon: Icon, label, value }) {
     <div className="flex items-start gap-3 rounded-xl bg-(--soft-surface-color) px-3 py-2.5">
       <Icon size={16} className="mt-0.5 shrink-0 text-(--primary-color)" />
 
-      <div className="min-w-0 flex-1">
+      <div className="flex-1 min-w-0">
         <p className="text-xs font-semibold text-(--muted-text)">{label}</p>
 
-        <p className="mt-0.5 break-words text-sm font-bold leading-snug text-(--text-primary)">
+        <p className="mt-0.5 wrap-break-word text-sm font-bold leading-snug text-(--text-primary)">
           {value}
         </p>
       </div>
