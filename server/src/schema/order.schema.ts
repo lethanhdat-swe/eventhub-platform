@@ -68,3 +68,13 @@ export const exportMyOrderTicketPdfSchema = z.object({
         id: z.string().uuid("Invalid order id."),
     }),
 });
+
+export const lookupOrderByCodeSchema = z.object({
+    params: z.object({
+        orderCode: z
+            .string()
+            .trim()
+            .min(1, "Vui lòng nhập mã đơn hàng.")
+            .regex(/^EH/i, "Mã đơn hàng phải bắt đầu bằng EH (ví dụ: EH1730...)."),
+    }),
+});

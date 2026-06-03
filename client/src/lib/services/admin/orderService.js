@@ -66,6 +66,36 @@ export const orderService = {
   },
 
   /**
+   * Tra cứu đơn theo mã orderCode (public).
+   * @param {string} orderCode
+   * @returns {Promise<{
+   *   id: string,
+   *   orderCode: string,
+   *   status: string,
+   *   totalAmount: number,
+   *   finalAmount: number,
+   *   paymentMethod: string,
+   *   createdAt: string,
+   *   paidAt: string | null,
+   *   customerName: string | null,
+   *   customerEmail: string,
+   *   customerPhone: string,
+   *   event: object | null,
+   *   tickets: object[],
+   *   refundRequests: object[],
+   *   latestRefundRequest: object | null,
+   *   sepay: object | null,
+   * }>}
+   */
+  lookupByOrderCode: async (orderCode) => {
+    const code = typeof orderCode === 'string' ? orderCode.trim() : '';
+    const body = await axiosInstance.get(
+      `${resourceBase}/by-code/${encodeURIComponent(code)}`
+    );
+    return getApiData(body);
+  },
+
+  /**
    * @param {Record<string, unknown>} data
    */
   create: async (data) => {

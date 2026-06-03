@@ -3,7 +3,7 @@ function ChatActionChip({ children, onClick, className = '' }) {
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-full border border-(--border-color) bg-(--soft-surface-color) px-3 py-1.5 text-xs text-(--text-primary) transition hover:border-(--primary-color)/40 hover:bg-(--primary-color)/15 ${className}`}
+      className={`inline-flex h-9 w-full min-w-0 items-center justify-center truncate rounded-full border border-(--border-color) bg-(--soft-surface-color) px-2 text-xs text-(--text-primary) transition hover:border-(--primary-color)/40 hover:bg-(--primary-color)/15 ${className}`}
     >
       {children}
     </button>

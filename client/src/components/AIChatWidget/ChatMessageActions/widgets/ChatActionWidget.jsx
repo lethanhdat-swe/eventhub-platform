@@ -1,8 +1,10 @@
 import { CHAT_ACTION_TYPES } from '../chatActionTypes';
 import RefundFormActionWidget from './RefundFormActionWidget';
+import RefundLookupActionWidget from './RefundLookupActionWidget';
 
 const WIDGET_BY_TYPE = {
   [CHAT_ACTION_TYPES.OPEN_REFUND_FORM]: RefundFormActionWidget,
+  [CHAT_ACTION_TYPES.OPEN_REFUND_LOOKUP_FORM]: RefundLookupActionWidget,
 };
 
 function ChatActionWidget({ action, onActivate }) {

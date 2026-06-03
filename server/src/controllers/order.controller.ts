@@ -76,6 +76,25 @@ class OrderController {
         }
     };
 
+    lookupByOrderCode = async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) => {
+        try {
+            const result = await orderService.lookupByOrderCode(
+                req.params.orderCode as string
+            );
+
+            return res.success({
+                message: "Order fetched successfully.",
+                data: result,
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
     delete = async (req: Request, res: Response, next: NextFunction) => {
         try {
             await orderService.delete(req.body.ids);

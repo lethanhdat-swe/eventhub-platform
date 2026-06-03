@@ -20,15 +20,19 @@ export const validate =
                     message: e.message,
                 }));
 
+                const primaryMessage =
+                    details[0]?.message ||
+                    "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại thông tin.";
+
                 return res.error({
-                    message: "Validation failed",
-                    error: details, // Trả về mảng đã format đẹp
+                    message: primaryMessage,
+                    error: details,
                     status: 400,
                 });
             }
 
             return res.error({
-                message: "Validation failed",
+                message: "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại thông tin.",
                 error: err,
                 status: 400,
             });

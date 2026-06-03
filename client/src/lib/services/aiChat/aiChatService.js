@@ -13,6 +13,8 @@ function buildListMessagesParams(query) {
   return { page, limit, ...buildGuestParams(guestId) };
 }
 
+const CHAT_MESSAGES_PAGE_LIMIT = 100;
+
 export const aiChatService = {
   /**
    * Latest chat session for the authenticated user, or null if none.
@@ -39,6 +41,32 @@ export const aiChatService = {
       params: buildListMessagesParams(query),
     });
     return getApiData(response);
+  },
+
+  /**
+   * Most recent messages for a session (last page when paginated).
+   * @param {string} sessionId
+   * @param {{ guestId?: string }} [options]
+   */
+  async fetchRecentSessionMessages(sessionId, { guestId } = {}) {
+    const firstPage = await this.getSessionMessages(sessionId, {
+      page: 1,
+      limit: CHAT_MESSAGES_PAGE_LIMIT,
+      guestId,
+    });
+
+    const totalPages = firstPage?.meta?.totalPages ?? 1;
+    if (totalPages <= 1) {
+      return firstPage?.items ?? [];
+    }
+
+    const lastPage = await this.getSessionMessages(sessionId, {
+      page: totalPages,
+      limit: CHAT_MESSAGES_PAGE_LIMIT,
+      guestId,
+    });
+
+    return lastPage?.items ?? [];
   },
 
   /**

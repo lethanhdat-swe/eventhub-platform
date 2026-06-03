@@ -13,6 +13,7 @@ import {
     deleteOrderSchema,
     getOrderSchema,
     exportMyOrderTicketPdfSchema,
+    lookupOrderByCodeSchema,
 } from "../schema/order.schema";
 
 const router = Router();
@@ -44,6 +45,12 @@ router.get(
     isAuth,
     validate(getOrderSchema),
     orderController.myOrderDetail
+);
+
+router.get(
+    "/by-code/:orderCode",
+    validate(lookupOrderByCodeSchema),
+    orderController.lookupByOrderCode
 );
 
 router.get(

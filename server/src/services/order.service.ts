@@ -59,6 +59,190 @@ class OrderService {
         return Array.from(ticketTypeMap.values());
     }
 
+    private getOrderDetailSelect() {
+        return {
+            id: true,
+            orderCode: true,
+            status: true,
+            totalAmount: true,
+            paymentMethod: true,
+            createdAt: true,
+            customerName: true,
+            customerEmail: true,
+            customerPhone: true,
+            user: {
+                select: {
+                    id: true,
+                    fullName: true,
+                    email: true,
+                },
+            },
+            tickets: {
+                select: {
+                    id: true,
+                    qrSecureToken: true,
+                    isCheckedIn: true,
+                    checkedInAt: true,
+                    eventSeat: {
+                        select: {
+                            id: true,
+                            rowLabel: true,
+                            seatNumber: true,
+                            status: true,
+                            event: {
+                                select: {
+                                    id: true,
+                                    title: true,
+                                    thumbnailUrl: true,
+                                    startDate: true,
+                                    endDate: true,
+                                    location: true,
+                                },
+                            },
+                            ticketType: {
+                                select: {
+                                    id: true,
+                                    name: true,
+                                    price: true,
+                                    color: true,
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            orderSeats: {
+                select: {
+                    eventSeat: {
+                        select: {
+                            event: {
+                                select: {
+                                    id: true,
+                                    title: true,
+                                    thumbnailUrl: true,
+                                    startDate: true,
+                                    endDate: true,
+                                    location: true,
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            paymentTransactions: {
+                where: {
+                    status: PaymentTransactionStatus.MATCHED,
+                },
+                orderBy: {
+                    updatedAt: "desc" as const,
+                },
+                take: 1,
+                select: {
+                    updatedAt: true,
+                },
+            },
+            refundRequests: {
+                orderBy: {
+                    createdAt: "desc" as const,
+                },
+                select: {
+                    id: true,
+                    status: true,
+                    refundPercent: true,
+                    refundAmount: true,
+                    createdAt: true,
+                },
+            },
+        };
+    }
+
+    private mapOrderDetail(
+        order: any,
+        options: {
+            includeQrToken?: boolean;
+            includeCustomer?: boolean;
+            includeRefunds?: boolean;
+        } = {}
+    ) {
+        const {
+            includeQrToken = false,
+            includeCustomer = false,
+            includeRefunds = false,
+        } = options;
+
+        const firstTicketEvent = order.tickets[0]?.eventSeat.event;
+        const firstOrderSeatEvent = order.orderSeats[0]?.eventSeat.event;
+
+        const canReturnToPayment =
+            order.status === "PENDING" &&
+            order.paymentMethod === "SEPAY" &&
+            Boolean(order.orderCode);
+
+        const sepay = canReturnToPayment
+            ? paymentService.buildSepayPaymentInfo(
+                  order.orderCode as string,
+                  Number(order.totalAmount || 0)
+              )
+            : null;
+
+        const refundRequests = includeRefunds
+            ? (order.refundRequests ?? [])
+            : undefined;
+
+        const result: Record<string, unknown> = {
+            id: order.id,
+            orderCode: order.orderCode,
+            status: order.status,
+            totalAmount: order.totalAmount,
+            finalAmount: order.totalAmount,
+            paymentMethod: order.paymentMethod,
+            createdAt: order.createdAt,
+            paidAt: this.getPaidAt(order),
+            user: order.user
+                ? {
+                      id: order.user.id,
+                      name: order.user.fullName,
+                      email: order.user.email,
+                  }
+                : null,
+            event: this.mapEvent(firstTicketEvent ?? firstOrderSeatEvent),
+            tickets: order.tickets.map((ticket: any) => {
+                const mapped: Record<string, unknown> = {
+                    id: ticket.id,
+                    isCheckedIn: ticket.isCheckedIn,
+                    checkedInAt: ticket.checkedInAt,
+                    eventSeat: {
+                        id: ticket.eventSeat.id,
+                        rowLabel: ticket.eventSeat.rowLabel,
+                        seatNumber: ticket.eventSeat.seatNumber,
+                        status: ticket.eventSeat.status,
+                    },
+                    ticketType: ticket.eventSeat.ticketType,
+                };
+
+                if (includeQrToken) {
+                    mapped.qrSecureToken = ticket.qrSecureToken;
+                }
+
+                return mapped;
+            }),
+            sepay,
+        };
+
+        if (includeCustomer) {
+            result.customerName = order.customerName;
+            result.customerEmail = order.customerEmail;
+            result.customerPhone = order.customerPhone;
+        }
+
+        if (includeRefunds) {
+            result.refundRequests = refundRequests;
+            result.latestRefundRequest = refundRequests?.[0] ?? null;
+        }
+
+        return result;
+    }
+
     async create(userId: string | null, body: any) {
         const {
             customerEmail,
@@ -506,138 +690,37 @@ class OrderService {
                 id: orderId,
                 userId,
             },
-            select: {
-                id: true,
-                orderCode: true,
-                status: true,
-                totalAmount: true,
-                paymentMethod: true,
-                createdAt: true,
-                user: {
-                    select: {
-                        id: true,
-                        fullName: true,
-                        email: true,
-                    },
-                },
-                tickets: {
-                    select: {
-                        id: true,
-                        qrSecureToken: true,
-                        isCheckedIn: true,
-                        checkedInAt: true,
-                        eventSeat: {
-                            select: {
-                                id: true,
-                                rowLabel: true,
-                                seatNumber: true,
-                                status: true,
-                                event: {
-                                    select: {
-                                        id: true,
-                                        title: true,
-                                        thumbnailUrl: true,
-                                        startDate: true,
-                                        endDate: true,
-                                        location: true,
-                                    },
-                                },
-                                ticketType: {
-                                    select: {
-                                        id: true,
-                                        name: true,
-                                        price: true,
-                                        color: true,
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
-                orderSeats: {
-                    select: {
-                        eventSeat: {
-                            select: {
-                                event: {
-                                    select: {
-                                        id: true,
-                                        title: true,
-                                        thumbnailUrl: true,
-                                        startDate: true,
-                                        endDate: true,
-                                        location: true,
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
-                paymentTransactions: {
-                    where: {
-                        status: PaymentTransactionStatus.MATCHED,
-                    },
-                    orderBy: {
-                        updatedAt: "desc",
-                    },
-                    take: 1,
-                    select: {
-                        updatedAt: true,
-                    },
-                },
-            },
+            select: this.getOrderDetailSelect(),
         });
 
         if (!order) {
             throw new AppError("Order not found", 404);
         }
 
-        const firstTicketEvent = order.tickets[0]?.eventSeat.event;
-        const firstOrderSeatEvent = order.orderSeats[0]?.eventSeat.event;
+        return this.mapOrderDetail(order, { includeQrToken: true });
+    }
 
-        const canReturnToPayment =
-            order.status === "PENDING" &&
-            order.paymentMethod === "SEPAY" &&
-            Boolean(order.orderCode);
+    async lookupByOrderCode(orderCode: string) {
+        const normalizedCode = orderCode.trim();
 
-        const sepay = canReturnToPayment
-            ? paymentService.buildSepayPaymentInfo(
-                  order.orderCode as string,
-                  Number(order.totalAmount || 0)
-              )
-            : null;
+        const order = await prisma.order.findUnique({
+            where: {
+                orderCode: normalizedCode,
+            },
+            select: this.getOrderDetailSelect(),
+        });
 
-        return {
-            id: order.id,
-            orderCode: order.orderCode,
-            status: order.status,
-            totalAmount: order.totalAmount,
-            finalAmount: order.totalAmount,
-            paymentMethod: order.paymentMethod,
-            createdAt: order.createdAt,
-            paidAt: this.getPaidAt(order),
-            user: order.user
-                ? {
-                      id: order.user.id,
-                      name: order.user.fullName,
-                      email: order.user.email,
-                  }
-                : null,
-            event: this.mapEvent(firstTicketEvent ?? firstOrderSeatEvent),
-            tickets: order.tickets.map((ticket) => ({
-                id: ticket.id,
-                qrSecureToken: ticket.qrSecureToken,
-                isCheckedIn: ticket.isCheckedIn,
-                checkedInAt: ticket.checkedInAt,
-                eventSeat: {
-                    id: ticket.eventSeat.id,
-                    rowLabel: ticket.eventSeat.rowLabel,
-                    seatNumber: ticket.eventSeat.seatNumber,
-                    status: ticket.eventSeat.status,
-                },
-                ticketType: ticket.eventSeat.ticketType,
-            })),
-            sepay,
-        };
+        if (!order) {
+            throw new AppError(
+                "Không tìm thấy đơn hàng với mã đã nhập. Vui lòng kiểm tra lại mã đơn.",
+                404
+            );
+        }
+
+        return this.mapOrderDetail(order, {
+            includeCustomer: true,
+            includeRefunds: true,
+        });
     }
 
     async getDetail(id: string) {

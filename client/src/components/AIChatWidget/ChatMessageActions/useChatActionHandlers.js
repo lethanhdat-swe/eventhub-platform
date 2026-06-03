@@ -15,11 +15,14 @@ export function useChatActionHandlers({ onSendMessage, onOpenRefundForm } = {}) 
           }
           break;
 
-        case CHAT_ACTION_TYPES.SEND_MESSAGE:
-          if (action.payload?.message) {
-            onSendMessage?.(action.payload.message);
+        case CHAT_ACTION_TYPES.SEND_MESSAGE: {
+          const text =
+            action.payload?.message?.trim() || action.label?.trim();
+          if (text) {
+            onSendMessage?.(text);
           }
           break;
+        }
 
         case CHAT_ACTION_TYPES.OPEN_REFUND_FORM:
           onOpenRefundForm?.();

@@ -8,7 +8,12 @@ type ChatAISettings = {
     systemPrompt: string;
 };
 
-type ChatActionType = "NAVIGATE" | "OPEN_REFUND_FORM" | "SEND_MESSAGE";
+type ChatActionType =
+    | "NAVIGATE"
+    | "OPEN_REFUND_LOOKUP_FORM"
+    | "OPEN_REFUND_FORM"
+    | "SEND_MESSAGE"
+    | "SHOW_BOOKING_GUIDE_FLOW";
 
 type ChatAction = {
     type: ChatActionType;
@@ -23,10 +28,9 @@ type AssistantReply = {
 
 type ChatIntent =
     | "REFUND"
-    | "UPCOMING_EVENTS"
+    | "REFUND_LOOKUP"
     | "BOOKING_GUIDE"
     | "MY_TICKETS"
-    | "GENERAL_SUPPORT"
     | "UNKNOWN";
 
 type IntentClassification = {
@@ -36,10 +40,9 @@ type IntentClassification = {
 
 const CHAT_INTENTS: ChatIntent[] = [
     "REFUND",
-    "UPCOMING_EVENTS",
+    "REFUND_LOOKUP",
     "BOOKING_GUIDE",
     "MY_TICKETS",
-    "GENERAL_SUPPORT",
     "UNKNOWN",
 ];
 
@@ -112,14 +115,12 @@ class AIChatService {
             return `- ${speaker}: ${entry.content}`;
         });
 
-        
-
         return `
----
-Lịch sử hội thoại (từ cũ đến mới, dùng để hiểu ngữ cảnh; tin nhắn mới nhất của khách nằm ở phần dưới):
+            ---
+            Lịch sử hội thoại (từ cũ đến mới, dùng để hiểu ngữ cảnh; tin nhắn mới nhất của khách nằm ở phần dưới):
 
-${lines.join("\n")}
-`;
+            ${lines.join("\n")}
+            `;
     }
 
     private buildIntentClassificationPrompt(
@@ -130,47 +131,26 @@ ${lines.join("\n")}
         const historyBlock = this.formatChatHistoryForPrompt(history);
         return `${systemPrompt}
 
-    ---
-    Danh sách intent:
-
-    - REFUND:
-    Khách hỏi về hoàn vé, hoàn tiền, hủy vé, huỷ vé, hủy đơn, huỷ đơn, trả vé, chính sách hoàn tiền, form hoàn vé, thông tin ngân hàng nhận hoàn tiền, hoặc muốn trả lại vé vì bận/không đi được.
-
-    - UPCOMING_EVENTS:
-    Khách muốn xem sự kiện, tìm sự kiện, hỏi sự kiện hot, sự kiện sắp diễn ra, gợi ý sự kiện, show, concert, event nào đáng xem.
-
-    - BOOKING_GUIDE:
-    Khách hỏi cách đặt vé, mua vé, book vé, chọn ghế, nhập mã giảm giá, điền thông tin đặt vé, thanh toán SEPAY, chuyển khoản QR, quy trình mua vé, hoặc chưa rõ phải làm gì để mua vé.
-
-    - MY_TICKETS:
-    Khách hỏi vé của tôi, xem vé, vé QR, mã QR, email vé, đã thanh toán nhưng chưa thấy vé, kiểm tra vé ở đâu, vào cổng bằng gì, hoặc cần mã gì để check-in.
-
-    - GENERAL_SUPPORT:
-    Khách hỏi hỗ trợ chung liên quan đến EventHub, tài khoản, cách sử dụng website, hoặc câu hỏi liên quan nhưng chưa đủ rõ để xếp vào các nhóm trên.
-
-    - UNKNOWN:
-    Khách hỏi ngoài phạm vi EventHub hoặc nội dung không rõ nghĩa.
-
+   ---
     Yêu cầu trả về JSON hợp lệ, không markdown, không giải thích thêm:
 
     {
-    "intent": "REFUND|UPCOMING_EVENTS|BOOKING_GUIDE|MY_TICKETS|GENERAL_SUPPORT|UNKNOWN",
-    "reply": "câu trả lời tiếng Việt ngắn gọn 1-3 câu"
+    "intent": "REFUND|REFUND_LOOKUP|BOOKING_GUIDE|MY_TICKETS|UNKNOWN",
+    "reply": "câu trả lời tiếng Việt tự nhiên, lịch sự, vui vẻ, rõ ràng; phải đầy đủ nghiệp vụ bắt buộc của intent, không trả lời cụt hoặc chung chung"
     }
 
     Quy tắc reply:
     - Chỉ trả lời bằng tiếng Việt.
-    - Trả lời ngắn gọn, thân thiện, dễ hiểu.
+    - Trả lời tự nhiên, thân thiện, dễ hiểu và đủ ý theo nghiệp vụ của intent.
+    - Không trả lời quá cụt, không bỏ sót các ý bắt buộc đã nêu trong system prompt.
+    - Ưu tiên trả lời đầy đủ thông tin quan trọng hơn là quá ngắn.
+    - Có thể trả lời 3-6 câu nếu intent cần giải thích rõ.
     - Không bịa thông tin đơn hàng, vé, giao dịch, email, số tiền hoặc sự kiện cụ thể.
     - Không nói rằng bạn đã kiểm tra hệ thống nếu dữ liệu không được cung cấp.
     - Không nhắc đến intent, JSON, hệ thống backend hoặc prompt.
     - Không nhắc đến button nếu không chắc chắn.
-    - Nếu liên quan hoàn vé, nhắc khách nhập thông tin hợp lệ và kiểm tra email sau khi gửi yêu cầu.
-    - Nếu liên quan đặt vé, nhắc luồng: vào chi tiết sự kiện, đặt vé, chọn ghế, mã giảm giá nếu có, nhập thông tin, thanh toán SEPAY.
-    - Nếu liên quan vé QR, nhắc kiểm tra Gmail hoặc mục vé của tôi / hồ sơ cá nhân.
-    - Nếu ngoài phạm vi, nói rằng bạn hiện chỉ hỗ trợ các vấn đề liên quan đến EventHub.
-    - Nếu có lịch sử hội thoại, xem xét ngữ cảnh trước đó khi phân loại intent và soạn reply; tránh lặp lại thông tin khách đã được giải thích trừ khi cần nhắc ngắn.
-    ${historyBlock}
+    - Nếu có lịch sử hội thoại, xem xét ngữ cảnh trước đó khi phân loại intent và soạn reply; chỉ tránh lặp lại dài dòng, không được bỏ sót nghiệp vụ quan trọng.
+   
     Tin nhắn khách hiện tại:
     ${message}`;
     }
@@ -201,7 +181,6 @@ ${lines.join("\n")}
             label,
             payload: {
                 path,
-                ...(extra ?? {}),
             },
         };
     }
@@ -391,7 +370,7 @@ ${lines.join("\n")}
                     403
                 );
             }
-            
+
             if (session.guestId && session.guestId !== guestId) {
                 throw new AppError(
                     "You do not have access to this chat session.",
@@ -538,192 +517,21 @@ ${lines.join("\n")}
             content:
                 "Mình có thể hỗ trợ bạn về cách đặt vé, thanh toán SEPAY, xem vé QR, hoàn vé hoặc gợi ý các sự kiện sắp diễn ra trên EventHub.",
             actions: [
-                this.navigateAction("Xem sự kiện", "/events"),
                 {
-                    type: "OPEN_REFUND_FORM",
+                    type: "SEND_MESSAGE",
                     label: "Hoàn vé",
                 },
-            ],
-        };
-    }
-
-    private getOrdersOrLoginAction(userId?: string): ChatAction {
-        return userId
-            ? this.navigateAction("Xem đơn hàng của tôi", "/my-orders")
-            : this.navigateAction("Đăng nhập để xem đơn hàng", "/login");
-    }
-
-    private getTicketsOrLoginAction(userId?: string): ChatAction {
-        return userId
-            ? this.navigateAction("Xem vé của tôi", "/my-tickets")
-            : this.navigateAction("Đăng nhập để xem vé", "/login");
-    }
-
-    private buildRefundKeywordReply(userId?: string): AssistantReply {
-        return {
-            content:
-                "EventHub hỗ trợ hoàn vé theo chính sách: yêu cầu trước thời điểm diễn ra sự kiện từ 3 ngày trở lên có thể được hoàn 100%, trong vòng 3 ngày trước sự kiện có thể được hoàn 50%, còn sự kiện đã diễn ra thì không hỗ trợ hoàn vé. Để gửi yêu cầu hoàn vé, vui lòng mở form bên dưới, nhập đầy đủ thông tin hợp lệ và kiểm tra email sau khi gửi yêu cầu.",
-            actions: [
                 {
-                    type: "OPEN_REFUND_FORM",
-                    label: "Mở form hoàn vé",
+                    type: "SEND_MESSAGE",
+                    label: "Tra cứu vé",
                 },
-                this.getOrdersOrLoginAction(userId),
             ],
         };
     }
 
-    private buildBookingGuideKeywordReply(userId?: string): AssistantReply {
-        return {
-            content:
-                "Để đặt vé, bạn hãy vào trang chi tiết sự kiện, bấm đặt vé, chọn ghế còn trống, nhập mã giảm giá nếu có và điền chính xác thông tin đặt vé. Sau đó, bạn thanh toán bằng SEPAY qua mã QR; khi thành công, hãy kiểm tra Gmail hoặc mục vé trong hồ sơ cá nhân để xem vé QR hợp lệ dùng khi vào cổng.",
-            actions: [
-                this.navigateAction("Xem sự kiện", "/events"),
-                this.getTicketsOrLoginAction(userId),
-            ],
-        };
-    }
-
-    private buildMyTicketsKeywordReply(userId?: string): AssistantReply {
-        return {
-            content:
-                "Sau khi thanh toán thành công, vé QR của bạn sẽ được lưu trong mục vé của tôi nếu bạn đã đăng nhập. Bạn cũng nên kiểm tra Gmail đã dùng khi đặt vé, vì EventHub sẽ gửi thông tin vé qua email.",
-            actions: [this.getTicketsOrLoginAction(userId)],
-        };
-    }
-
-    private async fetchUpcomingPublishedEvents() {
-        return prisma.event.findMany({
-            where: {
-                status: "PUBLISHED",
-                startDate: {
-                    gte: new Date(),
-                },
-            },
-            orderBy: {
-                startDate: "asc",
-            },
-            take: 3,
-            select: {
-                id: true,
-                title: true,
-                slug: true,
-                location: true,
-                startDate: true,
-                thumbnailUrl: true,
-            },
-        });
-    }
-
-    private mapEventsToNavigateActions(
-        events: Awaited<ReturnType<AIChatService["fetchUpcomingPublishedEvents"]>>
-    ): ChatAction[] {
-        return events.map((event) => {
-            const display: Prisma.InputJsonObject = {
-                ...(event.location ? { location: event.location } : {}),
-                ...(event.startDate
-                    ? { startDate: event.startDate.toISOString() }
-                    : {}),
-                ...(event.thumbnailUrl
-                    ? { thumbnailUrl: event.thumbnailUrl }
-                    : {}),
-            };
-
-            return this.navigateAction(
-                event.title,
-                `/events/${event.slug}`,
-                Object.keys(display).length > 0 ? display : undefined
-            );
-        });
-    }
-
-    private async buildUpcomingEventsReply(
-        content: string,
-        emptyEventsContent?: string
-    ): Promise<AssistantReply> {
-        const events = await this.fetchUpcomingPublishedEvents();
-
-        if (events.length === 0) {
-            return {
-                content:
-                    emptyEventsContent ||
-                    "Hiện tại EventHub chưa có sự kiện sắp diễn ra phù hợp. Bạn có thể quay lại sau để xem thêm các sự kiện mới.",
-                actions: [
-                    this.navigateAction("Xem tất cả sự kiện", "/events"),
-                ],
-            };
-        }
-
-        return {
-            content,
-            actions: this.mapEventsToNavigateActions(events),
-        };
-    }
-
-    private matchesRefundKeywords(lowerMessage: string) {
-        return (
-            lowerMessage.includes("hoàn tiền") ||
-            lowerMessage.includes("hoàn vé") ||
-            lowerMessage.includes("refund") ||
-            lowerMessage.includes("hủy vé") ||
-            lowerMessage.includes("huỷ vé") ||
-            lowerMessage.includes("hủy đơn") ||
-            lowerMessage.includes("huỷ đơn") ||
-            lowerMessage.includes("trả vé") ||
-            lowerMessage.includes("cancel ticket")
-        );
-    }
-
-    private matchesUpcomingEventsKeywords(lowerMessage: string) {
-        return (
-            lowerMessage.includes("sự kiện hot") ||
-            lowerMessage.includes("event hot") ||
-            lowerMessage.includes("sự kiện sắp diễn ra") ||
-            lowerMessage.includes("sắp diễn ra") ||
-            lowerMessage.includes("gợi ý sự kiện") ||
-            lowerMessage.includes("có sự kiện nào") ||
-            lowerMessage.includes("sự kiện nào") ||
-            lowerMessage.includes("event nào") ||
-            lowerMessage.includes("concert hot") ||
-            lowerMessage.includes("show hot")
-        );
-    }
-
-    private matchesBookingGuideKeywords(lowerMessage: string) {
-        return (
-            lowerMessage.includes("đặt vé") ||
-            lowerMessage.includes("mua vé") ||
-            lowerMessage.includes("book vé") ||
-            lowerMessage.includes("booking") ||
-            lowerMessage.includes("thanh toán") ||
-            lowerMessage.includes("payment") ||
-            lowerMessage.includes("sepay") ||
-            lowerMessage.includes("chọn ghế") ||
-            lowerMessage.includes("mã giảm giá") ||
-            lowerMessage.includes("coupon") ||
-            lowerMessage.includes("voucher")
-        );
-    }
-
-    private matchesMyTicketsKeywords(lowerMessage: string) {
-        return (
-            lowerMessage.includes("vé của tôi") ||
-            lowerMessage.includes("ticket của tôi") ||
-            lowerMessage.includes("xem vé") ||
-            lowerMessage.includes("mã qr") ||
-            lowerMessage.includes("qr vé") ||
-            lowerMessage.includes("vé qr") ||
-            lowerMessage.includes("email vé") ||
-            lowerMessage.includes("chưa thấy vé") ||
-            lowerMessage.includes("vào cổng") ||
-            lowerMessage.includes("check-in") ||
-            lowerMessage.includes("check in") ||
-            lowerMessage.includes("my ticket") ||
-            lowerMessage.includes("my tickets")
-        );
-    }
-
-    private parseIntentClassification(raw: string): IntentClassification | null {
+    private parseIntentClassification(
+        raw: string
+    ): IntentClassification | null {
         const trimmed = raw.trim();
         let jsonText = trimmed;
 
@@ -774,9 +582,6 @@ ${lines.join("\n")}
                 message,
                 history
             );
-            
-            console.log(prompt);
-            
 
             const content = await aiProviderService.generateText({
                 model: chatSettings.model,
@@ -798,7 +603,7 @@ ${lines.join("\n")}
         userId?: string
     ): Promise<AssistantReply> {
         const { intent, reply } = classification;
-        
+
         switch (intent) {
             case "REFUND":
                 return {
@@ -808,36 +613,92 @@ ${lines.join("\n")}
                             type: "OPEN_REFUND_FORM",
                             label: "Mở form hoàn vé",
                         },
-                        this.getOrdersOrLoginAction(userId),
+                        { type: "SEND_MESSAGE", label: "Tra cứu thông tin vé" },
                     ],
                 };
 
-            case "UPCOMING_EVENTS":
-                return this.buildUpcomingEventsReply(reply, reply);
+            case "REFUND_LOOKUP":
+                return {
+                    content: reply,
+                    actions: [
+                        {
+                            type: "OPEN_REFUND_LOOKUP_FORM",
+                            label: "Tra cứu vé đã đặt",
+                        },
+                        { type: "SEND_MESSAGE", label: "Xử lí hoàn vé" },
+                    ],
+                };
 
             case "BOOKING_GUIDE":
                 return {
                     content: reply,
                     actions: [
-                        this.navigateAction("Xem sự kiện", "/events"),
-                        this.getTicketsOrLoginAction(userId),
+                        {
+                            type: "SHOW_BOOKING_GUIDE_FLOW",
+                            label: "Quy trình đặt vé",
+                            payload: {
+                                steps: [
+                                    {
+                                        title: "Chọn sự kiện",
+                                        description:
+                                            "Vào danh sách sự kiện và chọn một sự kiện sắp diễn ra.",
+                                    },
+                                    {
+                                        title: "Đặt chỗ",
+                                        description:
+                                            "Bấm nút “Đặt chỗ ngay” trong trang chi tiết sự kiện.",
+                                    },
+                                    {
+                                        title: "Chọn ghế",
+                                        description:
+                                            "Chọn ghế còn trống mà bạn muốn đặt.",
+                                    },
+                                    {
+                                        title: "Nhập thông tin",
+                                        description:
+                                            "Nhập email, họ tên và số điện thoại để tạo đơn.",
+                                    },
+                                    {
+                                        title: "Áp dụng coupon",
+                                        description:
+                                            "Ở trang thanh toán, nhập coupon/mã giảm giá nếu có.",
+                                    },
+                                    {
+                                        title: "Thanh toán SEPAY",
+                                        description:
+                                            "Quét mã QR để thanh toán. Hiện tại EventHub chỉ hỗ trợ thanh toán bằng SEPAY.",
+                                    },
+                                    {
+                                        title: "Nhận vé QR",
+                                        description:
+                                            "Sau khi thanh toán thành công, EventHub sẽ gửi email kèm thông tin đơn hàng và mã QR của từng ticket.",
+                                    },
+                                    {
+                                        title: "Bảo mật vé",
+                                        description:
+                                            "Không chia sẻ mã QR vé hoặc mã đơn hàng/order code cho bất kỳ ai.",
+                                    },
+                                ],
+                            },
+                        },
+                        {
+                            type: "NAVIGATE",
+                            label: "Xem danh sách sự kiện",
+                            payload: {
+                                path: "/events",
+                            },
+                        },
                     ],
                 };
 
             case "MY_TICKETS":
                 return {
                     content: reply,
-                    actions: [this.getTicketsOrLoginAction(userId)],
-                };
-
-            case "GENERAL_SUPPORT":
-                return {
-                    content: reply,
                     actions: [
-                        this.navigateAction("Xem sự kiện", "/events"),
+                        this.getTicketsOrLoginAction(userId),
                         {
-                            type: "OPEN_REFUND_FORM",
-                            label: "Hoàn vé",
+                            type: "SEND_MESSAGE",
+                            label: "Tra cứu vé đã đặt",
                         },
                     ],
                 };
@@ -849,49 +710,25 @@ ${lines.join("\n")}
                         reply ||
                         "Mình hiện có thể hỗ trợ các chủ đề liên quan đến EventHub như sự kiện, đặt vé, thanh toán, vé QR, hoàn vé và tài khoản. Bạn có thể chọn một trong các mục bên dưới.",
                     actions: [
-                        this.navigateAction("Xem sự kiện", "/events"),
-                        this.sendMessageAction(
-                            "Hướng dẫn đặt vé",
-                            "Hướng dẫn tôi cách đặt vé"
-                        ),
-                        this.sendMessageAction(
-                            "Vé của tôi",
-                            "Làm sao để xem vé của tôi?"
-                        ),
                         {
-                            type: "OPEN_REFUND_FORM",
-                            label: "Hoàn vé",
+                            type: "SEND_MESSAGE",
+                            label: "Hoàn vé đã đặt",
+                        },
+                        {
+                            type: "SEND_MESSAGE",
+                            label: "Tra cứu hoàn vé",
+                        },
+                        {
+                            type: "SEND_MESSAGE",
+                            label: "Hướng dẫn đặt vé",
+                        },
+                        {
+                            type: "SEND_MESSAGE",
+                            label: "Vé tôi đặt ở đâu?",
                         },
                     ],
                 };
         }
-    }
-
-    private async buildKeywordFallbackReply(data: {
-        lowerMessage: string;
-        userId?: string;
-    }): Promise<AssistantReply | null> {
-        const { lowerMessage, userId } = data;
-
-        if (this.matchesRefundKeywords(lowerMessage)) {
-            return this.buildRefundKeywordReply(userId);
-        }
-
-        if (this.matchesMyTicketsKeywords(lowerMessage)) {
-            return this.buildMyTicketsKeywordReply(userId);
-        }
-
-        if (this.matchesBookingGuideKeywords(lowerMessage)) {
-            return this.buildBookingGuideKeywordReply(userId);
-        }
-
-        if (this.matchesUpcomingEventsKeywords(lowerMessage)) {
-            return this.buildUpcomingEventsReply(
-                "Dưới đây là một vài sự kiện sắp diễn ra trên EventHub mà bạn có thể quan tâm."
-            );
-        }
-
-        return null;
     }
 
     private async generateAssistantReply(data: {
@@ -900,7 +737,6 @@ ${lines.join("\n")}
         userId?: string;
     }): Promise<AssistantReply> {
         const { sessionId, message, userId } = data;
-        const lowerMessage = message.toLowerCase();
 
         const chatSettings = await this.getChatAISettings();
         const history = await this.getSessionChatHistory(sessionId);
@@ -917,16 +753,27 @@ ${lines.join("\n")}
             }
         }
 
-        const keywordFallbackReply = await this.buildKeywordFallbackReply({
-            lowerMessage,
-            userId,
-        });
+        return this.getDefaultAssistantReply();
+    }
 
-        if (keywordFallbackReply) {
-            return keywordFallbackReply;
+    private getTicketsOrLoginAction(userId?: string): ChatAction {
+        if (userId) {
+            return {
+                type: "NAVIGATE",
+                label: "Xem vé của tôi",
+                payload: {
+                    path: "/my-tickets",
+                },
+            };
         }
 
-        return this.getDefaultAssistantReply();
+        return {
+            type: "NAVIGATE",
+            label: "Đăng nhập để xem vé",
+            payload: {
+                path: "/login",
+            },
+        };
     }
 }
 
