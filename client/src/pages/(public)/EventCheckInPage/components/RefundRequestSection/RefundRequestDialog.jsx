@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Loader2, X } from 'lucide-react';
+import { Info, Loader2, X } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { getErrorMessage } from '@/lib/http/apiError';
 import { refundService } from '@/lib/services/admin/refundService';
+import { useAuthStore } from '@/stores/authStore';
 
 const initialForm = {
     orderCode: '',
@@ -101,6 +103,26 @@ function getRefundErrorMessage(error) {
     return errorMap[message] || message || 'Gửi yêu cầu hoàn vé thất bại.';
 }
 
+function RefundEstimateHint() {
+    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+    return (
+        <div className="flex flex-wrap items-center gap-2 rounded-full border border-(--border-color) bg-(--soft-surface-color) px-3 py-2">
+            <Info className="size-3.5 shrink-0 text-(--primary-color)" />
+            <p className="min-w-0 flex-1 text-xs leading-5 text-(--muted-text)">
+                Để xem tỷ lệ và số tiền hoàn dự kiến, vui lòng đăng nhập và mở
+                trang chi tiết vé từ Vé của tôi.
+            </p>
+            <Link
+                to={isAuthenticated ? '/my-tickets' : '/login'}
+                className="shrink-0 rounded-full bg-(--primary-color)/15 px-2.5 py-1 text-xs font-medium text-(--primary-color) transition hover:bg-(--primary-color)/25"
+            >
+                {isAuthenticated ? 'Vé của tôi' : 'Đăng nhập'}
+            </Link>
+        </div>
+    );
+}
+
 function RefundRequestDialog({
     open,
     onOpenChange,
@@ -110,6 +132,7 @@ function RefundRequestDialog({
 }) {
     const [form, setForm] = useState(initialForm);
     const [submitting, setSubmitting] = useState(false);
+    const hasOrder = Boolean(order);
 
     useEffect(() => {
         if (open) {
@@ -183,11 +206,12 @@ function RefundRequestDialog({
             };
 
             const result = await refundService.create(payload);
+            const refundAmount = result?.refundAmount || expectedRefundAmount;
 
             toast.success(
-                `Đã gửi yêu cầu hoàn vé. Số tiền dự kiến: ${formatCurrency(
-                    result?.refundAmount || expectedRefundAmount
-                )}`
+                refundAmount
+                    ? `Đã gửi yêu cầu hoàn vé. Số tiền dự kiến: ${formatCurrency(refundAmount)}`
+                    : 'Đã gửi yêu cầu hoàn vé.'
             );
 
             onOpenChange(false);
@@ -200,7 +224,7 @@ function RefundRequestDialog({
     }
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center px-4 py-6 z-100">
+        <div className="fixed inset-0 z-[10050] flex items-center justify-center px-4 py-6">
             <button
                 type="button"
                 aria-label="Đóng"
@@ -237,34 +261,38 @@ function RefundRequestDialog({
                     className="flex-1 min-h-0 overflow-y-auto"
                 >
                     <div className="px-5 py-5 space-y-5">
-                        <div className="grid gap-3 rounded-xl border border-(--border-color) bg-(--soft-surface-color) p-4 sm:grid-cols-3">
-                            <div>
-                                <p className="text-xs text-(--muted-text)">
-                                    Tỷ lệ hoàn
-                                </p>
-                                <p className="mt-1 text-base font-semibold text-(--text-primary)">
-                                    {expectedRefundPercent || 0}%
-                                </p>
-                            </div>
+                        {hasOrder ? (
+                            <div className="grid gap-3 rounded-xl border border-(--border-color) bg-(--soft-surface-color) p-4 sm:grid-cols-3">
+                                <div>
+                                    <p className="text-xs text-(--muted-text)">
+                                        Tỷ lệ hoàn
+                                    </p>
+                                    <p className="mt-1 text-base font-semibold text-(--text-primary)">
+                                        {expectedRefundPercent || 0}%
+                                    </p>
+                                </div>
 
-                            <div>
-                                <p className="text-xs text-(--muted-text)">
-                                    Tổng đơn
-                                </p>
-                                <p className="mt-1 text-base font-semibold text-(--text-primary)">
-                                    {formatCurrency(totalAmount)}
-                                </p>
-                            </div>
+                                <div>
+                                    <p className="text-xs text-(--muted-text)">
+                                        Tổng đơn
+                                    </p>
+                                    <p className="mt-1 text-base font-semibold text-(--text-primary)">
+                                        {formatCurrency(totalAmount)}
+                                    </p>
+                                </div>
 
-                            <div>
-                                <p className="text-xs text-(--muted-text)">
-                                    Dự kiến hoàn
-                                </p>
-                                <p className="mt-1 text-base font-semibold text-(--primary-color)">
-                                    {formatCurrency(expectedRefundAmount)}
-                                </p>
+                                <div>
+                                    <p className="text-xs text-(--muted-text)">
+                                        Dự kiến hoàn
+                                    </p>
+                                    <p className="mt-1 text-base font-semibold text-(--primary-color)">
+                                        {formatCurrency(expectedRefundAmount)}
+                                    </p>
+                                </div>
                             </div>
-                        </div>
+                        ) : (
+                            <RefundEstimateHint />
+                        )}
 
                         <div>
                             <h4 className="mb-3 text-sm font-semibold text-(--text-primary)">
@@ -277,8 +305,9 @@ function RefundRequestDialog({
                                     name="orderCode"
                                     value={form.orderCode}
                                     onChange={handleChange}
+                                    placeholder="Nhập mã đơn hàng"
                                     required
-                                    readOnly
+                                    readOnly={hasOrder}
                                 />
 
                                 <Field

@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import { AppError } from "../utils/AppError";
 import aiChatService from "../services/ai-chat.service";
 
 class AIChatController {
@@ -23,6 +24,31 @@ class AIChatController {
             return res.success({
                 message: "Chat sessions retrieved successfully.",
                 data: result,
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    getLatestMySession = async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) => {
+        try {
+            const userId = req.user?.id;
+
+            if (!userId) {
+                throw new AppError("Authentication required.", 401);
+            }
+
+            const session = await aiChatService.getLatestUserSession(userId);
+
+            return res.success({
+                message: session
+                    ? "Latest chat session retrieved successfully."
+                    : "No chat session found.",
+                data: session,
             });
         } catch (error) {
             next(error);

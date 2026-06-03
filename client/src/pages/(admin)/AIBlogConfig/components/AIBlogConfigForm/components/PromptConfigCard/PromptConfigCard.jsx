@@ -26,17 +26,17 @@ export default function PromptConfigCard({
             Cấu hình prompt
           </p>
 
-          <p className="text-xs text-gray-400 mt-0.5">
+          <p className="text-xs text-gray-600 mt-0.5">
             Hướng dẫn AI cách tạo nội dung blog cho EventHub
           </p>
         </div>
       </div>
 
-      <p className="text-[11px] font-medium uppercase tracking-widest text-gray-400 mb-1.5">
+      <p className="text-[11px] font-medium uppercase tracking-widest text-gray-600 mb-1.5">
         Nội dung prompt
       </p>
 
-      <p className="mb-2 text-xs text-gray-400">
+      <p className="mb-2 text-xs text-gray-600">
         Nhấn vào biến phía trên để chèn vào prompt
       </p>
 
@@ -45,11 +45,11 @@ export default function PromptConfigCard({
         value={prompt}
         onChange={(e) => setPrompt(e.target.value)}
         placeholder="Nhập prompt hướng dẫn AI tạo nội dung blog..."
-        className="w-full min-h-40 resize-y border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 bg-white leading-relaxed outline-none focus:border-gray-400 transition-colors placeholder:text-gray-300"
+        className="w-full min-h-40 resize-y border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 bg-white leading-relaxed outline-none focus:border-gray-400 transition-colors placeholder:text-gray-400"
       />
 
       <div className="flex items-center justify-between mt-3">
-        <span className="text-xs text-gray-300">
+        <span className="text-xs text-gray-500">
           {prompt.length} ký tự
         </span>
       </div>

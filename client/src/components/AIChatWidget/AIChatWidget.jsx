@@ -12,10 +12,10 @@ import {
 import { toast } from 'sonner';
 
 import {
-  clearChatSessionId,
-  getChatSessionId,
+  clearStoredChatSessionId,
   getOrCreateGuestId,
-  setChatSessionId,
+  getStoredChatSessionId,
+  setStoredChatSessionId,
 } from '@/lib/aiChat/aiChatStorage';
 import {
   mapApiMessageToWidget,
@@ -25,9 +25,10 @@ import {
 } from '@/lib/aiChat/mapChatMessage';
 import { getErrorMessage, parseApiError } from '@/lib/http/apiError';
 import { aiChatService } from '@/lib/services/aiChat/aiChatService';
+import RefundRequestDialog from '@/pages/(public)/EventCheckInPage/components/RefundRequestSection/RefundRequestDialog';
 import { useAuthStore } from '@/stores/authStore';
 
-import ChatMessageActions from './ChatMessageActions';
+import ChatMessageActions from './ChatMessageActions/ChatMessageActions';
 
 const QUICK_SUGGESTIONS = [
   'Cách đặt vé?',
@@ -61,6 +62,7 @@ function ChatTypingIndicator() {
 function AIChatWidget() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const isHydrated = useAuthStore((state) => state.isHydrated);
+  const userId = useAuthStore((state) => state.user?.id);
 
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -69,7 +71,10 @@ function AIChatWidget() {
   const [messages, setMessages] = useState([]);
   const [isSessionLoading, setIsSessionLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [isRefundDialogOpen, setIsRefundDialogOpen] = useState(false);
   const messageContainerRef = useRef(null);
+  const prevAuthenticatedRef = useRef(null);
+  const bootstrapCancelledRef = useRef(false);
 
   const showQuickSuggestions = useMemo(() => {
     if (isSessionLoading || isSending) return false;
@@ -83,65 +88,102 @@ function AIChatWidget() {
     messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
   }, [messages, isOpen, isSending, isSessionLoading]);
 
-  useEffect(() => {
-    if (!isOpen || !isHydrated) return undefined;
+  const sessionStorageScope = useMemo(
+    () => ({ isAuthenticated, userId }),
+    [isAuthenticated, userId]
+  );
 
-    let cancelled = false;
+  const applyLoadedSession = useCallback(
+    async (targetSessionId, guestId) => {
+      const payload = await aiChatService.getSessionMessages(targetSessionId, {
+        page: 1,
+        limit: 100,
+        guestId,
+      });
 
-    async function bootstrapSession() {
-      setIsSessionLoading(true);
+      if (bootstrapCancelledRef.current) return false;
 
-      try {
-        const guestId = isAuthenticated ? undefined : getOrCreateGuestId();
-        const storedSessionId = getChatSessionId();
+      setStoredChatSessionId(targetSessionId, sessionStorageScope);
+      setSessionId(targetSessionId);
+      setMessages(withWelcomeIfEmpty(mapApiMessagesToWidget(payload.items)));
+      return true;
+    },
+    [sessionStorageScope]
+  );
 
-        if (storedSessionId) {
+  const bootstrapSession = useCallback(async () => {
+    setIsSessionLoading(true);
+
+    try {
+      const guestId = isAuthenticated ? undefined : getOrCreateGuestId();
+      const storedSessionId = getStoredChatSessionId(sessionStorageScope);
+
+      if (storedSessionId) {
+        try {
+          const loaded = await applyLoadedSession(storedSessionId, guestId);
+          if (loaded) return;
+        } catch (error) {
+          if (!isSessionAccessError(error)) {
+            throw error;
+          }
+          clearStoredChatSessionId(sessionStorageScope);
+        }
+      }
+
+      if (isAuthenticated) {
+        const latestSession = await aiChatService.getLatestMySession();
+        if (latestSession?.id) {
           try {
-            const payload = await aiChatService.getSessionMessages(storedSessionId, {
-              page: 1,
-              limit: 100,
-              guestId,
-            });
-
-            if (cancelled) return;
-
-            setSessionId(storedSessionId);
-            setMessages(withWelcomeIfEmpty(mapApiMessagesToWidget(payload.items)));
-            return;
+            const loaded = await applyLoadedSession(latestSession.id, undefined);
+            if (loaded) return;
           } catch (error) {
             if (!isSessionAccessError(error)) {
               throw error;
             }
-            clearChatSessionId();
           }
         }
+      }
 
-        const sessionBody = isAuthenticated ? {} : { guestId: getOrCreateGuestId() };
-        const session = await aiChatService.createSession(sessionBody);
+      const sessionBody = isAuthenticated ? {} : { guestId: getOrCreateGuestId() };
+      const session = await aiChatService.createSession(sessionBody);
 
-        if (cancelled) return;
+      if (bootstrapCancelledRef.current) return;
 
-        setChatSessionId(session.id);
-        setSessionId(session.id);
-        setMessages([WELCOME_MESSAGE]);
-      } catch (error) {
-        if (cancelled) return;
-        toast.error(getErrorMessage(error));
-        setSessionId(null);
-        setMessages([WELCOME_MESSAGE]);
-      } finally {
-        if (!cancelled) {
-          setIsSessionLoading(false);
-        }
+      setStoredChatSessionId(session.id, sessionStorageScope);
+      setSessionId(session.id);
+      setMessages([WELCOME_MESSAGE]);
+    } catch (error) {
+      if (bootstrapCancelledRef.current) return;
+      toast.error(getErrorMessage(error));
+      setSessionId(null);
+      setMessages([WELCOME_MESSAGE]);
+    } finally {
+      if (!bootstrapCancelledRef.current) {
+        setIsSessionLoading(false);
       }
     }
+  }, [isAuthenticated, sessionStorageScope, applyLoadedSession]);
 
+  useEffect(() => {
+    if (!isOpen || !isHydrated) return undefined;
+
+    const authChanged =
+      prevAuthenticatedRef.current !== null &&
+      prevAuthenticatedRef.current !== isAuthenticated;
+    prevAuthenticatedRef.current = isAuthenticated;
+
+    if (authChanged) {
+      setSessionId(null);
+      setMessages([]);
+    }
+
+    bootstrapCancelledRef.current = false;
     bootstrapSession();
 
     return () => {
-      cancelled = true;
+      bootstrapCancelledRef.current = true;
     };
-  }, [isOpen, isHydrated, isAuthenticated]);
+  }, [isOpen, isHydrated, isAuthenticated, bootstrapSession]);
 
   const sendMessage = useCallback(
     async (text) => {
@@ -169,18 +211,33 @@ function AIChatWidget() {
           guestId,
         });
 
+        const userMessage = mapApiMessageToWidget(result.userMessage);
         const assistantMessage = mapApiMessageToWidget(result.assistantMessage);
-        if (assistantMessage) {
-          setMessages((prev) => [...prev, assistantMessage]);
-        }
+
+        setMessages((prev) => {
+          const withoutTemp = prev.filter((message) => message.id !== tempUserId);
+          const next = [...withoutTemp];
+          if (userMessage) next.push(userMessage);
+          if (assistantMessage) next.push(assistantMessage);
+          return next;
+        });
       } catch (error) {
-        toast.error(getErrorMessage(error));
         setMessages((prev) => prev.filter((message) => message.id !== tempUserId));
+
+        if (isSessionAccessError(error)) {
+          clearStoredChatSessionId(sessionStorageScope);
+          setSessionId(null);
+          toast.info('Đã làm mới cuộc trò chuyện.');
+          await bootstrapSession();
+          return;
+        }
+
+        toast.error(getErrorMessage(error));
       } finally {
         setIsSending(false);
       }
     },
-    [sessionId, isSending, isSessionLoading, isAuthenticated]
+    [sessionId, isSending, isSessionLoading, isAuthenticated, bootstrapSession, sessionStorageScope]
   );
 
   const handleSend = () => {
@@ -188,6 +245,7 @@ function AIChatWidget() {
   };
 
   return (
+    <>
     <div className="pointer-events-none fixed bottom-5 right-4 z-[9999] md:bottom-8 md:right-8">
       <button
         type="button"
@@ -283,6 +341,8 @@ function AIChatWidget() {
                               <ChatMessageActions
                                 messageId={message.id}
                                 actions={message.actions}
+                                onSendMessage={sendMessage}
+                                onOpenRefundForm={() => setIsRefundDialogOpen(true)}
                               />
                             ) : null}
                           </div>
@@ -347,6 +407,14 @@ function AIChatWidget() {
         </div>
       )}
     </div>
+
+    <RefundRequestDialog
+      open={isRefundDialogOpen}
+      onOpenChange={setIsRefundDialogOpen}
+      order={null}
+      expectedRefundPercent={null}
+    />
+    </>
   );
 }
 

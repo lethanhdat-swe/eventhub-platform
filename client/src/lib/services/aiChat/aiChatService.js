@@ -15,6 +15,14 @@ function buildListMessagesParams(query) {
 
 export const aiChatService = {
   /**
+   * Latest chat session for the authenticated user, or null if none.
+   */
+  getLatestMySession: async () => {
+    const response = await axiosInstance.get(`${resourceBase}/sessions/me/latest`);
+    return getApiData(response, { allowEmptyData: true });
+  },
+
+  /**
    * @param {{ guestId?: string }} [body]
    */
   createSession: async (body = {}) => {

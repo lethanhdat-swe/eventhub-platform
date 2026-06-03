@@ -8,7 +8,7 @@ function PromptActionBar({
 }) {
   return (
     <div className="flex items-center justify-between mt-4">
-      <span className="text-xs text-gray-300">
+      <span className="text-xs text-gray-500">
         {prompt.length} ký tự
       </span>
 

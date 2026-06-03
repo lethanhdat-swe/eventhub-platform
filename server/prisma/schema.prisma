@@ -485,6 +485,8 @@ model AIContentConfig {
   blogModel      String  @map("blog_model")
   blogPrompt     String  @map("blog_prompt") @db.Text
   thumbnailModel String? @map("thumbnail_model")
+  chatModel       String? @map("chat_model")
+  chatSystemPrompt String? @map("chat_system_prompt") @db.Text
   isActive       Boolean @default(true) @map("is_active")
 
   createdAt DateTime @default(now()) @map("created_at")

@@ -19,3 +19,14 @@ export const updateAIContentConfigSchema = z.object({
         thumbnailModel: z.string().optional(),
     }),
 });
+
+export const updateAIChatConfigSchema = z.object({
+    params: z.object({
+        id: z.string().min(1),
+    }),
+
+    body: z.object({
+        chatModel: z.string().min(1),
+        chatSystemPrompt: z.string().min(1),
+    }),
+});
