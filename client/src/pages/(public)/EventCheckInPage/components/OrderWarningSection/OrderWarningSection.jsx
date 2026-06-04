@@ -9,13 +9,13 @@ function OrderWarningSection({ orderStatus, isCancelled, order, sepay }) {
         !isCancelled && orderStatus.tone === 'warning' && order?.id && sepay;
 
     return (
-        <section className="rounded-3xl border border-red-400/20 bg-red-400/10 p-5 backdrop-blur-xl">
+        <section className="p-5 border rounded-3xl border-red-400/20 bg-red-400/10 backdrop-blur-xl">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-                <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-red-400/10 text-red-300">
+                <div className="flex items-center justify-center text-red-300 size-14 shrink-0 rounded-2xl bg-red-400/10">
                     <Icon className="size-7" />
                 </div>
 
-                <div className="min-w-0 flex-1 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div className="flex flex-col flex-1 min-w-0 gap-4 md:flex-row md:items-center md:justify-between">
                     <div>
                         <div className="flex flex-wrap items-center gap-3">
                             <h2 className="text-xl font-bold text-(--text-primary)">
@@ -32,7 +32,7 @@ function OrderWarningSection({ orderStatus, isCancelled, order, sepay }) {
                         </p>
 
                         {isCancelled ? (
-                            <p className="mt-3 text-sm leading-6 text-red-200/80">
+                            <p className="mt-3 text-sm leading-6 text-red-400">
                                 Bạn không cần xuất trình QR cho đơn hàng này vì
                                 hệ thống chưa phát hành vé.
                             </p>
