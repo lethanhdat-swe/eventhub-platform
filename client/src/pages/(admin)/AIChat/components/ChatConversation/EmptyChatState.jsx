@@ -6,9 +6,9 @@ function EmptyChatState() {
       <div className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full border bg-muted/40 text-muted-foreground">
         <MessageCircle size={24} />
       </div>
-      <h3 className="text-lg font-semibold">Select a chat</h3>
+      <h3 className="text-lg font-semibold">Chọn một hội thoại</h3>
       <p className="mt-1 max-w-xs text-sm text-muted-foreground">
-        Choose a conversation from the left to view messages.
+        Chọn hội thoại bên trái để xem tin nhắn.
       </p>
     </div>
   );

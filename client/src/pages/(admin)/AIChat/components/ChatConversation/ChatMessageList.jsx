@@ -27,7 +27,7 @@ function ChatMessageList({ messages, sessionId, isLoading }) {
         </div>
       ) : (
         <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-          No messages in this conversation yet.
+          Chưa có tin nhắn trong hội thoại này.
         </div>
       )}
     </div>

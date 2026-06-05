@@ -1,6 +1,8 @@
 import { ArrowRight, CalendarDays, Clock, MapPin, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
+
 function PublicEventCard({ event }) {
   const startDate = new Date(event.startDate);
 
@@ -22,7 +24,7 @@ function PublicEventCard({ event }) {
     minute: '2-digit',
   });
 
-  const imageUrl = `${import.meta.env.VITE_API_URL}/uploads/${event.thumbnailUrl}`;
+  const imageUrl = resolvePublicAssetUrl(event.thumbnailUrl, '');
 
   const artists = event.eventArtists ?? [];
   const visibleArtists = artists.slice(0, 3);
@@ -90,7 +92,7 @@ function PublicEventCard({ event }) {
                 {visibleArtists.map((item) => (
                   <img
                     key={item.artist.id}
-                    src={`${import.meta.env.VITE_API_URL}${item.artist.avatarUrl}`}
+                    src={resolvePublicAssetUrl(item.artist.avatarUrl, '')}
                     alt={item.artist.name}
                     className="h-8 w-8 rounded-full border-2 border-(--surface-color) object-cover"
                   />

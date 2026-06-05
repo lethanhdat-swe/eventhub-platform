@@ -2,6 +2,7 @@ import { Eye, MoreHorizontal, Trash2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import AdminTableWrapper from '@/pages/(admin)/components/table/AdminTableWrapper';
+import { SortableTableHead } from '@/pages/(admin)/components/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   DropdownMenu,
@@ -28,6 +29,9 @@ import {
 function OrderTable({
   orders,
   selectedIds,
+  sortBy,
+  sortOrder,
+  onSort,
   onSelectAll,
   onSelectRow,
   onView,
@@ -55,14 +59,56 @@ function OrderTable({
                 aria-label="Chọn tất cả đơn hàng"
               />
             </TableHead>
-            <TableHead className="px-2 h-9">Mã đơn hàng</TableHead>
-            <TableHead className="px-2 h-9">Khách hàng</TableHead>
-            <TableHead className="px-2 h-9">Email</TableHead>
+            <SortableTableHead
+              field="orderCode"
+              label="Mã đơn hàng"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
+            <SortableTableHead
+              field="customerName"
+              label="Khách hàng"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
+            <SortableTableHead
+              field="customerEmail"
+              label="Email"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
             <TableHead className="px-2 h-9">Số điện thoại</TableHead>
-            <TableHead className="px-2 h-9">Tổng tiền</TableHead>
-            <TableHead className="px-2 h-9">Phương thức</TableHead>
-            <TableHead className="px-2 h-9">Trạng thái</TableHead>
-            <TableHead className="px-2 h-9">Ngày tạo</TableHead>
+            <SortableTableHead
+              field="totalAmount"
+              label="Tổng tiền"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
+            <SortableTableHead
+              field="paymentMethod"
+              label="Phương thức"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
+            <SortableTableHead
+              field="status"
+              label="Trạng thái"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
+            <SortableTableHead
+              field="createdAt"
+              label="Ngày tạo"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
             <TableHead className="w-12 px-2 text-right h-9">Hành động</TableHead>
           </TableRow>
         </TableHeader>

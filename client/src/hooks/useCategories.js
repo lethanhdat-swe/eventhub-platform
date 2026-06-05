@@ -6,7 +6,7 @@ import { mapCategoryRow } from '@/pages/(admin)/EventCategories/data';
 
 const PAGE_SIZE = 10;
 
-export function useCategories(search) {
+export function useCategories(search, { sortBy, sortOrder } = {}) {
   const [categories, setCategories] = useState([]);
   const [page, setPage] = useState(1);
 
@@ -29,6 +29,8 @@ export function useCategories(search) {
         page,
         limit: PAGE_SIZE,
         search,
+        sortBy,
+        sortOrder,
       });
 
       const rows = payload.data ?? [];
@@ -49,7 +51,7 @@ export function useCategories(search) {
     } finally {
       setIsLoading(false);
     }
-  }, [page, search]);
+  }, [page, search, sortBy, sortOrder]);
 
   useEffect(() => {
     void loadCategories();

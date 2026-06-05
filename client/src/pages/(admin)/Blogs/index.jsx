@@ -1,5 +1,5 @@
 import { Plus } from 'lucide-react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,7 @@ import {
   AdminBulkActions,
   AdminEmptyState,
   AdminLoadingState,
+  useTableSort,
 } from '@/pages/(admin)/components/table';
 import DeleteBlogDialog from './components/DeleteBlogDialog/DeleteBlogDialog';
 import { useBlogs } from '@/hooks/useBlogs';
@@ -18,8 +19,20 @@ import { useBlogSelection } from '@/hooks/useBlogSelection';
 import BlogsError from './components/BlogsError/BlogsError';
 import BlogsTableSection from './components/BlogsTableSection/BlogsTableSection';
 
+const DEFAULT_BLOG_SORT = {
+  sortBy: 'createdAt',
+  sortOrder: 'desc',
+};
+
 function Blogs() {
   const navigate = useNavigate();
+  const pageResetRef = useRef(null);
+
+  const { sortBy, sortOrder, handleSort } = useTableSort({
+    defaultSort: DEFAULT_BLOG_SORT,
+    initialSort: DEFAULT_BLOG_SORT,
+    onSortChange: () => pageResetRef.current?.(),
+  });
 
   const {
     blogs,
@@ -31,7 +44,9 @@ function Blogs() {
     error,
     setError,
     loadBlogs,
-  } = useBlogs();
+  } = useBlogs({ sortBy, sortOrder });
+
+  pageResetRef.current = () => setPage(1);
 
   const {
     selectedIds,
@@ -181,6 +196,9 @@ function Blogs() {
           blogs={blogs}
           meta={meta}
           selectedIds={selectedIds}
+          sortBy={sortBy}
+          sortOrder={sortOrder}
+          onSort={handleSort}
           onSelectAll={(checked) =>
             selectAll(checked, blogs)
           }

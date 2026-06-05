@@ -642,6 +642,8 @@ model ChatSession {
   userId  String? @map("user_id")
   guestId String? @map("guest_id")
 
+   status ChatSessionStatus @default(ACTIVE)
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -650,6 +652,7 @@ model ChatSession {
 
   @@index([userId])
   @@index([guestId])
+  @@index([status])
   @@index([createdAt])
   @@map("chat_sessions")
 }
@@ -674,8 +677,16 @@ model ChatMessage {
 }
 
 
+enum ChatSessionStatus {
+  ACTIVE
+  WAITING_ADMIN
+  ASSIGNED
+  CLOSED
+}
+
 enum ChatMessageRole {
   USER
   ASSISTANT
   SYSTEM
+  ADMIN
 }

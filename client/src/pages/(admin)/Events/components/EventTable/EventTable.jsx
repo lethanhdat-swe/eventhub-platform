@@ -2,6 +2,7 @@ import { Eye, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import AdminTableWrapper from '@/pages/(admin)/components/table/AdminTableWrapper';
+import SortableTableHead from '@/pages/(admin)/components/table/SortableTableHead';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   DropdownMenu,
@@ -20,14 +21,14 @@ import {
 } from '@/components/ui/table';
 import StatusBadge from '@/pages/(admin)/components/StatusBadge';
 
-import { getUploadPreviewSrc } from '@/lib/upload/uploadAsset';
+import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
 import {
   formatCreatedAt,
   formatEventDateRange,
 } from '@/pages/(admin)/Events/data';
 
 function EventThumbnail({ title, thumbnailUrl }) {
-  const src = getUploadPreviewSrc(thumbnailUrl);
+  const src = thumbnailUrl ? resolvePublicAssetUrl(thumbnailUrl, '') : '';
   if (src) {
     return (
       <img
@@ -51,6 +52,9 @@ function EventThumbnail({ title, thumbnailUrl }) {
 function EventTable({
   events,
   selectedIds,
+  sortBy,
+  sortOrder,
+  onSort,
   onSelectAll,
   onSelectRow,
   onView,
@@ -75,12 +79,48 @@ function EventTable({
                 aria-label="Chọn tất cả sự kiện"
               />
             </TableHead>
-            <TableHead className="h-9 px-2">Sự kiện</TableHead>
-            <TableHead className="h-9 px-2">Danh mục</TableHead>
-            <TableHead className="h-9 px-2">Địa điểm</TableHead>
-            <TableHead className="h-9 px-2">Thời gian diễn ra</TableHead>
-            <TableHead className="h-9 px-2">Trạng thái</TableHead>
-            <TableHead className="h-9 px-2">Ngày tạo</TableHead>
+            <SortableTableHead
+              field="title"
+              label="Sự kiện"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
+            <SortableTableHead
+              field="category"
+              label="Danh mục"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
+            <SortableTableHead
+              field="location"
+              label="Địa điểm"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
+            <SortableTableHead
+              field="startDate"
+              label="Thời gian diễn ra"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
+            <SortableTableHead
+              field="status"
+              label="Trạng thái"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
+            <SortableTableHead
+              field="createdAt"
+              label="Ngày tạo"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
             <TableHead className="h-9 w-12 px-2 text-right">Hành động</TableHead>
           </TableRow>
         </TableHeader>

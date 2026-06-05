@@ -1,11 +1,12 @@
 import { axiosInstance } from '@/lib/http/axiosInstance';
+import { appendSortParams } from '@/lib/http/buildListSortParams';
 import { getApiData } from '@/lib/http/unwrapApiSuccess';
 
 const resourceBase = '/api/contacts';
 
 function buildListParams(query = {}) {
-  const { page = 1, limit = 10 } = query;
-  return { page, limit };
+  const { page = 1, limit = 10, sortBy, sortOrder } = query;
+  return appendSortParams({ page, limit }, { sortBy, sortOrder });
 }
 
 export const contactService = {

@@ -150,6 +150,40 @@ class EventService {
         });
     }
 
+    private buildAdminListOrderBy(
+        sortBy?: string,
+        sortOrder?: "asc" | "desc"
+    ) {
+        if (!sortBy || !sortOrder) {
+            return null;
+        }
+
+        if (sortBy === "category") {
+            return {
+                category: {
+                    name: sortOrder,
+                },
+            };
+        }
+
+        const directFields = {
+            title: "title",
+            location: "location",
+            startDate: "startDate",
+            status: "status",
+            createdAt: "createdAt",
+        } as const;
+
+        const field = directFields[sortBy as keyof typeof directFields];
+        if (!field) {
+            return null;
+        }
+
+        return {
+            [field]: sortOrder,
+        };
+    }
+
     async list(query: {
         search?: string;
         page: number;
@@ -160,6 +194,14 @@ class EventService {
         fromDate?: Date;
         toDate?: Date;
         sort?: "featured" | "new" | "upcoming";
+        sortBy?:
+            | "title"
+            | "category"
+            | "location"
+            | "startDate"
+            | "status"
+            | "createdAt";
+        sortOrder?: "asc" | "desc";
     }) {
         const {
             page = 1,
@@ -171,6 +213,8 @@ class EventService {
             fromDate,
             toDate,
             sort = "featured",
+            sortBy,
+            sortOrder,
         } = query;
 
         const normalizedCategoryIds = Array.isArray(categoryIds)
@@ -214,10 +258,13 @@ class EventService {
             }
         }
 
+        const adminOrderBy = this.buildAdminListOrderBy(sortBy, sortOrder);
+
         const orderBy =
-            sort === "new"
+            adminOrderBy ??
+            (sort === "new"
                 ? { createdAt: "desc" as const }
-                : { startDate: "asc" as const };
+                : { startDate: "asc" as const });
 
         if (sort === "upcoming") {
             where.startDate = {

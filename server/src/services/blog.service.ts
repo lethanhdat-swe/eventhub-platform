@@ -1,5 +1,6 @@
 import { AppError } from "../utils/AppError";
 import { prisma } from "../utils/prisma";
+import { buildDirectOrderBy } from "../utils/listSort";
 
 type BlogCreateData = {
     title: string;
@@ -57,7 +58,14 @@ class BlogService {
         });
     }
 
-    async getBlogs(page: number, limit: number, search?: string) {
+    async getBlogs(query: {
+        page: number;
+        limit: number;
+        search?: string;
+        sortBy?: string;
+        sortOrder?: "asc" | "desc";
+    }) {
+        const { page, limit, search, sortBy, sortOrder } = query;
         const skip = (page - 1) * limit;
         const where = search
             ? {
@@ -69,12 +77,28 @@ class BlogService {
               }
             : {};
 
+        const orderBy =
+            sortBy === "category" && sortOrder
+                ? { category: { name: sortOrder } }
+                : buildDirectOrderBy(
+                      sortBy,
+                      sortOrder,
+                      {
+                          title: "title",
+                          status: "status",
+                          publishedAt: "publishedAt",
+                          updatedAt: "updatedAt",
+                          createdAt: "createdAt",
+                      },
+                      { createdAt: "desc" }
+                  );
+
         const [items, totalItems] = await Promise.all([
             prisma.blog.findMany({
                 where,
                 skip,
                 take: Number(limit),
-                orderBy: { createdAt: "desc" },
+                orderBy,
                 select: {
                     id: true,
                     title: true,

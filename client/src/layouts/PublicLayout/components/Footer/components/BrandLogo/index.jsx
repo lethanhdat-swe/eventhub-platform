@@ -6,7 +6,7 @@ import {
   YoutubeIcon,
 } from '@/assets/icons';
 import { siteSettingService } from '@/lib/services/siteSetting';
-import { getUploadPreviewSrc } from '@/lib/upload/uploadAsset';
+import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
 import { Sparkle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -42,7 +42,7 @@ function BrandLogo() {
       >
         {siteSetting.logoUrl ? (
           <img
-            src={getUploadPreviewSrc(siteSetting.logoUrl)}
+            src={resolvePublicAssetUrl(siteSetting.logoUrl, '')}
             alt={siteSetting.websiteName}
             className="object-contain w-8 h-8 lg:w-10 lg:h-10"
           />

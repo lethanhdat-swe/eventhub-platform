@@ -1,4 +1,5 @@
 import { axiosInstance } from '@/lib/http/axiosInstance';
+import { appendSortParams } from '@/lib/http/buildListSortParams';
 import { getApiData } from '@/lib/http/unwrapApiSuccess';
 
 const resourceBase = '/api/users';
@@ -7,14 +8,14 @@ const resourceBase = '/api/users';
  * @param {{ page?: number, limit?: number, search?: string, role?: string, emailVerified?: string }} query
  */
 function buildListParams(query) {
-  const { page = 1, limit = 10, search, role, emailVerified } = query;
+  const { page = 1, limit = 10, search, role, emailVerified, sortBy, sortOrder } = query;
   const params = { page, limit };
   const q = typeof search === 'string' ? search.trim() : '';
   if (q) params.search = q;
   if (role && role !== 'all') params.role = role;
   if (emailVerified && emailVerified !== 'all')
     params.emailVerified = emailVerified;
-  return params;
+  return appendSortParams(params, { sortBy, sortOrder });
 }
 
 export const userService = {

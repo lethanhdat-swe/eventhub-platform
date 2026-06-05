@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { UserRole } from "@prisma/client";
+import { listSortQueryFields } from "../utils/listSort";
 
 export const updateMeSchema = z.object({
     body: z
@@ -61,6 +62,13 @@ export const listUsersQuerySchema = z.object({
         emailVerified: z
             .enum(["verified", "unverified", "all"])
             .optional(),
+        ...listSortQueryFields([
+            "fullName",
+            "role",
+            "provider",
+            "lastLoginAt",
+            "createdAt",
+        ] as const),
     }),
 });
 

@@ -10,24 +10,33 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import AdminTableWrapper from '@/pages/(admin)/components/table/AdminTableWrapper';
+import { SortableTableHead } from '@/pages/(admin)/components/table';
 import {
     formatCurrency,
     formatDateTime,
 } from '@/pages/(admin)/Refunds/data';
 import RefundStatusBadge from '../RefundStatusBadge/RefundStatusBadge';
 
-function RefundTable({ refunds, onViewDetail }) {
+function RefundTable({ refunds, sortBy, sortOrder, onSort, onViewDetail }) {
     return (
         <AdminTableWrapper>
             <Table className="min-w-295">
                 <TableHeader>
                     <TableRow className="bg-muted/40 hover:bg-muted/40">
-                        <TableHead className="px-2 h-9 w-35">
-                            Mã đơn
-                        </TableHead>
-                        <TableHead className="px-2 h-9 min-w-30">
-                            Khách hàng
-                        </TableHead>
+                        <SortableTableHead
+                            field="orderCode"
+                            label="Mã đơn"
+                            sortBy={sortBy}
+                            sortOrder={sortOrder}
+                            onSort={onSort}
+                        />
+                        <SortableTableHead
+                            field="customerName"
+                            label="Khách hàng"
+                            sortBy={sortBy}
+                            sortOrder={sortOrder}
+                            onSort={onSort}
+                        />
                         <TableHead className="px-2 h-9 min-w-40">
                             Email
                         </TableHead>
@@ -37,15 +46,27 @@ function RefundTable({ refunds, onViewDetail }) {
                         <TableHead className="px-2 h-9 min-w-35">
                             Ngân hàng
                         </TableHead>
-                        <TableHead className="h-9 w-27.5 px-2">
-                            Hoàn tiền
-                        </TableHead>
-                        <TableHead className="px-2 h-9 w-25">
-                            Trạng thái
-                        </TableHead>
-                        <TableHead className="h-9 w-32.5 px-2">
-                            Ngày tạo
-                        </TableHead>
+                        <SortableTableHead
+                            field="refundAmount"
+                            label="Hoàn tiền"
+                            sortBy={sortBy}
+                            sortOrder={sortOrder}
+                            onSort={onSort}
+                        />
+                        <SortableTableHead
+                            field="status"
+                            label="Trạng thái"
+                            sortBy={sortBy}
+                            sortOrder={sortOrder}
+                            onSort={onSort}
+                        />
+                        <SortableTableHead
+                            field="createdAt"
+                            label="Ngày tạo"
+                            sortBy={sortBy}
+                            sortOrder={sortOrder}
+                            onSort={onSort}
+                        />
                         <TableHead className="h-9 w-27.5 px-2 text-right">
                             Hành động
                         </TableHead>

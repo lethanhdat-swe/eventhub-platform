@@ -18,11 +18,15 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import AdminTableWrapper from '@/pages/(admin)/components/table/AdminTableWrapper';
+import { SortableTableHead } from '@/pages/(admin)/components/table';
 import { formatBlogCategoryDate } from '@/pages/(admin)/BlogCategories/data';
 
 function BlogCategoryTable({
   categories,
   selectedIds,
+  sortBy,
+  sortOrder,
+  onSort,
   onSelectAll,
   onSelectRow,
   onEdit,
@@ -51,9 +55,27 @@ function BlogCategoryTable({
                 aria-label="Chọn tất cả danh mục blog"
               />
             </TableHead>
-            <TableHead className="h-9 px-2">Tên danh mục</TableHead>
-            <TableHead className="h-9 px-2">Slug</TableHead>
-            <TableHead className="h-9 px-2">Ngày tạo</TableHead>
+            <SortableTableHead
+              field="name"
+              label="Tên danh mục"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
+            <SortableTableHead
+              field="slug"
+              label="Slug"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
+            <SortableTableHead
+              field="createdAt"
+              label="Ngày tạo"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
             <TableHead className="h-9 w-12 px-2 text-right">Hành động</TableHead>
           </TableRow>
         </TableHeader>

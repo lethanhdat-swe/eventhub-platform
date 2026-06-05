@@ -2,6 +2,7 @@ import { prisma } from "../utils/prisma";
 import { AppError } from "../utils/AppError";
 import { CouponStatus, OrderStatus } from "@prisma/client";
 import { getPaginationMetadata } from "../utils/pagination";
+import { buildDirectOrderBy } from "../utils/listSort";
 
 class CouponService {
     async create(body: any) {
@@ -26,8 +27,18 @@ class CouponService {
         limit: number;
         status?: CouponStatus;
         validity?: "valid" | "expired";
+        sortBy?: string;
+        sortOrder?: "asc" | "desc";
     }) {
-        const { page = 1, limit = 10, search, status, validity } = query;
+        const {
+            page = 1,
+            limit = 10,
+            search,
+            status,
+            validity,
+            sortBy,
+            sortOrder,
+        } = query;
         const skip = (page - 1) * limit;
 
         const and: Record<string, unknown>[] = [];
@@ -63,12 +74,26 @@ class CouponService {
                   ? and[0]
                   : { AND: and };
 
+        const orderBy = buildDirectOrderBy(
+            sortBy,
+            sortOrder,
+            {
+                code: "code",
+                discountPercent: "discountPercent",
+                usageLimit: "usageLimit",
+                validUntil: "validUntil",
+                status: "status",
+                createdAt: "createdAt",
+            },
+            { createdAt: "desc" }
+        );
+
         const [coupons, total] = await Promise.all([
             prisma.coupon.findMany({
                 where,
                 skip,
                 take: Number(limit),
-                orderBy: { createdAt: "desc" },
+                orderBy,
             }),
             prisma.coupon.count({ where }),
         ]);

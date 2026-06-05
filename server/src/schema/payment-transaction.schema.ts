@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { listSortQueryFields } from "../utils/listSort";
 
 export const listPaymentTransactionSchema = z.object({
     query: z.object({
@@ -6,6 +7,14 @@ export const listPaymentTransactionSchema = z.object({
         limit: z.coerce.number().int().positive().max(100).default(10),
         status: z.string().optional(),
         search: z.string().optional(),
+        ...listSortQueryFields([
+            "transactionId",
+            "orderCode",
+            "amount",
+            "gateway",
+            "status",
+            "createdAt",
+        ] as const),
     }),
 });
 

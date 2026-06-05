@@ -15,6 +15,9 @@ export default function CouponContent({
   isLoading,
 
   selectedIds,
+  sortBy,
+  sortOrder,
+  onSort,
 
   onRetry,
   onPageChange,
@@ -65,6 +68,9 @@ export default function CouponContent({
       <CouponTable
         coupons={coupons}
         selectedIds={selectedIds}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        onSort={onSort}
         onSelectAll={onSelectAll}
         onSelectRow={onSelectRow}
         onEdit={onEdit}

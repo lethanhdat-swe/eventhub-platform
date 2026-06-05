@@ -5,6 +5,9 @@ function BlogsTableSection({
   blogs,
   meta,
   selectedIds,
+  sortBy,
+  sortOrder,
+  onSort,
   onSelectAll,
   onSelectRow,
   onEdit,
@@ -16,6 +19,9 @@ function BlogsTableSection({
       <BlogTable
         blogs={blogs}
         selectedIds={selectedIds}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        onSort={onSort}
         onSelectAll={onSelectAll}
         onSelectRow={onSelectRow}
         onEdit={onEdit}

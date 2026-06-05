@@ -11,6 +11,7 @@ import {
   AdminLoadingState,
   AdminPagination,
   ADMIN_EMPTY_STATES,
+  useTableSort,
 } from '@/pages/(admin)/components/table';
 
 import PageHeader from '@/pages/(admin)/components/PageHeader';
@@ -22,12 +23,24 @@ import { toast } from 'sonner';
 
 const PAGE_SIZE = 10;
 
+const DEFAULT_ORDER_SORT = {
+  sortBy: 'createdAt',
+  sortOrder: 'desc',
+};
+
 function Orders() {
   const [orders, setOrders] = useState([]);
   const [searchInput, setSearchInput] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [page, setPage] = useState(1);
+
+  const { sortBy, sortOrder, handleSort } = useTableSort({
+    defaultSort: DEFAULT_ORDER_SORT,
+    initialSort: DEFAULT_ORDER_SORT,
+    onSortChange: () => setPage(1),
+  });
+
   const [meta, setMeta] = useState({
     totalItems: 0,
     totalPages: 1,
@@ -74,6 +87,8 @@ function Orders() {
         limit: PAGE_SIZE,
         search: debouncedSearch,
         status: statusFilter,
+        sortBy,
+        sortOrder,
       });
       const rows = payload.data ?? [];
       setOrders(rows.map(mapOrderRow));
@@ -90,7 +105,7 @@ function Orders() {
     } finally {
       setIsLoading(false);
     }
-  }, [page, debouncedSearch, statusFilter]);
+  }, [page, debouncedSearch, statusFilter, sortBy, sortOrder]);
 
   useEffect(() => {
     void loadOrders();
@@ -243,6 +258,9 @@ function Orders() {
           <OrderTable
             orders={orders}
             selectedIds={selectedIds}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onSort={handleSort}
             onSelectAll={handleSelectAll}
             onSelectRow={handleSelectRow}
             onView={handleView}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import HeroTitle from './components/HeroTitle/HeroTitle';
-import { getUploadPreviewSrc } from '@/lib/upload/uploadAsset';
+import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
 import { bannerService } from '@/lib/services/banner';
 
 function HeroHome() {
@@ -39,7 +39,7 @@ function HeroHome() {
         return (
           <img
             key={`${image}-${index}`}
-            src={getUploadPreviewSrc(image)}
+            src={resolvePublicAssetUrl(image, '')}
             alt=""
             className={`
               absolute inset-0 h-full w-full object-cover object-center

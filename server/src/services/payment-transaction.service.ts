@@ -2,6 +2,7 @@ import { prisma } from "../utils/prisma";
 import { AppError } from "../utils/AppError";
 import { PaymentTransactionStatus } from "@prisma/client";
 import paymentService from "./payment.service";
+import { buildDirectOrderBy } from "../utils/listSort";
 
 class PaymentTransactionService {
     async list(query: {
@@ -9,6 +10,8 @@ class PaymentTransactionService {
         limit?: number;
         status?: string;
         search?: string;
+        sortBy?: string;
+        sortOrder?: "asc" | "desc";
     }) {
         const page = query.page ?? 1;
         const limit = query.limit ?? 10;
@@ -29,14 +32,26 @@ class PaymentTransactionService {
             ];
         }
 
+        const orderBy = buildDirectOrderBy(
+            query.sortBy,
+            query.sortOrder,
+            {
+                transactionId: "transactionId",
+                orderCode: "orderCode",
+                amount: "amount",
+                gateway: "gateway",
+                status: "status",
+                createdAt: "createdAt",
+            },
+            { createdAt: "desc" }
+        );
+
         const [items, total] = await Promise.all([
             prisma.paymentTransaction.findMany({
                 where,
                 skip,
                 take: Number(limit),
-                orderBy: {
-                    createdAt: "desc",
-                },
+                orderBy,
                 include: {
                     order: {
                         select: {

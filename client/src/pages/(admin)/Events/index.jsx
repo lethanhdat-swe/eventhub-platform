@@ -15,6 +15,7 @@ import {
   AdminLoadingState,
   AdminPagination,
   ADMIN_EMPTY_STATES,
+  useTableSort,
 } from '@/pages/(admin)/components/table';
 import {
   EVENT_STATUS_OPTIONS,
@@ -25,6 +26,11 @@ import EventTable from './components/EventTable/EventTable';
 import DeleteEventDialog from './components/DeleteEventDialog/DeleteEventDialog';
 
 const PAGE_SIZE = 10;
+
+const DEFAULT_EVENT_SORT = {
+  sortBy: 'createdAt',
+  sortOrder: 'desc',
+};
 
 function AdminEvents() {
   const navigate = useNavigate();
@@ -46,6 +52,12 @@ function AdminEvents() {
   const [selectedIds, setSelectedIds] = useState(() => new Set());
   const [deleteDialog, setDeleteDialog] = useState(null);
   const [deleteSubmitting, setDeleteSubmitting] = useState(false);
+
+  const { sortBy, sortOrder, handleSort } = useTableSort({
+    defaultSort: DEFAULT_EVENT_SORT,
+    initialSort: DEFAULT_EVENT_SORT,
+    onSortChange: () => setPage(1),
+  });
 
   const eventStatusFilterOptions = useMemo(
     () => [
@@ -96,6 +108,8 @@ function AdminEvents() {
         search: debouncedSearch,
         status: statusFilter,
         categoryId: categoryFilter,
+        sortBy,
+        sortOrder,
       });
       const rows = payload.data ?? [];
       setEvents(rows.map(mapEventRow));
@@ -112,7 +126,7 @@ function AdminEvents() {
     } finally {
       setIsLoading(false);
     }
-  }, [page, debouncedSearch, statusFilter, categoryFilter]);
+  }, [page, debouncedSearch, statusFilter, categoryFilter, sortBy, sortOrder]);
 
   useEffect(() => {
     void loadCategories();
@@ -273,6 +287,9 @@ function AdminEvents() {
           <EventTable
             events={events}
             selectedIds={selectedIds}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onSort={handleSort}
             onSelectAll={handleSelectAll}
             onSelectRow={handleSelectRow}
             onView={handleView}

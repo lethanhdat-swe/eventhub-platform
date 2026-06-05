@@ -3,4 +3,7 @@ export { default as AdminEmptyState } from '@/pages/(admin)/components/table/Adm
 export { default as AdminLoadingState } from '@/pages/(admin)/components/table/AdminLoadingState';
 export { default as AdminPagination } from '@/pages/(admin)/components/table/AdminPagination';
 export { default as AdminTableWrapper } from '@/pages/(admin)/components/table/AdminTableWrapper';
+export { default as SortableTableHead } from '@/pages/(admin)/components/table/SortableTableHead';
 export { ADMIN_EMPTY_STATES } from '@/pages/(admin)/components/table/adminEmptyStates';
+export { getNextTableSort, hasActiveTableSort, TABLE_SORT_ORDER } from '@/pages/(admin)/components/table/tableSort';
+export { useTableSort } from '@/pages/(admin)/components/table/useTableSort';

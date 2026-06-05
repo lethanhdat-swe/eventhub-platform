@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { listSortQueryFields } from "../utils/listSort";
 
 export const scanCheckInSchema = z.object({
     body: z.object({
@@ -13,6 +14,7 @@ export const listCheckInHistorySchema = z.object({
         search: z.string().optional(),
         status: z.enum(["VALID", "DUPLICATE", "INVALID"]).optional(),
         eventId: z.string().optional(),
+        ...listSortQueryFields(["scannedAt", "status"] as const),
     }),
 });
 

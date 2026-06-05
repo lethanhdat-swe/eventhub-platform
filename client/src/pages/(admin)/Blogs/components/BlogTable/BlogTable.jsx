@@ -17,14 +17,18 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { getUploadPreviewSrc } from '@/lib/upload/uploadAsset';
+import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
 import AdminTableWrapper from '@/pages/(admin)/components/table/AdminTableWrapper';
+import { SortableTableHead } from '@/pages/(admin)/components/table';
 import { formatBlogDate } from '@/pages/(admin)/Blogs/data';
 import BlogStatusBadge from '../BlogStatusBadge/BlogStatusBadge';
 
 function BlogTable({
   blogs,
   selectedIds,
+  sortBy,
+  sortOrder,
+  onSort,
   onSelectAll,
   onSelectRow,
   onEdit,
@@ -52,11 +56,41 @@ function BlogTable({
                 aria-label="Chọn tất cả bài viết"
               />
             </TableHead>
-            <TableHead className="px-2 h-9">Bài viết</TableHead>
-            <TableHead className="px-2 h-9">Danh mục</TableHead>
-            <TableHead className="px-2 h-9">Trạng thái</TableHead>
-            <TableHead className="px-2 h-9">Ngày xuất bản</TableHead>
-            <TableHead className="px-2 h-9">Cập nhật</TableHead>
+            <SortableTableHead
+              field="title"
+              label="Bài viết"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
+            <SortableTableHead
+              field="category"
+              label="Danh mục"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
+            <SortableTableHead
+              field="status"
+              label="Trạng thái"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
+            <SortableTableHead
+              field="publishedAt"
+              label="Ngày xuất bản"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
+            <SortableTableHead
+              field="updatedAt"
+              label="Cập nhật"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
             <TableHead className="w-12 px-2 text-right h-9">Hành động</TableHead>
           </TableRow>
         </TableHeader>
@@ -78,9 +112,9 @@ function BlogTable({
               <TableCell className="px-2 py-1.5">
                 <div className="flex items-center min-w-0 gap-3">
                   <div className="overflow-hidden border rounded-lg size-12 shrink-0 bg-muted">
-                    {getUploadPreviewSrc(blog.thumbnailUrl) ? (
+                    {blog.thumbnailUrl ? (
                       <img
-                        src={getUploadPreviewSrc(blog.thumbnailUrl)}
+                        src={resolvePublicAssetUrl(blog.thumbnailUrl, '')}
                         alt={blog.title}
                         className="object-cover size-full"
                       />

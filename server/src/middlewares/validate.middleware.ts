@@ -32,7 +32,8 @@ export const validate =
             }
 
             return res.error({
-                message: "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại thông tin.",
+                message:
+                    "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại thông tin.",
                 error: err,
                 status: 400,
             });

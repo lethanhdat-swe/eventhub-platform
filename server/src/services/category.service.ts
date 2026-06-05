@@ -1,6 +1,7 @@
 import { prisma } from "../utils/prisma";
 import { AppError } from "../utils/AppError";
 import { getPaginationMetadata } from "../utils/pagination";
+import { buildDirectOrderBy } from "../utils/listSort";
 
 const categorySelect = {
     id: true,
@@ -45,8 +46,14 @@ class CategoryService {
         return mapCategoryRow(category);
     }
 
-    async list(query: { search?: string; page: number; limit: number }) {
-        const { page = 1, limit = 10, search } = query;
+    async list(query: {
+        search?: string;
+        page: number;
+        limit: number;
+        sortBy?: string;
+        sortOrder?: "asc" | "desc";
+    }) {
+        const { page = 1, limit = 10, search, sortBy, sortOrder } = query;
         const skip = (page - 1) * limit;
 
         const where: Record<string, unknown> = {};
@@ -57,12 +64,25 @@ class CategoryService {
             ];
         }
 
+        const orderBy =
+            sortBy === "eventCount" && sortOrder
+                ? { events: { _count: sortOrder } }
+                : buildDirectOrderBy(
+                      sortBy,
+                      sortOrder,
+                      {
+                          name: "name",
+                          slug: "slug",
+                      },
+                      { name: "asc" }
+                  );
+
         const [rows, total] = await Promise.all([
             prisma.category.findMany({
                 where,
                 skip,
                 take: Number(limit),
-                orderBy: { name: "asc" },
+                orderBy,
                 select: categorySelectWithCount,
             }),
             prisma.category.count({ where }),

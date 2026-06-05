@@ -12,6 +12,7 @@ import {
     AdminRefundRequestQuery,
     CreateRefundRequestInput,
 } from "../schema/refund.schema";
+import { buildDirectOrderBy } from "../utils/listSort";
 
 class RefundService {
     async createRefundRequest(data: CreateRefundRequestInput) {
@@ -196,14 +197,27 @@ class RefundService {
             }),
         };
 
+        const orderBy =
+            query.sortBy === "orderCode" && query.sortOrder
+                ? { order: { orderCode: query.sortOrder } }
+                : buildDirectOrderBy(
+                      query.sortBy,
+                      query.sortOrder,
+                      {
+                          customerName: "customerName",
+                          refundAmount: "refundAmount",
+                          status: "status",
+                          createdAt: "createdAt",
+                      },
+                      { createdAt: "desc" }
+                  );
+
         const [refundRequests, totalItems] = await Promise.all([
             prisma.refundRequest.findMany({
                 where,
                 skip,
                 take: limit,
-                orderBy: {
-                    createdAt: "desc",
-                },
+                orderBy,
                 select: {
                     id: true,
                     customerName: true,

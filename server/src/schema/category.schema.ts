@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { listSortQueryFields } from "../utils/listSort";
 
 const paramsIdSchema = z.object({
     id: z.string().uuid("Invalid category ID format"),
@@ -42,5 +43,6 @@ export const listCategorySchema = z.object({
             .default("10")
             .transform((val) => Math.max(1, parseInt(val))),
         search: z.string().optional(),
+        ...listSortQueryFields(["name", "slug", "eventCount"] as const),
     }),
 });

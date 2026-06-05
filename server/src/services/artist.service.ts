@@ -1,6 +1,7 @@
 import { prisma } from "../utils/prisma";
 import { AppError } from "../utils/AppError";
 import { getPaginationMetadata } from "../utils/pagination";
+import { buildDirectOrderBy } from "../utils/listSort";
 import slugify from "slugify";
 
 const artistSelect = {
@@ -61,8 +62,14 @@ class ArtistService {
         return mapArtistRow(artist);
     }
 
-    async list(query: { page: number; limit: number; search?: string }) {
-        const { page = 1, limit = 10, search } = query;
+    async list(query: {
+        page: number;
+        limit: number;
+        search?: string;
+        sortBy?: string;
+        sortOrder?: "asc" | "desc";
+    }) {
+        const { page = 1, limit = 10, search, sortBy, sortOrder } = query;
         const skip = (page - 1) * limit;
 
         const where: Record<string, unknown> = {};
@@ -74,12 +81,25 @@ class ArtistService {
             ];
         }
 
+        const orderBy =
+            sortBy === "eventCount" && sortOrder
+                ? { events: { _count: sortOrder } }
+                : buildDirectOrderBy(
+                      sortBy,
+                      sortOrder,
+                      {
+                          name: "name",
+                          createdAt: "createdAt",
+                      },
+                      { createdAt: "desc" }
+                  );
+
         const [rows, total] = await Promise.all([
             prisma.artist.findMany({
                 where,
                 skip,
                 take: Number(limit),
-                orderBy: { createdAt: "desc" },
+                orderBy,
                 select: artistSelectWithCount,
             }),
             prisma.artist.count({ where }),

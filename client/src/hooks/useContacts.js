@@ -5,7 +5,7 @@ import { contactService } from '@/lib/services/contact';
 
 const PAGE_SIZE = 10;
 
-export function useContacts() {
+export function useContacts({ sortBy, sortOrder } = {}) {
   const [contacts, setContacts] = useState([]);
 
   const [page, setPage] = useState(1);
@@ -36,6 +36,8 @@ export function useContacts() {
           await contactService.list({
             page,
             limit: PAGE_SIZE,
+            sortBy,
+            sortOrder,
           });
 
         const items =
@@ -79,7 +81,7 @@ export function useContacts() {
         setIsLoading(false);
       }
     },
-    [page]
+    [page, sortBy, sortOrder]
   );
 
   useEffect(() => {

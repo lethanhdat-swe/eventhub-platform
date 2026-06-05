@@ -1,6 +1,7 @@
 import { NotificationType } from "@prisma/client";
 import { prisma } from "../utils/prisma";
 import notificationService from "./notification.service";
+import { buildDirectOrderBy } from "../utils/listSort";
 
 class ContactService {
     create = async (data: any) => {
@@ -13,14 +14,33 @@ class ContactService {
         return await prisma.contact.create({ data });
     };
 
-    list = async (page: number, limit: number) => {
+    list = async (query: {
+        page?: number | string;
+        limit?: number | string;
+        sortBy?: string;
+        sortOrder?: "asc" | "desc";
+    }) => {
+        const { sortBy, sortOrder } = query;
+        const page = Math.max(Number(query.page) || 1, 1);
+        const limit = Math.max(Number(query.limit) || 10, 1);
         const skip = (page - 1) * limit;
+
+        const orderBy = buildDirectOrderBy(
+            sortBy,
+            sortOrder,
+            {
+                fullName: "fullName",
+                email: "email",
+                createdAt: "createdAt",
+            },
+            { createdAt: "desc" }
+        );
 
         const [items, totalItems] = await Promise.all([
             prisma.contact.findMany({
                 skip,
                 take: limit,
-                orderBy: { createdAt: "desc" },
+                orderBy,
             }),
             prisma.contact.count(),
         ]);

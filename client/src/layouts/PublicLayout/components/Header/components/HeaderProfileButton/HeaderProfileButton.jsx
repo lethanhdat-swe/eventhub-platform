@@ -55,9 +55,7 @@ function HeaderProfileButton() {
     user?.email?.charAt(0)?.toUpperCase() ||
     'U';
 
-  const avatarUrl = user?.avatarUrl
-    ? `${import.meta.env.VITE_API_URL}${user.avatarUrl}`
-    : null;
+  const hasAvatar = Boolean(user?.avatarUrl?.trim());
 
   async function handleLogout() {
     if (isLoggingOut) return;
@@ -116,9 +114,9 @@ function HeaderProfileButton() {
               shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_0_18px_rgba(124,58,237,0.22)]
             "
           >
-            {avatarUrl ? (
+            {hasAvatar ? (
               <img
-                src={resolvePublicAssetUrl(user.avatarUrl)}
+                src={resolvePublicAssetUrl(user.avatarUrl, '')}
                 alt={user.fullName}
                 referrerPolicy="no-referrer"
                 className="object-cover w-full h-full"
@@ -149,9 +147,9 @@ function HeaderProfileButton() {
               text-xs font-bold text-white
             "
           >
-            {avatarUrl ? (
+            {hasAvatar ? (
               <img
-                src={resolvePublicAssetUrl(user.avatarUrl)}
+                src={resolvePublicAssetUrl(user.avatarUrl, '')}
                 alt={user?.fullName || 'Avatar'}
                 className="object-cover w-full h-full"
               />

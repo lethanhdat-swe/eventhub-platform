@@ -1,4 +1,5 @@
 import { axiosInstance } from '@/lib/http/axiosInstance';
+import { appendSortParams } from '@/lib/http/buildListSortParams';
 import { getApiData } from '@/lib/http/unwrapApiSuccess';
 
 const resourceBase = '/api/check-ins';
@@ -7,7 +8,7 @@ const resourceBase = '/api/check-ins';
  * @param {{ page?: number, limit?: number, search?: string, status?: 'VALID' | 'DUPLICATE' | 'INVALID', eventId?: string }} query
  */
 function buildHistoryParams(query = {}) {
-  const { page = 1, limit = 10, search, status, eventId } = query;
+  const { page = 1, limit = 10, search, status, eventId, sortBy, sortOrder } = query;
 
   const params = { page, limit };
 
@@ -17,7 +18,7 @@ function buildHistoryParams(query = {}) {
   if (status && status !== 'all') params.status = status;
   if (eventId && eventId !== 'all') params.eventId = eventId;
 
-  return params;
+  return appendSortParams(params, { sortBy, sortOrder });
 }
 
 export const checkInLogService = {

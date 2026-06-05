@@ -13,9 +13,7 @@ class ContactController {
 
   list = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const page = Number(req.query.page) || 1;
-      const limit = Number(req.query.limit) || 10;
-      const result = await contactService.list(page, limit);
+      const result = await contactService.list(req.query as any);
       res.json({ success: true, ...result });
     } catch (error) {
       next(error);

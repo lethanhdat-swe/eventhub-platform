@@ -19,12 +19,24 @@ import TicketTypeBulkActions from './components/TicketTypeBulkActions/TicketType
 import TicketTypeContent from './components/TicketTypeContent/TicketTypeContent';
 import TicketTypeFormDialog from './components/TicketTypeFormDialog/TicketTypeFormDialog';
 import DeleteTicketTypeDialog from './components/DeleteTicketTypeDialog/DeleteTicketTypeDialog';
+import { useTableSort } from '@/pages/(admin)/components/table';
+
+const DEFAULT_TICKET_TYPE_SORT = {
+  sortBy: 'name',
+  sortOrder: 'asc',
+};
 
 function TicketTypes() {
   const [searchInput, setSearchInput] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
 
   const [page, setPage] = useState(1);
+
+  const { sortBy, sortOrder, handleSort } = useTableSort({
+    defaultSort: DEFAULT_TICKET_TYPE_SORT,
+    initialSort: DEFAULT_TICKET_TYPE_SORT,
+    onSortChange: () => setPage(1),
+  });
 
   const [selectedIds, setSelectedIds] = useState(
     () => new Set()
@@ -58,7 +70,7 @@ function TicketTypes() {
     error,
     setError,
     loadTicketTypes,
-  } = useTicketTypes(page, debouncedSearch);
+  } = useTicketTypes(page, debouncedSearch, { sortBy, sortOrder });
 
   const handleSelectAll = (checked) => {
     if (checked) {
@@ -283,6 +295,9 @@ function TicketTypes() {
         ticketTypes={ticketTypes}
         meta={meta}
         selectedIds={selectedIds}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        onSort={handleSort}
         onRetry={() =>
           void loadTicketTypes()
         }

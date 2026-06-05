@@ -1,5 +1,6 @@
 import { RefundRequestStatus } from "@prisma/client";
 import { z } from "zod";
+import { listSortQueryFields } from "../utils/listSort";
 
 const requiredString = (field: string) =>
     z
@@ -36,6 +37,13 @@ export const adminRefundRequestQuerySchema = z.object({
         limit: z.coerce.number().int().positive().max(100).default(10),
         status: z.nativeEnum(RefundRequestStatus).optional(),
         search: z.string().trim().optional(),
+        ...listSortQueryFields([
+            "orderCode",
+            "customerName",
+            "refundAmount",
+            "status",
+            "createdAt",
+        ] as const),
     }),
 });
 

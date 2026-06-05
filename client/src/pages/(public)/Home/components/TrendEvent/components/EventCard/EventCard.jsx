@@ -8,6 +8,7 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
 import { isEventEnded } from '@/utils/eventDate';
 
 function EventCard({ event }) {
@@ -24,7 +25,7 @@ function EventCard({ event }) {
     minute: '2-digit',
   });
 
-  const imageUrl = `${import.meta.env.VITE_API_URL}/uploads/${event.thumbnailUrl}`;
+  const imageUrl = resolvePublicAssetUrl(event.thumbnailUrl, '');
 
   const artist = event.eventArtists?.[0]?.artist;
 

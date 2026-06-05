@@ -1,15 +1,20 @@
 import { Plus } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { getErrorMessage } from '@/lib/http/apiError';
 import { categoryService } from '@/lib/services/admin/categoryService';
 import AdminToolbar from '@/pages/(admin)/components/AdminToolbar';
 import PageHeader from '@/pages/(admin)/components/PageHeader';
-import { AdminBulkActions } from '@/pages/(admin)/components/table';
+import { AdminBulkActions, useTableSort } from '@/pages/(admin)/components/table';
 import CategoryContent from './components/CategoryContent/CategoryContent';
 import CategoryDialogs from './components/CategoryDialogs/CategoryDialogs';
 import { useCategories } from '@/hooks/useCategories';
+
+const DEFAULT_CATEGORY_SORT = {
+  sortBy: 'name',
+  sortOrder: 'asc',
+};
 
 function EventCategories() {
   const [searchInput, setSearchInput] = useState('');
@@ -25,6 +30,14 @@ function EventCategories() {
   const [deleteSubmitting, setDeleteSubmitting] =
     useState(false);
 
+  const pageResetRef = useRef(null);
+
+  const { sortBy, sortOrder, handleSort } = useTableSort({
+    defaultSort: DEFAULT_CATEGORY_SORT,
+    initialSort: DEFAULT_CATEGORY_SORT,
+    onSortChange: () => pageResetRef.current?.(),
+  });
+
   const {
     categories,
     meta,
@@ -33,7 +46,9 @@ function EventCategories() {
     setError,
     isLoading,
     loadCategories,
-  } = useCategories(debouncedSearch);
+  } = useCategories(debouncedSearch, { sortBy, sortOrder });
+
+  pageResetRef.current = () => setPage(1);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -264,6 +279,9 @@ function EventCategories() {
         setPage={setPage}
         setFormDialog={setFormDialog}
         selectedIds={selectedIds}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        onSort={handleSort}
         onSelectAll={handleSelectAll}
         onSelectRow={handleSelectRow}
         onEdit={handleEdit}

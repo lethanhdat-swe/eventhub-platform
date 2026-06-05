@@ -1,4 +1,5 @@
 import { axiosInstance } from '@/lib/http/axiosInstance';
+import { appendSortParams } from '@/lib/http/buildListSortParams';
 import { getApiData } from '@/lib/http/unwrapApiSuccess';
 
 const resourceBase = '/api/refunds';
@@ -7,7 +8,7 @@ const resourceBase = '/api/refunds';
  * @param {{ page?: number, limit?: number, status?: string, search?: string }} query
  */
 function buildListParams(query = {}) {
-    const { page = 1, limit = 10, status, search } = query;
+    const { page = 1, limit = 10, status, search, sortBy, sortOrder } = query;
 
     const params = { page, limit };
 
@@ -17,7 +18,7 @@ function buildListParams(query = {}) {
     const s = typeof status === 'string' ? status.trim() : '';
     if (s) params.status = s;
 
-    return params;
+    return appendSortParams(params, { sortBy, sortOrder });
 }
 
 export const refundService = {

@@ -3,6 +3,7 @@ import { Eye, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import AdminTableWrapper from '@/pages/(admin)/components/table/AdminTableWrapper';
+import { SortableTableHead } from '@/pages/(admin)/components/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   DropdownMenu,
@@ -20,6 +21,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import UserEmailVerifiedBadge from '@/pages/(admin)/Users/components/UserEmailVerifiedBadge/UserEmailVerifiedBadge';
+import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
 import {
   formatCreatedAt,
   formatLastLogin,
@@ -28,10 +30,12 @@ import {
 } from '@/pages/(admin)/Users/data';
 
 function UserAvatar({ fullName, avatarUrl }) {
-  if (avatarUrl) {
+  const src = avatarUrl ? resolvePublicAssetUrl(avatarUrl, '') : '';
+
+  if (src) {
     return (
       <img
-        src={avatarUrl}
+        src={src}
         alt=""
         className="object-cover rounded-full size-10 shrink-0"
       />
@@ -60,6 +64,9 @@ function UserAvatar({ fullName, avatarUrl }) {
 function UserTable({
   users,
   selectedIds,
+  sortBy,
+  sortOrder,
+  onSort,
   onSelectAll,
   onSelectRow,
   onView,
@@ -88,13 +95,43 @@ function UserTable({
                 aria-label="Chọn tất cả người dùng"
               />
             </TableHead>
-            <TableHead className="px-2 h-9">Người dùng</TableHead>
+            <SortableTableHead
+              field="fullName"
+              label="Người dùng"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
             <TableHead className="px-2 h-9">Số điện thoại</TableHead>
-            <TableHead className="px-2 h-9">Vai trò</TableHead>
-            <TableHead className="px-2 h-9">Provider</TableHead>
+            <SortableTableHead
+              field="role"
+              label="Vai trò"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
+            <SortableTableHead
+              field="provider"
+              label="Provider"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
             <TableHead className="px-2 h-9">Xác thực email</TableHead>
-            <TableHead className="px-2 h-9">Lần đăng nhập cuối</TableHead>
-            <TableHead className="px-2 h-9">Ngày tạo</TableHead>
+            <SortableTableHead
+              field="lastLoginAt"
+              label="Lần đăng nhập cuối"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
+            <SortableTableHead
+              field="createdAt"
+              label="Ngày tạo"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
             <TableHead className="w-12 px-2 text-right h-9">Hành động</TableHead>
           </TableRow>
         </TableHeader>

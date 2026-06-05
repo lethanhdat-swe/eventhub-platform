@@ -4,17 +4,35 @@ import { getApiData } from '@/lib/http/unwrapApiSuccess';
 const resourceBase = '/api/events';
 
 function buildListParams(query) {
-  const { page = 1, limit = 10, search, status, categoryIds, fromDate, toDate, sort } = query;
-  
+  const {
+    page = 1,
+    limit = 10,
+    search,
+    status,
+    categoryId,
+    categoryIds,
+    fromDate,
+    toDate,
+    sort,
+    sortBy,
+    sortOrder,
+  } = query;
+
   const params = { page, limit };
-  
+
   const q = typeof search === 'string' ? search.trim() : '';
   if (q) params.search = q;
   if (status && status !== 'all') params.status = status;
+  if (categoryId && categoryId !== 'all') params.categoryId = categoryId;
   if (categoryIds?.length) params.categoryIds = categoryIds.join(',');
   if (fromDate) params.fromDate = new Date(fromDate).toISOString();
   if (toDate) params.toDate = new Date(toDate + 'T23:59:59').toISOString();
-  if (sort) params.sort = sort;
+  if (sortBy && sortOrder) {
+    params.sortBy = sortBy;
+    params.sortOrder = sortOrder;
+  } else if (sort) {
+    params.sort = sort;
+  }
 
   return params;
 }

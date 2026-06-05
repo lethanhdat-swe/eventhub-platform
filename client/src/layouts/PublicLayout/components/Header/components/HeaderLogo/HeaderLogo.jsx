@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Sparkle } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { siteSettingService } from '@/lib/services/siteSetting/siteSettingService';
-import { getUploadPreviewSrc } from '@/lib/upload/uploadAsset';
+import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
 
 function HeaderLogo({ scrolled }) {
     const [siteSetting, setSiteSetting] = useState({
@@ -36,7 +36,7 @@ function HeaderLogo({ scrolled }) {
         >
             {siteSetting.logoUrl ? (
                 <img
-                    src={getUploadPreviewSrc(siteSetting.logoUrl)}
+                    src={resolvePublicAssetUrl(siteSetting.logoUrl, '')}
                     alt={siteSetting.websiteName}
                     className="object-contain w-8 h-8 lg:w-10 lg:h-10"
                 />

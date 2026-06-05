@@ -18,6 +18,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import AdminTableWrapper from '@/pages/(admin)/components/table/AdminTableWrapper';
+import { SortableTableHead } from '@/pages/(admin)/components/table';
 import PaymentTransactionStatusBadge from '@/pages/(admin)/PaymentTransactions/components/PaymentTransactionStatusBadge/PaymentTransactionStatusBadge';
 import {
   formatCreatedAt,
@@ -27,12 +28,16 @@ import {
 function PaymentTransactionTable({
   transactions,
   selectedIds,
+  sortBy,
+  sortOrder,
+  onSort,
   onSelectAll,
   onSelectRow,
   onView,
   onManualConfirm,
 }) {
-  const selectedCount = selectedIds.size;
+  const selection = selectedIds ?? new Set();
+  const selectedCount = selection.size;
   const allSelected =
     transactions.length > 0 && selectedCount === transactions.length;
   const someSelected =
@@ -56,14 +61,50 @@ function PaymentTransactionTable({
                 aria-label="Chọn tất cả giao dịch"
               />
             </TableHead>
-            <TableHead className="px-2 h-9">Mã giao dịch</TableHead>
-            <TableHead className="px-2 h-9">Mã đơn</TableHead>
-            <TableHead className="px-2 h-9">Số tiền</TableHead>
+            <SortableTableHead
+              field="transactionId"
+              label="Mã giao dịch"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
+            <SortableTableHead
+              field="orderCode"
+              label="Mã đơn"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
+            <SortableTableHead
+              field="amount"
+              label="Số tiền"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
             <TableHead className="px-2 h-9">Nội dung CK</TableHead>
-            <TableHead className="px-2 h-9">Cổng</TableHead>
-            <TableHead className="px-2 h-9">Trạng thái</TableHead>
+            <SortableTableHead
+              field="gateway"
+              label="Cổng"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
+            <SortableTableHead
+              field="status"
+              label="Trạng thái"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
             <TableHead className="px-2 h-9">Đơn hàng liên kết</TableHead>
-            <TableHead className="px-2 h-9">Ngày tạo</TableHead>
+            <SortableTableHead
+              field="createdAt"
+              label="Ngày tạo"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
             <TableHead className="w-12 px-2 text-right h-9">
               Hành động
             </TableHead>
@@ -74,12 +115,12 @@ function PaymentTransactionTable({
             <TableRow
               key={transaction.id}
               data-state={
-                selectedIds.has(transaction.id) ? 'selected' : undefined
+                selection.has(transaction.id) ? 'selected' : undefined
               }
             >
               <TableCell className="px-2 py-1.5">
                 <Checkbox
-                  checked={selectedIds.has(transaction.id)}
+                  checked={selection.has(transaction.id)}
                   onCheckedChange={(checked) =>
                     onSelectRow(transaction.id, Boolean(checked))
                   }

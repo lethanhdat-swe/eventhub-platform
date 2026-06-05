@@ -5,7 +5,7 @@ import { artistService } from '@/lib/services/admin/artistService';
 
 const PAGE_SIZE = 10;
 
-export function useArtists() {
+export function useArtists({ sortBy, sortOrder } = {}) {
   const [artists, setArtists] = useState([]);
   const [searchInput, setSearchInput] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -36,7 +36,13 @@ export function useArtists() {
     setIsLoading(true);
     setError(null);
     try {
-      const payload = await artistService.list({ page, limit: PAGE_SIZE, search: debouncedSearch });
+      const payload = await artistService.list({
+        page,
+        limit: PAGE_SIZE,
+        search: debouncedSearch,
+        sortBy,
+        sortOrder,
+      });
       setArtists(payload.data ?? []);
       const m = payload.meta ?? {};
       setMeta({
@@ -51,7 +57,7 @@ export function useArtists() {
     } finally {
       setIsLoading(false);
     }
-  }, [page, debouncedSearch]);
+  }, [page, debouncedSearch, sortBy, sortOrder]);
 
   useEffect(() => { void loadArtists(); }, [loadArtists]);
 

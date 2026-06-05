@@ -36,18 +36,7 @@ class UserController {
 
     getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const role = req.query.role as string | undefined;
-            const emailVerified = req.query.emailVerified as string | undefined;
-
-            const result = await userService.getAllUsers({
-                search: req.query.search as string,
-                page: Number(req.query.page) || 1,
-                limit: Number(req.query.limit) || 10,
-                ...(role && role !== "all" ? { role } : {}),
-                ...(emailVerified && emailVerified !== "all"
-                    ? { emailVerified }
-                    : {}),
-            });
+            const result = await userService.getAllUsers(req.query as any);
 
             return res.success({
                 message: "Users fetched successfully.",

@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { images } from '@/assets';
 import { parseApiError } from '@/lib/http/apiError';
 import { blogService } from '@/lib/services/blog/blogService';
-import { getUploadPreviewSrc } from '@/lib/upload/uploadAsset';
+import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
 import BackButton from './components/BackButton/BackButton';
 import BlogMeta from './components/BlogMeta/BlogMeta';
 import BlogTitle from './components/BlogTitle/BlogTitle';
@@ -26,7 +26,10 @@ function normalizeBlog(blog) {
     category: blog.category?.name ?? 'Uncategorized',
     date: formatBlogDate(blog.publishedAt ?? blog.createdAt),
     excerpt: blog.excerpt ?? '',
-    image: getUploadPreviewSrc(blog.thumbnailUrl) || images.home,
+    image:
+      (blog.thumbnailUrl
+        ? resolvePublicAssetUrl(blog.thumbnailUrl, '')
+        : '') || images.home,
     views: blog.views ?? 0,
     content: blog.content ?? {
       intro: blog.excerpt ?? '',

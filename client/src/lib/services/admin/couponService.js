@@ -1,4 +1,5 @@
 import { axiosInstance } from '@/lib/http/axiosInstance';
+import { appendSortParams } from '@/lib/http/buildListSortParams';
 import { getApiData } from '@/lib/http/unwrapApiSuccess';
 
 const resourceBase = '/api/coupons';
@@ -7,13 +8,13 @@ const resourceBase = '/api/coupons';
  * @param {{ page?: number, limit?: number, search?: string, status?: string, validity?: string }} query
  */
 function buildListParams(query) {
-  const { page = 1, limit = 10, search, status, validity } = query;
+  const { page = 1, limit = 10, search, status, validity, sortBy, sortOrder } = query;
   const params = { page, limit };
   const q = typeof search === 'string' ? search.trim() : '';
   if (q) params.search = q;
   if (status && status !== 'all') params.status = status;
   if (validity && validity !== 'all') params.validity = validity;
-  return params;
+  return appendSortParams(params, { sortBy, sortOrder });
 }
 
 export const couponService = {

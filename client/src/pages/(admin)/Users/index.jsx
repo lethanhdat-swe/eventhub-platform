@@ -12,6 +12,12 @@ import UserContent from './components/UserContent/UserContent';
 import UserRoleDialog from './components/UserRoleDialog/UserRoleDialog';
 import DeleteUserDialog from './components/DeleteUserDialog/DeleteUserDialog';
 import UserDetailDialog from './components/UserDetailDialog/UserDetailDialog';
+import { useTableSort } from '@/pages/(admin)/components/table';
+
+const DEFAULT_USER_SORT = {
+  sortBy: 'createdAt',
+  sortOrder: 'desc',
+};
 
 function Users() {
   const [searchInput, setSearchInput] = useState('');
@@ -25,6 +31,12 @@ function Users() {
     useState('all');
 
   const [page, setPage] = useState(1);
+
+  const { sortBy, sortOrder, handleSort } = useTableSort({
+    defaultSort: DEFAULT_USER_SORT,
+    initialSort: DEFAULT_USER_SORT,
+    onSortChange: () => setPage(1),
+  });
 
   const [selectedIds, setSelectedIds] =
     useState(() => new Set());
@@ -80,6 +92,8 @@ function Users() {
     search: debouncedSearch,
     roleFilter,
     emailFilter,
+    sortBy,
+    sortOrder,
   });
 
   const handleSelectAll = (
@@ -324,6 +338,9 @@ function Users() {
         selectedIds={
           selectedIds
         }
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        onSort={handleSort}
         onRetry={() =>
           void loadUsers()
         }

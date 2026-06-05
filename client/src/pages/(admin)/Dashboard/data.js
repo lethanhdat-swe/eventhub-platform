@@ -62,6 +62,26 @@ export function formatTicketCodeDisplay(code) {
 }
 
 /**
+ * @param {{ revenue?: number }[]} points
+ */
+export function getRevenueChartScale(points) {
+  const maxRevenue = Math.max(
+    0,
+    ...(points ?? []).map((point) => point.revenue ?? 0)
+  );
+
+  if (maxRevenue >= 1_000_000) {
+    return { divisor: 1_000_000, unitLabel: 'triệu VNĐ' };
+  }
+
+  if (maxRevenue >= 1_000) {
+    return { divisor: 1_000, unitLabel: 'nghìn VNĐ' };
+  }
+
+  return { divisor: 1, unitLabel: 'VNĐ' };
+}
+
+/**
  * @param {Record<string, unknown>} data
  */
 export function mapDashboardSummary(data) {
@@ -93,10 +113,17 @@ export function mapDashboardSummary(data) {
     trend: statValues[key]?.trend,
   }));
 
-  const revenueChart = (data?.revenueChart ?? []).map((point) => ({
-    label: point.label,
-    revenue: (point.revenue ?? 0) / 1_000_000,
-  }));
+  const rawRevenueChart = data?.revenueChart ?? [];
+  const revenueChartScale = getRevenueChartScale(rawRevenueChart);
+  const revenueChart = rawRevenueChart.map((point) => {
+    const rawRevenue = point.revenue ?? 0;
+
+    return {
+      label: point.label,
+      revenue: rawRevenue / revenueChartScale.divisor,
+      rawRevenue,
+    };
+  });
 
   const recentOrders = (data?.recentOrders ?? []).map((order) => ({
     id: order.id,
@@ -123,6 +150,7 @@ export function mapDashboardSummary(data) {
   return {
     stats: mappedStats,
     revenueChart,
+    revenueChartUnit: revenueChartScale.unitLabel,
     recentOrders,
     featuredEvents,
     checkIns,

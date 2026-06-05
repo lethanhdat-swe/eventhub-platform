@@ -3,9 +3,15 @@ import {
     createChatSessionSchema,
     getChatMessagesSchema,
     listChatSessionsSchema,
+    sendAdminChatMessageSchema,
     sendChatMessageSchema,
+    updateChatSessionStatusSchema,
 } from "../schema/aiChat.schema";
-import { isAuth, optionalAuth, restrictTo } from "../middlewares/auth.middleware";
+import {
+    isAuth,
+    optionalAuth,
+    restrictTo,
+} from "../middlewares/auth.middleware";
 import { validate } from "../middlewares/validate.middleware";
 import aiChatController from "../controllers/aiChat.controller";
 
@@ -19,11 +25,23 @@ router.get(
     aiChatController.listSessions
 );
 
-router.get(
-    "/sessions/me/latest",
+router.post(
+    "/admin/sessions/:sessionId/messages",
     isAuth,
-    aiChatController.getLatestMySession
+    restrictTo("ADMIN"),
+    validate(sendAdminChatMessageSchema),
+    aiChatController.sendAdminMessage
 );
+
+router.patch(
+    "/admin/sessions/:sessionId/status",
+    isAuth,
+    restrictTo("ADMIN"),
+    validate(updateChatSessionStatusSchema),
+    aiChatController.updateSessionStatus
+);
+
+router.get("/sessions/me/latest", isAuth, aiChatController.getLatestMySession);
 
 router.post(
     "/sessions",

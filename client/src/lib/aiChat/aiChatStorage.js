@@ -1,8 +1,15 @@
+import { CHAT_SESSION_STATUS, normalizeSessionStatus } from './chatSessionStatus';
+
 const LEGACY_CHAT_SESSION_ID_KEY = 'chatSessionId';
 const GUEST_CHAT_SESSION_ID_KEY = 'chatSessionId:guest';
+const GUEST_CHAT_SESSION_KEY = 'chatSession:guest';
 const GUEST_ID_KEY = 'guestId';
 
 function userChatSessionKey(userId) {
+  return `chatSession:user:${userId}`;
+}
+
+function legacyUserChatSessionIdKey(userId) {
   return `chatSessionId:user:${userId}`;
 }
 
@@ -29,17 +36,94 @@ function clearLegacySessionId() {
   removeItem(LEGACY_CHAT_SESSION_ID_KEY);
 }
 
+function getSessionStorageKey(scope) {
+  const { isAuthenticated, userId } = scope;
+
+  if (isAuthenticated && userId) {
+    return userChatSessionKey(userId);
+  }
+
+  return GUEST_CHAT_SESSION_KEY;
+}
+
+function parseStoredSession(raw) {
+  if (!raw) return null;
+
+  try {
+    const parsed = JSON.parse(raw);
+    if (!parsed?.sessionId) return null;
+
+    return {
+      sessionId: parsed.sessionId,
+      status: normalizeSessionStatus(parsed.status),
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * @param {{ isAuthenticated: boolean, userId?: string|null }} scope
+ * @returns {{ sessionId: string, status: string } | null}
+ */
+export function getStoredChatSession(scope) {
+  const { isAuthenticated, userId } = scope;
+  const storageKey = getSessionStorageKey(scope);
+  const stored = parseStoredSession(readItem(storageKey));
+
+  if (stored) {
+    return stored;
+  }
+
+  let legacySessionId = null;
+
+  if (isAuthenticated && userId) {
+    legacySessionId =
+      readItem(legacyUserChatSessionIdKey(userId)) ?? readLegacySessionId();
+  } else {
+    legacySessionId =
+      readItem(GUEST_CHAT_SESSION_ID_KEY) ?? readLegacySessionId();
+  }
+
+  if (!legacySessionId) {
+    return null;
+  }
+
+  return {
+    sessionId: legacySessionId,
+    status: CHAT_SESSION_STATUS.ACTIVE,
+  };
+}
+
+/**
+ * @param {{ sessionId: string, status?: string }} session
+ * @param {{ isAuthenticated: boolean, userId?: string|null }} scope
+ */
+export function setStoredChatSession(session, scope) {
+  if (!session?.sessionId) return;
+
+  const storageKey = getSessionStorageKey(scope);
+  const payload = {
+    sessionId: session.sessionId,
+    status: normalizeSessionStatus(session.status),
+  };
+
+  writeItem(storageKey, JSON.stringify(payload));
+
+  if (scope.isAuthenticated && scope.userId) {
+    removeItem(legacyUserChatSessionIdKey(scope.userId));
+  } else {
+    removeItem(GUEST_CHAT_SESSION_ID_KEY);
+  }
+
+  clearLegacySessionId();
+}
+
 /**
  * @param {{ isAuthenticated: boolean, userId?: string|null }} scope
  */
 export function getStoredChatSessionId(scope) {
-  const { isAuthenticated, userId } = scope;
-
-  if (isAuthenticated && userId) {
-    return readItem(userChatSessionKey(userId)) ?? readLegacySessionId();
-  }
-
-  return readItem(GUEST_CHAT_SESSION_ID_KEY) ?? readLegacySessionId();
+  return getStoredChatSession(scope)?.sessionId ?? null;
 }
 
 /**
@@ -49,15 +133,15 @@ export function getStoredChatSessionId(scope) {
 export function setStoredChatSessionId(sessionId, scope) {
   if (!sessionId) return;
 
-  const { isAuthenticated, userId } = scope;
+  const existing = getStoredChatSession(scope);
 
-  if (isAuthenticated && userId) {
-    writeItem(userChatSessionKey(userId), sessionId);
-  } else {
-    writeItem(GUEST_CHAT_SESSION_ID_KEY, sessionId);
-  }
-
-  clearLegacySessionId();
+  setStoredChatSession(
+    {
+      sessionId,
+      status: existing?.status ?? CHAT_SESSION_STATUS.ACTIVE,
+    },
+    scope
+  );
 }
 
 /**
@@ -65,9 +149,12 @@ export function setStoredChatSessionId(sessionId, scope) {
  */
 export function clearStoredChatSessionId(scope) {
   const { isAuthenticated, userId } = scope;
+  const storageKey = getSessionStorageKey(scope);
+
+  removeItem(storageKey);
 
   if (isAuthenticated && userId) {
-    removeItem(userChatSessionKey(userId));
+    removeItem(legacyUserChatSessionIdKey(userId));
   } else {
     removeItem(GUEST_CHAT_SESSION_ID_KEY);
   }

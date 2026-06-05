@@ -12,6 +12,9 @@ export default function CheckInLogContent({
   meta,
   error,
   isLoading,
+  sortBy,
+  sortOrder,
+  onSort,
   onRetry,
   onPageChange,
   onView,
@@ -51,6 +54,9 @@ export default function CheckInLogContent({
     <>
       <CheckInLogTable
         logs={logs}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        onSort={onSort}
         onView={onView}
         onViewTicket={onViewTicket}
         onDelete={onDelete}

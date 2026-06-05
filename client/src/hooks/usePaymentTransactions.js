@@ -9,7 +9,8 @@ const PAGE_SIZE = 10;
 export function usePaymentTransactions(
   page,
   search,
-  statusFilter
+  statusFilter,
+  { sortBy, sortOrder } = {}
 ) {
   const [transactions, setTransactions] = useState([]);
   const [meta, setMeta] = useState({});
@@ -26,6 +27,8 @@ export function usePaymentTransactions(
         limit: PAGE_SIZE,
         search,
         status: statusFilter,
+        sortBy,
+        sortOrder,
       });
 
       setTransactions(
@@ -46,7 +49,7 @@ export function usePaymentTransactions(
     } finally {
       setLoading(false);
     }
-  }, [page, search, statusFilter]);
+  }, [page, search, statusFilter, sortBy, sortOrder]);
 
   useEffect(() => {
     void loadTransactions();

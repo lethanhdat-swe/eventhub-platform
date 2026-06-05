@@ -9,7 +9,8 @@ const PAGE_SIZE = 10;
 export function useRefunds(
   page,
   search,
-  status
+  status,
+  { sortBy, sortOrder } = {}
 ) {
   const [refunds, setRefunds] = useState([]);
   const [meta, setMeta] = useState({});
@@ -30,6 +31,8 @@ export function useRefunds(
             status === 'all'
               ? ''
               : status,
+          sortBy,
+          sortOrder,
         });
 
       const rows =
@@ -62,7 +65,7 @@ export function useRefunds(
     } finally {
       setLoading(false);
     }
-  }, [page, search, status]);
+  }, [page, search, status, sortBy, sortOrder]);
 
   useEffect(() => {
     void loadRefunds();

@@ -11,6 +11,9 @@ function RefundContent({
   error,
   refunds,
   meta,
+  sortBy,
+  sortOrder,
+  onSort,
   onRetry,
   onViewDetail,
   onPageChange,
@@ -53,6 +56,9 @@ function RefundContent({
     <>
       <RefundTable
         refunds={refunds}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        onSort={onSort}
         onViewDetail={onViewDetail}
       />
 

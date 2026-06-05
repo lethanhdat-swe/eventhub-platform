@@ -7,7 +7,7 @@ import { CHECKIN_LOG_STATUS_LABELS } from '@/pages/(admin)/CheckInLogs/data';
 
 const PAGE_SIZE = 10;
 
-export function useCheckInLogs() {
+export function useCheckInLogs({ sortBy, sortOrder } = {}) {
   const [logs, setLogs] = useState([]);
   const [searchInput, setSearchInput] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -90,6 +90,8 @@ export function useCheckInLogs() {
           search: debouncedSearch,
           status: statusFilter,
           eventId: eventFilter,
+          sortBy,
+          sortOrder,
         });
 
       const rows = payload.data ?? [];
@@ -118,6 +120,8 @@ export function useCheckInLogs() {
     debouncedSearch,
     eventFilter,
     statusFilter,
+    sortBy,
+    sortOrder,
   ]);
 
   useEffect(() => {

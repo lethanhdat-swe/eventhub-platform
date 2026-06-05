@@ -5,7 +5,7 @@ import { mapBlogRow } from '@/pages/(admin)/Blogs/data';
 
 const PAGE_SIZE = 10;
 
-export function useBlogs() {
+export function useBlogs({ sortBy, sortOrder } = {}) {
   const [blogs, setBlogs] = useState([]);
   const [searchInput, setSearchInput] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -42,6 +42,8 @@ export function useBlogs() {
         page,
         limit: PAGE_SIZE,
         search: debouncedSearch,
+        sortBy,
+        sortOrder,
       });
 
       setBlogs((payload.items ?? []).map(mapBlogRow));
@@ -60,7 +62,7 @@ export function useBlogs() {
     } finally {
       setIsLoading(false);
     }
-  }, [page, debouncedSearch]);
+  }, [page, debouncedSearch, sortBy, sortOrder]);
 
   useEffect(() => {
     void loadBlogs();

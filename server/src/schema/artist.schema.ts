@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { listSortQueryFields } from "../utils/listSort";
 
 /** Cho phép URL đầy đủ hoặc path upload `/uploads/...` */
 const optionalAvatarUrlSchema = z.preprocess(
@@ -68,6 +69,7 @@ export const listArtistSchema = z.object({
             .optional()
             .transform((val) => Number(val) || 10),
         search: z.string().optional(),
+        ...listSortQueryFields(["name", "eventCount", "createdAt"] as const),
     }),
 });
 

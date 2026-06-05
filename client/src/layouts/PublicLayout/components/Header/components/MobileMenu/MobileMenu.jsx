@@ -5,7 +5,7 @@ import { Sparkle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import HeaderProfileButton from '../HeaderProfileButton/HeaderProfileButton';
 import { siteSettingService } from '@/lib/services/siteSetting';
-import { getUploadPreviewSrc } from '@/lib/upload/uploadAsset';
+import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
 
 const navItems = [
   { label: 'Trang chủ', path: '/' },
@@ -69,7 +69,7 @@ function MobileMenu({ open, onClose, isAuthenticated }) {
           <div className="flex items-center gap-2">
             {siteSetting.logoUrl ? (
                     <img
-                      src={getUploadPreviewSrc(siteSetting.logoUrl)}
+                      src={resolvePublicAssetUrl(siteSetting.logoUrl, '')}
                       alt={siteSetting.websiteName}
                       className="object-contain w-15 h-15"
                     />

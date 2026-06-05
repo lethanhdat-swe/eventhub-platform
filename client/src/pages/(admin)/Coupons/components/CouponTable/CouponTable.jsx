@@ -1,6 +1,7 @@
 import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import AdminTableWrapper from '@/pages/(admin)/components/table/AdminTableWrapper';
+import { SortableTableHead } from '@/pages/(admin)/components/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   DropdownMenu,
@@ -26,6 +27,9 @@ import {
 function CouponTable({
   coupons,
   selectedIds,
+  sortBy,
+  sortOrder,
+  onSort,
   onSelectAll,
   onSelectRow,
   onEdit,
@@ -53,12 +57,42 @@ function CouponTable({
                 aria-label="Chọn tất cả mã giảm giá"
               />
             </TableHead>
-            <TableHead className="px-2 h-9">Mã giảm giá</TableHead>
+            <SortableTableHead
+              field="code"
+              label="Mã giảm giá"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
             <TableHead className="px-2 h-9">Mô tả</TableHead>
-            <TableHead className="px-2 h-9">Giảm giá</TableHead>
-            <TableHead className="px-2 h-9">Giới hạn lượt dùng</TableHead>
-            <TableHead className="px-2 h-9">Hạn sử dụng</TableHead>
-            <TableHead className="px-2 h-9">Trạng thái</TableHead>
+            <SortableTableHead
+              field="discountPercent"
+              label="Giảm giá"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
+            <SortableTableHead
+              field="usageLimit"
+              label="Giới hạn lượt dùng"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
+            <SortableTableHead
+              field="validUntil"
+              label="Hạn sử dụng"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
+            <SortableTableHead
+              field="status"
+              label="Trạng thái"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
             <TableHead className="w-12 px-2 text-right h-9">Hành động</TableHead>
           </TableRow>
         </TableHeader>

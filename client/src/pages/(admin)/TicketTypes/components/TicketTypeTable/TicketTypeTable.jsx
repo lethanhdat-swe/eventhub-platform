@@ -2,6 +2,7 @@ import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import AdminTableWrapper from '@/pages/(admin)/components/table/AdminTableWrapper';
+import { SortableTableHead } from '@/pages/(admin)/components/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   DropdownMenu,
@@ -23,6 +24,9 @@ import { formatPriceVnd } from '@/pages/(admin)/TicketTypes/data';
 function TicketTypeTable({
   ticketTypes,
   selectedIds,
+  sortBy,
+  sortOrder,
+  onSort,
   onSelectAll,
   onSelectRow,
   onEdit,
@@ -51,9 +55,21 @@ function TicketTypeTable({
                 aria-label="Chọn tất cả loại vé"
               />
             </TableHead>
-            <TableHead className="px-2 h-9">Tên loại vé</TableHead>
+            <SortableTableHead
+              field="name"
+              label="Tên loại vé"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
             <TableHead className="px-2 h-9">Màu</TableHead>
-            <TableHead className="px-2 h-9">Giá</TableHead>
+            <SortableTableHead
+              field="price"
+              label="Giá"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
             <TableHead className="w-12 px-2 text-right h-9">
               Hành động
             </TableHead>

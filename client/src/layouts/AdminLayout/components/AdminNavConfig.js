@@ -33,7 +33,7 @@ export const adminNavSections = [
         ],
     },
     {
-        title: 'Quản lý sự kiện',
+        title: 'Sự kiện',
         items: [
             {
                 label: 'Sự kiện',
@@ -62,18 +62,24 @@ export const adminNavSections = [
         ],
     },
     {
-        title: 'Vé & đơn hàng',
+        title: 'Vé & Đơn hàng',
         items: [
-            {
-                label: 'Loại vé',
-                to: '/admin/ticket-types',
-                icon: Ticket,
-                match: 'exact',
-            },
             {
                 label: 'Đơn hàng',
                 to: '/admin/orders',
                 icon: ShoppingCart,
+                match: 'exact',
+            },
+            {
+                label: 'Vé đã đặt',
+                to: '/admin/tickets',
+                icon: Receipt,
+                match: 'exact',
+            },
+            {
+                label: 'Loại vé',
+                to: '/admin/ticket-types',
+                icon: Ticket,
                 match: 'exact',
             },
             {
@@ -86,12 +92,6 @@ export const adminNavSections = [
                 label: 'Đối soát thanh toán',
                 to: '/admin/payment-transactions',
                 icon: ReceiptText,
-                match: 'exact',
-            },
-            {
-                label: 'Vé đã đặt',
-                to: '/admin/tickets',
-                icon: Receipt,
                 match: 'exact',
             },
             {
@@ -120,16 +120,33 @@ export const adminNavSections = [
         ],
     },
     {
+        title: 'Hỗ trợ khách hàng',
+        items: [
+            {
+                label: 'AI chat',
+                to: '/admin/ai-chat',
+                icon: Bot,
+                match: 'exact',
+            },
+            {
+                label: 'Liên hệ',
+                to: '/admin/contact',
+                icon: Contact,
+                match: 'exact',
+            },
+        ],
+    },
+    {
         title: 'Nội dung',
         items: [
             {
-                label: 'Quản lý bài viết',
+                label: 'Bài viết',
                 to: '/admin/blogs',
                 icon: FileText,
                 match: 'prefix',
             },
             {
-                label: 'Quản lý danh mục blog',
+                label: 'Danh mục blog',
                 to: '/admin/blog-categories',
                 icon: FolderTree,
                 match: 'exact',
@@ -137,37 +154,20 @@ export const adminNavSections = [
         ],
     },
     {
-        title: 'Liên hệ',
+        title: 'AI & Tự động hóa',
         items: [
             {
-                label: 'Quản lý liên hệ',
-                to: '/admin/contact',
-                icon: Contact,
-                match: 'exact',
-            },
-            {
-                label: 'AI chat',
-                to: '/admin/ai-chat',
-                icon: Bot,
-                match: 'exact',
-            },
-        ],
-    },
-    {
-        title: 'Cấu hình AI',
-        items: [
-            {
-                label: 'Quản lý AI blog',
+                label: 'Cấu hình AI blog',
                 to: '/admin/ai-blog-config',
                 icon: Bot,
                 match: 'exact',
             },
             {
-                label: 'Quản lý AI chat',
+                label: 'Cấu hình AI chat',
                 to: '/admin/ai-chat-config',
                 icon: Bot,
                 match: 'exact',
-            }
+            },
         ],
     },
     {

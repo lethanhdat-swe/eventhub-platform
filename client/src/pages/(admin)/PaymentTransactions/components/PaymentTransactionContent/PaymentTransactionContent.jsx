@@ -13,6 +13,9 @@ function PaymentTransactionContent({
   transactions,
   meta,
   selectedIds,
+  sortBy,
+  sortOrder,
+  onSort,
   onSelectAll,
   onSelectRow,
   onView,
@@ -52,6 +55,9 @@ function PaymentTransactionContent({
       <PaymentTransactionTable
         transactions={transactions}
         selectedIds={selectedIds}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        onSort={onSort}
         onSelectAll={onSelectAll}
         onSelectRow={onSelectRow}
         onView={onView}

@@ -4,7 +4,7 @@ import { ImagePlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { getErrorMessage } from '@/lib/http/apiError';
-import { getUploadPreviewSrc } from '@/lib/upload/uploadAsset';
+import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
 import { uploadService } from '@/lib/services/upload/uploadService';
 import { cn } from '@/lib/utils';
 
@@ -42,7 +42,7 @@ export function ThumbnailUploadField({
     onBusyChange?.(uploading);
   }, [uploading, onBusyChange]);
 
-  const previewSrc = getUploadPreviewSrc(value);
+  const previewSrc = value ? resolvePublicAssetUrl(value, '') : '';
   const hasPreview = Boolean(previewSrc);
   const busy = disabled || uploading;
 

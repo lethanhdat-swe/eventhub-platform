@@ -1,16 +1,31 @@
 import { Plus } from 'lucide-react';
+import { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import AdminToolbar from '@/pages/(admin)/components/AdminToolbar';
 import PageHeader from '@/pages/(admin)/components/PageHeader';
 import {
   AdminBulkActions, AdminEmptyState, AdminLoadingState, AdminPagination,
+  useTableSort,
 } from '@/pages/(admin)/components/table';
 import { useBlogCategories } from '@/hooks/useBlogCategories';
 import BlogCategoryTable from './components/BlogCategoryTable/BlogCategoryTable';
 import BlogCategoryFormDialog from './components/BlogCategoryFormDialog/BlogCategoryFormDialog';
 import DeleteBlogCategoryDialog from './components/DeleteBlogCategoryDialog/DeleteBlogCategoryDialog';
 
+const DEFAULT_BLOG_CATEGORY_SORT = {
+  sortBy: 'createdAt',
+  sortOrder: 'desc',
+};
+
 function BlogCategories() {
+  const pageResetRef = useRef(null);
+
+  const { sortBy, sortOrder, handleSort } = useTableSort({
+    defaultSort: DEFAULT_BLOG_CATEGORY_SORT,
+    initialSort: DEFAULT_BLOG_CATEGORY_SORT,
+    onSortChange: () => pageResetRef.current?.(),
+  });
+
   const {
     categories, meta, isLoading, error,
     searchInput, setSearchInput, setPage,
@@ -19,7 +34,9 @@ function BlogCategories() {
     deleteDialog, setDeleteDialog,
     deleteSubmitting,
     loadCategories, handleSaveCategory, handleDeleteConfirm,
-  } = useBlogCategories();
+  } = useBlogCategories({ sortBy, sortOrder });
+
+  pageResetRef.current = () => setPage(1);
 
   const isEmpty = !isLoading && categories.length === 0;
 
@@ -71,6 +88,7 @@ function BlogCategories() {
         <>
           <BlogCategoryTable
             categories={categories} selectedIds={selectedIds}
+            sortBy={sortBy} sortOrder={sortOrder} onSort={handleSort}
             onSelectAll={handleSelectAll} onSelectRow={handleSelectRow}
             onEdit={(category) => setFormDialog({ mode: 'edit', category })}
             onDelete={(category) => setDeleteDialog({ type: 'single', category })}

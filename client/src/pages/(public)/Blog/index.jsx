@@ -12,7 +12,7 @@ import {
 import { parseApiError } from '@/lib/http/apiError';
 import { blogService } from '@/lib/services/blog/blogService';
 import { blogCategoryService } from '@/lib/services/blogCategory/blogCategoryService';
-import { getUploadPreviewSrc } from '@/lib/upload/uploadAsset';
+import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
 
 import BlogFilter from './components/BlogFilter/BlogFilter';
 import BlogHero from './components/BlogHero/BlogHero';
@@ -38,7 +38,10 @@ function normalizeBlog(blog) {
     category: blog.category?.name ?? 'Uncategorized',
     date: formatBlogDate(blog.publishedAt ?? blog.createdAt),
     excerpt: blog.excerpt ?? '',
-    image: getUploadPreviewSrc(blog.thumbnailUrl) || images.home,
+    image:
+      (blog.thumbnailUrl
+        ? resolvePublicAssetUrl(blog.thumbnailUrl, '')
+        : '') || images.home,
     views: blog.views ?? 0,
   };
 }

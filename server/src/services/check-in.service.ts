@@ -7,6 +7,7 @@ import { prisma } from "../utils/prisma";
 import { AppError } from "../utils/AppError";
 import notificationService from "./notification.service";
 import { NotificationType } from "@prisma/client";
+import { buildDirectOrderBy } from "../utils/listSort";
 
 class CheckInService {
     async scan(data: ScanCheckInInput) {
@@ -150,7 +151,15 @@ class CheckInService {
     }
 
     async history(query: ListCheckInHistoryInput) {
-        const { page = 1, limit = 10, search, status, eventId } = query;
+        const {
+            page = 1,
+            limit = 10,
+            search,
+            status,
+            eventId,
+            sortBy,
+            sortOrder,
+        } = query;
         const skip = (page - 1) * limit;
 
         const where: any = {};
@@ -194,14 +203,22 @@ class CheckInService {
             ];
         }
 
+        const orderBy = buildDirectOrderBy(
+            sortBy,
+            sortOrder,
+            {
+                scannedAt: "scannedAt",
+                status: "status",
+            },
+            { scannedAt: "desc" }
+        );
+
         const [logs, total] = await Promise.all([
             prisma.checkInLog.findMany({
                 where,
                 skip,
                 take: Number(limit),
-                orderBy: {
-                    scannedAt: "desc",
-                },
+                orderBy,
                 include: {
                     ticket: {
                         include: {

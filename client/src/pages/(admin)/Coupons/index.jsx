@@ -1,5 +1,5 @@
 import { Plus } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { getErrorMessage } from '@/lib/http/apiError';
 import { couponService } from '@/lib/services/admin/couponService';
@@ -13,8 +13,22 @@ import CouponFilters from './components/CouponFilters/CouponFilters';
 import CouponBulkActions from './components/CouponBulkActions/CouponBulkActions';
 import CouponContent from './components/CouponContent/CouponContent';
 import CouponDialogs from './components/CouponDialogs/CouponDialogs';
+import { useTableSort } from '@/pages/(admin)/components/table';
+
+const DEFAULT_COUPON_SORT = {
+  sortBy: 'createdAt',
+  sortOrder: 'desc',
+};
 
 function Coupons() {
+  const pageResetRef = useRef(null);
+
+  const { sortBy, sortOrder, handleSort } = useTableSort({
+    defaultSort: DEFAULT_COUPON_SORT,
+    initialSort: DEFAULT_COUPON_SORT,
+    onSortChange: () => pageResetRef.current?.(),
+  });
+
   const {
     coupons,
 
@@ -46,7 +60,9 @@ function Coupons() {
     handleSelectRow,
 
     setPage,
-  } = useCoupons();
+  } = useCoupons({ sortBy, sortOrder });
+
+  pageResetRef.current = () => setPage(1);
 
   const [formDialog, setFormDialog] =
     useState(null);
@@ -321,6 +337,9 @@ function Coupons() {
         selectedIds={
           selectedIds
         }
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        onSort={handleSort}
         onRetry={() =>
           void loadCoupons()
         }

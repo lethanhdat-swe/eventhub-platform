@@ -140,5 +140,17 @@ export const listEventSchema = z.object({
             .enum(["featured", "new", "upcoming"])
             .optional()
             .default("featured"),
+
+        sortBy: z
+            .enum([
+                "title",
+                "category",
+                "location",
+                "startDate",
+                "status",
+                "createdAt",
+            ])
+            .optional(),
+        sortOrder: z.enum(["asc", "desc"]).optional(),
     }),
 });

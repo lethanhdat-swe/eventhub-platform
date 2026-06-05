@@ -1,6 +1,7 @@
 import { prisma } from "../utils/prisma";
 import { AppError } from "../utils/AppError";
 import { getPaginationMetadata } from "../utils/pagination";
+import { buildDirectOrderBy } from "../utils/listSort";
 import { DEFAULT_TICKET_COLOR, normalizeHexColor } from "../utils/hexColor";
 
 const ticketTypeSelect = {
@@ -75,8 +76,14 @@ class TicketTypeService {
         return mapTicketTypeRow(ticketType);
     }
 
-    async list(query: { search?: string; page: number; limit: number }) {
-        const { page = 1, limit = 10, search } = query;
+    async list(query: {
+        search?: string;
+        page: number;
+        limit: number;
+        sortBy?: string;
+        sortOrder?: "asc" | "desc";
+    }) {
+        const { page = 1, limit = 10, search, sortBy, sortOrder } = query;
         const skip = (page - 1) * limit;
 
         const where: Record<string, unknown> = {};
@@ -84,12 +91,22 @@ class TicketTypeService {
             where.OR = [{ name: { contains: search } }];
         }
 
+        const orderBy = buildDirectOrderBy(
+            sortBy,
+            sortOrder,
+            {
+                name: "name",
+                price: "price",
+            },
+            { name: "asc" }
+        );
+
         const [rows, total] = await Promise.all([
             prisma.ticketType.findMany({
                 where,
                 skip,
                 take: Number(limit),
-                orderBy: { name: "asc" },
+                orderBy,
                 select: ticketTypeSelectWithCount,
             }),
             prisma.ticketType.count({ where }),

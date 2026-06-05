@@ -10,6 +10,8 @@ export function useUsers({
   search,
   roleFilter,
   emailFilter,
+  sortBy,
+  sortOrder,
 }) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] =
@@ -37,6 +39,8 @@ export function useUsers({
           role: roleFilter,
           emailVerified:
             emailFilter,
+          sortBy,
+          sortOrder,
         });
 
       setUsers(payload.data ?? []);
@@ -67,6 +71,8 @@ export function useUsers({
     search,
     roleFilter,
     emailFilter,
+    sortBy,
+    sortOrder,
   ]);
 
   useEffect(() => {

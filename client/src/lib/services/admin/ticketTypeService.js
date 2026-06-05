@@ -1,4 +1,5 @@
 import { axiosInstance } from '@/lib/http/axiosInstance';
+import { appendSortParams } from '@/lib/http/buildListSortParams';
 import { getApiData } from '@/lib/http/unwrapApiSuccess';
 
 const resourceBase = '/api/ticket-types';
@@ -7,11 +8,11 @@ const resourceBase = '/api/ticket-types';
  * @param {{ page?: number, limit?: number, search?: string }} query
  */
 function buildListParams(query) {
-  const { page = 1, limit = 10, search } = query;
+  const { page = 1, limit = 10, search, sortBy, sortOrder } = query;
   const params = { page, limit };
   const q = typeof search === 'string' ? search.trim() : '';
   if (q) params.search = q;
-  return params;
+  return appendSortParams(params, { sortBy, sortOrder });
 }
 
 export const ticketTypeService = {

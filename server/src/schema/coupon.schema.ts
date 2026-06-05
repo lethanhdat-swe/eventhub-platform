@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { CouponStatus } from "@prisma/client";
+import { listSortQueryFields } from "../utils/listSort";
 
 // Dùng chung cho các route cần validate UUID ở params
 const paramsIdSchema = z.object({
@@ -71,6 +72,14 @@ export const listCouponSchema = z.object({
         search: z.string().optional(),
         status: z.nativeEnum(CouponStatus).optional(),
         validity: z.enum(["valid", "expired"]).optional(),
+        ...listSortQueryFields([
+            "code",
+            "discountPercent",
+            "usageLimit",
+            "validUntil",
+            "status",
+            "createdAt",
+        ] as const),
     }),
 });
 

@@ -1,3 +1,7 @@
+import { isRenderableAction } from '@/components/AIChatWidget/ChatMessageActions/chatActionTypes';
+
+import { CHAT_SESSION_STATUS, isHumanSupportStatus } from './chatSessionStatus';
+
 export const WELCOME_MESSAGE = {
   id: 'welcome',
   role: 'assistant',
@@ -10,10 +14,9 @@ function mapRole(role) {
   if (role === 'USER') return 'user';
   if (role === 'ASSISTANT') return 'assistant';
   if (role === 'SYSTEM') return 'system';
+  if (role === 'ADMIN') return 'admin';
   return String(role ?? '').toLowerCase();
 }
-
-import { isRenderableAction } from '@/components/AIChatWidget/ChatMessageActions/chatActionTypes';
 
 function mapActions(actions) {
   const actionItems = Array.isArray(actions?.items) ? actions.items : [];
@@ -49,7 +52,8 @@ export function mapApiMessagesToWidget(items) {
   return (items ?? []).map(mapApiMessageToWidget).filter(Boolean);
 }
 
-export function withWelcomeIfEmpty(messages) {
+export function withWelcomeIfEmpty(messages, sessionStatus = CHAT_SESSION_STATUS.ACTIVE) {
   if (messages.length > 0) return messages;
+  if (isHumanSupportStatus(sessionStatus)) return [];
   return [WELCOME_MESSAGE];
 }

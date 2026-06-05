@@ -12,7 +12,7 @@ import {
 import { getErrorMessage } from '@/lib/http/apiError';
 import { eventService } from '@/lib/services/admin/eventService';
 import StatusBadge from '@/pages/(admin)/components/StatusBadge';
-import { getUploadPreviewSrc } from '@/lib/upload/uploadAsset';
+import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
 import {
   ARTIST_ROLE_LABELS,
   formatCreatedAt,
@@ -86,7 +86,9 @@ function AdminEventDetail() {
     );
   }
 
-  const thumbnailSrc = getUploadPreviewSrc(event.thumbnailUrl);
+  const thumbnailSrc = event.thumbnailUrl
+    ? resolvePublicAssetUrl(event.thumbnailUrl, '')
+    : '';
 
   return (
     <div className="space-y-4">

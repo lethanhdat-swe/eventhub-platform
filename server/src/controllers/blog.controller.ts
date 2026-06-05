@@ -3,8 +3,7 @@ import blogService from "../services/blog.service";
 
 class BlogController {
     async getAll(req: Request, res: Response) {
-        const { page, limit, search } = req.query as any;
-        const result = await blogService.getBlogs(page, limit, search);
+        const result = await blogService.getBlogs(req.query as any);
         res.success({
             message: "Blogs retrieved successfully",
             data: result,

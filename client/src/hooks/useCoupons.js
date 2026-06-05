@@ -10,7 +10,7 @@ import {
 
 const PAGE_SIZE = 10;
 
-export function useCoupons() {
+export function useCoupons({ sortBy, sortOrder } = {}) {
   const [coupons, setCoupons] = useState([]);
 
   const [searchInput, setSearchInput] =
@@ -113,6 +113,8 @@ export function useCoupons() {
             status: statusFilter,
             validity:
               validityFilter,
+            sortBy,
+            sortOrder,
           });
 
         const rows =
@@ -165,6 +167,8 @@ export function useCoupons() {
       debouncedSearch,
       statusFilter,
       validityFilter,
+      sortBy,
+      sortOrder,
     ]
   );
 

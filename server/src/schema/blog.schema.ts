@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { listSortQueryFields } from "../utils/listSort";
 
 export const listBlogSchema = z.object({
     query: z.object({
@@ -11,6 +12,14 @@ export const listBlogSchema = z.object({
             .optional()
             .transform((val) => Number(val) || 10),
         search: z.string().optional(),
+        ...listSortQueryFields([
+            "title",
+            "category",
+            "status",
+            "publishedAt",
+            "updatedAt",
+            "createdAt",
+        ] as const),
     }),
 });
 

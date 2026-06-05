@@ -4,14 +4,28 @@ import AdminToolbar from '@/pages/(admin)/components/AdminToolbar';
 import PageHeader from '@/pages/(admin)/components/PageHeader';
 import {
   AdminBulkActions, AdminEmptyState, AdminLoadingState,
-  AdminPagination, ADMIN_EMPTY_STATES,
+  AdminPagination, ADMIN_EMPTY_STATES, useTableSort,
 } from '@/pages/(admin)/components/table';
 import { useArtists } from '@/hooks/useArtists';
 import ArtistTable from './components/ArtistTable/ArtistTable';
 import ArtistFormDialog from './components/ArtistFormDialog/ArtistFormDialog';
 import DeleteArtistDialog from './components/DeleteArtistDialog/DeleteArtistDialog';
+import { useRef } from 'react';
+
+const DEFAULT_ARTIST_SORT = {
+  sortBy: 'createdAt',
+  sortOrder: 'desc',
+};
 
 function Artists() {
+  const pageResetRef = useRef(null);
+
+  const { sortBy, sortOrder, handleSort } = useTableSort({
+    defaultSort: DEFAULT_ARTIST_SORT,
+    initialSort: DEFAULT_ARTIST_SORT,
+    onSortChange: () => pageResetRef.current?.(),
+  });
+
   const {
     artists, meta, isLoading, error,
     searchInput, setSearchInput, setPage,
@@ -20,7 +34,9 @@ function Artists() {
     deleteDialog, setDeleteDialog,
     deleteSubmitting,
     loadArtists, handleSaveArtist, handleDeleteConfirm,
-  } = useArtists();
+  } = useArtists({ sortBy, sortOrder });
+
+  pageResetRef.current = () => setPage(1);
 
   const isEmpty = !isLoading && artists.length === 0;
 
@@ -72,6 +88,7 @@ function Artists() {
         <>
           <ArtistTable
             artists={artists} selectedIds={selectedIds}
+            sortBy={sortBy} sortOrder={sortOrder} onSort={handleSort}
             onSelectAll={handleSelectAll} onSelectRow={handleSelectRow}
             onEdit={(artist) => setFormDialog({ mode: 'edit', artist })}
             onDelete={(artist) => setDeleteDialog({ type: 'single', artist })}

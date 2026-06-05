@@ -16,6 +16,9 @@ function CategoryContent({
   setPage,
   setFormDialog,
   selectedIds,
+  sortBy,
+  sortOrder,
+  onSort,
   onSelectAll,
   onSelectRow,
   onEdit,
@@ -59,6 +62,9 @@ function CategoryContent({
       <CategoryTable
         categories={categories}
         selectedIds={selectedIds}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        onSort={onSort}
         onSelectAll={onSelectAll}
         onSelectRow={onSelectRow}
         onEdit={onEdit}

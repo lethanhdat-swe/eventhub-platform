@@ -16,6 +16,9 @@ export default function ContactContent({
   onRetry,
 
   selectedIds,
+  sortBy,
+  sortOrder,
+  onSort,
   onSelectAll,
   onSelectRow,
 
@@ -55,6 +58,9 @@ export default function ContactContent({
       <ContactTable
         contacts={contacts}
         selectedIds={selectedIds}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        onSort={onSort}
         onSelectAll={onSelectAll}
         onSelectRow={onSelectRow}
         onDelete={onDelete}

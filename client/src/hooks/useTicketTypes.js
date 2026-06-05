@@ -7,7 +7,7 @@ import { mapTicketTypeRow } from '@/pages/(admin)/TicketTypes/data';
 
 const PAGE_SIZE = 10;
 
-export function useTicketTypes(page, search) {
+export function useTicketTypes(page, search, { sortBy, sortOrder } = {}) {
   const [ticketTypes, setTicketTypes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -29,6 +29,8 @@ export function useTicketTypes(page, search) {
           page,
           limit: PAGE_SIZE,
           search,
+          sortBy,
+          sortOrder,
         });
 
       const rows = payload.data ?? [];
@@ -58,7 +60,7 @@ export function useTicketTypes(page, search) {
     } finally {
       setLoading(false);
     }
-  }, [page, search]);
+  }, [page, search, sortBy, sortOrder]);
 
   useEffect(() => {
     void loadTicketTypes();

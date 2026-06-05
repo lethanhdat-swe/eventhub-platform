@@ -13,6 +13,9 @@ function TicketTypeContent({
   ticketTypes,
   meta,
   selectedIds,
+  sortBy,
+  sortOrder,
+  onSort,
   onRetry,
   onSelectAll,
   onSelectRow,
@@ -66,6 +69,9 @@ function TicketTypeContent({
         selectedIds={
           selectedIds
         }
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        onSort={onSort}
         onSelectAll={
           onSelectAll
         }

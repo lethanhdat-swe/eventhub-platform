@@ -2,6 +2,7 @@ import { Eye, MoreHorizontal, Ticket, Trash2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import AdminTableWrapper from '@/pages/(admin)/components/table/AdminTableWrapper';
+import { SortableTableHead } from '@/pages/(admin)/components/table';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,6 +25,9 @@ const EMPTY_VALUE = '-';
 
 function CheckInLogTable({
   logs,
+  sortBy,
+  sortOrder,
+  onSort,
   onView,
   onViewTicket,
   onDelete,
@@ -33,9 +37,21 @@ function CheckInLogTable({
       <Table className="min-w-275">
         <TableHeader>
           <TableRow className="bg-muted/40 hover:bg-muted/40">
-            <TableHead className="px-2 h-9">Thời gian quét</TableHead>
+            <SortableTableHead
+              field="scannedAt"
+              label="Thời gian quét"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
             <TableHead className="px-2 h-9">Token / Mã QR</TableHead>
-            <TableHead className="px-2 h-9">Trạng thái</TableHead>
+            <SortableTableHead
+              field="status"
+              label="Trạng thái"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
             <TableHead className="px-2 h-9">Nội dung</TableHead>
             <TableHead className="px-2 h-9">Vé liên kết</TableHead>
             <TableHead className="px-2 h-9">Sự kiện</TableHead>

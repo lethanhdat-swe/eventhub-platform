@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { getErrorMessage } from '@/lib/http/apiError';
 import { contactService } from '@/lib/services/contact';
@@ -10,8 +10,22 @@ import { useContacts } from '@/hooks/useContacts';
 import ContactBulkActions from './components/ContactBulkActions/ContactBulkActions';
 import ContactContent from './components/ContactContent/ContactContent';
 import ContactDialogs from './components/ContactDialogs/ContactDialogs';
+import { useTableSort } from '@/pages/(admin)/components/table';
+
+const DEFAULT_CONTACT_SORT = {
+  sortBy: 'createdAt',
+  sortOrder: 'desc',
+};
 
 function Contacts() {
+  const pageResetRef = useRef(null);
+
+  const { sortBy, sortOrder, handleSort } = useTableSort({
+    defaultSort: DEFAULT_CONTACT_SORT,
+    initialSort: DEFAULT_CONTACT_SORT,
+    onSortChange: () => pageResetRef.current?.(),
+  });
+
   const {
     contacts,
     meta,
@@ -28,7 +42,9 @@ function Contacts() {
 
     handleSelectAll,
     handleSelectRow,
-  } = useContacts();
+  } = useContacts({ sortBy, sortOrder });
+
+  pageResetRef.current = () => setPage(1);
 
   const [deleteDialog, setDeleteDialog] =
     useState(null);
@@ -175,6 +191,9 @@ function Contacts() {
         selectedIds={
           selectedIds
         }
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        onSort={handleSort}
         onRetry={() =>
           void loadContacts()
         }

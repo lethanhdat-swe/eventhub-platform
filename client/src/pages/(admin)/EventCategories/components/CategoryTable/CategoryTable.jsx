@@ -2,6 +2,7 @@ import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import AdminTableWrapper from '@/pages/(admin)/components/table/AdminTableWrapper';
+import { SortableTableHead } from '@/pages/(admin)/components/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   DropdownMenu,
@@ -22,6 +23,9 @@ import {
 function CategoryTable({
   categories,
   selectedIds,
+  sortBy,
+  sortOrder,
+  onSort,
   onSelectAll,
   onSelectRow,
   onEdit,
@@ -50,9 +54,27 @@ function CategoryTable({
                 aria-label="Chọn tất cả danh mục"
               />
             </TableHead>
-            <TableHead className="px-2 h-9">Tên danh mục</TableHead>
-            <TableHead className="px-2 h-9">Slug</TableHead>
-            <TableHead className="px-2 h-9">Số sự kiện</TableHead>
+            <SortableTableHead
+              field="name"
+              label="Tên danh mục"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
+            <SortableTableHead
+              field="slug"
+              label="Slug"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
+            <SortableTableHead
+              field="eventCount"
+              label="Số sự kiện"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
             <TableHead className="w-12 px-2 text-right h-9">Hành động</TableHead>
           </TableRow>
         </TableHeader>

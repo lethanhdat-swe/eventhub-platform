@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { listSortQueryFields } from "../utils/listSort";
 
 import { normalizeHexColor } from "../utils/hexColor";
 
@@ -59,6 +60,7 @@ export const listTicketTypeSchema = z.object({
             .default("10")
             .transform((val) => Math.max(1, parseInt(val))),
         search: z.string().optional(),
+        ...listSortQueryFields(["name", "price"] as const),
     }),
 });
 

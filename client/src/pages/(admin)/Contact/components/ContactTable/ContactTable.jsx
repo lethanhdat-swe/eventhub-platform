@@ -20,12 +20,16 @@ import {
 } from '@/components/ui/table';
 
 import AdminTableWrapper from '@/pages/(admin)/components/table/AdminTableWrapper';
+import { SortableTableHead } from '@/pages/(admin)/components/table';
 
 import { formatCreatedAt } from '@/pages/(admin)/Users/data';
 
 function ContactTable({
   contacts,
   selectedIds,
+  sortBy,
+  sortOrder,
+  onSort,
   onSelectAll,
   onSelectRow,
   onDelete,
@@ -62,9 +66,13 @@ function ContactTable({
               />
             </TableHead>
 
-            <TableHead className="px-2 h-9">
-              Khách hàng
-            </TableHead>
+            <SortableTableHead
+              field="fullName"
+              label="Khách hàng"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
 
             <TableHead className="px-2 h-9">
               Số điện thoại
@@ -74,9 +82,13 @@ function ContactTable({
               Nội dung
             </TableHead>
 
-            <TableHead className="px-2 h-9">
-              Ngày gửi
-            </TableHead>
+            <SortableTableHead
+              field="createdAt"
+              label="Ngày gửi"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
 
             <TableHead className="w-12 px-2 text-right h-9">
               Hành động

@@ -14,21 +14,33 @@ import { toast } from 'sonner';
 import {
     clearStoredChatSessionId,
     getOrCreateGuestId,
-    getStoredChatSessionId,
-    setStoredChatSessionId,
+    getStoredChatSession,
+    setStoredChatSession,
 } from '@/lib/aiChat/aiChatStorage';
+import { appendUniqueMessage } from '@/lib/aiChat/chatMessageUtils';
+import {
+    CHAT_SESSION_STATUS,
+    deriveStatusFromMessages,
+    getChatFooterText,
+    getChatHeaderConfig,
+    isClosedStatus,
+    isHumanSupportStatus,
+    normalizeSessionStatus,
+    resolveStatusAfterSend,
+} from '@/lib/aiChat/chatSessionStatus';
 import {
     mapApiMessageToWidget,
     mapApiMessagesToWidget,
-    WELCOME_MESSAGE,
     withWelcomeIfEmpty,
 } from '@/lib/aiChat/mapChatMessage';
 import { getErrorMessage, parseApiError } from '@/lib/http/apiError';
 import { aiChatService } from '@/lib/services/aiChat/aiChatService';
+import useChatSessionSocket from '@/hooks/useChatSessionSocket';
 import RefundRequestDialog from '@/pages/(public)/EventCheckInPage/components/RefundRequestSection/RefundRequestDialog';
 import { useAuthStore } from '@/stores/authStore';
 
-import ChatMessageActions from './ChatMessageActions/ChatMessageActions';
+import ChatMessageBubble from './ChatMessageBubble';
+import ChatStatusNotice from './ChatStatusNotice';
 
 const QUICK_SUGGESTIONS = [
     'Cách đặt vé?',
@@ -198,6 +210,11 @@ function isSessionAccessError(error) {
     return status === 403 || status === 404;
 }
 
+function isClosedSessionError(error) {
+    const { status } = parseApiError(error);
+    return status === 409;
+}
+
 function ChatTypingIndicator() {
     return (
         <div className="flex justify-start">
@@ -224,6 +241,7 @@ function AIChatWidget() {
     const [isExpanded, setIsExpanded] = useState(false);
     const [draft, setDraft] = useState('');
     const [sessionId, setSessionId] = useState(null);
+    const [sessionStatus, setSessionStatus] = useState(CHAT_SESSION_STATUS.ACTIVE);
     const [messages, setMessages] = useState([]);
     const [isSessionLoading, setIsSessionLoading] = useState(false);
     const [isSending, setIsSending] = useState(false);
@@ -232,30 +250,68 @@ function AIChatWidget() {
     const prevAuthenticatedRef = useRef(null);
     const bootstrapCancelledRef = useRef(false);
 
+    const headerConfig = useMemo(
+        () => getChatHeaderConfig(sessionStatus),
+        [sessionStatus]
+    );
+
+    const footerText = useMemo(
+        () => getChatFooterText(sessionStatus),
+        [sessionStatus]
+    );
+
     const showQuickSuggestions = useMemo(() => {
         if (isSessionLoading || isSending) return false;
+        if (sessionStatus !== CHAT_SESSION_STATUS.ACTIVE) return false;
         return !messages.some((message) => message.role === 'user');
-    }, [messages, isSessionLoading, isSending]);
+    }, [messages, isSessionLoading, isSending, sessionStatus]);
+
+    const showAiTypingIndicator =
+        isSending && sessionStatus === CHAT_SESSION_STATUS.ACTIVE;
+
+    const isClosed = isClosedStatus(sessionStatus);
 
     const canSend =
         Boolean(draft.trim()) &&
         Boolean(sessionId) &&
         !isSending &&
-        !isSessionLoading;
+        !isSessionLoading &&
+        !isClosed;
 
     useEffect(() => {
-        if (!messageContainerRef.current) return;
-        messageContainerRef.current.scrollTop =
-            messageContainerRef.current.scrollHeight;
-    }, [messages, isOpen, isSending, isSessionLoading]);
+        if (!messageContainerRef.current || isSessionLoading) return;
+
+        const container = messageContainerRef.current;
+        requestAnimationFrame(() => {
+            container.scrollTop = container.scrollHeight;
+        });
+    }, [messages, isOpen, isSending, isSessionLoading, sessionStatus]);
 
     const sessionStorageScope = useMemo(
         () => ({ isAuthenticated, userId }),
         [isAuthenticated, userId]
     );
 
+    const updateSessionStatus = useCallback(
+        (status, { persist = false, targetSessionId = sessionId } = {}) => {
+            const normalizedStatus = normalizeSessionStatus(status);
+            setSessionStatus(normalizedStatus);
+
+            if (persist && targetSessionId) {
+                setStoredChatSession(
+                    {
+                        sessionId: targetSessionId,
+                        status: normalizedStatus,
+                    },
+                    sessionStorageScope
+                );
+            }
+        },
+        [sessionId, sessionStorageScope]
+    );
+
     const applyLoadedSession = useCallback(
-        async (targetSessionId, guestId) => {
+        async (targetSessionId, guestId, initialStatus) => {
             const items = await aiChatService.fetchRecentSessionMessages(
                 targetSessionId,
                 { guestId }
@@ -263,9 +319,22 @@ function AIChatWidget() {
 
             if (bootstrapCancelledRef.current) return false;
 
-            setStoredChatSessionId(targetSessionId, sessionStorageScope);
+            const mappedMessages = mapApiMessagesToWidget(items);
+            const derivedStatus = deriveStatusFromMessages(mappedMessages);
+            const resolvedStatus = normalizeSessionStatus(
+                initialStatus ?? derivedStatus ?? CHAT_SESSION_STATUS.ACTIVE
+            );
+
+            setStoredChatSession(
+                {
+                    sessionId: targetSessionId,
+                    status: resolvedStatus,
+                },
+                sessionStorageScope
+            );
             setSessionId(targetSessionId);
-            setMessages(withWelcomeIfEmpty(mapApiMessagesToWidget(items)));
+            setSessionStatus(resolvedStatus);
+            setMessages(withWelcomeIfEmpty(mappedMessages, resolvedStatus));
             return true;
         },
         [sessionStorageScope]
@@ -283,7 +352,8 @@ function AIChatWidget() {
                     try {
                         const loaded = await applyLoadedSession(
                             latestSession.id,
-                            undefined
+                            undefined,
+                            latestSession.status
                         );
                         if (loaded) return;
                     } catch (error) {
@@ -294,13 +364,14 @@ function AIChatWidget() {
                 }
             }
 
-            const storedSessionId = getStoredChatSessionId(sessionStorageScope);
+            const storedSession = getStoredChatSession(sessionStorageScope);
 
-            if (storedSessionId) {
+            if (storedSession?.sessionId) {
                 try {
                     const loaded = await applyLoadedSession(
-                        storedSessionId,
-                        guestId
+                        storedSession.sessionId,
+                        guestId,
+                        storedSession.status
                     );
                     if (loaded) return;
                 } catch (error) {
@@ -318,14 +389,24 @@ function AIChatWidget() {
 
             if (bootstrapCancelledRef.current) return;
 
-            setStoredChatSessionId(session.id, sessionStorageScope);
+            const newStatus = normalizeSessionStatus(session.status);
+
+            setStoredChatSession(
+                {
+                    sessionId: session.id,
+                    status: newStatus,
+                },
+                sessionStorageScope
+            );
             setSessionId(session.id);
-            setMessages([WELCOME_MESSAGE]);
+            setSessionStatus(newStatus);
+            setMessages(withWelcomeIfEmpty([], newStatus));
         } catch (error) {
             if (bootstrapCancelledRef.current) return;
             toast.error(getErrorMessage(error));
             setSessionId(null);
-            setMessages([WELCOME_MESSAGE]);
+            setSessionStatus(CHAT_SESSION_STATUS.ACTIVE);
+            setMessages(withWelcomeIfEmpty([], CHAT_SESSION_STATUS.ACTIVE));
         } finally {
             if (!bootstrapCancelledRef.current) {
                 setIsSessionLoading(false);
@@ -344,6 +425,7 @@ function AIChatWidget() {
 
         if (authChanged) {
             setSessionId(null);
+            setSessionStatus(CHAT_SESSION_STATUS.ACTIVE);
             setMessages([]);
         }
 
@@ -354,6 +436,32 @@ function AIChatWidget() {
             bootstrapCancelledRef.current = true;
         };
     }, [isOpen, isHydrated, isAuthenticated, userId, bootstrapSession]);
+
+    useChatSessionSocket({
+        sessionId,
+        guestId: isAuthenticated ? undefined : getOrCreateGuestId(),
+        enabled: isOpen && Boolean(sessionId),
+        onMessageCreated: (payload) => {
+            const incomingMessage = mapApiMessageToWidget(payload.message);
+            if (!incomingMessage) return;
+
+            if (payload.status) {
+                updateSessionStatus(payload.status, { persist: true });
+            }
+
+            setMessages((prev) => appendUniqueMessage(prev, incomingMessage));
+        },
+        onSessionUpdated: (payload) => {
+            if (payload?.status) {
+                updateSessionStatus(payload.status, { persist: true });
+            }
+        },
+        onError: (payload) => {
+            const message =
+                payload?.message ?? 'Không thể kết nối realtime chat.';
+            toast.error(message);
+        },
+    });
 
     const sendMessage = useCallback(
         async (text) => {
@@ -386,23 +494,50 @@ function AIChatWidget() {
                     result.assistantMessage
                 );
 
+                const nextStatus = resolveStatusAfterSend({
+                    currentStatus: sessionStatus,
+                    result,
+                });
+
+                updateSessionStatus(nextStatus, { persist: true });
+
                 setMessages((prev) => {
                     const withoutTemp = prev.filter(
                         (message) => message.id !== tempUserId
                     );
-                    const next = [...withoutTemp];
-                    if (userMessage) next.push(userMessage);
-                    if (assistantMessage) next.push(assistantMessage);
+                    let next = withoutTemp;
+                    if (userMessage) {
+                        next = appendUniqueMessage(next, userMessage);
+                    }
+                    if (assistantMessage) {
+                        next = appendUniqueMessage(next, assistantMessage);
+                    }
                     return next;
                 });
+
+                if (isAuthenticated && isHumanSupportStatus(nextStatus)) {
+                    const latestSession =
+                        await aiChatService.getLatestMySession();
+
+                    if (latestSession?.status) {
+                        updateSessionStatus(latestSession.status, {
+                            persist: true,
+                            targetSessionId: sessionId,
+                        });
+                    }
+                }
             } catch (error) {
                 setMessages((prev) =>
                     prev.filter((message) => message.id !== tempUserId)
                 );
 
-                if (isSessionAccessError(error)) {
+                if (
+                    isSessionAccessError(error) ||
+                    isClosedSessionError(error)
+                ) {
                     clearStoredChatSessionId(sessionStorageScope);
                     setSessionId(null);
+                    setSessionStatus(CHAT_SESSION_STATUS.ACTIVE);
                     toast.info('Đã làm mới cuộc trò chuyện.');
                     await bootstrapSession();
                     return;
@@ -415,11 +550,13 @@ function AIChatWidget() {
         },
         [
             sessionId,
+            sessionStatus,
             isSending,
             isSessionLoading,
             isAuthenticated,
             bootstrapSession,
             sessionStorageScope,
+            updateSessionStatus,
         ]
     );
 
@@ -450,15 +587,21 @@ function AIChatWidget() {
                         >
                             <header className="flex items-center justify-between border-b border-(--border-color) bg-(--soft-surface-color) px-4 py-3">
                                 <div className="flex items-center gap-2.5">
-                                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-(--primary-color)/20 text-(--primary-color)">
+                                    <div
+                                        className={`flex h-9 w-9 items-center justify-center rounded-full ${
+                                            headerConfig.isHumanMode
+                                                ? 'bg-emerald-500/20 text-emerald-400'
+                                                : 'bg-(--primary-color)/20 text-(--primary-color)'
+                                        }`}
+                                    >
                                         <Bot size={18} />
                                     </div>
                                     <div>
                                         <p className="text-sm font-semibold">
-                                            EventHub AI
+                                            {headerConfig.title}
                                         </p>
                                         <p className="text-xs text-(--muted-text)">
-                                            Trợ lý hỗ trợ sự kiện
+                                            {headerConfig.subtitle}
                                         </p>
                                     </div>
                                 </div>
@@ -511,67 +654,25 @@ function AIChatWidget() {
                                         </div>
                                     ) : (
                                         <>
-                                            {messages.map((message) => {
-                                                if (message.role === 'system') {
-                                                    return (
-                                                        <div
-                                                            key={message.id}
-                                                            className="py-1 text-center text-xs text-(--muted-text)"
-                                                        >
-                                                            {message.content}
-                                                        </div>
-                                                    );
-                                                }
+                                            <ChatStatusNotice
+                                                status={sessionStatus}
+                                                messages={messages}
+                                            />
 
-                                                const isUser =
-                                                    message.role === 'user';
+                                            {messages.map((message) => (
+                                                <ChatMessageBubble
+                                                    key={message.id}
+                                                    message={message}
+                                                    onSendMessage={sendMessage}
+                                                    onOpenRefundForm={() =>
+                                                        setIsRefundDialogOpen(
+                                                            true
+                                                        )
+                                                    }
+                                                />
+                                            ))}
 
-                                                return (
-                                                    <div
-                                                        key={message.id}
-                                                        className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}
-                                                    >
-                                                        <div className="max-w-[84%]">
-                                                            <div
-                                                                className={`rounded-2xl px-3 py-2 ${
-                                                                    isUser
-                                                                        ? 'rounded-br-sm bg-(--primary-color) text-sm leading-relaxed text-white'
-                                                                        : 'rounded-bl-sm border border-(--border-color) bg-(--surface-color) text-(--text-primary)'
-                                                                }`}
-                                                            >
-                                                                <p className="text-sm leading-relaxed">
-                                                                    {
-                                                                        message.content
-                                                                    }
-                                                                </p>
-                                                                {!isUser &&
-                                                                message.actions
-                                                                    ?.length >
-                                                                    0 ? (
-                                                                    <ChatMessageActions
-                                                                        messageId={
-                                                                            message.id
-                                                                        }
-                                                                        actions={
-                                                                            message.actions
-                                                                        }
-                                                                        onSendMessage={
-                                                                            sendMessage
-                                                                        }
-                                                                        onOpenRefundForm={() =>
-                                                                            setIsRefundDialogOpen(
-                                                                                true
-                                                                            )
-                                                                        }
-                                                                    />
-                                                                ) : null}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })}
-
-                                            {isSending ? (
+                                            {showAiTypingIndicator ? (
                                                 <ChatTypingIndicator />
                                             ) : null}
 
@@ -604,39 +705,64 @@ function AIChatWidget() {
                                 </div>
 
                                 <div className="border-t border-(--border-color) bg-(--soft-surface-color) p-3">
-                                    <div className="flex items-center gap-2">
-                                        <input
-                                            type="text"
-                                            value={draft}
-                                            onChange={(event) =>
-                                                setDraft(event.target.value)
-                                            }
-                                            onKeyDown={(event) => {
-                                                if (event.key === 'Enter') {
-                                                    event.preventDefault();
-                                                    handleSend();
-                                                }
-                                            }}
-                                            disabled={
-                                                isSessionLoading || isSending
-                                            }
-                                            placeholder="Nhập câu hỏi của bạn..."
-                                            className="h-10 flex-1 rounded-xl border border-(--border-color) bg-(--surface-color) px-3 text-sm outline-none transition focus:border-(--primary-color) focus:ring-2 focus:ring-(--primary-color)/30 disabled:cursor-not-allowed disabled:opacity-60"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={handleSend}
-                                            disabled={!canSend}
-                                            aria-label="Gửi tin nhắn"
-                                            className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-(--primary-color) text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
-                                        >
-                                            <SendHorizontal size={16} />
-                                        </button>
-                                    </div>
-                                    <p className="mt-2 inline-flex items-center gap-1 text-[11px] text-(--muted-text)">
-                                        <Sparkles size={12} />
-                                        Hỗ trợ tự động bởi EventHub AI
-                                    </p>
+                                    {isClosed ? (
+                                        <p className="rounded-xl border border-(--border-color) bg-(--surface-color) px-3 py-2.5 text-center text-sm text-(--muted-text)">
+                                            {footerText}
+                                        </p>
+                                    ) : (
+                                        <>
+                                            <div className="flex items-center gap-2">
+                                                <input
+                                                    type="text"
+                                                    value={draft}
+                                                    onChange={(event) =>
+                                                        setDraft(
+                                                            event.target.value
+                                                        )
+                                                    }
+                                                    onKeyDown={(event) => {
+                                                        if (
+                                                            event.key === 'Enter'
+                                                        ) {
+                                                            event.preventDefault();
+                                                            handleSend();
+                                                        }
+                                                    }}
+                                                    disabled={
+                                                        isSessionLoading ||
+                                                        isSending
+                                                    }
+                                                    placeholder="Nhập câu hỏi của bạn..."
+                                                    className="h-10 flex-1 rounded-xl border border-(--border-color) bg-(--surface-color) px-3 text-sm outline-none transition focus:border-(--primary-color) focus:ring-2 focus:ring-(--primary-color)/30 disabled:cursor-not-allowed disabled:opacity-60"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={handleSend}
+                                                    disabled={!canSend}
+                                                    aria-label="Gửi tin nhắn"
+                                                    className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-(--primary-color) text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+                                                >
+                                                    {isSending ? (
+                                                        <Loader2
+                                                            size={16}
+                                                            className="animate-spin"
+                                                        />
+                                                    ) : (
+                                                        <SendHorizontal
+                                                            size={16}
+                                                        />
+                                                    )}
+                                                </button>
+                                            </div>
+                                            <p className="mt-2 inline-flex items-center gap-1 text-[11px] text-(--muted-text)">
+                                                {sessionStatus ===
+                                                CHAT_SESSION_STATUS.ACTIVE ? (
+                                                    <Sparkles size={12} />
+                                                ) : null}
+                                                {footerText}
+                                            </p>
+                                        </>
+                                    )}
                                 </div>
                             </div>
                         </motion.div>

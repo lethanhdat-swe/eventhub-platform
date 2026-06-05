@@ -2,6 +2,7 @@ import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import AdminTableWrapper from '@/pages/(admin)/components/table/AdminTableWrapper';
+import { SortableTableHead } from '@/pages/(admin)/components/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   DropdownMenu,
@@ -46,6 +47,9 @@ function ArtistAvatar({ name, avatarUrl }) {
 function ArtistTable({
   artists,
   selectedIds,
+  sortBy,
+  sortOrder,
+  onSort,
   onSelectAll,
   onSelectRow,
   onEdit,
@@ -73,9 +77,27 @@ function ArtistTable({
                 aria-label="Chọn tất cả nghệ sĩ"
               />
             </TableHead>
-            <TableHead className="h-9 px-2">Nghệ sĩ</TableHead>
-            <TableHead className="h-9 px-2">Số sự kiện tham gia</TableHead>
-            <TableHead className="h-9 px-2">Ngày tạo</TableHead>
+            <SortableTableHead
+              field="name"
+              label="Nghệ sĩ"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
+            <SortableTableHead
+              field="eventCount"
+              label="Số sự kiện tham gia"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
+            <SortableTableHead
+              field="createdAt"
+              label="Ngày tạo"
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSort={onSort}
+            />
             <TableHead className="h-9 w-12 px-2 text-right">Hành động</TableHead>
           </TableRow>
         </TableHeader>

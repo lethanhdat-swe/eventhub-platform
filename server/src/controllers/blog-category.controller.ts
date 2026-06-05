@@ -12,12 +12,7 @@ class BlogCategoryController {
     }
 
     async getAll(req: Request, res: Response) {
-        const { page, limit, search } = req.query as any;
-        const result = await blogCategoryService.getCategories(
-            page,
-            limit,
-            search
-        );
+        const result = await blogCategoryService.getCategories(req.query as any);
         res.success({
             message: "Categories retrieved successfully",
             data: result,

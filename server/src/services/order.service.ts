@@ -13,6 +13,7 @@ import {
     NotificationType,
 } from "@prisma/client";
 import paymentService from "./payment.service";
+import { buildDirectOrderBy } from "../utils/listSort";
 import qrService from "./qr.service";
 import ticketPdfService from "./ticketPdf.service";
 import notificationService from "./notification.service";
@@ -494,8 +495,11 @@ class OrderService {
         page: number;
         limit: number;
         status?: OrderStatus;
+        sortBy?: string;
+        sortOrder?: "asc" | "desc";
     }) {
-        const { page = 1, limit = 10, search, status } = query;
+        const { page = 1, limit = 10, search, status, sortBy, sortOrder } =
+            query;
         const skip = (page - 1) * limit;
 
         const where: Prisma.OrderWhereInput = {};
@@ -513,14 +517,27 @@ class OrderService {
             ];
         }
 
+        const orderBy = buildDirectOrderBy(
+            sortBy,
+            sortOrder,
+            {
+                orderCode: "orderCode",
+                customerName: "customerName",
+                customerEmail: "customerEmail",
+                totalAmount: "totalAmount",
+                paymentMethod: "paymentMethod",
+                status: "status",
+                createdAt: "createdAt",
+            },
+            { createdAt: "desc" }
+        );
+
         const [orders, total] = await Promise.all([
             prisma.order.findMany({
                 where,
                 skip,
                 take: Number(limit),
-                orderBy: {
-                    createdAt: "desc",
-                },
+                orderBy,
                 select: {
                     id: true,
                     customerEmail: true,

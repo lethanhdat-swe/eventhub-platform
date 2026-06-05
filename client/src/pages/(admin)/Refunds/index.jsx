@@ -9,6 +9,12 @@ import { useRefunds } from '@/hooks/useRefunds';
 import RefundErrorAlert from './components/RefundErrorAlert/RefundErrorAlert';
 import RefundFilters from './components/RefundFilters/RefundFilters';
 import RefundContent from './components/RefundContent/RefundContent';
+import { useTableSort } from '@/pages/(admin)/components/table';
+
+const DEFAULT_REFUND_SORT = {
+  sortBy: 'createdAt',
+  sortOrder: 'desc',
+};
 
 function Refunds() {
   const [searchInput, setSearchInput] = useState('');
@@ -16,6 +22,12 @@ function Refunds() {
 
   const [statusFilter, setStatusFilter] = useState('all');
   const [page, setPage] = useState(1);
+
+  const { sortBy, sortOrder, handleSort } = useTableSort({
+    defaultSort: DEFAULT_REFUND_SORT,
+    initialSort: DEFAULT_REFUND_SORT,
+    onSortChange: () => setPage(1),
+  });
 
   const [detailRefund, setDetailRefund] = useState(null);
 
@@ -43,7 +55,8 @@ function Refunds() {
   } = useRefunds(
     page,
     debouncedSearch,
-    statusFilter
+    statusFilter,
+    { sortBy, sortOrder }
   );
 
   const handleOpenDetail = (refund) => {
@@ -129,6 +142,9 @@ function Refunds() {
         error={error}
         refunds={refunds}
         meta={meta}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        onSort={handleSort}
         onRetry={() => void loadRefunds()}
         onViewDetail={handleOpenDetail}
         onPageChange={setPage}

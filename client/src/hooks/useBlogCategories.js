@@ -6,7 +6,7 @@ import { mapBlogCategoryRow } from '@/pages/(admin)/BlogCategories/data';
 
 const PAGE_SIZE = 10;
 
-export function useBlogCategories() {
+export function useBlogCategories({ sortBy, sortOrder } = {}) {
   const [categories, setCategories] = useState([]);
   const [searchInput, setSearchInput] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -35,7 +35,13 @@ export function useBlogCategories() {
     setIsLoading(true);
     setError(null);
     try {
-      const payload = await blogCategoryService.list({ page, limit: PAGE_SIZE, search: debouncedSearch });
+      const payload = await blogCategoryService.list({
+        page,
+        limit: PAGE_SIZE,
+        search: debouncedSearch,
+        sortBy,
+        sortOrder,
+      });
       setCategories((payload.items ?? []).map(mapBlogCategoryRow));
       const m = payload.meta ?? {};
       setMeta({
@@ -50,7 +56,7 @@ export function useBlogCategories() {
     } finally {
       setIsLoading(false);
     }
-  }, [page, debouncedSearch]);
+  }, [page, debouncedSearch, sortBy, sortOrder]);
 
   useEffect(() => { void loadCategories(); }, [loadCategories]);
 

@@ -33,24 +33,8 @@ export function normalizeStoredUploadFilename(stored) {
  * @param {string | null | undefined} stored
  * @returns {string}
  */
+/** @deprecated Dùng resolvePublicAssetUrl trực tiếp khi render ảnh. */
 export function getUploadPreviewSrc(stored) {
-  if (stored == null || stored === '') return '';
-
-  const value = String(stored).trim();
-  if (!value) return '';
-
-  if (/^https?:\/\//i.test(value)) {
-    return value;
-  }
-
-  if (value.startsWith('/uploads/')) {
-    return resolvePublicAssetUrl(value);
-  }
-
-  const filename = normalizeStoredUploadFilename(value);
-  if (filename) {
-    return resolvePublicAssetUrl(`/uploads/${filename}`);
-  }
-
-  return resolvePublicAssetUrl(value);
+  if (stored == null || String(stored).trim() === '') return '';
+  return resolvePublicAssetUrl(stored, '');
 }

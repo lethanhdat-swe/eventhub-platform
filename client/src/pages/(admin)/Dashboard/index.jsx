@@ -29,6 +29,7 @@ const STAT_ICONS = {
 const EMPTY_SUMMARY = {
   stats: [],
   revenueChart: [],
+  revenueChartUnit: 'VNĐ',
   recentOrders: [],
   featuredEvents: [],
   checkIns: [],
@@ -118,6 +119,7 @@ function Dashboard() {
         <RevenueChartCard
           periodLabel={periodLabel}
           chartData={summary.revenueChart}
+          unitLabel={summary.revenueChartUnit}
           isLoading={isLoading}
           isEmpty={!isLoading && summary.revenueChart.length === 0}
         />

@@ -13,6 +13,9 @@ function UserContent({
   users,
   meta,
   selectedIds,
+  sortBy,
+  sortOrder,
+  onSort,
   onRetry,
   onSelectAll,
   onSelectRow,
@@ -57,6 +60,9 @@ function UserContent({
         selectedIds={
           selectedIds
         }
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        onSort={onSort}
         onSelectAll={
           onSelectAll
         }

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { OrderStatus, PaymentMethod } from "@prisma/client";
+import { listSortQueryFields } from "../utils/listSort";
 
 const paramsIdSchema = z.object({
     id: z.string().uuid("Invalid order ID format"),
@@ -32,6 +33,15 @@ export const listOrderSchema = z.object({
             .transform((val) => Math.max(1, parseInt(val))),
         search: z.string().optional(),
         status: z.nativeEnum(OrderStatus).optional(),
+        ...listSortQueryFields([
+            "orderCode",
+            "customerName",
+            "customerEmail",
+            "totalAmount",
+            "paymentMethod",
+            "status",
+            "createdAt",
+        ] as const),
     }),
 });
 
