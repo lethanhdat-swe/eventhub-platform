@@ -11,6 +11,7 @@ import OrderSummarySection from './components/OrderSummarySection/OrderSummarySe
 import PaymentActionSection from './components/PaymentActionSection/PaymentActionSection';
 import PaymentHero from './components/PaymentHero/PaymentHero';
 import PaymentMethodSection from './components/PaymentMethodSection/PaymentMethodSection';
+import { isEventEnded } from '@/utils/eventDate';
 
 const EMPTY_SELECTED_SEATS = [];
 
@@ -106,7 +107,9 @@ function Payment() {
     const discountAmount = createdOrder
         ? Math.max(subtotal - totalFromOrder, 0)
         : previewDiscountAmount;
-    const canSubmit = selectedSeatIds.length > 0 && !createdOrder;
+    const isEnded = isEventEnded(event);
+    const canSubmit =
+        selectedSeatIds.length > 0 && !createdOrder && !isEnded;
     const backTo = event?.id ? `/booking?eventId=${event.id}` : '/booking';
 
     const handleCouponCodeChange = (value) => {
@@ -154,6 +157,13 @@ function Payment() {
     };
 
     const handleSubmitOrder = async () => {
+        if (isEnded) {
+            setSubmitError(
+                'Sự kiện này đã kết thúc. Bạn không thể đặt vé mới.'
+            );
+            return;
+        }
+
         if (selectedSeatIds.length === 0) {
             setSubmitError(
                 'Vui lòng chọn ít nhất một ghế trước khi thanh toán.'
@@ -208,6 +218,11 @@ function Payment() {
     return (
         <div className="pt-[calc(var(--header-height)+10px)] container space-y-3 pb-10">
             <PaymentHero />
+            {isEnded ? (
+                <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm font-medium text-amber-200/90">
+                    Sự kiện này đã kết thúc. Bạn không thể đặt vé mới.
+                </div>
+            ) : null}
             {selectedSeatIds.length === 0 ? (
                 <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-500">
                     Chưa có ghế nào được chọn. Vui lòng quay lại trang đặt vé.

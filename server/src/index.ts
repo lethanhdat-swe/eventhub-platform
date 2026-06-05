@@ -1,7 +1,10 @@
+import { createServer } from "http";
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import router from "./routes";
+import { initSocket } from "./socket";
+import { startExpirePendingOrdersCron } from "./jobs";
 import { UPLOADS_DIR } from "./middlewares/upload.middleware";
 import { loggerMiddleware } from "./middlewares/logger.middleware";
 import { rateLimitMiddleware } from "./middlewares/rate-limit.middleware";
@@ -30,6 +33,10 @@ app.use(errorMiddleware);
 
 const PORT = process.env.PORT || 8000;
 
-app.listen(PORT, () => {
+const server = createServer(app);
+initSocket(server);
+startExpirePendingOrdersCron();
+
+server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });

@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import { prisma } from "../utils/prisma";
 import { AppError } from "../utils/AppError";
+import { isEventEnded } from "../utils/eventDate";
 import { getPaginationMetadata } from "../utils/pagination";
 import {
     CouponStatus,
@@ -15,6 +16,7 @@ import paymentService from "./payment.service";
 import qrService from "./qr.service";
 import ticketPdfService from "./ticketPdf.service";
 import notificationService from "./notification.service";
+import { emitSeatChanged } from "../socket/emitters";
 
 class OrderService {
     private getPaidAt(order: any) {
@@ -293,6 +295,19 @@ class OrderService {
                 );
             }
 
+            const eventRecord = await tx.event.findUnique({
+                where: { id: eventIds[0] },
+                select: { startDate: true, endDate: true },
+            });
+
+            if (!eventRecord) {
+                throw new AppError("Event not found", 404);
+            }
+
+            if (isEventEnded(eventRecord)) {
+                throw new AppError("This event has already ended.", 400);
+            }
+
             const unavailableSeats = seats.filter(
                 (seat) => seat.status !== EventSeatStatus.AVAILABLE
             );
@@ -454,6 +469,10 @@ class OrderService {
                 expiredAt: new Date(Date.now() + 15 * 60 * 1000),
             };
         });
+
+        if (result.event?.id) {
+            emitSeatChanged(result.event.id);
+        }
 
         await notificationService.createNotification({
             type: NotificationType.ORDER_CREATED,

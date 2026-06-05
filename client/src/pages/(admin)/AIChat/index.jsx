@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import { mapApiMessageToWidget } from '@/lib/aiChat/mapChatMessage';
+import { sortMessagesChronologically } from '@/lib/aiChat/sortChatMessages';
 import { getErrorMessage } from '@/lib/http/apiError';
 import { aiChatService } from '@/lib/services/admin/aiChatService';
 import ChatConversation from './components/ChatConversation/ChatConversation';
@@ -65,19 +67,12 @@ function mapSessionForUI(session) {
 }
 
 function mapMessageForUI(message) {
-  const actionItems = Array.isArray(message.actions?.items) ? message.actions.items : [];
+  const mapped = mapApiMessageToWidget(message);
+  if (!mapped) return null;
 
   return {
-    id: message.id,
-    role: message.role,
-    content: message.content,
-    createdAtText: formatClockTime(message.createdAt),
-    actions: actionItems
-      .filter((action) => action?.type && action?.label)
-      .map((action) => ({
-        type: action.type,
-        label: action.label,
-      })),
+    ...mapped,
+    createdAtText: formatClockTime(mapped.createdAt),
   };
 }
 
@@ -154,12 +149,13 @@ function AdminAIChatPage() {
     setMessagesError(null);
 
     try {
-      const payload = await aiChatService.getSessionMessages(sessionId, {
-        page: 1,
+      const items = await aiChatService.fetchRecentSessionMessages(sessionId, {
         limit: 100,
       });
 
-      const mappedMessages = (payload.items ?? []).map(mapMessageForUI);
+      const mappedMessages = sortMessagesChronologically(items)
+        .map(mapMessageForUI)
+        .filter(Boolean);
       setMessagesBySession((prev) => ({
         ...prev,
         [sessionId]: mappedMessages,

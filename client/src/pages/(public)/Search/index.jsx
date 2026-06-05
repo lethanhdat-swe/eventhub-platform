@@ -1,5 +1,6 @@
 import { useSearchParams } from 'react-router-dom';
 import SearchHero from './components/SearchHero/SearchHero';
+import SearchInputSection from './components/SearchInputSection/SearchInputSection';
 import EventsSection from './components/EventsSection/EventsSection';
 
 function Search() {
@@ -9,6 +10,7 @@ function Search() {
   return (
     <div>
       <SearchHero keyword={keyword} />
+      <SearchInputSection keyword={keyword} />
       <EventsSection keyword={keyword} />
     </div>
   );

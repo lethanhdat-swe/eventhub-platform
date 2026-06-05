@@ -10,8 +10,10 @@ import { useParams } from 'react-router-dom';
 import { useCallback, useEffect, useState } from 'react';
 import { eventService, ticketTypeService } from '@/lib/services/admin';
 import { commentService } from '@/lib/services/comment';
+import useEventSeatSocket from '@/hooks/useEventSeatSocket';
 import EventSeat from './components/EventSeat/EventSeat';
 import EventRelated from './components/EventRelated/EventRelated';
+import { isEventEnded } from '@/utils/eventDate';
 
 const appendReplyToTree = (items = [], parentId, newReply) => {
   return items.map((item) => {
@@ -96,6 +98,27 @@ function EventDetail() {
     );
   }, []);
 
+  const refetchSeats = useCallback(async () => {
+    if (!event?.id) return;
+
+    try {
+      const seatsPayload = await eventService.getSeats(event.id, {
+        page: 1,
+        limit: 500,
+      });
+
+      setEventSeats(
+        Array.isArray(seatsPayload)
+          ? seatsPayload
+          : (seatsPayload.data ?? [])
+      );
+    } catch (error) {
+      console.error('Failed to refetch event seats:', error);
+    }
+  }, [event?.id]);
+
+  useEventSeatSocket(event?.id, refetchSeats);
+
   useEffect(() => {
     const fetchEvent = async () => {
       setIsSeatsLoading(true);
@@ -143,6 +166,8 @@ function EventDetail() {
     );
   }
 
+  const isEnded = isEventEnded(event);
+
   return (
     <main className="min-h-screen overflow-hidden bg-(--background-color) pt-(--header-height) text-(--text-primary)">
       <div className="fixed inset-0 z-0 pointer-events-none">
@@ -154,7 +179,12 @@ function EventDetail() {
         <div className="grid grid-cols-12 gap-6 lg:items-start">
           {/* Main top content */}
           <section className="order-1 col-span-12 space-y-5 lg:col-span-8">
-            <EventHero event={event} />
+            <EventHero event={event} isEnded={isEnded} />
+            {isEnded ? (
+              <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm font-medium text-amber-200/90">
+                Sự kiện này đã kết thúc. Bạn không thể đặt vé mới.
+              </div>
+            ) : null}
             <EventInfoBar event={event} />
             <EventAbout event={event} />
           </section>
@@ -163,8 +193,8 @@ function EventDetail() {
           <aside className="order-2 col-span-12 lg:col-span-4">
             <div className="space-y-4 lg:sticky lg:top-24">
               <EventOrganizer event={event} />
-              <EventBooking eventId={event.id} />
-              <EventTickets tickets={tickets} />
+              <EventBooking eventId={event.id} isEnded={isEnded} />
+              <EventTickets tickets={tickets} isEnded={isEnded} />
               <EventInformation event={event} />
             </div>
           </aside>
@@ -175,6 +205,7 @@ function EventDetail() {
               eventSeats={eventSeats}
               isLoading={isSeatsLoading}
               error={seatsError}
+              isEnded={isEnded}
             />
 
             <EventComment

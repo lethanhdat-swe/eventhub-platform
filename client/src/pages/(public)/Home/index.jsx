@@ -1,7 +1,6 @@
 import HeroHome from './components/HeroHome/HeroHome';
 import Limit from './components/Limit/Limit';
 import TrendEvent from './components/TrendEvent/TrendEvent';
-import GoToTop from '@/components/GoToTop/GoToTop';
 import { eventService } from '@/lib/services/admin';
 import { useEffect, useState } from 'react';
 import CategoryBrowse from './components/CategoryBrowse/CategoryBrowse';
@@ -51,7 +50,6 @@ function Home() {
         <FeaturedEvents events={events} />
         <HowItWorks />
         <HomeCTA />
-        <GoToTop />
       </div>
     </main>
   );

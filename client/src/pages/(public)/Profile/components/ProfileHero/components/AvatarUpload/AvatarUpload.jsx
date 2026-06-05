@@ -4,6 +4,7 @@ import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
 import { useAuthStore } from '@/stores/authStore';
 import { Camera } from 'lucide-react';
 import { useRef } from 'react';
+import { toast } from 'sonner';
 
 export function AvatarUpload() {
   const { user, setUser } = useAuthStore();
@@ -25,8 +26,12 @@ export function AvatarUpload() {
 
       const updatedUser = updateRes.data;
       setUser(updatedUser);
+      toast.success('Cập nhật avatar thành công');
     } catch (err) {
       console.error('Upload avatar thất bại:', err);
+      toast.error(
+        err?.response?.data?.message || 'Cập nhật avatar thất bại'
+      );
     }
   };
 

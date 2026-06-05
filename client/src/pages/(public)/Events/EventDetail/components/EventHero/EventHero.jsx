@@ -29,7 +29,7 @@ function getStoredToken() {
   );
 }
 
-function EventHero({ event }) {
+function EventHero({ event, isEnded = false }) {
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -204,6 +204,12 @@ function EventHero({ event }) {
               {event.category.name}
             </span>
           )}
+
+          {isEnded ? (
+            <span className="rounded-full border border-white/20 bg-white/15 px-3 py-1.5 text-xs font-bold text-white/85 backdrop-blur-xl">
+              Đã diễn ra
+            </span>
+          ) : null}
 
           <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white/75 backdrop-blur-xl">
             EventHub verified

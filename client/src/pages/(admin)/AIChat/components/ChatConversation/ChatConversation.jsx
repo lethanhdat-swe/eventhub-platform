@@ -28,7 +28,11 @@ function ChatConversation({ session, isLoading, error, onRetry }) {
           <Loader2 size={20} className="animate-spin text-muted-foreground" />
         </div>
       ) : (
-        <ChatMessageList messages={session.messages} />
+        <ChatMessageList
+          messages={session.messages}
+          sessionId={session.id}
+          isLoading={isLoading}
+        />
       )}
     </div>
   );

@@ -14,6 +14,12 @@ import qrService from "./qr.service";
 import mailService from "./mail.service";
 import notificationService from "./notification.service";
 import systemJobService from "./system-job.service";
+import {
+    emitPaymentExpired,
+    emitPaymentFailed,
+    emitPaymentPaid,
+    emitSeatChanged,
+} from "../socket/emitters";
 
 type PaymentSuccessInput = {
     orderCode: string;
@@ -110,7 +116,7 @@ class PaymentService {
     async handlePaymentSuccess(data: PaymentSuccessInput) {
         const { orderCode, transactionId, amount } = data;
 
-        return prisma.$transaction(async (tx) => {
+        const outcome = await prisma.$transaction(async (tx) => {
             const order = await tx.order.findUnique({
                 where: { orderCode },
                 select: {
@@ -118,9 +124,15 @@ class PaymentService {
                     status: true,
                     totalAmount: true,
                     sepayTransactionId: true,
+                    orderCode: true,
                     orderSeats: {
                         select: {
                             eventSeatId: true,
+                            eventSeat: {
+                                select: {
+                                    eventId: true,
+                                },
+                            },
                         },
                     },
                 },
@@ -155,7 +167,12 @@ class PaymentService {
                     );
                 }
 
-                return this.getPaidOrder(tx, order.id);
+                const paidOrder = await this.getPaidOrder(tx, order.id);
+
+                return {
+                    kind: "idempotent" as const,
+                    data: paidOrder,
+                };
             }
 
             if (order.status !== OrderStatus.PENDING) {
@@ -180,6 +197,7 @@ class PaymentService {
             const eventSeatIds = order.orderSeats.map(
                 (orderSeat) => orderSeat.eventSeatId
             );
+            const eventId = order.orderSeats[0]?.eventSeat?.eventId ?? null;
 
             const seatUpdate = await tx.eventSeat.updateMany({
                 where: {
@@ -263,14 +281,40 @@ class PaymentService {
             });
 
             return {
-                ...paidOrder,
-                tickets: ticketsWithQr,
+                kind: "new" as const,
+                data: {
+                    ...paidOrder,
+                    tickets: ticketsWithQr,
+                },
+                orderId: order.id,
+                orderCode: paidOrder.orderCode ?? orderCode,
+                eventId,
             };
         });
+
+        if (
+            outcome.kind === "new" &&
+            outcome.orderId &&
+            outcome.orderCode
+        ) {
+            emitPaymentPaid(outcome.orderId, {
+                orderCode: outcome.orderCode,
+                status: "PAID",
+            });
+
+            if (outcome.eventId) {
+                emitSeatChanged(outcome.eventId);
+            }
+        }
+
+        return outcome.data;
     }
 
-    async handlePaymentFailed(orderCode: string) {
-        return prisma.$transaction(async (tx) => {
+    async handlePaymentFailed(
+        orderCode: string,
+        options: { reason: "failed" | "expired" } = { reason: "failed" }
+    ) {
+        const outcome = await prisma.$transaction(async (tx) => {
             const order = await tx.order.findUnique({
                 where: { orderCode },
                 select: {
@@ -280,6 +324,11 @@ class PaymentService {
                     orderSeats: {
                         select: {
                             eventSeatId: true,
+                            eventSeat: {
+                                select: {
+                                    eventId: true,
+                                },
+                            },
                         },
                     },
                 },
@@ -294,7 +343,10 @@ class PaymentService {
             }
 
             if (order.status === OrderStatus.CANCELLED) {
-                return order;
+                return {
+                    cancelled: false,
+                    data: order,
+                };
             }
 
             if (order.status !== OrderStatus.PENDING) {
@@ -304,6 +356,8 @@ class PaymentService {
             const eventSeatIds = order.orderSeats.map(
                 (orderSeat) => orderSeat.eventSeatId
             );
+            const eventId =
+                order.orderSeats[0]?.eventSeat?.eventId ?? null;
 
             if (eventSeatIds.length > 0) {
                 await tx.eventSeat.updateMany({
@@ -317,7 +371,7 @@ class PaymentService {
                 });
             }
 
-            return tx.order.update({
+            const updatedOrder = await tx.order.update({
                 where: { id: order.id },
                 data: {
                     status: OrderStatus.CANCELLED,
@@ -330,7 +384,39 @@ class PaymentService {
                     updatedAt: true,
                 },
             });
+
+            return {
+                cancelled: true,
+                data: updatedOrder,
+                orderId: order.id,
+                orderCode: order.orderCode,
+                eventId,
+            };
         });
+
+        if (
+            outcome.cancelled &&
+            outcome.orderId &&
+            outcome.orderCode
+        ) {
+            if (options.reason === "expired") {
+                emitPaymentExpired(outcome.orderId, {
+                    orderCode: outcome.orderCode,
+                    status: "EXPIRED",
+                });
+            } else {
+                emitPaymentFailed(outcome.orderId, {
+                    orderCode: outcome.orderCode,
+                    status: "FAILED",
+                });
+            }
+
+            if (outcome.eventId) {
+                emitSeatChanged(outcome.eventId);
+            }
+        }
+
+        return outcome.data;
     }
 
     private async getPaidOrder(tx: any, orderId: string) {

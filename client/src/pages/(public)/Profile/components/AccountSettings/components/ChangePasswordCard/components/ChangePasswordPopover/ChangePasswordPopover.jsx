@@ -1,5 +1,13 @@
 import { useState } from 'react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { ChevronRight } from 'lucide-react';
 import { userService } from '@/lib/services/admin';
 import { toast } from 'sonner';
@@ -17,6 +25,14 @@ function ChangePasswordPopover() {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+  const resetForm = () => {
+    setFormData({
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: '',
+    });
+  };
+
   const handleSubmit = async () => {
     try {
       setLoading(true);
@@ -27,34 +43,22 @@ function ChangePasswordPopover() {
         confirmPassword: formData.confirmPassword,
       });
 
-      toast.success(res.message || "Đổi mật khẩu thành công");
-
-      setFormData({
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-      });
-
+      toast.success(res.message || 'Đổi mật khẩu thành công');
+      resetForm();
       setOpen(false);
     } catch (error) {
       const message =
         error.response?.data?.message ||
         error.message ||
-        "Có lỗi xảy ra";
+        'Có lỗi xảy ra';
 
       const isActuallySuccess =
-        message.toLowerCase().includes("success") ||
-        message.toLowerCase().includes("thành công");
+        message.toLowerCase().includes('success') ||
+        message.toLowerCase().includes('thành công');
 
       if (isActuallySuccess) {
         toast.success(message);
-
-        setFormData({
-          currentPassword: "",
-          newPassword: "",
-          confirmPassword: "",
-        });
-
+        resetForm();
         setOpen(false);
       } else {
         toast.error(message);
@@ -64,10 +68,16 @@ function ChangePasswordPopover() {
     }
   };
 
+  const labelClass =
+    'block mb-1.5 sm:mb-2 text-sm font-medium text-(--text-primary)';
+  const inputClass =
+    'w-full px-4 h-11 sm:h-12 rounded-xl border border-(--primary-color)/30 bg-(--soft-surface-color) text-(--text-primary) text-sm outline-none transition placeholder:text-gray-400 focus:border-(--primary-color)';
+
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <div
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <button
+          type="button"
           className="
             mt-6 sm:mt-8 inline-flex items-center gap-2 rounded-full
             bg-(--primary-color) text-white
@@ -81,67 +91,62 @@ function ChangePasswordPopover() {
         >
           Đổi mật khẩu
           <ChevronRight className="w-4 h-4" />
-        </div>
-      </PopoverTrigger>
+        </button>
+      </DialogTrigger>
 
-      <PopoverContent
-        align="start"
-        className="
-          w-[calc(100vw-2rem)] max-w-sm sm:w-96
-          rounded-3xl border border-white/10
-          bg-[#0B1120]/95
-          p-5 sm:p-6 backdrop-blur-2xl
-        "
+      <DialogContent
+        className="sm:max-w-md rounded-2xl border border-(--primary-color)/30 bg-(--surface-color) p-5 sm:p-6 text-(--text-primary) shadow-xl ring-0"
+        showCloseButton
       >
-        <div className="space-y-4 sm:space-y-5">
-          <div>
-            <h3 className="text-base font-semibold text-white sm:text-lg">
-              Đổi mật khẩu
-            </h3>
-            <p className="mt-1 text-sm text-gray-400">
-              Cập nhật mật khẩu mới cho tài khoản của bạn.
-            </p>
-          </div>
+        <DialogHeader>
+          <DialogTitle className="text-lg font-semibold text-(--text-primary)">
+            Đổi mật khẩu
+          </DialogTitle>
+          <DialogDescription className="text-(--muted-text)">
+            Cập nhật mật khẩu mới cho tài khoản của bạn.
+          </DialogDescription>
+        </DialogHeader>
 
-          <div className="space-y-3 sm:space-y-4">
-            {[
-              { label: 'Mật khẩu hiện tại', name: 'currentPassword' },
-              { label: 'Mật khẩu mới', name: 'newPassword' },
-              { label: 'Xác nhận mật khẩu', name: 'confirmPassword' },
-            ].map(({ label, name }) => (
-              <div key={name}>
-                <label className="block mb-1.5 sm:mb-2 text-sm text-gray-300">
-                  {label}
-                </label>
-                <input
-                  type="password"
-                  name={name}
-                  value={formData[name]}
-                  onChange={handleChange}
-                  placeholder="••••••••"
-                  className="w-full px-4 text-white transition-all duration-300 border outline-none h-11 sm:h-12 rounded-xl border-white/10 bg-white/5 placeholder:text-gray-500 focus:border-purple-500/40 focus:bg-purple-500/5"
-                />
-              </div>
-            ))}
-          </div>
+        <div className="space-y-3 sm:space-y-4 py-2">
+          {[
+            { label: 'Mật khẩu hiện tại', name: 'currentPassword' },
+            { label: 'Mật khẩu mới', name: 'newPassword' },
+            { label: 'Xác nhận mật khẩu', name: 'confirmPassword' },
+          ].map(({ label, name }) => (
+            <div key={name}>
+              <label className={labelClass}>{label}</label>
+              <input
+                type="password"
+                name={name}
+                value={formData[name]}
+                onChange={handleChange}
+                placeholder="••••••••"
+                className={inputClass}
+              />
+            </div>
+          ))}
+        </div>
 
+        <DialogFooter className="gap-2 border-0 bg-transparent p-0 sm:justify-end">
           <button
+            type="button"
+            onClick={() => setOpen(false)}
+            disabled={loading}
+            className="inline-flex h-10 items-center justify-center rounded-xl border border-(--border-color) bg-transparent px-5 text-sm font-medium text-(--text-primary) transition hover:bg-(--soft-surface-color) disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Hủy
+          </button>
+          <button
+            type="button"
             onClick={handleSubmit}
             disabled={loading}
-            className="
-              w-full rounded-xl bg-(--primary-color)
-              py-2.5 sm:py-3 font-semibold text-white text-sm
-              transition-all duration-300
-              hover:scale-[1.02]
-              disabled:opacity-50
-              cursor-pointer
-            "
+            className="inline-flex h-10 items-center justify-center rounded-xl bg-(--primary-color) px-5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading ? 'Đang cập nhật...' : 'Cập nhật mật khẩu'}
           </button>
-        </div>
-      </PopoverContent>
-    </Popover>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 

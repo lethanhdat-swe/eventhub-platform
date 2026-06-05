@@ -42,7 +42,9 @@ class OrderExpirationService {
             if (!order.orderCode) continue;
 
             try {
-                await paymentService.handlePaymentFailed(order.orderCode);
+                await paymentService.handlePaymentFailed(order.orderCode, {
+                    reason: "expired",
+                });
                 expiredCount++;
             } catch (error) {
                 console.error(

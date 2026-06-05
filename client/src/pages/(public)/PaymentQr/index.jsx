@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import {
   AlertCircle,
@@ -12,6 +12,7 @@ import {
   QrCode,
 } from 'lucide-react';
 
+import usePaymentOrderSocket from '@/hooks/usePaymentOrderSocket';
 import { orderService } from '@/lib/services/admin';
 import { paymentService } from '@/lib/services/payment';
 
@@ -130,24 +131,78 @@ function PaymentQrPage() {
     [remainingSeconds]
   );
 
+  const navigateToPaid = useCallback(async () => {
+    if (hasTerminalStatusRef.current || !order?.id) return;
+
+    hasTerminalStatusRef.current = true;
+
+    try {
+      const latestOrder = await orderService.getDetail(order.id);
+
+      navigate(`/payment-success/${order.id}`, {
+        replace: true,
+        state: {
+          order: latestOrder,
+          sepay,
+        },
+      });
+    } catch (error) {
+      hasTerminalStatusRef.current = false;
+      console.error('Failed to fetch paid order:', error);
+    }
+  }, [navigate, order?.id, sepay]);
+
+  const navigateToFailed = useCallback(
+    (reason = 'failed') => {
+      if (hasTerminalStatusRef.current || !order?.id) return;
+
+      hasTerminalStatusRef.current = true;
+
+      navigate(`/payment-failed/${order.id}`, {
+        replace: true,
+        state: {
+          order,
+          sepay,
+          reason,
+        },
+      });
+    },
+    [navigate, order, sepay]
+  );
+
+  const handlePaymentPaid = useCallback(() => {
+    navigateToPaid();
+  }, [navigateToPaid]);
+
+  const handlePaymentFailed = useCallback(() => {
+    navigateToFailed('failed');
+  }, [navigateToFailed]);
+
+  const handlePaymentExpired = useCallback(() => {
+    navigateToFailed('expired');
+  }, [navigateToFailed]);
+
+  usePaymentOrderSocket(order?.id, {
+    enabled: canPollOrder,
+    onPaid: handlePaymentPaid,
+    onFailed: handlePaymentFailed,
+    onExpired: handlePaymentExpired,
+  });
+
   useEffect(() => {
     if (!canPollOrder) return undefined;
 
     let isMounted = true;
-    let isChecking = false;
 
-    const checkOrderStatus = async () => {
-      if (isChecking || hasTerminalStatusRef.current) return;
-
-      isChecking = true;
+    const checkInitialOrderStatus = async () => {
+      if (hasTerminalStatusRef.current) return;
 
       try {
         const latestOrder = await orderService.getDetail(order.id);
-        const status = latestOrder?.status;
 
-        if (!isMounted) return;
+        if (!isMounted || hasTerminalStatusRef.current) return;
 
-        if (status === 'PAID') {
+        if (latestOrder?.status === 'PAID') {
           hasTerminalStatusRef.current = true;
 
           navigate(`/payment-success/${order.id}`, {
@@ -161,7 +216,7 @@ function PaymentQrPage() {
           return;
         }
 
-        if (status === 'CANCELLED') {
+        if (latestOrder?.status === 'CANCELLED') {
           hasTerminalStatusRef.current = true;
 
           navigate(`/payment-failed/${order.id}`, {
@@ -173,19 +228,14 @@ function PaymentQrPage() {
           });
         }
       } catch (error) {
-        console.error('Failed to poll payment status:', error);
-      } finally {
-        isChecking = false;
+        console.error('Failed to check initial payment status:', error);
       }
     };
 
-    checkOrderStatus();
-
-    const intervalId = window.setInterval(checkOrderStatus, 3000);
+    checkInitialOrderStatus();
 
     return () => {
       isMounted = false;
-      window.clearInterval(intervalId);
     };
   }, [canPollOrder, navigate, order?.id, sepay]);
 

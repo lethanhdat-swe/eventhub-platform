@@ -11,6 +11,7 @@ import CustomerFormSection from './components/CustomerFormSection/CustomerFormSe
 import EventHeaderSection from './components/EventHeaderSection/EventHeaderSection';
 import EventSeat from './components/EventSeat/EventSeat';
 import OrderSummarySection from './components/OrderSummarySection/OrderSummarySection';
+import { isEventEnded } from '@/utils/eventDate';
 
 function mapEventSeat(item) {
   return {
@@ -119,7 +120,11 @@ function Booking() {
     [seats, selectedSeatIds]
   );
 
+  const isEnded = isEventEnded(event);
+
   const handleToggleSeat = (seat) => {
+    if (isEnded) return;
+
     setSelectedSeatIds((currentIds) => {
       if (currentIds.includes(seat.id)) {
         return currentIds.filter((id) => id !== seat.id);
@@ -143,12 +148,19 @@ function Booking() {
         </div>
       ) : null}
 
+      {isEnded ? (
+        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm font-medium text-amber-200/90">
+          Sự kiện này đã kết thúc. Bạn không thể đặt vé mới.
+        </div>
+      ) : null}
+
       <EventHeaderSection event={event} isLoading={isLoading} />
       <EventSeat
         seats={seats}
         selectedSeatIds={selectedSeatIds}
         selectedSeats={selectedSeats}
         isLoading={isLoading}
+        isEnded={isEnded}
         onToggleSeat={handleToggleSeat}
         onRemoveSeat={handleRemoveSeat}
         onClearSeats={() => setSelectedSeatIds([])}

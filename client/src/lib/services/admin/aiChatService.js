@@ -20,6 +20,8 @@ function buildListMessagesParams(query) {
   return { page, limit };
 }
 
+const CHAT_MESSAGES_PAGE_LIMIT = 100;
+
 export const aiChatService = {
   /**
    * @param {{ page?: number, limit?: number, search?: string }} query
@@ -44,5 +46,29 @@ export const aiChatService = {
     });
 
     return getApiData(body);
+  },
+
+  /**
+   * Most recent messages for a session (last page when paginated).
+   * @param {string} sessionId
+   * @param {{ limit?: number }} [options]
+   */
+  async fetchRecentSessionMessages(sessionId, { limit = CHAT_MESSAGES_PAGE_LIMIT } = {}) {
+    const firstPage = await this.getSessionMessages(sessionId, {
+      page: 1,
+      limit,
+    });
+
+    const totalPages = firstPage?.meta?.totalPages ?? 1;
+    if (totalPages <= 1) {
+      return firstPage?.items ?? [];
+    }
+
+    const lastPage = await this.getSessionMessages(sessionId, {
+      page: totalPages,
+      limit,
+    });
+
+    return lastPage?.items ?? [];
   },
 };

@@ -1,11 +1,13 @@
 import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
 import { useNavigate } from 'react-router-dom';
 import LikeButton from '@/components/LikeButton';
-import { CalendarDays, MapPin, UserRound } from 'lucide-react';
+import { CalendarDays, CircleAlert, MapPin, UserRound } from 'lucide-react';
+import { isEventEnded } from '@/utils/eventDate';
 
 function EventItem({ event }) {
   const navigate = useNavigate();
 
+  const ended = isEventEnded(event);
   const startDate = event?.startDate ? new Date(event.startDate) : null;
 
   const title = event?.title || 'Sự kiện chưa có tên';
@@ -54,24 +56,39 @@ function EventItem({ event }) {
   return (
     <article
       onClick={handleNavigate}
-      className="
+      className={`
         group flex h-full cursor-pointer flex-col overflow-hidden rounded-2xl
-        border border-white/10 bg-(--background-color)
-        shadow-sm shadow-black/10 transition-all duration-300
-         hover:border-(--primary-color)/40 hover:shadow-2xl hover:shadow-black/20
-      "
+        border bg-(--background-color) shadow-sm shadow-black/10 transition-all duration-300
+        ${
+          ended
+            ? 'border-white/10 saturate-[0.92] hover:border-rose-500/15 hover:shadow-lg hover:shadow-black/15'
+            : 'border-white/10 hover:border-(--primary-color)/40 hover:shadow-2xl hover:shadow-black/20'
+        }
+      `}
     >
       <div className="relative overflow-hidden h-52">
         <img
           src={thumbnailUrl}
           alt={title}
-          className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
+          className={`object-cover w-full h-full transition-transform duration-700 ${
+            ended ? 'brightness-[0.88] saturate-[0.85]' : 'group-hover:scale-110'
+          }`}
         />
 
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-black/5" />
+        {ended ? (
+          <>
+            <div className="absolute inset-0 bg-black/35" />
+            <div className="absolute inset-0 bg-gradient-to-br from-zinc-950/20 via-transparent to-black/20" />
+          </>
+        ) : null}
 
         <div
-          className="absolute flex flex-col items-center justify-center text-white border left-3 top-3 h-14 w-14 rounded-2xl border-white/20 bg-black/35 backdrop-blur-md"
+          className={`absolute left-3 top-3 flex h-14 w-14 flex-col items-center justify-center rounded-2xl border backdrop-blur-md ${
+            ended
+              ? 'border-white/10 bg-black/25 text-white/75 opacity-80'
+              : 'border-white/20 bg-black/35 text-white'
+          }`}
         >
           <span className="text-xl font-black leading-none">{day}</span>
           <span className="mt-1 text-[10px] font-bold uppercase tracking-widest text-white/70">
@@ -85,6 +102,12 @@ function EventItem({ event }) {
         >
           <LikeButton eventId={event?.id} size={15} showCount={false} />
         </div>
+
+        {ended ? (
+          <span className="absolute left-1/2 top-3 z-10 -translate-x-1/2 rounded-full border border-rose-400/25 bg-rose-500/12 px-4 py-1.5 text-[11px] font-black uppercase tracking-[0.14em] text-rose-200 backdrop-blur-md">
+            Đã diễn ra
+          </span>
+        ) : null}
 
         <span
           className="
@@ -100,11 +123,14 @@ function EventItem({ event }) {
       <div className="flex flex-col flex-1 gap-3 p-4">
         <div className="space-y-2">
           <h3
-            className="
-              line-clamp-2 text-base font-black leading-snug
-              text-(--text-primary) transition-colors
-              group-hover:text-(--primary-color)
-            "
+            className={`
+              line-clamp-2 text-base font-black leading-snug transition-colors
+              ${
+                ended
+                  ? 'text-(--text-primary)/90 group-hover:text-(--text-primary)'
+                  : 'text-(--text-primary) group-hover:text-(--primary-color)'
+              }
+            `}
           >
             {title}
           </h3>
@@ -120,8 +146,15 @@ function EventItem({ event }) {
               {startTime ? `${startTime} · ${fullDate}` : fullDate}
             </span>
           </div>
+
+          {ended ? (
+            <p className="flex items-center gap-1.5 pt-0.5 text-xs font-semibold text-rose-300/80">
+              <CircleAlert size={13} className="shrink-0 text-rose-300/70" />
+              Sự kiện đã kết thúc
+            </p>
+          ) : null}
         </div>
-        <div className="flex items-center justify-between gap-3 pt-3 mt-auto border-t border-white/10">
+        <div className="mt-auto flex items-center justify-between gap-3 border-t border-white/10 pt-3">
           <div className="flex items-center min-w-0 gap-2">
             <div
               className="

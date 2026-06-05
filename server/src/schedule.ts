@@ -1,9 +1,9 @@
-import { startCronJobs } from "./jobs";
+import { startScheduleCronJobs } from "./jobs";
 
 const startScheduleProcess = () => {
     console.log("[SCHEDULE] Process started.");
 
-    startCronJobs();
+    startScheduleCronJobs();
 
     process.on("SIGINT", () => {
         console.log("[SCHEDULE] Process stopped by SIGINT.");

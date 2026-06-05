@@ -73,6 +73,7 @@ function PublicSeatMap({
   onToggleSeat,
   showLegend = true,
   showStage = true,
+  helperText,
   className,
 }) {
   const selectedIds = new Set(selectedSeatIds);
@@ -104,8 +105,18 @@ function PublicSeatMap({
             </CardTitle>
 
             <CardDescription className="mt-1 text-xs text-(--text-primary)/55 sm:text-sm">
-              Chọn vị trí bạn muốn trong sơ đồ sự kiện bên dưới.
+              {isBookingMode
+                ? 'Chọn vị trí bạn muốn trong sơ đồ sự kiện bên dưới.'
+                : helperText
+                  ? 'Xem sơ đồ ghế của sự kiện.'
+                  : 'Chọn vị trí bạn muốn trong sơ đồ sự kiện bên dưới.'}
             </CardDescription>
+
+            {helperText ? (
+              <p className="mt-2 text-xs text-(--text-primary)/45 sm:text-sm">
+                {helperText}
+              </p>
+            ) : null}
           </div>
 
           <span className="whitespace-nowrap rounded-full border border-(--primary-color)/20 bg-(--primary-color)/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-(--primary-color) sm:px-3 sm:text-xs">
@@ -253,10 +264,12 @@ function PublicSeatMap({
               </div>
             ))}
 
-            <div className="flex items-center gap-1.5 rounded-full border border-purple-400/20 bg-purple-500/10 px-2.5 py-1.5 text-purple-200 sm:gap-2 sm:px-3 sm:py-2">
-              <span className="size-3 rounded bg-purple-500 shadow-[0_0_12px_rgba(168,85,247,0.55)] sm:size-3.5" />
-              <span>Đang chọn</span>
-            </div>
+            {isBookingMode ? (
+              <div className="flex items-center gap-1.5 rounded-full border border-purple-400/20 bg-purple-500/10 px-2.5 py-1.5 text-purple-200 sm:gap-2 sm:px-3 sm:py-2">
+                <span className="size-3 rounded bg-purple-500 shadow-[0_0_12px_rgba(168,85,247,0.55)] sm:size-3.5" />
+                <span>Đang chọn</span>
+              </div>
+            ) : null}
 
             <div className="flex items-center gap-1.5 rounded-full border border-red-400/20 bg-red-500/10 px-2.5 py-1.5 text-red-200 sm:gap-2 sm:px-3 sm:py-2">
               <span className="flex size-3.5 items-center justify-center rounded bg-red-500/20 text-red-200 sm:size-4">

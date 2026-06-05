@@ -1,9 +1,12 @@
-function EventTickets({ tickets = [] }) {
+function EventTickets({ tickets = [], isEnded = false }) {
   if (!tickets.length) return null;
-  console.log(tickets);
 
   return (
-    <section className="mt-4 rounded-2xl border border-(--border-color) bg-(--card-surface-color) p-4 shadow-xl shadow-black/10 backdrop-blur-xl">
+    <section
+      className={`mt-4 rounded-2xl border border-(--border-color) bg-(--card-surface-color) p-4 shadow-xl shadow-black/10 backdrop-blur-xl ${
+        isEnded ? 'opacity-80' : ''
+      }`}
+    >
       <div className="mb-3">
         <p className="text-xs font-black uppercase tracking-[0.16em] text-(--muted-text)">
           Vé tham dự
@@ -12,13 +15,19 @@ function EventTickets({ tickets = [] }) {
         <h2 className="mt-1 text-sm font-bold text-(--text-primary)">
           Loại vé hiện có
         </h2>
+
+        {isEnded ? (
+          <p className="mt-1 text-xs text-(--muted-text)">Chỉ xem tham khảo</p>
+        ) : null}
       </div>
 
       <div className="space-y-2.5">
         {tickets.map((ticket) => (
           <div
             key={ticket.id}
-            className="flex items-start justify-between gap-3 rounded-xl border border-(--border-color) bg-(--soft-surface-color) p-3 transition-colors hover:bg-(--card-hover-color)"
+            className={`flex items-start justify-between gap-3 rounded-xl border border-(--border-color) bg-(--soft-surface-color) p-3 ${
+              isEnded ? 'opacity-70' : 'transition-colors hover:bg-(--card-hover-color)'
+            }`}
           >
             <div className="flex min-w-0 items-start gap-3">
               <span

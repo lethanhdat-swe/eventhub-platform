@@ -1,6 +1,7 @@
 import { AlertCircle, ChevronRight } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { isEventEnded } from '@/utils/eventDate';
 
 function CheckoutButton({
   event,
@@ -9,6 +10,7 @@ function CheckoutButton({
   customerInfo,
 }) {
   const [didTryCheckout, setDidTryCheckout] = useState(false);
+  const ended = isEventEnded(event);
 
   const missingFields = useMemo(() => {
     const fields = [];
@@ -32,9 +34,11 @@ function CheckoutButton({
     return fields;
   }, [selectedSeatIds.length, customerInfo]);
 
-  const canCheckout = missingFields.length === 0;
+  const canCheckout = !ended && missingFields.length === 0;
 
-  const errorMessage = `Bạn cần ${missingFields.join(', ')} trước khi thanh toán.`;
+  const errorMessage = ended
+    ? 'Sự kiện này đã kết thúc. Bạn không thể đặt vé mới.'
+    : `Bạn cần ${missingFields.join(', ')} trước khi thanh toán.`;
 
   return (
     <div className="mt-4 flex w-full flex-col gap-3 border-t border-(--text-primary)/10 pt-4">
@@ -49,31 +53,41 @@ function CheckoutButton({
           </p>
         </div>
 
-        <Link
-          to="/payment"
-          state={{ event, selectedSeats, selectedSeatIds, customerInfo }}
-          onClick={(e) => {
-            if (!canCheckout) {
-              e.preventDefault();
-              setDidTryCheckout(true);
-            }
-          }}
-          className="
-            group inline-flex w-full items-center justify-center gap-2 rounded-xl
-            bg-(--primary-color) px-6 py-3.5 text-sm font-black uppercase tracking-wide
-            text-white shadow-[0_14px_40px_rgba(168,85,247,0.3)]
-            transition-all duration-300
-            hover:-translate-y-0.5 hover:brightness-110
-            active:scale-95
-            sm:w-auto sm:min-w-47.5
-          "
-        >
-          Checkout
-          <ChevronRight
-            size={18}
-            className="transition-transform duration-300 group-hover:translate-x-1"
-          />
-        </Link>
+        {ended ? (
+          <button
+            type="button"
+            disabled
+            className="inline-flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl bg-(--text-primary)/10 px-6 py-3.5 text-sm font-black uppercase tracking-wide text-(--muted-text) sm:w-auto sm:min-w-47.5"
+          >
+            Không thể đặt vé
+          </button>
+        ) : (
+          <Link
+            to="/payment"
+            state={{ event, selectedSeats, selectedSeatIds, customerInfo }}
+            onClick={(e) => {
+              if (!canCheckout) {
+                e.preventDefault();
+                setDidTryCheckout(true);
+              }
+            }}
+            className="
+              group inline-flex w-full items-center justify-center gap-2 rounded-xl
+              bg-(--primary-color) px-6 py-3.5 text-sm font-black uppercase tracking-wide
+              text-white shadow-[0_14px_40px_rgba(168,85,247,0.3)]
+              transition-all duration-300
+              hover:-translate-y-0.5 hover:brightness-110
+              active:scale-95
+              sm:w-auto sm:min-w-47.5
+            "
+          >
+            Checkout
+            <ChevronRight
+              size={18}
+              className="transition-transform duration-300 group-hover:translate-x-1"
+            />
+          </Link>
+        )}
       </div>
 
       {didTryCheckout && !canCheckout ? (

@@ -20,7 +20,10 @@ function mapEventSeat(item) {
   };
 }
 
-function EventSeat({ eventSeats = [], isLoading = false, error = null }) {
+const ENDED_SEAT_HELPER_TEXT =
+  'Sơ đồ ghế chỉ dùng để tham khảo vì sự kiện đã kết thúc.';
+
+function EventSeat({ eventSeats = [], isLoading = false, error = null, isEnded = false }) {
   const eventSeatItems = useMemo(
     () => eventSeats.map(mapEventSeat).filter((item) => item.id),
     [eventSeats]
@@ -37,7 +40,7 @@ function EventSeat({ eventSeats = [], isLoading = false, error = null }) {
           </p>
 
           <h2 className="text-xl sm:text-2xl font-black tracking-tight text-(--text-primary)">
-            Chọn vị trí của bạn
+            {isEnded ? 'Sơ đồ chỗ ngồi' : 'Chọn vị trí của bạn'}
           </h2>
         </div>
 
@@ -59,7 +62,11 @@ function EventSeat({ eventSeats = [], isLoading = false, error = null }) {
           Sự kiện này chưa có sơ đồ chỗ ngồi.
         </div>
       ) : (
-        <PublicSeatMap seats={eventSeatItems} mode="preview" />
+        <PublicSeatMap
+          seats={eventSeatItems}
+          mode="preview"
+          helperText={isEnded ? ENDED_SEAT_HELPER_TEXT : undefined}
+        />
       )}
     </section>
   );
