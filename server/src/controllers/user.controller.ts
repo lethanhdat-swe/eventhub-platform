@@ -36,11 +36,7 @@ class UserController {
 
     getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const result = await userService.getAllUsers({
-                search: req.query.search as string,
-                page: Number(req.query.page) || 1,
-                limit: Number(req.query.limit) || 10,
-            });
+            const result = await userService.getAllUsers(req.query as any);
 
             return res.success({
                 message: "Users fetched successfully.",
@@ -65,10 +61,12 @@ class UserController {
             next(error);
         }
     };
+
     changeRole = async (req: Request, res: Response, next: NextFunction) => {
         try {
             await userService.changeRole({
-                userId: req?.user?.id as string,
+                actorId: req.user!.id,
+                userId: req.body.userId as string,
                 role: req.body.role,
             });
 
@@ -82,7 +80,7 @@ class UserController {
 
     deleteUsers = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            await userService.deleteUsers(req.body.userIds);
+            await userService.deleteUsers(req.user!.id, req.body.userIds);
 
             return res.success({
                 message: "Users deleted successfully.",

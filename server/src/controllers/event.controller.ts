@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import eventService from "../services/event.service";
+import eventSeatService from "../services/event-seat.service";
 
 class EventController {
     create = async (req: Request, res: Response, next: NextFunction) => {
@@ -59,6 +60,42 @@ class EventController {
         }
     };
 
+    getDetailBySlug = async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) => {
+        try {
+            const result = await eventService.getDetailBySlug(
+                req.params.slug as string
+            );
+
+            return res.success({
+                message: "Event fetched successfully.",
+                data: result,
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    getTrendingEvents = async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) => {
+        try {
+            const result = await eventService.getTrendingEvents();
+
+            return res.success({
+                message: "Trending events fetched successfully.",
+                data: result,
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
     delete = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { ids } = req.body;
@@ -66,6 +103,113 @@ class EventController {
 
             return res.success({
                 message: "Events deleted successfully.",
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    getEventSeats = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const result = await eventSeatService.listByEvent(
+                req.params.id as string,
+                req.query as any
+            );
+
+            return res.success({
+                message: "Event seats fetched successfully.",
+                data: result,
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    getRelatedEvents = async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) => {
+        try {
+            const result = await eventService.getRelatedEvents(
+                req.params.id as string
+            );
+
+            return res.success({
+                message: "Related events fetched successfully.",
+                data: result,
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    updateEventSeat = async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) => {
+        try {
+            const result = await eventSeatService.updateOne(
+                req.params.id as string,
+                req.params.seatId as string,
+                req.body
+            );
+
+            return res.success({
+                message: "Event seat updated successfully.",
+                data: result,
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    addSeatRow = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const result = await eventSeatService.addRow(
+                req.params.id as string,
+                req.body
+            );
+
+            return res.success({
+                message: "Event seat row created successfully.",
+                data: result,
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    addEventSeat = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const result = await eventSeatService.addSeat(
+                req.params.id as string,
+                req.body
+            );
+
+            return res.success({
+                message: "Event seat created successfully.",
+                data: result,
+            });
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    deleteEventSeats = async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) => {
+        try {
+            await eventSeatService.deleteBulk(
+                req.params.id as string,
+                req.body.ids
+            );
+
+            return res.success({
+                message: "Event seats deleted successfully.",
             });
         } catch (error) {
             next(error);

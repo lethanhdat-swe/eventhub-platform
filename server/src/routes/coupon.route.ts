@@ -8,13 +8,14 @@ import {
     getCouponSchema,
     createCouponSchema,
     updateCouponSchema,
+    deleteBulkCouponSchema,
 } from "../schema/coupon.schema";
 
 const router = Router();
 
 router.post("/verify", validate(verifyCouponSchema), couponController.verify);
 
-router.use(isAuth, restrictTo("admin"));
+router.use(isAuth, restrictTo("ADMIN"));
 
 router.get("/", validate(listCouponSchema), couponController.list);
 
@@ -24,6 +25,7 @@ router.post("/", validate(createCouponSchema), couponController.create);
 
 router.patch("/:id", validate(updateCouponSchema), couponController.update);
 
+router.delete("/", validate(deleteBulkCouponSchema), couponController.deleteMany);
 router.delete("/:id", couponController.delete);
 
 export default router;

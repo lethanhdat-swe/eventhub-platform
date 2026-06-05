@@ -6,7 +6,8 @@ class AuthController {
         try {
             const result = await AuthService.register(req.body);
             return res.success({
-                message: "Registration successful. Please check your email to verify your account.",
+                message:
+                    "Registration successful. Please check your email to verify your account.",
                 data: result,
                 status: 201,
             });

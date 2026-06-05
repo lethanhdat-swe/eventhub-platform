@@ -1,7 +1,9 @@
+import { UserRole } from "@prisma/client";
 import { prisma } from "../utils/prisma";
 import { AppError } from "../utils/AppError";
 import bcrypt from "bcryptjs";
 import { getPaginationMetadata, PaginatedResult } from "../utils/pagination";
+import { buildDirectOrderBy } from "../utils/listSort";
 
 class UserService {
     async updateMe(userId: string, data: any) {
@@ -83,36 +85,68 @@ class UserService {
     }
 
     async getAllUsers(params: {
-        page: number;
-        limit: number;
+        page?: number | string;
+        limit?: number | string;
         search?: string;
+        role?: string;
+        emailVerified?: string;
+        sortBy?: string;
+        sortOrder?: "asc" | "desc";
     }): Promise<PaginatedResult<any>> {
-        const { page, limit, search } = params;
+        const { search, role, emailVerified, sortBy, sortOrder } = params;
+        const page = Math.max(Number(params.page) || 1, 1);
+        const limit = Math.max(Number(params.limit) || 10, 1);
         const skip = (page - 1) * limit;
 
         const where: any = {
-            ...(search && {
+            ...(search && String(search).trim() && {
                 OR: [
-                    { fullName: { contains: search } },
-                    { email: { contains: search } },
-                    { phoneNumber: { contains: search } },
+                    { fullName: { contains: search.trim() } },
+                    { email: { contains: search.trim() } },
+                    { phoneNumber: { contains: search.trim() } },
                 ],
             }),
         };
+
+        if (role && role !== "all") {
+            where.role = role;
+        }
+
+        if (emailVerified === "verified") {
+            where.isEmailVerified = true;
+        } else if (emailVerified === "unverified") {
+            where.isEmailVerified = false;
+        }
+
+        const orderBy = buildDirectOrderBy(
+            sortBy,
+            sortOrder,
+            {
+                fullName: "fullName",
+                role: "role",
+                provider: "provider",
+                lastLoginAt: "lastLoginAt",
+                createdAt: "createdAt",
+            },
+            { createdAt: "desc" }
+        );
 
         const [users, totalItems] = await Promise.all([
             prisma.user.findMany({
                 where,
                 skip,
                 take: limit,
-                orderBy: { createdAt: "desc" },
+                orderBy,
                 select: {
                     id: true,
                     email: true,
                     fullName: true,
                     phoneNumber: true,
+                    avatarUrl: true,
                     role: true,
+                    provider: true,
                     isEmailVerified: true,
+                    lastLoginAt: true,
                     createdAt: true,
                 },
             }),
@@ -135,6 +169,7 @@ class UserService {
                 phoneNumber: true,
                 avatarUrl: true,
                 role: true,
+                provider: true,
                 isEmailVerified: true,
                 createdAt: true,
                 lastLoginAt: true,
@@ -147,7 +182,12 @@ class UserService {
 
         return user;
     }
-    async changeRole(data: { userId: string; role: string }) {
+
+    async changeRole(data: { actorId: string; userId: string; role: UserRole }) {
+        if (data.userId === data.actorId) {
+            throw new AppError("Cannot change your own role", 400);
+        }
+
         const user = await prisma.user.findUnique({
             where: { id: data.userId },
         });
@@ -164,7 +204,11 @@ class UserService {
         return true;
     }
 
-    async deleteUsers(userIds: string[]) {
+    async deleteUsers(actorId: string, userIds: string[]) {
+        if (userIds.includes(actorId)) {
+            throw new AppError("Cannot delete your own account", 400);
+        }
+
         await prisma.user.deleteMany({
             where: {
                 id: { in: userIds },

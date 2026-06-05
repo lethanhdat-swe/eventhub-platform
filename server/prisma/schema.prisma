@@ -7,49 +7,53 @@ datasource db {
 }
 
 ///////////////////////
-// USERS
+// USERS & AUTH
 ///////////////////////
 
 model User {
-  id          String  @id @default(uuid())
-  email       String  @unique
-  password    String?
-  phoneNumber String? @unique @map("phone_number")
-  fullName    String  @map("full_name")
-  avatarUrl   String? @map("avatar_url")
+  id              String    @id @default(uuid())
+  email           String    @unique
+  password        String?
+  phoneNumber     String?   @unique @map("phone_number")
+  fullName        String    @map("full_name")
+  avatarUrl       String?   @map("avatar_url")
+  role            UserRole  @default(USER)
+  provider        String    @default("credentials")
+  providerId      String?   @unique @map("provider_id")
+  isEmailVerified Boolean   @default(false) @map("is_email_verified")
+  lastLoginAt     DateTime? @map("last_login_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
 
-  role       String  @default("user")
-  provider   String  @default("credentials")
-  providerId String? @unique @map("provider_id")
-
-  isEmailVerified Boolean @default(false) @map("is_email_verified")
-
-  lastLoginAt DateTime? @map("last_login_at")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
-
-  orders     Order[]
-  userTokens UserToken[]
+  orders            Order[]
+  userTokens        UserToken[]
+  blogs             Blog[]
+  likedEvents       LikeEvent[]
+  savedEvents       SaveEvent[]
+  comments          Comment[]
+  eventReminderLogs EventReminderLog[]
+  refundRequests    RefundRequest[]
+  chatSessions      ChatSession[]
 
   @@map("users")
+
 }
 
 model UserToken {
-  id     String    @id @default(uuid())
-  userId String
-  token  String    @unique
-  type   TokenType
-
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  token     String    @unique
+  type      TokenType
   expiresAt DateTime
   usedAt    DateTime?
   isRevoked Boolean   @default(false)
-
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([type])
+  @@map("user_tokens")
 }
 
 enum TokenType {
@@ -58,148 +62,333 @@ enum TokenType {
   REFRESH_TOKEN
 }
 
+enum UserRole {
+  USER
+  ADMIN
+}
+
 ///////////////////////
-// CATEGORY
+// MASTER DATA
 ///////////////////////
 
 model Category {
-  id   String @id @default(uuid())
-  name String
-  slug String @unique
-
+  id     String  @id @default(uuid())
+  name   String
+  slug   String  @unique
   events Event[]
 
   @@map("categories")
 }
 
-///////////////////////
-// EVENTS
-///////////////////////
+model Seat {
+  id                  String @id @default(uuid())
+  rowLabel            String @map("row_label")
+  seatNumber          Int    @map("seat_number")
+  defaultTicketTypeId String @map("default_ticket_type_id")
 
-model Event {
-  id           String    @id @default(uuid())
-  title        String
-  slug         String    @unique
-  description  String?
-  contentHtml  String?   @map("content_html")
-  location     String?
-  startDate    DateTime? @map("start_date")
-  endDate      DateTime? @map("end_date")
-  thumbnailUrl String?   @map("thumbnail_url")
+  defaultTicketType TicketType  @relation("DefaultSeats", fields: [defaultTicketTypeId], references: [id])
+  eventSeats        EventSeat[]
 
-  categoryId String?   @map("category_id")
-  category   Category? @relation(fields: [categoryId], references: [id])
-
-  status    String   @default("draft")
-  createdAt DateTime @default(now()) @map("created_at")
-
-  ticketTypes TicketType[]
-  seats       Seat[]
-  tickets     Ticket[]
-
-  @@map("events")
+  @@map("seats")
 }
 
-///////////////////////
-// TICKET TYPES
-///////////////////////
-
 model TicketType {
-  id      String @id @default(uuid())
-  eventId String @map("event_id")
-  event   Event  @relation(fields: [eventId], references: [id])
+  id    String @id @default(uuid())
+  name  String
+  price Float
+  color String @default("#27272A")
 
-  name              String
-  price             Float
-  totalQuantity     Int?   @map("total_quantity")
-  remainingQuantity Int?   @map("remaining_quantity")
-
-  seats   Seat[]
-  tickets Ticket[]
+  defaultSeats Seat[]      @relation("DefaultSeats")
+  eventSeats   EventSeat[]
 
   @@map("ticket_types")
 }
 
 ///////////////////////
-// SEATS
+// EVENTS & OPERATIONS
 ///////////////////////
 
-model Seat {
+model Artist {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique
+  avatarUrl   String?  @map("avatar_url")
+  description String?  @db.Text
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  events EventArtist[]
+
+  @@map("artists")
+}
+
+model EventArtist {
+  id       String @id @default(uuid())
+  eventId  String @map("event_id")
+  artistId String @map("artist_id")
+
+  role String?
+
+  event  Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  artist Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, artistId])
+  @@index([eventId])
+  @@index([artistId])
+  @@map("event_artists")
+}
+
+model Event {
+  id           String      @id @default(uuid())
+  title        String
+  slug         String      @unique
+  description  String?     @db.Text
+  contentHtml  String?     @map("content_html") @db.Text
+  location     String?
+  startDate    DateTime?   @map("start_date")
+  endDate      DateTime?   @map("end_date")
+  thumbnailUrl String?     @map("thumbnail_url")
+  status       EventStatus @default(DRAFT)
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @default(now()) @updatedAt @map("updated_at")
+
+  categoryId String?   @map("category_id")
+  category   Category? @relation(fields: [categoryId], references: [id])
+
+  eventSeats        EventSeat[]
+  eventArtists      EventArtist[]
+  likedByUsers      LikeEvent[]
+  savedByUsers      SaveEvent[]
+  comments          Comment[]
+  eventReminderLogs EventReminderLog[]
+
+  @@map("events")
+}
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  CANCELLED
+}
+
+model EventSeat {
   id           String @id @default(uuid())
   eventId      String @map("event_id")
   ticketTypeId String @map("ticket_type_id")
 
-  event      Event      @relation(fields: [eventId], references: [id])
-  ticketType TicketType @relation(fields: [ticketTypeId], references: [id])
+  rowLabel   String @map("row_label")
+  seatNumber Int    @map("seat_number")
 
-  rowLabel   String? @map("row_label")
-  seatNumber Int?    @map("seat_number")
+  status EventSeatStatus @default(AVAILABLE)
 
-  status String @default("available")
+  event      Event       @relation(fields: [eventId], references: [id])
+  ticketType TicketType  @relation(fields: [ticketTypeId], references: [id])
+  ticket     Ticket?
+  orderSeats OrderSeat[]
+  seat       Seat?       @relation(fields: [seatId], references: [id])
+  seatId     String?     @map("seat_id")
 
-  ticket Ticket?
+  @@unique([eventId, rowLabel, seatNumber])
+  @@map("event_seats")
+}
 
-  @@map("seats")
+enum EventSeatStatus {
+  AVAILABLE
+  RESERVING
+  BOOKED
+  DISABLED
 }
 
 ///////////////////////
-// ORDERS
+// SOCIAL & CONTACT
 ///////////////////////
 
-model Order {
-  id     String @id @default(uuid())
-  userId String @map("user_id")
-  user   User   @relation(fields: [userId], references: [id])
+model LikeEvent {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  eventId   String   @map("event_id")
+  createdAt DateTime @default(now()) @map("created_at")
 
-  customerEmail String  @map("customer_email")
-  customerPhone String  @map("customer_phone")
-  customerName  String? @map("customer_name")
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
-  totalAmount        Float?  @map("total_amount")
-  status             String  @default("pending")
-  paymentMethod      String  @default("SEPAY") @map("payment_method")
-  sepayTransactionId String? @unique @map("sepay_transaction_id")
-  orderCode          String? @unique @map("order_code")
+  @@unique([userId, eventId])
+  @@index([userId])
+  @@index([eventId])
+  @@map("like_events")
+}
 
+model SaveEvent {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  eventId   String   @map("event_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, eventId])
+  @@index([userId])
+  @@index([eventId])
+  @@map("save_events")
+}
+
+model Comment {
+  id      String @id @default(uuid())
+  content String @db.Text
+
+  eventId String @map("event_id")
+  userId  String @map("user_id")
+
+  parentId String? @map("parent_id")
+  rootId   String? @map("root_id")
+
+  rating    Int?    @map("rating")
+  imageUrls String? @map("image_urls") @db.Text
+
+  isEdited  Boolean  @default(false) @map("is_edited")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  couponId String? @map("coupon_id")
-  coupon   Coupon? @relation(fields: [couponId], references: [id])
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  tickets Ticket[]
+  parent  Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies Comment[] @relation("CommentReplies")
+
+  @@index([eventId])
+  @@index([userId])
+  @@index([parentId])
+  @@index([rootId])
+  @@index([rating])
+  @@map("comments")
+}
+
+model Contact {
+  id          String   @id @default(uuid())
+  fullName    String   @map("full_name")
+  email       String
+  phoneNumber String   @map("phone_number")
+  message     String   @db.Text
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("contacts")
+}
+
+///////////////////////
+// COMMERCE
+///////////////////////
+
+model Order {
+  id                 String        @id @default(uuid())
+  userId             String?       @map("user_id")
+  customerEmail      String        @map("customer_email")
+  customerPhone      String        @map("customer_phone")
+  customerName       String?       @map("customer_name")
+  totalAmount        Float?        @map("total_amount")
+  status             OrderStatus   @default(PENDING)
+  paymentMethod      PaymentMethod @default(SEPAY) @map("payment_method")
+  sepayTransactionId String?       @unique @map("sepay_transaction_id")
+  orderCode          String?       @unique @map("order_code")
+  createdAt          DateTime      @default(now()) @map("created_at")
+  updatedAt          DateTime      @updatedAt @map("updated_at")
+
+  user                User?                @relation(fields: [userId], references: [id])
+  couponId            String?              @map("coupon_id")
+  coupon              Coupon?              @relation(fields: [couponId], references: [id])
+  tickets             Ticket[]
+  orderSeats          OrderSeat[]
+  paymentTransactions PaymentTransaction[]
+  refundRequests      RefundRequest[]
 
   @@map("orders")
 }
 
-///////////////////////
-// TICKETS
-///////////////////////
+enum OrderStatus {
+  PENDING
+  PAID
+  CANCELLED
+  REFUND_PENDING
+  REFUNDED
+}
+
+enum PaymentMethod {
+  SEPAY
+}
+
+model PaymentTransaction {
+  id            String                   @id @default(uuid())
+  orderId       String?                  @map("order_id")
+  transactionId String                   @unique @map("transaction_id")
+  orderCode     String?                  @map("order_code")
+  amount        Float
+  content       String?                  @db.Text
+  gateway       String?
+  status        PaymentTransactionStatus @default(PENDING)
+  createdAt     DateTime                 @default(now()) @map("created_at")
+  updatedAt     DateTime                 @updatedAt @map("updated_at")
+
+  order Order? @relation(fields: [orderId], references: [id])
+
+  @@map("payment_transactions")
+}
+
+enum PaymentTransactionStatus {
+  PENDING
+  MATCHED
+  UNMATCHED
+  FAILED
+}
+
+model OrderSeat {
+  id          String @id @default(uuid())
+  orderId     String @map("order_id")
+  eventSeatId String @map("event_seat_id")
+
+  order     Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  eventSeat EventSeat @relation(fields: [eventSeatId], references: [id])
+
+  @@unique([orderId, eventSeatId])
+  @@map("order_seats")
+}
 
 model Ticket {
-  id String @id @default(uuid())
+  id            String    @id @default(uuid())
+  orderId       String    @map("order_id")
+  eventSeatId   String    @unique @map("event_seat_id")
+  qrSecureToken String    @unique @map("qr_secure_token")
+  isCheckedIn   Boolean   @default(false) @map("is_checked_in")
+  checkedInAt   DateTime? @map("checked_in_at")
 
-  orderId      String @map("order_id")
-  eventId      String @map("event_id")
-  seatId       String @unique @map("seat_id")
-  ticketTypeId String @map("ticket_type_id")
-
-  order      Order      @relation(fields: [orderId], references: [id])
-  event      Event      @relation(fields: [eventId], references: [id])
-  seat       Seat       @relation(fields: [seatId], references: [id])
-  ticketType TicketType @relation(fields: [ticketTypeId], references: [id])
-
-  qrSecureToken String @unique @map("qr_secure_token")
-
-  isCheckedIn Boolean   @default(false) @map("is_checked_in")
-  checkedInAt DateTime? @map("checked_in_at")
+  order       Order        @relation(fields: [orderId], references: [id])
+  eventSeat   EventSeat    @relation(fields: [eventSeatId], references: [id])
+  checkInLogs CheckInLog[]
 
   @@map("tickets")
 }
 
-///////////////////////
-// COUPONS
-///////////////////////
+model CheckInLog {
+  id        String           @id @default(uuid())
+  ticketId  String?          @map("ticket_id")
+  token     String           @db.Text
+  status    CheckInLogStatus
+  message   String?
+  scannedAt DateTime         @default(now()) @map("scanned_at")
+
+  ticket Ticket? @relation(fields: [ticketId], references: [id])
+
+  @@index([ticketId])
+  @@index([status])
+  @@index([scannedAt])
+  @@map("check_in_logs")
+}
+
+enum CheckInLogStatus {
+  VALID
+  DUPLICATE
+  INVALID
+}
 
 model Coupon {
   id              String       @id @default(uuid())
@@ -209,9 +398,8 @@ model Coupon {
   discountPercent Int          @default(0) @map("discount_percent")
   validUntil      DateTime?    @map("valid_until")
   usageLimit      Int?         @map("usage_limit")
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
 
   orders Order[]
 
@@ -221,4 +409,277 @@ model Coupon {
 enum CouponStatus {
   ACTIVE
   INACTIVE
+}
+
+///////////////////////
+// CONTENT & AI
+///////////////////////
+
+model BlogCategory {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  blogs Blog[]
+
+  @@map("blog_categories")
+}
+
+model Blog {
+  id           String     @id @default(uuid())
+  title        String
+  slug         String     @unique
+  excerpt      String?    @db.Text
+  contentHtml  String     @map("content_html") @db.Text
+  thumbnailUrl String?    @map("thumbnail_url") @db.LongText
+  status       BlogStatus @default(DRAFT)
+  publishedAt  DateTime?  @map("published_at")
+
+  authorId String @map("author_id")
+  author   User   @relation(fields: [authorId], references: [id])
+
+  categoryId String?       @map("category_id")
+  category   BlogCategory? @relation(fields: [categoryId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("blogs")
+}
+
+enum BlogStatus {
+  DRAFT
+  PUBLISHED
+}
+
+model BlogIdea {
+  id          String         @id @default(uuid())
+  title       String
+  description String         @db.Text
+  status      BlogIdeaStatus @default(PENDING)
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+
+  @@map("blog_ideas")
+}
+
+enum BlogIdeaStatus {
+  PENDING
+  USED
+  FAILED
+}
+
+model AIContentConfig {
+  id             String  @id @default(uuid())
+  ideaModel      String  @map("idea_model")
+  ideaPrompt     String  @map("idea_prompt") @db.Text
+  blogModel      String  @map("blog_model")
+  blogPrompt     String  @map("blog_prompt") @db.Text
+  thumbnailModel String? @map("thumbnail_model")
+  chatModel       String? @map("chat_model")
+  chatSystemPrompt String? @map("chat_system_prompt") @db.Text
+  isActive       Boolean @default(true) @map("is_active")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("ai_content_configs")
+}
+
+///////////////////////
+// SYSTEM SETTINGS
+///////////////////////
+
+model SiteSetting {
+  id           String   @id @default(uuid())
+  websiteName  String?  @map("website_name")
+  logoUrl      String?  @map("logo_url")
+  address      String?  @db.Text
+  hotline      String?
+  supportEmail String?  @map("support_email")
+  workingHours String?  @map("working_hours")
+  mapUrl       String?  @map("map_url") @db.Text
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("site_settings")
+}
+
+model Banner {
+  id        String   @id @default(uuid())
+  imageUrl  String   @map("image_url")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("banners")
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  type      NotificationType
+  title     String
+  message   String           @db.Text
+  isRead    Boolean          @default(false) @map("is_read")
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  @@index([type])
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+enum NotificationType {
+  USER_REGISTERED
+  ORDER_CREATED
+  PAYMENT_CREATED
+  CONTACT_CREATED
+  CHECKIN_CREATED
+}
+
+model EventReminderLog {
+  id      String   @id @default(uuid())
+  eventId String   @map("event_id")
+  userId  String   @map("user_id")
+  sentAt  DateTime @default(now()) @map("sent_at")
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+  @@index([eventId])
+  @@index([userId])
+  @@index([sentAt])
+  @@map("event_reminder_logs")
+}
+
+model SystemJob {
+  id      String          @id @default(uuid())
+  type    SystemJobType
+  status  SystemJobStatus @default(PENDING)
+  payload Json?
+  log     String?         @db.Text
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@index([type])
+  @@map("system_jobs")
+}
+
+enum SystemJobType {
+  SEND_VERIFY_EMAIL
+  SEND_FORGOT_PASSWORD_EMAIL
+  SEND_EVENT_REMINDER_EMAIL
+  SEND_TICKET_AFTER_PAYMENT_EMAIL
+  SEND_REFUND_REQUEST_RECEIVED_EMAIL
+  SEND_REFUND_RESULT_EMAIL
+}
+
+enum SystemJobStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+model RefundRequest {
+  id String @id @default(uuid())
+
+  orderId String  @map("order_id")
+  userId  String? @map("user_id")
+
+  customerName  String @map("customer_name")
+  customerEmail String @map("customer_email")
+  customerPhone String @map("customer_phone")
+
+  bankName          String @map("bank_name")
+  bankAccountNumber String @map("bank_account_number")
+  bankAccountHolder String @map("bank_account_holder")
+
+  note String? @db.Text
+
+  refundPercent Int   @map("refund_percent")
+  refundAmount  Float @map("refund_amount")
+
+  status RefundRequestStatus @default(PENDING)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  order Order @relation(fields: [orderId], references: [id])
+  user  User? @relation(fields: [userId], references: [id])
+
+  @@index([orderId])
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("refund_requests")
+}
+
+enum RefundRequestStatus {
+  PENDING
+  COMPLETED
+  REJECTED
+}
+
+///////////////////////
+// AI LIVE CHAT
+///////////////////////
+
+model ChatSession {
+  id String @id @default(uuid())
+
+  userId  String? @map("user_id")
+  guestId String? @map("guest_id")
+
+   status ChatSessionStatus @default(ACTIVE)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user     User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  messages ChatMessage[]
+
+  @@index([userId])
+  @@index([guestId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("chat_sessions")
+}
+
+model ChatMessage {
+  id String @id @default(uuid())
+
+  sessionId String          @map("session_id")
+  role      ChatMessageRole
+  content   String          @db.Text
+
+  actions Json?
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  session ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@index([role])
+  @@index([createdAt])
+  @@map("chat_messages")
+}
+
+
+enum ChatSessionStatus {
+  ACTIVE
+  WAITING_ADMIN
+  ASSIGNED
+  CLOSED
+}
+
+enum ChatMessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+  ADMIN
 }

@@ -1,7 +1,8 @@
 import { prisma } from "../utils/prisma";
 import { AppError } from "../utils/AppError";
+import { CouponStatus, OrderStatus } from "@prisma/client";
 import { getPaginationMetadata } from "../utils/pagination";
-import { CouponStatus } from "@prisma/client";
+import { buildDirectOrderBy } from "../utils/listSort";
 
 class CouponService {
     async create(body: any) {
@@ -20,24 +21,79 @@ class CouponService {
         });
     }
 
-    async list(query: { search?: string; page: number; limit: number }) {
-        const { page = 1, limit = 10, search } = query;
+    async list(query: {
+        search?: string;
+        page: number;
+        limit: number;
+        status?: CouponStatus;
+        validity?: "valid" | "expired";
+        sortBy?: string;
+        sortOrder?: "asc" | "desc";
+    }) {
+        const {
+            page = 1,
+            limit = 10,
+            search,
+            status,
+            validity,
+            sortBy,
+            sortOrder,
+        } = query;
         const skip = (page - 1) * limit;
 
-        const where: any = {};
-        if (search) {
-            where.OR = [
-                { code: { contains: search } },
-                { description: { contains: search } },
-            ];
+        const and: Record<string, unknown>[] = [];
+
+        if (status) {
+            and.push({ status });
         }
+
+        if (validity === "valid") {
+            and.push({
+                OR: [
+                    { validUntil: null },
+                    { validUntil: { gte: new Date() } },
+                ],
+            });
+        } else if (validity === "expired") {
+            and.push({ validUntil: { lt: new Date() } });
+        }
+
+        if (search) {
+            and.push({
+                OR: [
+                    { code: { contains: search } },
+                    { description: { contains: search } },
+                ],
+            });
+        }
+
+        const where =
+            and.length === 0
+                ? {}
+                : and.length === 1
+                  ? and[0]
+                  : { AND: and };
+
+        const orderBy = buildDirectOrderBy(
+            sortBy,
+            sortOrder,
+            {
+                code: "code",
+                discountPercent: "discountPercent",
+                usageLimit: "usageLimit",
+                validUntil: "validUntil",
+                status: "status",
+                createdAt: "createdAt",
+            },
+            { createdAt: "desc" }
+        );
 
         const [coupons, total] = await Promise.all([
             prisma.coupon.findMany({
                 where,
                 skip,
                 take: Number(limit),
-                orderBy: { createdAt: "desc" },
+                orderBy,
             }),
             prisma.coupon.count({ where }),
         ]);
@@ -68,6 +124,18 @@ class CouponService {
         });
     }
 
+    async deleteMany(ids: string[]) {
+        const result = await prisma.coupon.deleteMany({
+            where: { id: { in: ids } },
+        });
+
+        if (result.count === 0) {
+            throw new AppError("No coupons found to delete", 404);
+        }
+
+        return result;
+    }
+
     async verify(body: { code: string; orderAmount: number }) {
         const { code, orderAmount } = body;
 
@@ -91,7 +159,9 @@ class CouponService {
             const usageCount = await prisma.order.count({
                 where: {
                     couponId: coupon.id,
-                    status: { notIn: ["cancelled", "failed"] }, // Count only successful or pending orders
+                    status: {
+                        in: [OrderStatus.PENDING, OrderStatus.PAID],
+                    },
                 },
             });
 

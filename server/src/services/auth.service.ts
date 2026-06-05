@@ -3,15 +3,20 @@ import bcrypt from "bcryptjs";
 import MailService from "./mail.service";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
-import admin from "firebase-admin";
 import ms from "ms";
 import { AppError } from "../utils/AppError";
+import firebaseApp from "../config/firebase";
+import notificationService from "./notification.service";
+import { NotificationType } from "@prisma/client";
+import systemJobService from "./system-job.service";
 
 class AuthService {
     async googleLogin(idToken: string) {
         try {
             // 1. Verify ID Token from Firebase
-            const decodedToken = await admin.auth().verifyIdToken(idToken);
+            const decodedToken = await firebaseApp
+                .auth()
+                .verifyIdToken(idToken);
             const { email, name, picture, uid } = decodedToken;
 
             if (!email) {
@@ -33,6 +38,12 @@ class AuthService {
                         providerId: uid,
                         isEmailVerified: true,
                     },
+                });
+
+                await notificationService.createNotification({
+                    type: NotificationType.USER_REGISTERED,
+                    title: "Người dùng mới đăng ký",
+                    message: `${user.fullName} vừa tạo tài khoản mới bằng Google.`,
                 });
             } else {
                 if (user.providerId && user.providerId !== uid) {
@@ -69,6 +80,7 @@ class AuthService {
                     email: user.email,
                     fullName: user.fullName,
                     avatarUrl: user.avatarUrl,
+                    phoneNumber: user.phoneNumber,
                     role: user.role,
                 },
                 accessToken,
@@ -87,32 +99,49 @@ class AuthService {
     async register(data: any) {
         const { email, password, fullName, phoneNumber } = data;
 
+        const normalizedEmail = email.trim().toLowerCase();
+        const normalizedPhoneNumber = phoneNumber.trim();
+
         // 1. Check if email already exists
-        const existingUser = await prisma.user.findUnique({
-            where: { email },
+        const existingUserByEmail = await prisma.user.findUnique({
+            where: {
+                email: normalizedEmail,
+            },
         });
 
-        if (existingUser) {
+        if (existingUserByEmail) {
             throw new AppError("Email already exists", 400);
         }
 
-        // 2. Hash password
+        // 2. Check if phone number already exists
+        const existingUserByPhoneNumber = await prisma.user.findFirst({
+            where: {
+                phoneNumber: normalizedPhoneNumber,
+            },
+        });
+
+        if (existingUserByPhoneNumber) {
+            throw new AppError("Phone number already exists", 400);
+        }
+
+        // 3. Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // 3. Insert into DB
+        // 4. Insert into DB
         const newUser = await prisma.user.create({
             data: {
-                email,
+                email: normalizedEmail,
                 password: hashedPassword,
-                fullName,
-                phoneNumber,
+                fullName: fullName.trim(),
+                phoneNumber: normalizedPhoneNumber,
                 provider: "local",
                 isEmailVerified: false,
             },
         });
 
-        // 4. Generate verification token
+        // 5. Generate verification token
         const token = crypto.randomBytes(32).toString("hex");
+
         const expiresAt = new Date();
         expiresAt.setHours(expiresAt.getHours() + 24);
 
@@ -125,8 +154,17 @@ class AuthService {
             },
         });
 
-        // 5. Send verification email
-        await MailService.sendVerificationEmail(email, fullName, token);
+        await notificationService.createNotification({
+            type: NotificationType.USER_REGISTERED,
+            title: "Người dùng mới đăng ký",
+            message: `${newUser.fullName} vừa tạo tài khoản mới.`,
+        });
+
+        await systemJobService.createSendVerifyEmailJob(
+            newUser.email,
+            newUser.fullName,
+            token
+        );
 
         return {
             id: newUser.id,
@@ -190,6 +228,7 @@ class AuthService {
                 id: user.id,
                 email: user.email,
                 fullName: user.fullName,
+                phoneNumber: user.phoneNumber,
                 role: user.role,
             },
             accessToken,
@@ -239,6 +278,8 @@ class AuthService {
                 id: userToken.user.id,
                 email: userToken.user.email,
                 fullName: userToken.user.fullName,
+                phoneNumber: userToken.user.phoneNumber,
+                role: userToken.user.role,
             },
             accessToken,
             refreshToken,
@@ -365,8 +406,11 @@ class AuthService {
             },
         });
 
-        // 3. Send email
-        await MailService.sendForgotPasswordEmail(email, user.fullName, token);
+        await systemJobService.createSendForgotPasswordEmailJob(
+            email,
+            user.fullName,
+            token
+        );
 
         return { message: "Reset password email sent" };
     }

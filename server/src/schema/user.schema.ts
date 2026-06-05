@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { UserRole } from "@prisma/client";
+import { listSortQueryFields } from "../utils/listSort";
 
 export const updateMeSchema = z.object({
     body: z
@@ -14,8 +16,6 @@ export const updateMeSchema = z.object({
                 .optional(),
             avatarUrl: z
                 .string()
-                .url("Invalid avatar URL")
-                .or(z.string().length(0))
                 .optional(),
         })
         .strict(),
@@ -40,9 +40,36 @@ export const changePasswordSchema = z.object({
 export const changeRoleSchema = z.object({
     body: z
         .object({
-            role: z.enum(["user", "admin"]),
+            userId: z.string().uuid("Invalid user ID"),
+            role: z.nativeEnum(UserRole),
         })
         .strict(),
+});
+
+/** Query for GET /users (admin list) */
+export const listUsersQuerySchema = z.object({
+    query: z.object({
+        page: z
+            .string()
+            .optional()
+            .transform((val) => Math.max(Number(val) || 1, 1)),
+        limit: z
+            .string()
+            .optional()
+            .transform((val) => Math.max(Number(val) || 10, 1)),
+        search: z.string().optional(),
+        role: z.union([z.nativeEnum(UserRole), z.literal("all")]).optional(),
+        emailVerified: z
+            .enum(["verified", "unverified", "all"])
+            .optional(),
+        ...listSortQueryFields([
+            "fullName",
+            "role",
+            "provider",
+            "lastLoginAt",
+            "createdAt",
+        ] as const),
+    }),
 });
 
 export const deleteUsersSchema = z.object({

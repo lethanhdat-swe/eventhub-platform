@@ -13,6 +13,7 @@ declare global {
             success(params: {
                 message: string;
                 data?: any;
+                meta?: any;
                 status?: number;
             }): this;
             error(params: {
