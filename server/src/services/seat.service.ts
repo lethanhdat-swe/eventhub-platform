@@ -1,3 +1,4 @@
+import { EventSeatStatus } from "@prisma/client";
 import { prisma } from "../utils/prisma";
 import { AppError } from "../utils/AppError";
 import { getPaginationMetadata } from "../utils/pagination";
@@ -229,9 +230,10 @@ class SeatService {
             },
         });
 
-        const blockedStatuses: Array<
-            (typeof linkedEventSeats)[number]["status"]
-        > = ["PENDING", "RESERVING", "BOOKED"];
+        const blockedStatuses: EventSeatStatus[] = [
+            EventSeatStatus.RESERVING,
+            EventSeatStatus.BOOKED,
+        ];
 
         const inUse = linkedEventSeats.filter(
             (eventSeat) =>

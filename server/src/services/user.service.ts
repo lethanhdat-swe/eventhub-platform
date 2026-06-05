@@ -1,3 +1,4 @@
+import { UserRole } from "@prisma/client";
 import { prisma } from "../utils/prisma";
 import { AppError } from "../utils/AppError";
 import bcrypt from "bcryptjs";
@@ -182,7 +183,7 @@ class UserService {
         return user;
     }
 
-    async changeRole(data: { actorId: string; userId: string; role: string }) {
+    async changeRole(data: { actorId: string; userId: string; role: UserRole }) {
         if (data.userId === data.actorId) {
             throw new AppError("Cannot change your own role", 400);
         }

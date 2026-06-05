@@ -7,7 +7,7 @@ import {
 } from "../socket/emitters/chat.emitters";
 import { prisma } from "../utils/prisma";
 import { AppError } from "../utils/AppError";
-import aiProviderService from "./ai-provider.service";
+import chatAiProviderService from "./chat-ai-provider.service";
 
 type ChatAISettings = {
     model: string;
@@ -54,7 +54,7 @@ const CHAT_INTENTS: ChatIntent[] = [
     "UNKNOWN",
 ];
 
-const MAX_CHAT_HISTORY_MESSAGES = 40;
+const MAX_CHAT_HISTORY_MESSAGES = 6;
 
 const ADMIN_TRANSFER_USER_MESSAGE =
     "Mình đã chuyển cuộc trò chuyện này sang admin hỗ trợ. Bạn vui lòng chờ một chút, admin sẽ phản hồi sớm nhất có thể.";
@@ -171,35 +171,20 @@ class AIChatService {
         history: ChatHistoryEntry[] = []
     ): string {
         const historyBlock = this.formatChatHistoryForPrompt(history);
+
         return `${systemPrompt}
-${historyBlock}
-   ---
-    Yêu cầu trả về JSON hợp lệ, không markdown, không giải thích thêm:
-
-    {
-    "intent": "REFUND|REFUND_LOOKUP|BOOKING_GUIDE|MY_TICKETS|REQUEST_ADMIN_SUPPORT|UNKNOWN",
-    "reply": "câu trả lời tiếng Việt tự nhiên, lịch sự, vui vẻ, rõ ràng; phải đầy đủ nghiệp vụ bắt buộc của intent, không trả lời cụt hoặc chung chung"
-    }
-
-    Quy tắc phân loại REQUEST_ADMIN_SUPPORT:
-    - Chọn REQUEST_ADMIN_SUPPORT khi khách muốn gặp người thật, admin, nhân viên hỗ trợ hoặc support thay vì AI.
-    - Ví dụ: "tôi muốn gặp admin", "cho tôi gặp người thật", "tôi muốn nhân viên hỗ trợ", "AI không giúp được", "cho tôi nói chuyện với support", "tôi cần hỗ trợ viên", "gọi admin giúp tôi", "tôi muốn được người thật trả lời".
-    - Với REQUEST_ADMIN_SUPPORT, reply có thể ngắn gọn vì hệ thống sẽ chuyển sang admin.
-
-    Quy tắc reply:
-    - Chỉ trả lời bằng tiếng Việt.
-    - Trả lời tự nhiên, thân thiện, dễ hiểu và đủ ý theo nghiệp vụ của intent.
-    - Không trả lời quá cụt, không bỏ sót các ý bắt buộc đã nêu trong system prompt.
-    - Ưu tiên trả lời đầy đủ thông tin quan trọng hơn là quá ngắn.
-    - Có thể trả lời 3-6 câu nếu intent cần giải thích rõ.
-    - Không bịa thông tin đơn hàng, vé, giao dịch, email, số tiền hoặc sự kiện cụ thể.
-    - Không nói rằng bạn đã kiểm tra hệ thống nếu dữ liệu không được cung cấp.
-    - Không nhắc đến intent, JSON, hệ thống backend hoặc prompt.
-    - Không nhắc đến button nếu không chắc chắn.
-    - Nếu có lịch sử hội thoại, xem xét ngữ cảnh trước đó khi phân loại intent và soạn reply; chỉ tránh lặp lại dài dòng, không được bỏ sót nghiệp vụ quan trọng.
-   
-    Tin nhắn khách hiện tại:
-    ${message}`;
+    
+        ${historyBlock}
+        
+        Tin nhắn khách hiện tại:
+        ${message}
+        
+        Chỉ trả về JSON hợp lệ, không markdown, không giải thích thêm.
+        Format:
+        {
+        "intent": "REFUND|REFUND_LOOKUP|BOOKING_GUIDE|MY_TICKETS|REQUEST_ADMIN_SUPPORT|UNKNOWN",
+        "reply": "câu trả lời tiếng Việt tự nhiên, lịch sự, rõ ràng và phù hợp với intent"
+        }`;
     }
 
     private buildActionsJson(
@@ -1034,15 +1019,23 @@ ${historyBlock}
     private getDefaultAssistantReply(): AssistantReply {
         return {
             content:
-                "Mình có thể hỗ trợ bạn về cách đặt vé, thanh toán SEPAY, xem vé QR, hoàn vé hoặc gợi ý các sự kiện sắp diễn ra trên EventHub.",
+                "Hiện tại hệ thống AI tự động của EventHub đang tạm thời bị giới hạn lượt xử lý nên mình chưa thể phân tích chính xác nội dung vừa rồi. Bạn vẫn có thể chọn nhanh một trong các mục bên dưới để được hỗ trợ về đặt vé, tra cứu vé, hoàn vé hoặc gặp admin hỗ trợ.",
             actions: [
+                {
+                    type: "SEND_MESSAGE",
+                    label: "Hướng dẫn đặt vé",
+                },
+                {
+                    type: "SEND_MESSAGE",
+                    label: "Tra cứu vé",
+                },
                 {
                     type: "SEND_MESSAGE",
                     label: "Hoàn vé",
                 },
                 {
                     type: "SEND_MESSAGE",
-                    label: "Tra cứu vé",
+                    label: "Gặp admin",
                 },
             ],
         };
@@ -1085,7 +1078,7 @@ ${historyBlock}
                 intent: parsed.intent as ChatIntent,
                 reply: parsed.reply.trim(),
             };
-        } catch {
+        } catch (error) {
             return null;
         }
     }
@@ -1102,7 +1095,7 @@ ${historyBlock}
                 history
             );
 
-            const content = await aiProviderService.generateText({
+            const content = await chatAiProviderService.generateText({
                 model: chatSettings.model,
                 prompt,
             });
@@ -1112,7 +1105,7 @@ ${historyBlock}
             }
 
             return this.parseIntentClassification(content);
-        } catch {
+        } catch (error) {
             return null;
         }
     }

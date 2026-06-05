@@ -67,7 +67,7 @@ class UserController {
             await userService.changeRole({
                 actorId: req.user!.id,
                 userId: req.body.userId as string,
-                role: req.body.role as string,
+                role: req.body.role,
             });
 
             return res.success({

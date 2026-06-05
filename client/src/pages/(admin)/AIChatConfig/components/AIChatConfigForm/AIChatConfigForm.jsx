@@ -1,7 +1,6 @@
 import { useRef } from 'react';
 
-import AIModelCard from '@/pages/(admin)/AIBlogConfig/components/AIBlogConfigForm/components/AIModelCard/AIModelCard';
-
+import ChatAIModelCard from '../ChatAIModelCard';
 import ChatPromptConfigCard from '../ChatPromptConfigCard';
 
 export default function AIChatConfigForm({
@@ -14,10 +13,9 @@ export default function AIChatConfigForm({
 
   return (
     <div className="w-full pb-6 font-sans">
-      <AIModelCard
+      <ChatAIModelCard
         selectedAI={selectedAI}
         setSelectedAI={setSelectedAI}
-        content="chat"
       />
 
       <ChatPromptConfigCard

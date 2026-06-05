@@ -217,14 +217,7 @@ class EventService {
             sortOrder,
         } = query;
 
-        const normalizedCategoryIds = Array.isArray(categoryIds)
-            ? categoryIds
-            : typeof categoryIds === "string"
-              ? categoryIds
-                    .split(",")
-                    .map((id) => id.trim())
-                    .filter(Boolean)
-              : [];
+        const normalizedCategoryIds = categoryIds ?? [];
 
         const skip = (page - 1) * limit;
 
