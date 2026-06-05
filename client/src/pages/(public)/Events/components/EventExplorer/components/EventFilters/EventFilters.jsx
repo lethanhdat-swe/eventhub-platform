@@ -1,12 +1,7 @@
 import { useEffect, useState } from 'react';
-import {
-  CalendarDays,
-  Check,
-  RotateCcw,
-  Search,
-  SlidersHorizontal,
-} from 'lucide-react';
+import { Check, RotateCcw, Search, SlidersHorizontal } from 'lucide-react';
 import { categoryService } from '@/lib/services/admin';
+import FilterDateField from './components/DatePicker/FilterDateField';
 
 const INITIAL_FILTERS = {
   search: '',
@@ -169,73 +164,19 @@ function EventFilters({ onApply }) {
           </label>
 
           <div className="space-y-3">
-            <div
-              className="
-                rounded-xl border border-(--border-color)
-                bg-(--soft-surface-color) px-3.5 py-3
-                transition focus-within:border-(--primary-color)/60
-                focus-within:ring-4 focus-within:ring-(--primary-color)/10
-              "
-            >
-              <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-(--muted-text)">
-                Từ ngày
-              </p>
+            <FilterDateField
+              label="Từ ngày"
+              value={filters.date.startDate}
+              max={filters.date.endDate || undefined}
+              onChange={(nextValue) => updateDate('startDate', nextValue)}
+            />
 
-              <div className="flex items-center gap-3">
-                <CalendarDays
-                  size={16}
-                  className="shrink-0 text-(--primary-color)"
-                />
-
-                <input
-                  type="date"
-                  value={filters.date.startDate}
-                  onChange={(event) =>
-                    updateDate('startDate', event.target.value)
-                  }
-                  className="
-                    w-full bg-transparent text-sm font-bold text-(--text-primary)
-                    outline-none [color-scheme:var(--color-scheme)]
-                    [&::-webkit-calendar-picker-indicator]:cursor-pointer
-                    [&::-webkit-calendar-picker-indicator]:opacity-60
-                  "
-                />
-              </div>
-            </div>
-
-            <div
-              className="
-                rounded-xl border border-(--border-color)
-                bg-(--soft-surface-color) px-3.5 py-3
-                transition focus-within:border-(--primary-color)/60
-                focus-within:ring-4 focus-within:ring-(--primary-color)/10
-              "
-            >
-              <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-(--muted-text)">
-                Đến ngày
-              </p>
-
-              <div className="flex items-center gap-3">
-                <CalendarDays
-                  size={16}
-                  className="shrink-0 text-(--primary-color)"
-                />
-
-                <input
-                  type="date"
-                  value={filters.date.endDate}
-                  onChange={(event) =>
-                    updateDate('endDate', event.target.value)
-                  }
-                  className="
-                    w-full bg-transparent text-sm font-bold text-(--text-primary)
-                    outline-none [color-scheme:var(--color-scheme)]
-                    [&::-webkit-calendar-picker-indicator]:cursor-pointer
-                    [&::-webkit-calendar-picker-indicator]:opacity-60
-                  "
-                />
-              </div>
-            </div>
+            <FilterDateField
+              label="Đến ngày"
+              value={filters.date.endDate}
+              min={filters.date.startDate || undefined}
+              onChange={(nextValue) => updateDate('endDate', nextValue)}
+            />
           </div>
         </div>
 

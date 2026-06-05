@@ -24,7 +24,7 @@ const ALL_CATEGORY_ID = 'all';
 function formatBlogDate(value) {
   if (!value) return '';
 
-  return new Intl.DateTimeFormat('en', {
+  return new Intl.DateTimeFormat('vi-VN', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',

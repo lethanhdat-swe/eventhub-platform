@@ -127,7 +127,7 @@ model EventArtist {
   eventId  String @map("event_id")
   artistId String @map("artist_id")
 
-  role ArtistRole?
+  role String?
 
   event  Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
   artist Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
@@ -136,13 +136,6 @@ model EventArtist {
   @@index([eventId])
   @@index([artistId])
   @@map("event_artists")
-}
-
-enum ArtistRole {
-  SINGER
-  DJ
-  GUEST
-  HOST
 }
 
 model Event {

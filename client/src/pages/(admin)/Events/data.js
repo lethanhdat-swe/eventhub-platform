@@ -131,7 +131,7 @@ export function buildEventPayload(form) {
         .filter((row) => row.artistId)
         .map((row) => ({
           artistId: row.artistId,
-          role: row.role?.trim() || 'SINGER',
+          ...(row.role?.trim() ? { role: row.role.trim() } : {}),
         }))
     : [];
 

@@ -1,8 +1,4 @@
-import {
-    ChatMessageRole,
-    ChatSessionStatus,
-    Prisma,
-} from "@prisma/client";
+import { ChatMessageRole, ChatSessionStatus, Prisma } from "@prisma/client";
 import {
     emitAdminChatSessionUpdated,
     emitChatMessageCreated,
@@ -381,7 +377,9 @@ ${historyBlock}
                 ? this.toChatMessagePayload(lastMessage)
                 : null;
         } else if (session.messages[0]) {
-            resolvedLastMessage = this.toChatMessagePayload(session.messages[0]);
+            resolvedLastMessage = this.toChatMessagePayload(
+                session.messages[0]
+            );
         }
 
         return {

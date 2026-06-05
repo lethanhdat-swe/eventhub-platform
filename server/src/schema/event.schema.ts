@@ -36,7 +36,11 @@ const optionalThumbnailUpdateSchema = z.preprocess(
 // 👇 thêm schema cho artist pivot
 const artistItemSchema = z.object({
     artistId: z.string().uuid("Invalid artist ID format"),
-    role: z.enum(["SINGER", "DJ", "GUEST", "HOST"]).optional(),
+    role: z
+        .string()
+        .trim()
+        .max(100, "Role must be at most 100 characters")
+        .optional(),
 });
 
 export const createEventSchema = z.object({

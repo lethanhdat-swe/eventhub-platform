@@ -264,7 +264,9 @@ class EventService {
             adminOrderBy ??
             (sort === "new"
                 ? { createdAt: "desc" as const }
-                : { startDate: "asc" as const });
+                : sort === "upcoming"
+                  ? { startDate: "asc" as const }
+                  : { startDate: "desc" as const });
 
         if (sort === "upcoming") {
             where.startDate = {
