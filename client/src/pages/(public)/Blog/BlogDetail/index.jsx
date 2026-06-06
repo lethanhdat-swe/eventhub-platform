@@ -10,6 +10,7 @@ import BlogMeta from './components/BlogMeta/BlogMeta';
 import BlogTitle from './components/BlogTitle/BlogTitle';
 import BlogContent from './components/BlogContent/BlogContent';
 import BlogRelated from './components/BlogRelated/BlogRelated';
+import { filterPublishedBlogs } from '../blogUtils';
 
 function formatBlogDate(value) {
     if (!value) return '';
@@ -64,7 +65,7 @@ function BlogDetail() {
 
                 setBlog(normalizeBlog(blogPayload));
                 setRelatedBlogs(
-                    (listPayload.items ?? [])
+                    filterPublishedBlogs(listPayload.items ?? [])
                         .filter((item) => item.id !== blogPayload.id)
                         .slice(0, 2)
                         .map(normalizeBlog)

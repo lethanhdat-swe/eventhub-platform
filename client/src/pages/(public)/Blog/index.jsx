@@ -18,6 +18,7 @@ import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
 import BlogFilter from './components/BlogFilter/BlogFilter';
 import BlogHero from './components/BlogHero/BlogHero';
 import BlogItem from './components/BlogItem/BlogItem';
+import { filterPublishedBlogs } from './blogUtils';
 
 const ITEMS_PER_PAGE = 4;
 const ALL_CATEGORY_ID = 'all';
@@ -103,7 +104,13 @@ function Blog() {
 
         if (ignore) return;
 
-        setBlogs((payload.items ?? []).map(normalizeBlog));
+        const rawItems = payload.items ?? [];
+        const items =
+          selectedCategory === ALL_CATEGORY_ID
+            ? filterPublishedBlogs(rawItems)
+            : rawItems;
+
+        setBlogs(items.map(normalizeBlog));
         setTotalPages(Math.max(1, payload.meta?.totalPages ?? 1));
       } catch (err) {
         if (ignore) return;
