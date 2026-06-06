@@ -61,11 +61,11 @@ function EventExplorer({
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, amount: 0.15 }}
-            className="grid grid-cols-12 gap-4"
+            className="grid grid-cols-12 items-stretch gap-4"
         >
             <motion.aside
                 variants={asideLeftVariants}
-                className="col-span-12 lg:col-span-3"
+                className="col-span-12 lg:col-span-3 lg:self-stretch"
             >
                 <EventFilters onApply={onApply} />
             </motion.aside>
@@ -73,10 +73,9 @@ function EventExplorer({
             <motion.section
                 variants={contentRightVariants}
                 className="
-          col-span-12 rounded-[28px] border border-(--border-color)
-          bg-(--card-surface-color)
-          p-4 shadow-[0_20px_70px_rgba(0,0,0,0.24)]
-          backdrop-blur-xl lg:col-span-9
+          col-span-12 flex h-full flex-col rounded-[28px] border
+          border-(--border-color) bg-(--card-surface-color) p-4
+          shadow-[0_20px_70px_rgba(0,0,0,0.24)] backdrop-blur-xl lg:col-span-9
         "
             >
                 <EventFilterBar
@@ -87,7 +86,7 @@ function EventExplorer({
 
                 <motion.div
                     variants={staggerContainerVariants}
-                    className="grid grid-cols-1 mt-6 gap-x-3 gap-y-4 md:grid-cols-2 xl:grid-cols-3"
+                    className="mt-6 grid flex-1 grid-cols-1 content-start gap-x-3 gap-y-4 md:grid-cols-2 xl:grid-cols-3"
                 >
                     {loading ? (
                         Array.from({ length: 6 }).map((_, index) => (
@@ -133,13 +132,21 @@ function EventExplorer({
                     )}
                 </motion.div>
 
-                <motion.div variants={fadeUpVariants} className="mt-8">
-                    <EventPagination
-                        currentPage={currentPage}
-                        totalPages={totalPages}
-                        onPageChange={onPageChange}
-                    />
-                </motion.div>
+                {totalPages > 1 && (
+                    <motion.div
+                        variants={fadeUpVariants}
+                        initial="hidden"
+                        whileInView="show"
+                        viewport={{ once: true, amount: 0.2 }}
+                        className="mt-auto shrink-0 pt-6"
+                    >
+                        <EventPagination
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPageChange={onPageChange}
+                        />
+                    </motion.div>
+                )}
             </motion.section>
         </motion.div>
     );
