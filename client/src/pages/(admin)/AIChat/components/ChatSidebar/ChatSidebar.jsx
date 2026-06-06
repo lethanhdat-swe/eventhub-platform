@@ -1,4 +1,6 @@
-import { Loader2, Plus } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+
+import { AdminErrorState } from '@/pages/(admin)/components/table';
 
 import ChatSearch from './ChatSearch';
 import ChatSessionItem from './ChatSessionItem';
@@ -52,16 +54,11 @@ function ChatSidebar({
 
             <div className="mt-4 min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
                 {error ? (
-                    <div className="space-y-2 rounded-xl border border-destructive/25 bg-destructive/5 p-4 text-sm text-destructive">
-                        <p>{error}</p>
-                        <button
-                            type="button"
-                            onClick={() => onRetry()}
-                            className="rounded-lg border border-destructive/30 bg-background px-2.5 py-1 text-xs font-medium text-destructive transition hover:bg-destructive/10"
-                        >
-                            Thử lại
-                        </button>
-                    </div>
+                    <AdminErrorState
+                        message={error}
+                        onRetry={onRetry}
+                        compact
+                    />
                 ) : isLoading ? (
                     <div className="flex h-full items-center justify-center rounded-xl border border-dashed">
                         <Loader2

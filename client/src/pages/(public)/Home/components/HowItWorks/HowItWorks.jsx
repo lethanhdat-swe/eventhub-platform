@@ -49,11 +49,11 @@ const highlights = [
     label: 'Vé điện tử',
   },
   {
-    value: 'Online',
+    value: 'Trực tuyến',
     label: 'Đặt vé nhanh',
   },
   {
-    value: 'Fast',
+    value: 'Nhanh',
     label: 'Check-in tiện lợi',
   },
 ];
@@ -68,7 +68,7 @@ function HowItWorks() {
             className="mb-5 inline-flex items-center gap-2 rounded-full border border-(--primary-color)/20 bg-(--primary-color)/10 px-4 py-2 text-sm font-bold text-(--primary-color)"
           >
             <Sparkles size={16} />
-            Cách EventHub hoạt động
+            Cách Beetic hoạt động
           </motion.div>
 
           <motion.h2
@@ -82,7 +82,7 @@ function HowItWorks() {
             variants={fadeUpVariants}
             className="mt-5 max-w-lg text-sm leading-7 text-(--muted-text) md:text-base"
           >
-            EventHub giúp bạn tìm sự kiện phù hợp, đặt vé online và sử dụng vé
+            Beetic giúp bạn tìm sự kiện phù hợp, đặt vé online và sử dụng vé
             điện tử để tham gia sự kiện một cách nhanh chóng.
           </motion.p>
 

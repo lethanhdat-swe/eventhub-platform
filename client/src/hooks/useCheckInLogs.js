@@ -4,13 +4,14 @@ import { getErrorMessage } from '@/lib/http/apiError';
 import { checkInLogService } from '@/lib/services/admin/checkInLogService';
 import { eventService } from '@/lib/services/admin/eventService';
 import { CHECKIN_LOG_STATUS_LABELS } from '@/pages/(admin)/CheckInLogs/data';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 
 const PAGE_SIZE = 10;
 
 export function useCheckInLogs({ sortBy, sortOrder } = {}) {
   const [logs, setLogs] = useState([]);
   const [searchInput, setSearchInput] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const debouncedSearch = useDebouncedValue(searchInput.trim(), 300);
   const [eventFilter, setEventFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
 
@@ -42,14 +43,6 @@ export function useCheckInLogs({ sortBy, sortOrder } = {}) {
     ],
     []
   );
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(searchInput.trim());
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [searchInput]);
 
   useEffect(() => {
     setPage(1);

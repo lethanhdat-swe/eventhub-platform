@@ -27,7 +27,7 @@ export default function ChatPromptConfigCard({
           </p>
 
           <p className="mt-0.5 text-xs text-gray-600">
-            Hướng dẫn trợ lý EventHub về đặt vé, thanh toán, vé QR và hoàn vé
+            Hướng dẫn trợ lý Beetic về đặt vé, thanh toán, vé QR và hoàn vé
           </p>
         </div>
       </div>
@@ -44,7 +44,7 @@ export default function ChatPromptConfigCard({
         ref={textareaRef}
         value={prompt}
         onChange={(e) => setPrompt(e.target.value)}
-        placeholder="Nhập system prompt cho EventHub AI..."
+        placeholder="Nhập system prompt cho trợ lý Beetic..."
         className="min-h-40 w-full resize-y rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm leading-relaxed text-gray-800 outline-none transition-colors placeholder:text-gray-400 focus:border-gray-400"
       />
 

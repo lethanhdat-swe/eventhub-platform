@@ -115,10 +115,10 @@ function OrderCard({ order }) {
                     </p>
                 ) : null}
 
-                <div className="flex items-center justify-between pt-3 sm:pt-4 border-t border-(--text-primary)/10">
-                    <p className="text-sm text-(--text-primary)">
+                <div className="flex min-w-0 items-center justify-between gap-2 border-t border-(--text-primary)/10 pt-3 sm:pt-4">
+                    <p className="min-w-0 text-sm text-(--text-primary)">
                         Mã đơn:
-                        <span className="ml-2 text-(--text-primary)">
+                        <span className="ml-2 truncate break-all text-(--text-primary)">
                             {order.ticketCode}
                         </span>
                     </p>

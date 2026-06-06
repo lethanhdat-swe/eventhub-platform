@@ -13,7 +13,7 @@ function EventHeroSection({
     <section className="relative overflow-hidden rounded-3xl border border-(--primary-color)/20 bg-[#050816] shadow-[0_0_48px_rgba(168,85,247,0.12)]">
       <img
         src={bannerUrl}
-        alt={event.title ?? 'Event banner'}
+        alt={event.title ?? 'Banner sự kiện'}
         className="absolute inset-0 object-cover w-full h-full opacity-45"
       />
 
@@ -29,7 +29,7 @@ function EventHeroSection({
 
         <div>
           <p className="mb-3 text-sm font-semibold uppercase tracking-[0.28em] text-(--primary-color)">
-            EventHub Ticket Pass
+            Vé Beetic
           </p>
 
           <h1 className="max-w-3xl text-3xl font-bold text-white sm:text-5xl">

@@ -38,8 +38,10 @@ export const errorMiddleware = (
                 message = `Duplicate value. Please use another value.`;
                 errorDetail = {
                     code: err.code,
-                    message: (err as any)?.meta?.driverAdapterError.cause
-                        .originalMessage,
+                    message:
+                        (err as any)?.meta?.driverAdapterError?.cause
+                            ?.originalMessage ??
+                        `Duplicate value on ${field}.`,
                 };
                 break;
             case "P2025":

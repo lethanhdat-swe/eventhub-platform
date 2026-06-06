@@ -21,7 +21,7 @@ function PaymentMethods() {
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-2 text-sm font-medium text-(--muted-text)">
           <Copyright size={15} />
-          <p>2026 EventHub. Đã đăng ký bản quyền.</p>
+          <p>2026 Beetic. Đã đăng ký bản quyền.</p>
         </div>
 
         {/* justify-start mobile, tự align-right theo flex-row trên md */}

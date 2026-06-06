@@ -6,66 +6,26 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 
-export const moneyFormatter = new Intl.NumberFormat('vi-VN', {
-  style: 'currency',
-  currency: 'VND',
-  maximumFractionDigits: 0,
-});
+import {
+  dateOnlyFormatter,
+  dateTimeFormatter,
+  formatDateTime,
+  formatEventDate,
+  formatMoney,
+  moneyFormatter,
+} from '@/utils/formatters';
 
-export const dateTimeFormatter = new Intl.DateTimeFormat('vi-VN', {
-  day: '2-digit',
-  month: '2-digit',
-  year: 'numeric',
-  hour: '2-digit',
-  minute: '2-digit',
-});
-
-export const dateFormatter = new Intl.DateTimeFormat('vi-VN', {
-  day: '2-digit',
-  month: '2-digit',
-  year: 'numeric',
-});
+export {
+  dateOnlyFormatter as dateFormatter,
+  dateTimeFormatter,
+  formatDateTime,
+  formatEventDate,
+  formatMoney,
+  moneyFormatter,
+};
 
 export function getOrderPayload(payload) {
   return payload?.data ?? payload ?? null;
-}
-
-export function formatDateTime(value) {
-  if (!value) return '—';
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) return '—';
-
-  return dateTimeFormatter.format(date);
-}
-
-export function formatEventDate(startDate, endDate) {
-  if (!startDate) return 'Chưa cập nhật thời gian';
-
-  const startDateObj = new Date(startDate);
-
-  if (Number.isNaN(startDateObj.getTime())) {
-    return 'Thời gian không hợp lệ';
-  }
-
-  const start = dateFormatter.format(startDateObj);
-
-  if (!endDate) return start;
-
-  const endDateObj = new Date(endDate);
-
-  if (Number.isNaN(endDateObj.getTime())) return start;
-
-  const end = dateFormatter.format(endDateObj);
-
-  return start === end ? start : `${start} - ${end}`;
-}
-
-export function formatMoney(value) {
-  if (value == null) return '—';
-
-  return moneyFormatter.format(Number(value || 0));
 }
 
 export function getSeatLabel(ticket) {

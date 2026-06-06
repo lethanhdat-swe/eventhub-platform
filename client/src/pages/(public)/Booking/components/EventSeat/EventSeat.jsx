@@ -20,7 +20,7 @@ function EventSeat({
       <div className={isEnded ? 'col-span-12' : 'col-span-12 lg:col-span-8'}>
         {isLoading ? (
           <div className="rounded-xl border border-(--text-primary)/10 bg-(--background-color)/90 p-5">
-            <p className="text-(--text-primary)/60">Loading seat map...</p>
+            <p className="text-(--text-primary)/60">Đang tải sơ đồ ghế...</p>
           </div>
         ) : (
           <PublicSeatMap

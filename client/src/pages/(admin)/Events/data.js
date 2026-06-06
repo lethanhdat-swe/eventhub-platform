@@ -10,45 +10,14 @@ export const ARTIST_ROLE_LABELS = {
   SINGER: 'Ca sĩ',
   DJ: 'DJ',
   GUEST: 'Khách mời',
-  HOST: 'MC / Host',
+  HOST: 'MC / Người dẫn chương trình',
 };
 
-const dateFormatter = new Intl.DateTimeFormat('vi-VN', {
-  day: '2-digit',
-  month: '2-digit',
-  year: 'numeric',
-});
-
-const dateTimeFormatter = new Intl.DateTimeFormat('vi-VN', {
-  day: '2-digit',
-  month: '2-digit',
-  year: 'numeric',
-  hour: '2-digit',
-  minute: '2-digit',
-});
-
-export function formatEventDateRange(startDate, endDate) {
-  if (!startDate && !endDate) return '—';
-
-  const start = startDate ? dateFormatter.format(new Date(startDate)) : null;
-  const end = endDate ? dateFormatter.format(new Date(endDate)) : null;
-
-  if (start && end && start !== end) {
-    return `${start} – ${end}`;
-  }
-
-  return start || end || '—';
-}
-
-export function formatCreatedAt(date) {
-  if (!date) return '—';
-  return dateFormatter.format(new Date(date));
-}
-
-export function formatDateTime(date) {
-  if (!date) return '—';
-  return dateTimeFormatter.format(new Date(date));
-}
+export {
+  formatDateOnly as formatCreatedAt,
+  formatDateTime,
+  formatEventDateRange,
+} from '@/utils/formatters';
 
 export function mapEventRow(row) {
   return {

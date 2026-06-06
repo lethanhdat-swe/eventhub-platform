@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -272,7 +273,14 @@ function BlogForm({
           className="cursor-pointer h-9"
           disabled={formBusy}
         >
-          {formBusy ? 'Đang xử lý…' : submitLabel}
+          {formBusy ? (
+            <>
+              <Loader2 className="animate-spin" />
+              Đang xử lý…
+            </>
+          ) : (
+            submitLabel
+          )}
         </Button>
       </div>
     </form>

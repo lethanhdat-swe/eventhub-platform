@@ -36,7 +36,7 @@ function EventAbout({ event }) {
             <div>
               <p className="mb-2 flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-(--primary-color)">
                 <UserRound size={15} />
-                Line-up
+                Danh sách trình diễn
               </p>
 
               <h3 className="text-2xl font-black tracking-tight text-(--text-primary)">
@@ -76,7 +76,7 @@ function EventAbout({ event }) {
 
                   <div className="absolute bottom-0 left-0 right-0 p-4">
                     <span className="mb-2 inline-flex rounded-full bg-(--primary-color) px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.14em] text-white">
-                      {item.role || 'ARTIST'}
+                      {item.role || 'Nghệ sĩ'}
                     </span>
 
                     <h4 className="text-lg font-black leading-tight text-white line-clamp-2">

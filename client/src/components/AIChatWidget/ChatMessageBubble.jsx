@@ -21,7 +21,7 @@ function ChatMessageBubble({
       <div className="max-w-[84%]">
         {isAdmin ? (
           <p className="mb-1 text-[11px] font-medium text-emerald-400/90">
-            Admin EventHub
+            Admin Beetic
           </p>
         ) : null}
 

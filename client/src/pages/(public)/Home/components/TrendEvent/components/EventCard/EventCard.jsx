@@ -17,7 +17,7 @@ function EventCard({ event }) {
 
   const day = startDate.getDate().toString().padStart(2, '0');
   const month = startDate
-    .toLocaleString('en-US', { month: 'short' })
+    .toLocaleString('vi-VN', { month: 'short' })
     .toUpperCase();
 
   const timeLabel = startDate.toLocaleTimeString('vi-VN', {
@@ -130,7 +130,7 @@ function EventCard({ event }) {
             <span className="line-clamp-1">{event.location}</span>
           </div>
 
-          <div className="flex items-center justify-between gap-3 mt-5">
+          <div className="mt-5 flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
             {/* Engagement */}
             <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-white/10 text-white/75 backdrop-blur-md ring-1 ring-white/10">
               <Stat icon={<Heart size={14} />} value={likeCount} />

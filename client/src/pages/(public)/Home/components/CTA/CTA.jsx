@@ -82,14 +82,14 @@ function HomeCTA() {
             "
           >
             <Sparkles size={14} />
-            Khám phá cùng EventHub
+            Khám phá cùng Beetic
           </motion.div>
 
           <motion.h2
             variants={fadeUpVariants}
             className="text-3xl leading-tight font-black tracking-tight text-(--text-primary) md:text-5xl"
           >
-            Cùng EventHub tìm trải nghiệm tiếp theo của bạn
+            Cùng Beetic tìm trải nghiệm tiếp theo của bạn
           </motion.h2>
 
           <motion.p

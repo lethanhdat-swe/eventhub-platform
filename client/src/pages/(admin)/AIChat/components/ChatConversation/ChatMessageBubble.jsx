@@ -23,12 +23,12 @@ function ChatMessageBubble({ message }) {
       >
         {isAdmin ? (
           <span className="mb-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
-            Hỗ trợ EventHub
+            Hỗ trợ Beetic
           </span>
         ) : null}
 
         <div
-          className={`rounded-2xl px-4 py-2.5 text-sm leading-6 ${
+          className={`break-words rounded-2xl px-4 py-2.5 text-sm leading-6 ${
             isUser
               ? 'rounded-bl-sm border bg-card text-foreground'
               : isAssistant

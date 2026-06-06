@@ -77,7 +77,7 @@ function RefundActionDialog({
                                 <span className="text-muted-foreground">
                                     Ngân hàng
                                 </span>
-                                <span>
+                                <span className="break-all font-medium">
                                     {refund.bankName} -{' '}
                                     {refund.bankAccountNumber}
                                 </span>
@@ -99,7 +99,7 @@ function RefundActionDialog({
                     ) : null}
                 </div>
 
-                <DialogFooter className="flex flex-row items-center justify-between gap-2 mx-0 mb-0 flex-nowrap">
+                <DialogFooter className="mx-0 mb-0 flex flex-col-reverse gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
                     <Button
                         type="button"
                         variant="outline"

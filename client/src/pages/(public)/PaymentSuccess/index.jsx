@@ -25,7 +25,7 @@ function PaymentSuccessPage() {
         </div>
 
         <p className="mt-6 text-sm font-semibold uppercase tracking-[0.22em] text-(--primary-color)">
-          Payment Completed
+          Thanh toán hoàn tất
         </p>
         <h1 className="mt-3 text-3xl font-bold tracking-tight text-(--text-primary) lg:text-4xl">
           Thanh toán thành công
@@ -45,7 +45,7 @@ function PaymentSuccessPage() {
                   {orderLabel}
                 </p>
                 <p className="mt-1 break-all font-mono text-base font-bold text-(--text-primary)">
-                  {displayOrderId ?? 'N/A'}
+                  {displayOrderId ?? '—'}
                 </p>
               </div>
             </div>

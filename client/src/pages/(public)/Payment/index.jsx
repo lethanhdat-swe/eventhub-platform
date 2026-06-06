@@ -11,6 +11,7 @@ import OrderSummarySection from './components/OrderSummarySection/OrderSummarySe
 import PaymentActionSection from './components/PaymentActionSection/PaymentActionSection';
 import PaymentHero from './components/PaymentHero/PaymentHero';
 import PaymentMethodSection from './components/PaymentMethodSection/PaymentMethodSection';
+import { validateCustomerInfo } from '@/utils/formValidation';
 import { isEventEnded } from '@/utils/eventDate';
 
 const EMPTY_SELECTED_SEATS = [];
@@ -39,7 +40,7 @@ function groupTicketItems(selectedSeats) {
     const map = new Map();
 
     selectedSeats.forEach((seat) => {
-        const ticketName = seat.ticketType?.name ?? 'Ticket';
+        const ticketName = seat.ticketType?.name ?? 'Vé';
         const ticketColor = seat.ticketType?.color ?? 'var(--primary-color)';
         const price = Number(seat.ticketType?.price ?? 0);
         const key = `${ticketName}-${price}`;
@@ -175,6 +176,17 @@ function Payment() {
             setSubmitError(
                 'Vui lòng cập nhật đầy đủ họ tên, email và số điện thoại.'
             );
+            return;
+        }
+
+        const customerErrors = validateCustomerInfo({
+            name: customerInfo.name,
+            email: customerInfo.email,
+            phone: customerInfo.phone,
+        });
+        const customerErrorMessages = Object.values(customerErrors);
+        if (customerErrorMessages.length > 0) {
+            setSubmitError(customerErrorMessages.join(' '));
             return;
         }
 

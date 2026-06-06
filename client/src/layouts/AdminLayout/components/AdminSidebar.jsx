@@ -34,7 +34,7 @@ function AdminSidebar({ open, onClose }) {
                         <span className="flex size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                             <CalendarDays className="size-4" />
                         </span>
-                        <span className="text-sm">Quản trị EventHub</span>
+                        <span className="text-sm">Quản trị Beetic</span>
                     </NavLink>
                 </div>
 

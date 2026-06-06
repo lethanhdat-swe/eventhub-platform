@@ -5,7 +5,9 @@ import { toast } from 'sonner';
 
 import { getErrorMessage } from '@/lib/http/apiError';
 import { refundService } from '@/lib/services/admin/refundService';
+import { isValidEmail, isValidPhone } from '@/utils/formValidation';
 import { useAuthStore } from '@/stores/authStore';
+import { formatCurrencyIntl } from '@/utils/formatters';
 
 const initialForm = {
     orderCode: '',
@@ -27,11 +29,7 @@ function getOrderValue(order, keyList) {
 }
 
 function formatCurrency(value) {
-    return new Intl.NumberFormat('vi-VN', {
-        style: 'currency',
-        currency: 'VND',
-        maximumFractionDigits: 0,
-    }).format(Number(value || 0));
+    return formatCurrencyIntl(value);
 }
 
 function buildInitialForm(order) {
@@ -62,6 +60,7 @@ function Field({
     required,
     readOnly,
     type = 'text',
+    error,
 }) {
     return (
         <label className="block">
@@ -77,8 +76,14 @@ function Field({
                 readOnly={readOnly}
                 onChange={onChange}
                 placeholder={placeholder}
+                aria-invalid={Boolean(error)}
                 className="h-11 w-full rounded-xl border border-(--border-color) bg-(--soft-surface-color) px-3.5 text-sm text-(--text-primary) outline-none transition placeholder:text-(--muted-text) focus:border-(--primary-color) read-only:cursor-not-allowed read-only:opacity-70"
             />
+            {error ? (
+                <p className="mt-1.5 text-xs text-red-400" role="alert">
+                    {error}
+                </p>
+            ) : null}
         </label>
     );
 }
@@ -132,11 +137,13 @@ function RefundRequestDialog({
 }) {
     const [form, setForm] = useState(initialForm);
     const [submitting, setSubmitting] = useState(false);
+    const [fieldErrors, setFieldErrors] = useState({});
     const hasOrder = Boolean(order);
 
     useEffect(() => {
         if (open) {
             setForm(buildInitialForm(order));
+            setFieldErrors({});
         }
     }, [open, order]);
 
@@ -156,9 +163,11 @@ function RefundRequestDialog({
             ...prev,
             [name]: value,
         }));
+        setFieldErrors((prev) => ({ ...prev, [name]: '' }));
     }
 
     function validateForm() {
+        const errors = {};
         const requiredFields = [
             ['orderCode', 'Mã đơn hàng'],
             ['customerName', 'Họ tên'],
@@ -171,26 +180,31 @@ function RefundRequestDialog({
 
         for (const [key, label] of requiredFields) {
             if (!String(form[key] || '').trim()) {
-                return `${label} không được để trống`;
+                errors[key] = `${label} không được để trống.`;
             }
         }
 
-        if (!/^\S+@\S+\.\S+$/.test(form.customerEmail.trim())) {
-            return 'Email không hợp lệ';
+        if (!errors.customerEmail && !isValidEmail(form.customerEmail)) {
+            errors.customerEmail = 'Email không hợp lệ.';
         }
 
-        return '';
+        if (!errors.customerPhone && !isValidPhone(form.customerPhone)) {
+            errors.customerPhone = 'Số điện thoại cần 10–11 chữ số.';
+        }
+
+        return errors;
     }
 
     async function handleSubmit(event) {
         event.preventDefault();
 
-        const validationMessage = validateForm();
-        if (validationMessage) {
-            toast.error(validationMessage);
+        const validationErrors = validateForm();
+        if (Object.keys(validationErrors).length > 0) {
+            setFieldErrors(validationErrors);
             return;
         }
 
+        setFieldErrors({});
         setSubmitting(true);
 
         try {
@@ -308,6 +322,7 @@ function RefundRequestDialog({
                                     placeholder="Nhập mã đơn hàng"
                                     required
                                     readOnly={hasOrder}
+                                    error={fieldErrors.orderCode}
                                 />
 
                                 <Field
@@ -317,6 +332,7 @@ function RefundRequestDialog({
                                     onChange={handleChange}
                                     placeholder="Nhập họ tên"
                                     required
+                                    error={fieldErrors.customerName}
                                 />
 
                                 <Field
@@ -325,8 +341,9 @@ function RefundRequestDialog({
                                     type="email"
                                     value={form.customerEmail}
                                     onChange={handleChange}
-                                    placeholder="email@example.com"
+                                    placeholder="email@vidu.com"
                                     required
+                                    error={fieldErrors.customerEmail}
                                 />
 
                                 <Field
@@ -336,6 +353,7 @@ function RefundRequestDialog({
                                     onChange={handleChange}
                                     placeholder="Nhập số điện thoại"
                                     required
+                                    error={fieldErrors.customerPhone}
                                 />
                             </div>
                         </div>
@@ -353,6 +371,7 @@ function RefundRequestDialog({
                                     onChange={handleChange}
                                     placeholder="VD: Vietcombank"
                                     required
+                                    error={fieldErrors.bankName}
                                 />
 
                                 <Field
@@ -362,6 +381,7 @@ function RefundRequestDialog({
                                     onChange={handleChange}
                                     placeholder="Nhập số tài khoản"
                                     required
+                                    error={fieldErrors.bankAccountNumber}
                                 />
 
                                 <div className="sm:col-span-2">
@@ -370,8 +390,9 @@ function RefundRequestDialog({
                                         name="bankAccountHolder"
                                         value={form.bankAccountHolder}
                                         onChange={handleChange}
-                                        placeholder="VD: LE THANH DAT"
+                                        placeholder="VD: NGUYEN VAN A"
                                         required
+                                        error={fieldErrors.bankAccountHolder}
                                     />
                                 </div>
 

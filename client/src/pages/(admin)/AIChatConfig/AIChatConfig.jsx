@@ -54,7 +54,7 @@ function AIChatConfig() {
     <div className="space-y-2">
       <PageHeader
         title="Quản lý cấu hình AI chat"
-        description="Cấu hình mô hình và system prompt cho trợ lý EventHub AI"
+        description="Cấu hình mô hình và system prompt cho trợ lý Beetic"
       />
 
       <AIChatConfigForm

@@ -8,6 +8,8 @@ import {
 } from '@/constants/motion';
 import { motion } from 'motion/react';
 
+import PublicStatePanel from '@/components/PublicStatePanel/PublicStatePanel';
+
 import EventFilterBar from './components/EventFilterBar/EventFilterBar';
 import EventFilters from './components/EventFilters/EventFilters';
 
@@ -44,6 +46,7 @@ const contentRightVariants = {
 function EventExplorer({
   events = [],
   loading = false,
+  hasError = false,
   currentPage,
   totalPages,
   onPageChange,
@@ -117,18 +120,12 @@ function EventExplorer({
                 </motion.div>
               );
             })
-          ) : (
-            <motion.div
-              variants={fadeInVariants}
-              className="
-                col-span-full flex min-h-65 items-center justify-center
-                rounded-[24px] border border-dashed border-(--border-color)
-                bg-(--soft-surface-color)
-              "
-            >
-              <p className="text-center text-sm font-medium text-(--muted-text)">
-                Không tìm thấy sự kiện phù hợp.
-              </p>
+          ) : hasError ? null : (
+            <motion.div variants={fadeInVariants} className="col-span-full">
+              <PublicStatePanel
+                title="Không tìm thấy sự kiện"
+                description="Thử đổi bộ lọc hoặc từ khóa tìm kiếm để xem thêm kết quả."
+              />
             </motion.div>
           )}
         </motion.div>

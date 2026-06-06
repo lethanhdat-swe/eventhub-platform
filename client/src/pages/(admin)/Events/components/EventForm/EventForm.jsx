@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -162,7 +163,7 @@ function EventForm({
                                 required
                             />
                         </FormField>
-                        <FormField label="Slug" htmlFor="slug">
+                        <FormField label="Đường dẫn (slug)" htmlFor="slug">
                             <Input
                                 id="slug"
                                 name="slug"
@@ -435,7 +436,7 @@ function EventForm({
             {!isCreate && form.id ? (
                 <Card size="sm">
                     <CardHeader className="pb-3 border-b">
-                        <CardTitle>Sơ đồ ghế (Event Seats)</CardTitle>
+                        <CardTitle>Sơ đồ ghế</CardTitle>
                     </CardHeader>
                     <CardContent className="pt-3 space-y-3">
                         <EventSeats eventId={form.id} />
@@ -473,7 +474,14 @@ function EventForm({
                     className="cursor-pointer h-9"
                     disabled={formBusy}
                 >
-                    {formBusy ? 'Đang xử lý…' : submitLabel}
+                    {formBusy ? (
+                        <>
+                            <Loader2 className="animate-spin" />
+                            Đang xử lý…
+                        </>
+                    ) : (
+                        submitLabel
+                    )}
                 </Button>
             </div>
         </form>

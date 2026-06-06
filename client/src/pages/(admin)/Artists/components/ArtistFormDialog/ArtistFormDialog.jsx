@@ -138,6 +138,7 @@ function ArtistFormDialog({
                 }}
                 placeholder="Ví dụ: Sơn Tùng M-TP"
                 className="h-9"
+                disabled={submitting || uploadBusy}
                 aria-invalid={Boolean(nameError)}
               />
               {nameError ? (
@@ -160,6 +161,7 @@ function ArtistFormDialog({
                 }}
                 placeholder="son-tung-m-tp"
                 className="h-9"
+                disabled={submitting || uploadBusy}
               />
               <p className="text-xs text-muted-foreground">
                 Để trống để hệ thống tạo từ tên (khi thêm mới).
@@ -198,6 +200,7 @@ function ArtistFormDialog({
                 }
                 placeholder="Giới thiệu ngắn về nghệ sĩ"
                 rows={3}
+                disabled={submitting || uploadBusy}
                 className="resize-y min-h-18"
               />
             </div>

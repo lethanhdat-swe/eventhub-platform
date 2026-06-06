@@ -6,7 +6,7 @@ const SUPPORT_DATA = [
     Icon: MessageSquareText,
     title: 'Phản hồi nhanh',
     description:
-      'Đội ngũ EventHub sẽ tiếp nhận và phản hồi yêu cầu của bạn trong thời gian sớm nhất.',
+      'Đội ngũ Beetic sẽ tiếp nhận và phản hồi yêu cầu của bạn trong thời gian sớm nhất.',
   },
   {
     id: 2,
@@ -48,7 +48,7 @@ function ContactSupport() {
               </p>
 
               <h2 className="max-w-xl text-2xl sm:text-3xl md:text-4xl font-black leading-tight tracking-[-0.04em] text-(--text-primary)">
-                EventHub luôn sẵn sàng
+                Beetic luôn sẵn sàng
                 <br />
                 <span className="bg-linear-to-r from-[#f0abfc] via-[#c084fc] to-[#9333ea] bg-clip-text text-transparent">
                   hỗ trợ bạn

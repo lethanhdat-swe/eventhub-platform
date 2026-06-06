@@ -1,10 +1,10 @@
 import { Banknote, CalendarDays, ScanLine, Ticket } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 
-import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getErrorMessage } from '@/lib/http/apiError';
 import { dashboardService } from '@/lib/services/admin/dashboardService';
+import { AdminErrorState } from '@/pages/(admin)/components/table';
 import PageHeader from '@/pages/(admin)/components/PageHeader';
 import StatsCard from '@/pages/(admin)/components/StatsCard';
 import DashboardDatePicker from '@/pages/(admin)/Dashboard/components/DashboardDatePicker';
@@ -80,23 +80,7 @@ function Dashboard() {
         />
       </div>
 
-      {error ? (
-        <div
-          className="flex flex-col gap-2 px-3 py-2 border rounded-lg border-destructive/25 bg-destructive/5 sm:flex-row sm:items-center sm:justify-between"
-          role="alert"
-        >
-          <p className="text-sm text-destructive">{error}</p>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="h-8 shrink-0"
-            onClick={loadDashboard}
-          >
-            Thử lại
-          </Button>
-        </div>
-      ) : null}
+      <AdminErrorState message={error} onRetry={loadDashboard} />
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {isLoading && stats.length === 0

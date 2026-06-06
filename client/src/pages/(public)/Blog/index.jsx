@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 
 import { images } from '@/assets';
 import Pagination from '@/components/Pagination/Pagination';
+import PublicStatePanel from '@/components/PublicStatePanel/PublicStatePanel';
 import {
   fadeInVariants,
   fadeUpVariants,
@@ -35,7 +36,7 @@ function normalizeBlog(blog) {
   return {
     ...blog,
     id: blog.id,
-    category: blog.category?.name ?? 'Uncategorized',
+    category: blog.category?.name ?? 'Chưa phân loại',
     date: formatBlogDate(blog.publishedAt ?? blog.createdAt),
     excerpt: blog.excerpt ?? '',
     image:
@@ -54,6 +55,7 @@ function Blog() {
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [reloadToken, setReloadToken] = useState(0);
 
   const filterCategories = useMemo(
     () => [
@@ -119,7 +121,11 @@ function Blog() {
     return () => {
       ignore = true;
     };
-  }, [currentPage, selectedCategory]);
+  }, [currentPage, selectedCategory, reloadToken]);
+
+  const handleRetry = () => {
+    setReloadToken((token) => token + 1);
+  };
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -169,13 +175,12 @@ function Blog() {
               y: motionTransition.smooth,
               opacity: motionTransition.opacity,
             }}
-            className="
-              flex min-h-55 items-center justify-center rounded-[24px]
-              border border-dashed border-red-400/30 bg-red-400/5
-              px-5 text-center
-            "
           >
-            <p className="text-sm font-semibold text-red-400">{error}</p>
+            <PublicStatePanel
+              variant="error"
+              description={error}
+              onRetry={handleRetry}
+            />
           </motion.div>
         ) : blogs.length > 0 ? (
           <motion.div
@@ -209,20 +214,11 @@ function Blog() {
             })}
           </motion.div>
         ) : (
-          <motion.div
-            variants={fadeInVariants}
-            initial="hidden"
-            animate="show"
-            className="
-              flex min-h-55 items-center justify-center rounded-[24px]
-              border border-dashed border-(--border-color)
-              bg-(--soft-surface-color)
-              px-5 text-center
-            "
-          >
-            <p className="text-sm font-medium text-(--muted-text)">
-              No blogs found.
-            </p>
+          <motion.div variants={fadeInVariants} initial="hidden" animate="show">
+            <PublicStatePanel
+              title="Không tìm thấy bài viết"
+              description="Chưa có bài viết trong danh mục này. Hãy thử chọn danh mục khác."
+            />
           </motion.div>
         )}
 

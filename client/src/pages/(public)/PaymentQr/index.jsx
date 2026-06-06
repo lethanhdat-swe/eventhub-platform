@@ -9,17 +9,29 @@ import {
   Clock,
   Copy,
   CreditCard,
+  Loader2,
   QrCode,
 } from 'lucide-react';
 
 import usePaymentOrderSocket from '@/hooks/usePaymentOrderSocket';
 import { orderService } from '@/lib/services/admin';
 import { paymentService } from '@/lib/services/payment';
+import { formatVndAmount } from '@/utils/formatters';
+import PublicStatePanel from '@/components/PublicStatePanel/PublicStatePanel';
 
 const COUNTDOWN_SECONDS = 15 * 60;
 
+const ORDER_STATUS_LABELS = {
+  PENDING: 'Đang chờ thanh toán',
+  PAID: 'Đã thanh toán',
+  CANCELLED: 'Đã hủy',
+  EXPIRED: 'Đã hết hạn',
+  REFUND_PENDING: 'Đang chờ hoàn tiền',
+  REFUNDED: 'Đã hoàn tiền',
+};
+
 function formatCurrency(value) {
-  return `${Number(value || 0).toLocaleString('vi-VN')} đ`;
+  return formatVndAmount(value, { suffix: ' đ' });
 }
 
 function formatTime(seconds) {
@@ -90,8 +102,8 @@ function CopyButton({ value, copied, onCopy }) {
     >
       {copied ? <CheckCircle2 size={14} /> : <Copy size={14} />}
 
-      <span className="hidden xs:inline">
-        {copied ? 'Đã copy' : 'Sao chép'}
+      <span className="hidden sm:inline">
+        {copied ? 'Đã sao chép' : 'Sao chép'}
       </span>
     </button>
   );
@@ -113,6 +125,8 @@ function PaymentQrPage() {
     getRemainingSeconds(order)
   );
   const [copiedField, setCopiedField] = useState('');
+  const [isCheckingStatus, setIsCheckingStatus] = useState(false);
+  const [statusCheckError, setStatusCheckError] = useState(null);
 
   const hasPaymentInfo = Boolean(order && sepay);
 
@@ -189,55 +203,55 @@ function PaymentQrPage() {
     onExpired: handlePaymentExpired,
   });
 
+  const checkInitialOrderStatus = useCallback(async () => {
+    if (!order?.id || hasTerminalStatusRef.current) return;
+
+    setIsCheckingStatus(true);
+    setStatusCheckError(null);
+
+    try {
+      const latestOrder = await orderService.getDetail(order.id);
+
+      if (hasTerminalStatusRef.current) return;
+
+      if (latestOrder?.status === 'PAID') {
+        hasTerminalStatusRef.current = true;
+
+        navigate(`/payment-success/${order.id}`, {
+          replace: true,
+          state: {
+            order: latestOrder,
+            sepay,
+          },
+        });
+
+        return;
+      }
+
+      if (latestOrder?.status === 'CANCELLED') {
+        hasTerminalStatusRef.current = true;
+
+        navigate(`/payment-failed/${order.id}`, {
+          replace: true,
+          state: {
+            order: latestOrder,
+            sepay,
+          },
+        });
+      }
+    } catch (error) {
+      console.error('Failed to check initial payment status:', error);
+      setStatusCheckError('Không thể kiểm tra trạng thái thanh toán.');
+    } finally {
+      setIsCheckingStatus(false);
+    }
+  }, [navigate, order?.id, sepay]);
+
   useEffect(() => {
     if (!canPollOrder) return undefined;
 
-    let isMounted = true;
-
-    const checkInitialOrderStatus = async () => {
-      if (hasTerminalStatusRef.current) return;
-
-      try {
-        const latestOrder = await orderService.getDetail(order.id);
-
-        if (!isMounted || hasTerminalStatusRef.current) return;
-
-        if (latestOrder?.status === 'PAID') {
-          hasTerminalStatusRef.current = true;
-
-          navigate(`/payment-success/${order.id}`, {
-            replace: true,
-            state: {
-              order: latestOrder,
-              sepay,
-            },
-          });
-
-          return;
-        }
-
-        if (latestOrder?.status === 'CANCELLED') {
-          hasTerminalStatusRef.current = true;
-
-          navigate(`/payment-failed/${order.id}`, {
-            replace: true,
-            state: {
-              order: latestOrder,
-              sepay,
-            },
-          });
-        }
-      } catch (error) {
-        console.error('Failed to check initial payment status:', error);
-      }
-    };
-
-    checkInitialOrderStatus();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [canPollOrder, navigate, order?.id, sepay]);
+    void checkInitialOrderStatus();
+  }, [canPollOrder, checkInitialOrderStatus]);
 
   useEffect(() => {
     if (!hasPaymentInfo) return undefined;
@@ -318,27 +332,20 @@ function PaymentQrPage() {
   if (!hasPaymentInfo) {
     return (
       <div className="pt-(--header-height) mx-auto mb-8 flex min-h-[calc(100vh-var(--header-height))] w-full max-w-190 items-center px-4 sm:px-5 lg:px-8">
-        <section className="w-full rounded-3xl border border-(--text-primary)/10 bg-(--surface-color)/80 p-5 sm:p-6 text-center shadow-[0_24px_80px_rgba(0,0,0,0.10)] lg:p-8">
-          <div className="flex items-center justify-center mx-auto size-14 rounded-2xl bg-amber-500/10 text-amber-500">
-            <AlertCircle size={28} />
-          </div>
-
-          <h1 className="mt-5 text-xl sm:text-2xl font-bold text-(--text-primary)">
-            Không tìm thấy thông tin thanh toán
-          </h1>
-
-          <p className="mt-3 text-sm text-(--text-primary)/60">
-            Không tìm thấy thông tin thanh toán. Vui lòng quay lại trang đặt vé.
-          </p>
-
+        <PublicStatePanel
+          variant="error"
+          title="Không tìm thấy thông tin thanh toán"
+          description="Vui lòng quay lại trang đặt vé và thử lại."
+          className="w-full"
+        >
           <Link
             to="/booking"
-            className="mt-6 inline-flex items-center justify-center gap-2 rounded-2xl bg-(--primary-color) px-5 py-3 font-semibold text-white transition hover:opacity-90"
+            className="mt-4 inline-flex items-center justify-center gap-2 rounded-2xl bg-(--primary-color) px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90"
           >
             <ArrowLeft size={18} />
             Quay lại trang đặt vé
           </Link>
-        </section>
+        </PublicStatePanel>
       </div>
     );
   }
@@ -346,28 +353,44 @@ function PaymentQrPage() {
   return (
     <div className="pt-(--header-height) mx-auto mb-8 w-full max-w-330 px-4 sm:px-5 lg:px-8">
       <div className="flex flex-col gap-4 mt-4">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <Link
             to="/payment"
             state={state}
             className="inline-flex w-fit items-center gap-2 rounded-full border border-(--text-primary)/10 bg-(--surface-color)/60 px-4 py-2 text-sm font-medium text-(--text-primary)/70 transition hover:border-(--primary-color)/40 hover:text-(--primary-color)"
           >
             <ArrowLeft size={16} />
-            Quay lại PaymentPage
+            Quay lại trang thanh toán
           </Link>
 
           <div className="inline-flex w-fit items-center gap-2 rounded-full bg-(--primary-color)/10 px-3 py-1.5 text-sm font-semibold text-(--primary-color)">
             <QrCode size={16} />
-            SePay QR Transfer
+            Chuyển khoản QR SePay
           </div>
         </div>
+
+        {isCheckingStatus ? (
+          <div className="flex items-center gap-2 rounded-2xl border border-(--text-primary)/10 bg-(--surface-color)/60 px-4 py-3 text-sm text-(--text-primary)/70">
+            <Loader2 size={16} className="animate-spin shrink-0" />
+            Đang kiểm tra trạng thái thanh toán...
+          </div>
+        ) : null}
+
+        {statusCheckError ? (
+          <PublicStatePanel
+            variant="error"
+            title="Không thể kiểm tra trạng thái"
+            description={statusCheckError}
+            onRetry={checkInitialOrderStatus}
+          />
+        ) : null}
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8">
           <section className="lg:col-span-7 rounded-3xl border border-(--text-primary)/10 bg-(--surface-color)/80 p-4 sm:p-5 shadow-[0_24px_80px_rgba(0,0,0,0.10)] lg:p-6">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <p className="text-xs sm:text-sm font-semibold uppercase tracking-[0.2em] text-(--primary-color)">
-                  QR Payment
+                  Thanh toán QR
                 </p>
 
                 <h1 className="mt-2 text-xl sm:text-2xl font-bold text-(--text-primary)">
@@ -395,7 +418,7 @@ function PaymentQrPage() {
               <div className="rounded-[2rem] border border-gray-200 bg-white p-3 sm:p-4 shadow-[0_20px_60px_rgba(0,0,0,0.16)]">
                 <img
                   src={sepay.qrUrl}
-                  alt="Mã QR thanh toán EventHub"
+                  alt="Mã QR thanh toán Beetic"
                   className="object-contain w-56 h-56 rounded-2xl sm:h-64 sm:w-64 xl:h-80 xl:w-80"
                 />
               </div>
@@ -453,7 +476,7 @@ function PaymentQrPage() {
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="text-xs sm:text-sm font-semibold uppercase tracking-[0.2em] text-(--primary-color)">
-                    Payment Details
+                    Chi tiết thanh toán
                   </p>
 
                   <h2 className="mt-2 text-xl sm:text-2xl font-bold text-(--text-primary)">
@@ -540,15 +563,15 @@ function PaymentQrPage() {
                 {[
                   {
                     label: 'Sự kiện',
-                    value: order.event?.title ?? 'EventHub',
+                    value: order.event?.title ?? 'Beetic',
                     className:
-                      'max-w-[180px] sm:max-w-56 text-right font-semibold text-(--text-primary)',
+                      'max-w-[180px] truncate text-right font-semibold text-(--text-primary) sm:max-w-56',
                   },
                   {
                     label: 'Địa điểm',
-                    value: order.event?.location ?? 'N/A',
+                    value: order.event?.location ?? 'Chưa cập nhật',
                     className:
-                      'max-w-[180px] sm:max-w-56 text-right font-semibold text-(--text-primary)',
+                      'max-w-[180px] truncate text-right font-semibold text-(--text-primary) sm:max-w-56',
                   },
                   {
                     label: 'Thời gian',
@@ -560,13 +583,13 @@ function PaymentQrPage() {
                             timeStyle: 'short',
                           }
                         )
-                      : 'N/A',
+                      : 'Chưa cập nhật',
                     className: 'text-right font-semibold text-(--text-primary)',
                   },
                   {
                     label: 'Số lượng vé',
                     value:
-                      order.ticketCount ?? order.orderSeats?.length ?? 'N/A',
+                      order.ticketCount ?? order.orderSeats?.length ?? '—',
                     className: 'font-semibold text-(--text-primary)',
                   },
                   {
@@ -592,9 +615,7 @@ function PaymentQrPage() {
                   </span>
 
                   <span className="rounded-full bg-yellow-500/10 px-2.5 py-1 text-xs font-semibold text-yellow-500">
-                    {order.status === 'PENDING'
-                      ? 'Đang chờ thanh toán'
-                      : order.status}
+                    {ORDER_STATUS_LABELS[order.status] ?? order.status}
                   </span>
                 </div>
 

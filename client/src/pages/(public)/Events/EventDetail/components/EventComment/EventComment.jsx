@@ -1,5 +1,14 @@
-import { ImagePlus, LogIn, MessageCircle, Send, Star, X } from 'lucide-react';
+import {
+  ImagePlus,
+  Loader2,
+  LogIn,
+  MessageCircle,
+  Send,
+  Star,
+  X,
+} from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 import { commentService } from '@/lib/services/comment';
 import { uploadImages } from '@/lib/services/upload/uploadService';
@@ -127,9 +136,10 @@ function EventComment({
 
       onAddComment(newComment);
       setText('');
-      setRating(1);
+      setRating(5);
       setImages([]);
       setErrorMessage('');
+      toast.success('Đã gửi đánh giá.');
     } catch (error) {
       setErrorMessage(getErrorMessage(error));
       console.error('Failed to post comment:', error);
@@ -147,7 +157,7 @@ function EventComment({
 
   return (
     <section className="mt-6 border-t border-(--border-color) pt-6 sm:mt-8 sm:pt-8">
-      <div className="flex items-end justify-between gap-3 mb-4 sm:mb-5 sm:gap-4">
+      <div className="mb-4 flex flex-col items-start gap-2 sm:mb-5 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
         <div>
           <p className="mb-1.5 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-(--primary-color) sm:mb-2 sm:text-xs">
             <MessageCircle size={13} className="sm:hidden" />
@@ -160,7 +170,7 @@ function EventComment({
           </h2>
         </div>
 
-        <span className="whitespace-nowrap rounded-full border border-(--border-color) bg-(--soft-surface-color) px-2.5 py-1 text-[10px] font-bold text-(--muted-text) sm:px-3 sm:py-1.5 sm:text-xs">
+        <span className="self-start rounded-full border border-(--border-color) bg-(--soft-surface-color) px-2.5 py-1 text-[10px] font-bold text-(--muted-text) sm:self-auto sm:px-3 sm:py-1.5 sm:text-xs">
           {comments.length} bình luận
         </span>
       </div>
@@ -253,7 +263,7 @@ function EventComment({
                 </p>
               )}
 
-              <div className="flex items-center justify-between gap-3">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-2">
                   <input
                     ref={fileInputRef}
@@ -286,7 +296,11 @@ function EventComment({
                   disabled={!text.trim() || rating < 1 || loading}
                   className="flex cursor-pointer items-center gap-2 rounded-lg bg-(--primary-color) px-4 py-2 text-xs font-bold text-white transition-all duration-200 hover:opacity-90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-35"
                 >
-                  <Send size={15} />
+                  {loading ? (
+                    <Loader2 size={15} className="animate-spin" />
+                  ) : (
+                    <Send size={15} />
+                  )}
                   {loading ? 'Đang gửi...' : 'Gửi đánh giá'}
                 </button>
               </div>

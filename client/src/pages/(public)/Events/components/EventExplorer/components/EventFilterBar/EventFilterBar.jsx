@@ -37,7 +37,7 @@ function EventFilterBar({ value, onChange, totalEvents }) {
   };
 
   return (
-    <div className="mb-2 flex items-center justify-between gap-4">
+    <div className="mb-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
       <motion.p
         initial={{ opacity: 0, x: -14 }}
         whileInView={{ opacity: 1, x: 0 }}
@@ -46,7 +46,7 @@ function EventFilterBar({ value, onChange, totalEvents }) {
           x: motionTransition.smooth,
           opacity: motionTransition.opacity,
         }}
-        className="text-sm font-medium text-[var(--muted-text)]"
+        className="min-w-0 text-sm font-medium text-[var(--muted-text)]"
       >
         Tìm thấy{' '}
         <span className="font-black text-[var(--primary-color)]">

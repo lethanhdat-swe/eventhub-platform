@@ -27,7 +27,7 @@ export function getChatHeaderConfig(status) {
 
   if (normalized === CHAT_SESSION_STATUS.CLOSED) {
     return {
-      title: 'EventHub Support',
+      title: 'Hỗ trợ Beetic',
       subtitle: 'Cuộc trò chuyện đã đóng',
       isHumanMode: true,
     };
@@ -35,7 +35,7 @@ export function getChatHeaderConfig(status) {
 
   if (normalized === CHAT_SESSION_STATUS.WAITING_ADMIN) {
     return {
-      title: 'EventHub Support',
+      title: 'Hỗ trợ Beetic',
       subtitle: 'Đang chờ admin phản hồi',
       isHumanMode: true,
     };
@@ -43,14 +43,14 @@ export function getChatHeaderConfig(status) {
 
   if (normalized === CHAT_SESSION_STATUS.ASSIGNED) {
     return {
-      title: 'EventHub Support',
+      title: 'Hỗ trợ Beetic',
       subtitle: 'Admin đang hỗ trợ bạn',
       isHumanMode: true,
     };
   }
 
   return {
-    title: 'EventHub AI',
+    title: 'Trợ lý Beetic',
     subtitle: 'Trợ lý hỗ trợ sự kiện',
     isHumanMode: false,
   };
@@ -68,10 +68,10 @@ export function getChatFooterText(status) {
   }
 
   if (normalized === CHAT_SESSION_STATUS.ASSIGNED) {
-    return 'Hỗ trợ bởi admin EventHub';
+    return 'Hỗ trợ bởi admin Beetic';
   }
 
-  return 'Hỗ trợ tự động bởi EventHub AI';
+  return 'Hỗ trợ tự động bởi trợ lý Beetic';
 }
 
 export function getStatusNoticeText(status) {

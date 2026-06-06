@@ -39,7 +39,7 @@ function EventInfoBar({ event }) {
         <InfoItem
           icon={UserRound}
           label="Đơn vị tổ chức"
-          title={event.organizer?.name || 'EventHub'}
+          title={event.organizer?.name || 'Beetic'}
         />
       </div>
     </section>

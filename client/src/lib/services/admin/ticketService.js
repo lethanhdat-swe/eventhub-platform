@@ -53,7 +53,7 @@ export const ticketService = {
    * @param {{ token: string }} data
    */
   checkIn: async (data) => {
-    const body = await axiosInstance.post(`${resourceBase}/check-in`, data);
+    const body = await axiosInstance.post('/api/check-ins/scan', data);
     return getApiData(body);
   },
 

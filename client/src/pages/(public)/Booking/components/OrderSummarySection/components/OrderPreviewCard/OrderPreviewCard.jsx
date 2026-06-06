@@ -1,39 +1,7 @@
 import { images } from '@/assets';
 import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
 import { Calendar, MapPin } from 'lucide-react';
-
-function formatDateRange(startDate, endDate) {
-  if (!startDate) return 'Date to be announced';
-
-  const start = new Date(startDate);
-  const end = endDate ? new Date(endDate) : null;
-
-  const dateFormatter = new Intl.DateTimeFormat('vi-VN', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
-
-  if (!end || start.toDateString() === end.toDateString()) {
-    return dateFormatter.format(start);
-  }
-
-  return `${dateFormatter.format(start)} - ${dateFormatter.format(end)}`;
-}
-
-function formatTimeRange(startDate, endDate) {
-  if (!startDate) return '';
-
-  const timeFormatter = new Intl.DateTimeFormat('vi-VN', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-
-  const start = timeFormatter.format(new Date(startDate));
-  const end = endDate ? timeFormatter.format(new Date(endDate)) : null;
-
-  return end ? `${start} - ${end}` : start;
-}
+import { formatDateRange, formatTimeRange } from '@/utils/formatters';
 
 function OrderPreviewCard({ event }) {
   const imageUrl = resolvePublicAssetUrl(event?.thumbnailUrl) || images.home;
@@ -46,7 +14,7 @@ function OrderPreviewCard({ event }) {
           <div className="overflow-hidden rounded-2xl bg-black/20">
             <img
               src={imageUrl}
-              alt={event?.title ?? 'Event'}
+              alt={event?.title ?? 'Sự kiện'}
               className="object-cover w-full h-full transition-transform duration-500 aspect-3/4 hover:scale-105"
             />
           </div>
@@ -55,7 +23,7 @@ function OrderPreviewCard({ event }) {
         <div className="min-w-0 col-span-8 sm:col-span-9 xl:col-span-8">
           <div className="mb-4">
             <h3 className="line-clamp-2 text-base font-black tracking-tight text-(--text-primary)">
-              {event?.title ?? 'Event'}
+              {event?.title ?? 'Sự kiện'}
             </h3>
 
             {categoryName ? (
@@ -84,7 +52,10 @@ function OrderPreviewCard({ event }) {
 
               <div className="min-w-0 text-(--text-primary)/65">
                 <p className="font-medium text-(--text-primary)">
-                  {formatDateRange(event?.startDate, event?.endDate)}
+                  {formatDateRange(event?.startDate, event?.endDate, {
+                    emptyText: 'Ngày sẽ được cập nhật',
+                    sameDayMode: 'dateString',
+                  })}
                 </p>
                 <p className="mt-0.5 text-xs">
                   {formatTimeRange(event?.startDate, event?.endDate)}
@@ -100,7 +71,7 @@ function OrderPreviewCard({ event }) {
               />
 
               <p className="line-clamp-2 min-w-0 text-sm text-(--text-primary)/65">
-                {event?.location ?? 'Location to be announced'}
+                {event?.location ?? 'Địa điểm sẽ được cập nhật'}
               </p>
             </div>
           </div>

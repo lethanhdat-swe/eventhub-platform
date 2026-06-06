@@ -1,5 +1,7 @@
 import { Loader2 } from 'lucide-react';
 
+import { AdminErrorState } from '@/pages/(admin)/components/table';
+
 import ChatConversationHeader from './ChatConversationHeader';
 import ChatMessageList from './ChatMessageList';
 import ChatReplyComposer from './ChatReplyComposer';
@@ -33,15 +35,13 @@ function ChatConversation({
         onCloseChat={onCloseChat}
       />
       {error ? (
-        <div className="m-4 rounded-xl border border-destructive/25 bg-destructive/5 p-4 text-sm text-destructive">
-          <p>{error}</p>
-          <button
-            type="button"
-            onClick={() => onRetry?.()}
-            className="mt-2 rounded-lg border border-destructive/30 bg-background px-2.5 py-1 text-xs font-medium text-destructive transition hover:bg-destructive/10"
-          >
-            Tải lại tin nhắn
-          </button>
+        <div className="m-4">
+          <AdminErrorState
+            message={error}
+            onRetry={onRetry}
+            retryLabel="Tải lại tin nhắn"
+            compact
+          />
         </div>
       ) : isLoading ? (
         <div className="flex min-h-0 flex-1 items-center justify-center">

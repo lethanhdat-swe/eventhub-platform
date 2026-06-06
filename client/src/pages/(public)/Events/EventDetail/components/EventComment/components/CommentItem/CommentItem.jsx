@@ -1,5 +1,6 @@
 import { ImagePlus, Save, Star, X } from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 import { commentService } from '@/lib/services/comment';
 import { uploadImages } from '@/lib/services/upload/uploadService';
@@ -99,6 +100,7 @@ function CommentItem({
       onRemoveComment(comment.id);
       setEditing(false);
     } catch (error) {
+      toast.error('Không thể xóa bình luận. Vui lòng thử lại.');
       console.error('Failed to delete comment:', error);
     }
   };

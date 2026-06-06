@@ -1,5 +1,7 @@
+import { formatVndAmount } from '@/utils/formatters';
+
 function formatCurrency(value) {
-  return Number(value || 0).toLocaleString('vi-VN') + ' ₫';
+  return formatVndAmount(value, { suffix: ' ₫' });
 }
 
 function getSeatLabel(seat) {

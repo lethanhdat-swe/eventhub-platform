@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
+import { formatVndAmount } from '@/utils/formatters';
 
 function formatCurrency(value) {
-  return Number(value || 0).toLocaleString("vi-VN") + "đ";
+  return formatVndAmount(value, { suffix: 'đ' });
 }
 
 function PaymentMethodSection({
@@ -94,7 +95,7 @@ function PaymentMethodSection({
           </h3>
 
           <p className="text-(--text-primary)/50 text-xs">
-            Mã giảm giá sẽ được kiểm tra lại khi tạo order
+            Mã giảm giá sẽ được kiểm tra lại khi tạo đơn hàng
           </p>
         </div>
 

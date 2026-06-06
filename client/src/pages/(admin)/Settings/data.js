@@ -13,7 +13,7 @@ export const SETTINGS_PAYMENT_OPTIONS = [
 ];
 
 export const DEFAULT_SETTINGS = {
-  siteName: 'EventHub',
+  siteName: 'Beetic',
   supportEmail: 'support@eventhub.vn',
   hotline: '1900 6868',
   companyAddress: '123 Nguyễn Huệ, Quận 1, TP.HCM',

@@ -63,7 +63,7 @@ const ADMIN_MANUAL_TRANSFER_SYSTEM =
     "Cuộc trò chuyện đã được chuyển sang admin hỗ trợ.";
 
 const BACK_TO_AI_SYSTEM =
-    "Cuộc trò chuyện đã quay lại chế độ hỗ trợ tự động bởi EventHub AI.";
+    "Cuộc trò chuyện đã quay lại chế độ hỗ trợ tự động bởi trợ lý Beetic.";
 
 const CHAT_MESSAGE_SELECT = {
     id: true,
@@ -153,7 +153,7 @@ class AIChatService {
 
         const lines = history.map((entry) => {
             const speaker =
-                entry.role === ChatMessageRole.USER ? "Khách" : "EventHub";
+                entry.role === ChatMessageRole.USER ? "Khách" : "Beetic";
             return `- ${speaker}: ${entry.content}`;
         });
 
@@ -1019,7 +1019,7 @@ class AIChatService {
     private getDefaultAssistantReply(): AssistantReply {
         return {
             content:
-                "Hiện tại hệ thống AI tự động của EventHub đang tạm thời bị giới hạn lượt xử lý nên mình chưa thể phân tích chính xác nội dung vừa rồi. Bạn vẫn có thể chọn nhanh một trong các mục bên dưới để được hỗ trợ về đặt vé, tra cứu vé, hoàn vé hoặc gặp admin hỗ trợ.",
+                "Hiện tại hệ thống AI tự động của Beetic đang tạm thời bị giới hạn lượt xử lý nên mình chưa thể phân tích chính xác nội dung vừa rồi. Bạn vẫn có thể chọn nhanh một trong các mục bên dưới để được hỗ trợ về đặt vé, tra cứu vé, hoàn vé hoặc gặp admin hỗ trợ.",
             actions: [
                 {
                     type: "SEND_MESSAGE",
@@ -1178,12 +1178,12 @@ class AIChatService {
                                     {
                                         title: "Thanh toán SEPAY",
                                         description:
-                                            "Quét mã QR để thanh toán. Hiện tại EventHub chỉ hỗ trợ thanh toán bằng SEPAY.",
+                                            "Quét mã QR để thanh toán. Hiện tại Beetic chỉ hỗ trợ thanh toán bằng SEPAY.",
                                     },
                                     {
                                         title: "Nhận vé QR",
                                         description:
-                                            "Sau khi thanh toán thành công, EventHub sẽ gửi email kèm thông tin đơn hàng và mã QR của từng ticket.",
+                                            "Sau khi thanh toán thành công, Beetic sẽ gửi email kèm thông tin đơn hàng và mã QR của từng ticket.",
                                     },
                                     {
                                         title: "Bảo mật vé",
@@ -1220,7 +1220,7 @@ class AIChatService {
                 return {
                     content:
                         reply ||
-                        "Mình hiện có thể hỗ trợ các chủ đề liên quan đến EventHub như sự kiện, đặt vé, thanh toán, vé QR, hoàn vé và tài khoản. Bạn có thể chọn một trong các mục bên dưới.",
+                        "Mình hiện có thể hỗ trợ các chủ đề liên quan đến Beetic như sự kiện, đặt vé, thanh toán, vé QR, hoàn vé và tài khoản. Bạn có thể chọn một trong các mục bên dưới.",
                     actions: [
                         {
                             type: "SEND_MESSAGE",

@@ -4,6 +4,17 @@ import { cn } from '@/lib/utils';
 
 const STAGE_LABEL = 'SÂN KHẤU';
 
+const SEAT_STATUS_LABELS = {
+  AVAILABLE: 'Còn trống',
+  DISABLED: 'Vô hiệu hóa',
+  BOOKED: 'Đã đặt',
+  SOLD: 'Đã bán',
+};
+
+function getSeatStatusLabel(status) {
+  return SEAT_STATUS_LABELS[status] ?? status;
+}
+
 function SeatButton({
   seat,
   color,
@@ -29,7 +40,7 @@ function SeatButton({
       type="button"
       aria-label={`Ghế ${code}`}
       aria-pressed={selected}
-      title={`${seat.ticketTypeName ?? 'Chưa có loại vé'} - ${seat.status}`}
+      title={`${seat.ticketTypeName ?? 'Chưa có loại vé'} - ${getSeatStatusLabel(seat.status)}`}
       onClick={onClick}
       style={color ? { backgroundColor: color } : undefined}
       className={cn(
@@ -65,7 +76,7 @@ function SeatButton({
             <span className="absolute inset-0 -rotate-45 border-t border-white/80" />
           </span>
           <span className="absolute inset-x-0 top-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-destructive">
-            DISABLED
+            VÔ HIỆU
           </span>
         </>
       ) : null}

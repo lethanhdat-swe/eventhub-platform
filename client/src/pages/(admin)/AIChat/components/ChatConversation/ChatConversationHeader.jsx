@@ -36,7 +36,7 @@ function ChatConversationHeader({
     const isClosed = status === CHAT_SESSION_STATUS.CLOSED;
 
     return (
-        <header className="flex items-center justify-between gap-4 border-b px-4 py-2">
+        <header className="flex flex-col gap-3 border-b px-4 py-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
             <div className="flex min-w-0 items-center gap-3">
                 {session.user?.avatarUrl ? (
                     <img
@@ -69,7 +69,7 @@ function ChatConversationHeader({
                 </div>
             </div>
 
-            <div className="flex items-center shrink-0  gap-2">
+            <div className="flex w-full shrink-0 flex-wrap items-center gap-2 sm:w-auto sm:justify-end">
                 {!isClosed ? (
                     <div className="flex flex-wrap justify-end gap-2">
                         {canAdminSwitchToHuman(status) ? (

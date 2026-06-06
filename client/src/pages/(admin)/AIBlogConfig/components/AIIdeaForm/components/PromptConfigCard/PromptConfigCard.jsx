@@ -27,7 +27,7 @@ function PromptConfigCard({
           </p>
 
           <p className="text-xs text-gray-600 mt-0.5">
-            Hướng dẫn AI cách tạo nội dung blog cho EventHub
+            Hướng dẫn AI cách tạo nội dung blog cho Beetic
           </p>
         </div>
       </div>

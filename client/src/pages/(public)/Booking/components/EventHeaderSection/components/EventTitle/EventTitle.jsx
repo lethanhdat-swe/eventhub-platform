@@ -2,7 +2,7 @@ import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 function EventTitle({ event, isLoading }) {
-  const title = isLoading ? 'Loading event...' : (event?.title ?? 'Event');
+  const title = isLoading ? 'Đang tải sự kiện...' : (event?.title ?? 'Sự kiện');
   const categoryName = event?.category?.name;
 
   return (
@@ -43,7 +43,7 @@ function EventTitle({ event, isLoading }) {
           </span>
         ) : null}
 
-        <h1 className="max-w-3xl text-3xl font-black leading-tight tracking-[-0.035em] text-(--text-primary) md:text-[38px] lg:text-[42px]">
+        <h1 className="max-w-3xl line-clamp-2 break-words text-3xl font-black leading-tight tracking-[-0.035em] text-(--text-primary) md:text-[38px] lg:text-[42px]">
           {title}
         </h1>
       </div>

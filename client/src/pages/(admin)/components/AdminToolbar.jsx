@@ -16,7 +16,7 @@ function AdminToolbar({
   return (
     <div
       className={cn(
-        'flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3',
+        'flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-3',
         className
       )}
     >

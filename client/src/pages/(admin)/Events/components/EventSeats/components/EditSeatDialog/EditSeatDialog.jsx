@@ -78,8 +78,8 @@ export default function EditSeatDialog({
                 }
                 className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
               >
-                <option value="AVAILABLE">AVAILABLE</option>
-                <option value="DISABLED">DISABLED</option>
+                <option value="AVAILABLE">Còn trống</option>
+                <option value="DISABLED">Vô hiệu hóa</option>
               </select>
             </div>
           </div>

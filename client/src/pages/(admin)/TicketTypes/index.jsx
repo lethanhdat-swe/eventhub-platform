@@ -2,6 +2,7 @@ import { Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import PageHeader from '@/pages/(admin)/components/PageHeader';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 
 import { getErrorMessage } from '@/lib/http/apiError';
 import { ticketTypeService } from '@/lib/services/admin/ticketTypeService';
@@ -28,7 +29,7 @@ const DEFAULT_TICKET_TYPE_SORT = {
 
 function TicketTypes() {
   const [searchInput, setSearchInput] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const debouncedSearch = useDebouncedValue(searchInput.trim(), 300);
 
   const [page, setPage] = useState(1);
 
@@ -50,14 +51,6 @@ function TicketTypes() {
 
   const [deleteSubmitting, setDeleteSubmitting] =
     useState(false);
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setDebouncedSearch(searchInput.trim());
-    }, 300);
-
-    return () => clearTimeout(timeout);
-  }, [searchInput]);
 
   useEffect(() => {
     setPage(1);

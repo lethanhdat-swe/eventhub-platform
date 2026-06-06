@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import {
   CheckCircle,
+  Loader2,
   Mail,
   Phone,
   Send,
@@ -70,9 +71,9 @@ function ContactForm() {
 
   return (
     <div>
-      <div className="flex items-center gap-3">
-        <Send color="var(--primary-color)" size={20} />
-        <h1 className="text-(--text-primary) text-lg sm:text-xl uppercase font-medium">
+      <div className="flex items-start gap-3">
+        <Send color="var(--primary-color)" size={20} className="mt-0.5 shrink-0" />
+        <h1 className="min-w-0 break-words text-lg font-medium uppercase text-(--text-primary) sm:text-xl">
           gửi liên hệ cho chúng tôi
         </h1>
       </div>
@@ -210,8 +211,14 @@ function ContactForm() {
           <p className="text-sm font-medium text-white sm:text-base">
             {loading ? 'Đang gửi...' : 'Gửi liên hệ'}
           </p>
-          <Send size={16} color="white" className="sm:hidden" />
-          <Send size={18} color="white" className="hidden sm:block" />
+          {loading ? (
+            <Loader2 size={18} className="animate-spin text-white" />
+          ) : (
+            <>
+              <Send size={16} color="white" className="sm:hidden" />
+              <Send size={18} color="white" className="hidden sm:block" />
+            </>
+          )}
         </button>
       </form>
     </div>

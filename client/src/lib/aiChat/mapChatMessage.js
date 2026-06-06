@@ -6,7 +6,7 @@ export const WELCOME_MESSAGE = {
   id: 'welcome',
   role: 'assistant',
   content:
-    'Xin chào, mình là EventHub AI. Mình có thể hỗ trợ bạn về đặt vé, thanh toán, QR ticket và hoàn vé.',
+    'Xin chào, mình là trợ lý Beetic. Mình có thể hỗ trợ bạn về đặt vé, thanh toán, vé QR và hoàn vé.',
   actions: [],
 };
 

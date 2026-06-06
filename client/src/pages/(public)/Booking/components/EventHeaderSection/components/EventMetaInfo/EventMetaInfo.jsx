@@ -1,45 +1,16 @@
 import { Calendar, MapPin } from 'lucide-react';
-
-function formatDateRange(startDate, endDate) {
-  if (!startDate) return 'Date to be announced';
-
-  const start = new Date(startDate);
-  const end = endDate ? new Date(endDate) : null;
-
-  const dateFormatter = new Intl.DateTimeFormat('vi-VN', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
-
-  if (!end || start.toDateString() === end.toDateString()) {
-    return dateFormatter.format(start);
-  }
-
-  return `${dateFormatter.format(start)} - ${dateFormatter.format(end)}`;
-}
-
-function formatTimeRange(startDate, endDate) {
-  if (!startDate) return '';
-
-  const timeFormatter = new Intl.DateTimeFormat('vi-VN', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-
-  const start = timeFormatter.format(new Date(startDate));
-  const end = endDate ? timeFormatter.format(new Date(endDate)) : null;
-
-  return end ? `${start} - ${end}` : start;
-}
+import { formatDateRange, formatTimeRange } from '@/utils/formatters';
 
 function EventMetaInfo({ event, isLoading }) {
   const dateRange = isLoading
-    ? 'Loading date...'
-    : formatDateRange(event?.startDate, event?.endDate);
+    ? 'Đang tải ngày...'
+    : formatDateRange(event?.startDate, event?.endDate, {
+        emptyText: 'Ngày sẽ được cập nhật',
+        sameDayMode: 'dateString',
+      });
 
   const timeRange = formatTimeRange(event?.startDate, event?.endDate);
-  const location = event?.location ?? 'Location to be announced';
+  const location = event?.location ?? 'Địa điểm sẽ được cập nhật';
 
   return (
     <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:max-w-2xl">

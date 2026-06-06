@@ -66,11 +66,11 @@ function LoginPage() {
     return (
         <div className="w-full max-w-130">
             <Card className="rounded-3xl border border-(--border-color) bg-(--card-surface-color) shadow-[0_20px_70px_rgba(0,0,0,0.16)] backdrop-blur-xl">
-                <CardHeader className="pb-3 text-center px-7 pt-7">
+                <CardHeader className="px-5 pt-7 pb-3 text-center sm:px-7">
                     <LoginHeader />
                 </CardHeader>
 
-                <CardContent className="space-y-5 px-7 pb-7">
+                <CardContent className="space-y-5 px-5 pb-7 sm:px-7">
                     <LoginErrorAlert message={apiError} />
 
                     <LoginForm

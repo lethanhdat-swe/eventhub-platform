@@ -1,6 +1,9 @@
 import { useMemo } from 'react';
 import { Armchair } from 'lucide-react';
 
+import PublicLoadingState from '@/components/PublicLoadingState/PublicLoadingState';
+import PublicStatePanel from '@/components/PublicStatePanel/PublicStatePanel';
+
 import PublicSeatMap from '../../../components/PublicSeatMap/PublicSeatMap';
 
 function mapEventSeat(item) {
@@ -13,7 +16,7 @@ function mapEventSeat(item) {
     },
     ticketType: {
       id: item.ticketType?.id ?? item.ticketTypeId,
-      name: item.ticketType?.name ?? 'Ticket',
+      name: item.ticketType?.name ?? 'Vé',
       color: item.ticketType?.color ?? '#8b5cf6',
       price: item.ticketType?.price ?? 0,
     },
@@ -23,7 +26,13 @@ function mapEventSeat(item) {
 const ENDED_SEAT_HELPER_TEXT =
   'Sơ đồ ghế chỉ dùng để tham khảo vì sự kiện đã kết thúc.';
 
-function EventSeat({ eventSeats = [], isLoading = false, error = null, isEnded = false }) {
+function EventSeat({
+  eventSeats = [],
+  isLoading = false,
+  error = null,
+  isEnded = false,
+  onRetry,
+}) {
   const eventSeatItems = useMemo(
     () => eventSeats.map(mapEventSeat).filter((item) => item.id),
     [eventSeats]
@@ -45,22 +54,27 @@ function EventSeat({ eventSeats = [], isLoading = false, error = null, isEnded =
         </div>
 
         <span className="hidden rounded-full border border-(--border-color) bg-(--soft-surface-color) px-3 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-(--muted-text) sm:inline-flex">
-          Preview
+          Xem trước
         </span>
       </div>
 
       {isLoading ? (
-        <div className="rounded-xl sm:rounded-2xl border border-(--border-color) bg-(--surface-color) p-4 sm:p-5 text-xs sm:text-sm text-(--muted-text)">
-          Đang tải sơ đồ chỗ ngồi...
-        </div>
+        <PublicLoadingState
+          label="Đang tải sơ đồ chỗ ngồi..."
+          minHeight="min-h-40"
+        />
       ) : error ? (
-        <div className="p-4 text-xs text-red-300 border rounded-xl sm:rounded-2xl border-red-500/20 bg-red-500/10 sm:p-5 sm:text-sm">
-          {error}
-        </div>
+        <PublicStatePanel
+          variant="error"
+          title="Không thể tải sơ đồ ghế"
+          description={error}
+          onRetry={onRetry}
+        />
       ) : eventSeatItems.length === 0 ? (
-        <div className="rounded-xl sm:rounded-2xl border border-dashed border-(--border-color) bg-(--soft-surface-color) p-4 sm:p-5 text-xs sm:text-sm text-(--muted-text)">
-          Sự kiện này chưa có sơ đồ chỗ ngồi.
-        </div>
+        <PublicStatePanel
+          title="Chưa có sơ đồ ghế"
+          description="Sự kiện này chưa được cấu hình sơ đồ chỗ ngồi."
+        />
       ) : (
         <PublicSeatMap
           seats={eventSeatItems}

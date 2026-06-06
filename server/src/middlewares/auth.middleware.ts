@@ -69,8 +69,7 @@ export const optionalAuth = async (
             where: { id: decoded.id },
             select: { id: true, email: true, role: true },
         });
-        console.log(user);
-        
+
         if (user) {
             req.user = user;
         }

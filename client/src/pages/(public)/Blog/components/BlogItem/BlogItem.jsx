@@ -14,7 +14,6 @@ function BlogItem({ blog }) {
     event.stopPropagation();
     navigate(detailPath);
   };
-  console.log(blog.author);
 
   return (
     <article className="mt-4 sm:mt-6">
@@ -96,7 +95,7 @@ function BlogItem({ blog }) {
               </p>
 
               <p className="mt-0.5 sm:mt-1 truncate text-xs sm:text-sm font-bold text-(--text-primary)">
-                {blog.author?.fullName || 'EventHub Editorial'}
+                {blog.author?.fullName || 'Biên tập Beetic'}
               </p>
             </div>
 
@@ -104,7 +103,7 @@ function BlogItem({ blog }) {
               type="button"
               onClick={handleButtonClick}
               className="
-                inline-flex items-center gap-1.5 sm:gap-2 rounded-full
+                inline-flex shrink-0 items-center gap-1.5 sm:gap-2 rounded-full
                 border border-(--border-color)
                 bg-(--soft-surface-color) px-4 sm:px-5 py-2.5 sm:py-3
                 text-xs sm:text-sm font-black text-(--text-primary)

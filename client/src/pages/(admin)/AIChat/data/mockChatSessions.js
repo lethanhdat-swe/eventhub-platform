@@ -22,7 +22,7 @@ const mockChatSessions = [
         id: 'msg-1-2',
         role: 'ASSISTANT',
         content:
-          'EventHub ho tro hoan ve theo chinh sach: truoc 3 ngay duoc hoan 100%, trong vong 3 ngay duoc hoan 50%, su kien da dien ra thi khong ho tro hoan ve.',
+          'Beetic ho tro hoan ve theo chinh sach: truoc 3 ngay duoc hoan 100%, trong vong 3 ngay duoc hoan 50%, su kien da dien ra thi khong ho tro hoan ve.',
         createdAtText: '10:21',
         actions: [
           { type: 'OPEN_REFUND_FORM', label: 'Mo form hoan ve' },

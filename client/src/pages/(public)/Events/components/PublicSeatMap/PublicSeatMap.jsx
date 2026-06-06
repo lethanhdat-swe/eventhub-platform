@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { formatVndAmount } from '@/utils/formatters';
 
 const LOCKED_STATUSES = ['BOOKED', 'RESERVING', 'DISABLED'];
 
@@ -53,7 +54,7 @@ function getTicketTypes(seats) {
 }
 
 function formatCurrency(value) {
-  return Number(value || 0).toLocaleString('vi-VN') + ' ₫';
+  return formatVndAmount(value, { suffix: ' ₫' });
 }
 
 function getSeatTitle(item) {
@@ -99,7 +100,7 @@ function PublicSeatMap({
     >
       <CardHeader className="gap-2 px-4 pt-4 sm:px-6 sm:pt-5">
         <div className="flex items-start justify-between gap-3 sm:gap-4">
-          <div>
+          <div className="min-w-0 flex-1">
             <CardTitle className="text-base font-semibold text-(--text-primary) sm:text-xl">
               Sơ đồ ghế
             </CardTitle>
@@ -119,7 +120,7 @@ function PublicSeatMap({
             ) : null}
           </div>
 
-          <span className="whitespace-nowrap rounded-full border border-(--primary-color)/20 bg-(--primary-color)/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-(--primary-color) sm:px-3 sm:text-xs">
+          <span className="shrink-0 whitespace-nowrap rounded-full border border-(--primary-color)/20 bg-(--primary-color)/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-(--primary-color) sm:px-3 sm:text-xs">
             {isBookingMode ? 'Đặt vé' : 'Xem trước'}
           </span>
         </div>

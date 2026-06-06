@@ -5,7 +5,7 @@ function EventOrganizer() {
     <section className="rounded-2xl border border-(--border-color) bg-(--card-surface-color) p-5 shadow-xl shadow-black/10 backdrop-blur-xl">
       <div className="mb-5">
         <p className="text-xs font-black uppercase tracking-[0.16em] text-(--primary-color)">
-          EventHub Guarantee
+          Bảo chứng Beetic
         </p>
 
         <h2 className="mt-1 text-lg font-black tracking-tight text-(--text-primary)">
@@ -13,7 +13,7 @@ function EventOrganizer() {
         </h2>
 
         <p className="mt-2 text-sm leading-relaxed text-(--muted-text)">
-          Vé điện tử được quản lý trực tiếp trên EventHub, thuận tiện cho thanh
+          Vé điện tử được quản lý trực tiếp trên Beetic, thuận tiện cho thanh
           toán, lưu trữ và check-in tại sự kiện.
         </p>
       </div>
@@ -75,7 +75,7 @@ function EventOrganizer() {
             className="text-white"
             fill="var(--primary-color)"
           />
-          Được hỗ trợ bởi EventHub
+          Được hỗ trợ bởi Beetic
         </div>
       </div>
     </section>

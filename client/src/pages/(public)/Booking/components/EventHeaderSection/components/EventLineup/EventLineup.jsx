@@ -34,10 +34,10 @@ function EventLineup({ eventArtists = [] }) {
                   />
                 </div>
                 <div className="flex flex-col items-center mt-2">
-                  <p className="text-(--text-primary) group-hover:text-(--primary-color) transition-colors duration-200">
+                  <p className="max-w-20 truncate text-center text-(--text-primary) transition-colors duration-200 group-hover:text-(--primary-color)">
                     {artist.name}
                   </p>
-                  <p className="text-(--text-primary)/70 text-[14px]">{artist.role}</p>
+                  <p className="max-w-20 truncate text-center text-[14px] text-(--text-primary)/70">{artist.role}</p>
                 </div>
               </div>
             ))}

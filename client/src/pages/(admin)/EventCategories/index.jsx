@@ -1,9 +1,10 @@
 import { Plus } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { getErrorMessage } from '@/lib/http/apiError';
 import { categoryService } from '@/lib/services/admin/categoryService';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import AdminToolbar from '@/pages/(admin)/components/AdminToolbar';
 import PageHeader from '@/pages/(admin)/components/PageHeader';
 import { AdminBulkActions, useTableSort } from '@/pages/(admin)/components/table';
@@ -18,7 +19,7 @@ const DEFAULT_CATEGORY_SORT = {
 
 function EventCategories() {
   const [searchInput, setSearchInput] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const debouncedSearch = useDebouncedValue(searchInput.trim(), 300);
 
   const [selectedIds, setSelectedIds] = useState(
     () => new Set(),
@@ -49,14 +50,6 @@ function EventCategories() {
   } = useCategories(debouncedSearch, { sortBy, sortOrder });
 
   pageResetRef.current = () => setPage(1);
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setDebouncedSearch(searchInput.trim());
-    }, 300);
-
-    return () => clearTimeout(timeout);
-  }, [searchInput]);
 
   const handleSelectAll = (checked) => {
     if (checked) {

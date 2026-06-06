@@ -212,12 +212,12 @@ function EventHero({ event, isEnded = false }) {
           ) : null}
 
           <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white/75 backdrop-blur-xl">
-            EventHub verified
+            Được Beetic xác minh
           </span>
         </div>
 
-        <div className="flex max-w-3xl items-center gap-3">
-          <h1 className="line-clamp-2 text-3xl font-black tracking-tight text-white sm:text-4xl lg:text-5xl">
+        <div className="flex max-w-3xl min-w-0 items-center gap-3">
+          <h1 className="min-w-0 flex-1 line-clamp-2 text-3xl font-black tracking-tight text-white sm:text-4xl lg:text-5xl">
             {event.title}
           </h1>
 

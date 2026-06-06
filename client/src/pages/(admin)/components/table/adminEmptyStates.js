@@ -2,7 +2,7 @@ export const ADMIN_EMPTY_STATES = {
   events: {
     title: 'Chưa có sự kiện',
     description:
-      'Tạo sự kiện đầu tiên để bắt đầu bán vé trên EventHub.',
+      'Tạo sự kiện đầu tiên để bắt đầu bán vé trên Beetic.',
     actionLabel: 'Tạo sự kiện',
   },
   eventCategories: {
@@ -57,5 +57,10 @@ export const ADMIN_EMPTY_STATES = {
     title: 'Chưa có thông báo',
     description: 'Soạn thông báo để gửi đến người dùng trong hệ thống.',
     actionLabel: 'Tạo thông báo',
+  },
+  refunds: {
+    title: 'Chưa có yêu cầu hoàn vé',
+    description:
+      'Các yêu cầu hoàn vé từ khách hàng sẽ được hiển thị tại đây.',
   },
 };

@@ -19,7 +19,7 @@ function BrandLogo() {
     { id: 'tiktok', Icon: TikTokIcon, label: 'TikTok' },
     { id: 'youtube', Icon: YoutubeIcon, label: 'YouTube' },
   ];
-  const [siteSetting, setSiteSetting] = useState({ websiteName: 'EventHub', logoUrl: '' });
+  const [siteSetting, setSiteSetting] = useState({ websiteName: 'Beetic', logoUrl: '' });
   
     useEffect(() => {
       const fetchSiteSetting = async () => {

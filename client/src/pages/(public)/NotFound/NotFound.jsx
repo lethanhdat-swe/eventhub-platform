@@ -35,7 +35,7 @@ function NotFound() {
           <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-(--muted-text) md:text-base">
             Trang bạn đang tìm có thể đã bị xóa, đổi đường dẫn hoặc tạm thời
             không còn khả dụng. Hãy quay lại trang chủ để tiếp tục khám phá các
-            sự kiện nổi bật trên EventHub.
+            sự kiện nổi bật trên Beetic.
           </p>
 
           <div className="flex flex-col items-center justify-center gap-3 mt-9 sm:flex-row">

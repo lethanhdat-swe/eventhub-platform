@@ -119,7 +119,7 @@ function FeaturedEvents({ events = [], loading = false }) {
             <>
               <motion.button
                 type="button"
-                aria-label="Previous featured event"
+                aria-label="Sự kiện nổi bật trước"
                 whileHover={{ scale: 1.06 }}
                 whileTap={{ scale: 0.96 }}
                 transition={motionTransition.fast}
@@ -138,7 +138,7 @@ function FeaturedEvents({ events = [], loading = false }) {
 
               <motion.button
                 type="button"
-                aria-label="Next featured event"
+                aria-label="Sự kiện nổi bật tiếp theo"
                 whileHover={{ scale: 1.06 }}
                 whileTap={{ scale: 0.96 }}
                 transition={motionTransition.fast}

@@ -15,7 +15,7 @@ const navItems = [
 ];
 
 function MobileMenu({ open, onClose, isAuthenticated }) {
-    const [siteSetting, setSiteSetting] = useState({ websiteName: 'EventHub', logoUrl: '' });
+    const [siteSetting, setSiteSetting] = useState({ websiteName: 'Beetic', logoUrl: '' });
     
       useEffect(() => {
         const fetchSiteSetting = async () => {

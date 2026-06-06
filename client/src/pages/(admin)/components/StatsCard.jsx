@@ -27,7 +27,7 @@ function StatsCard({ title, value, description, icon: Icon, trend, className }) 
         ) : null}
       </div>
 
-      <p className="mt-2 text-2xl leading-none font-semibold tabular-nums">
+      <p className="mt-2 truncate text-2xl leading-none font-semibold tabular-nums">
         {value}
       </p>
 

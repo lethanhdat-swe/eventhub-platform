@@ -2,13 +2,14 @@ import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { getErrorMessage } from '@/lib/http/apiError';
 import { artistService } from '@/lib/services/admin/artistService';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 
 const PAGE_SIZE = 10;
 
 export function useArtists({ sortBy, sortOrder } = {}) {
   const [artists, setArtists] = useState([]);
   const [searchInput, setSearchInput] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const debouncedSearch = useDebouncedValue(searchInput.trim(), 300);
   const [page, setPage] = useState(1);
   const [meta, setMeta] = useState({
     totalItems: 0,
@@ -22,12 +23,6 @@ export function useArtists({ sortBy, sortOrder } = {}) {
   const [formDialog, setFormDialog] = useState(null);
   const [deleteDialog, setDeleteDialog] = useState(null);
   const [deleteSubmitting, setDeleteSubmitting] = useState(false);
-
-  // Debounce search
-  useEffect(() => {
-    const t = setTimeout(() => setDebouncedSearch(searchInput.trim()), 300);
-    return () => clearTimeout(t);
-  }, [searchInput]);
 
   // Reset page on search change
   useEffect(() => { setPage(1); }, [debouncedSearch]);

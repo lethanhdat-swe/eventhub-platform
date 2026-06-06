@@ -8,7 +8,7 @@ export default function LoginHeader() {
       </CardTitle>
 
       <CardDescription className="mt-2 text-sm text-(--muted-text)">
-        Chào mừng bạn quay lại EventHub.
+        Chào mừng bạn quay lại Beetic.
       </CardDescription>
     </>
   );

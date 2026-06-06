@@ -1,5 +1,7 @@
+import { formatVndAmount } from '@/utils/formatters';
+
 function formatCurrency(value) {
-  return Number(value || 0).toLocaleString('vi-VN') + ' đ';
+  return formatVndAmount(value, { suffix: ' đ' });
 }
 
 function getTicketColor(item) {
@@ -110,7 +112,7 @@ function TicketTable({ items = [] }) {
                 <div className="text-(--text-primary)">{item.quantity}</div>
 
                 <div className="truncate pr-2 text-(--text-primary)/70">
-                  {item.seats.join(', ')}
+                  {(item.seats ?? []).join(', ')}
                 </div>
 
                 <div className="text-(--text-primary)">

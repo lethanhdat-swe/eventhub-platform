@@ -1,8 +1,16 @@
 import { useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 import { Bell, CheckCheck, Loader2, RefreshCw, Trash2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import { getErrorMessage } from '@/lib/http/apiError';
 import { notificationService } from '@/lib/services/admin/notificationService';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  AdminEmptyState,
+  AdminErrorState,
+  ADMIN_EMPTY_STATES,
+} from '@/pages/(admin)/components/table';
 
 const notificationTypeLabel = {
   USER_REGISTERED: 'Người dùng',
@@ -52,6 +60,7 @@ function AdminNotificationsPage() {
   const [typeFilter, setTypeFilter] = useState('all');
   const [isLoading, setIsLoading] = useState(false);
   const [isMarkingAll, setIsMarkingAll] = useState(false);
+  const [error, setError] = useState(null);
 
   const query = useMemo(
     () => ({
@@ -65,6 +74,7 @@ function AdminNotificationsPage() {
 
   const fetchNotifications = async () => {
     setIsLoading(true);
+    setError(null);
 
     try {
       const res = await notificationService.list(query);
@@ -79,6 +89,9 @@ function AdminNotificationsPage() {
           currentPage: page,
         }
       );
+    } catch (err) {
+      setNotifications([]);
+      setError(getErrorMessage(err) || 'Không thể tải thông báo');
     } finally {
       setIsLoading(false);
     }
@@ -91,13 +104,17 @@ function AdminNotificationsPage() {
   const handleMarkAsRead = async (notification) => {
     if (notification.isRead) return;
 
-    await notificationService.markAsRead(notification.id);
+    try {
+      await notificationService.markAsRead(notification.id);
 
-    setNotifications((prev) =>
-      prev.map((item) =>
-        item.id === notification.id ? { ...item, isRead: true } : item
-      )
-    );
+      setNotifications((prev) =>
+        prev.map((item) =>
+          item.id === notification.id ? { ...item, isRead: true } : item
+        )
+      );
+    } catch (err) {
+      toast.error(getErrorMessage(err) || 'Không thể đánh dấu đã đọc');
+    }
   };
 
   const handleMarkAllAsRead = async () => {
@@ -112,6 +129,8 @@ function AdminNotificationsPage() {
           isRead: true,
         }))
       );
+    } catch (err) {
+      toast.error(getErrorMessage(err) || 'Không thể đánh dấu tất cả đã đọc');
     } finally {
       setIsMarkingAll(false);
     }
@@ -120,17 +139,21 @@ function AdminNotificationsPage() {
   const handleDelete = async (event, notificationId) => {
     event.stopPropagation();
 
-    await notificationService.delete(notificationId);
+    try {
+      await notificationService.delete(notificationId);
 
-    setNotifications((prev) =>
-      prev.filter((item) => item.id !== notificationId)
-    );
+      setNotifications((prev) =>
+        prev.filter((item) => item.id !== notificationId)
+      );
 
-    setMeta((prev) => ({
-      ...prev,
-      totalItems: Math.max(prev.totalItems - 1, 0),
-      itemCount: Math.max(prev.itemCount - 1, 0),
-    }));
+      setMeta((prev) => ({
+        ...prev,
+        totalItems: Math.max(prev.totalItems - 1, 0),
+        itemCount: Math.max(prev.itemCount - 1, 0),
+      }));
+    } catch (err) {
+      toast.error(getErrorMessage(err) || 'Không thể xóa thông báo');
+    }
   };
 
   const canGoPrev = page > 1;
@@ -168,21 +191,34 @@ function AdminNotificationsPage() {
 
       <div className="mt-5 min-h-105">
         {isLoading ? (
-          <div className="flex items-center justify-center h-105 text-zinc-500">
-            <Loader2 size={24} className="animate-spin" />
+          <div className="space-y-2">
+            {Array.from({ length: 5 }).map((_, index) => (
+              <div
+                key={index}
+                className="rounded-2xl border border-border bg-card px-5 py-4"
+              >
+                <div className="mb-2 flex items-center gap-2">
+                  <Skeleton className="h-3 w-20" />
+                  <Skeleton className="h-3 w-16" />
+                </div>
+                <Skeleton className="mb-2 h-4 w-2/3" />
+                <Skeleton className="h-3 w-full" />
+              </div>
+            ))}
           </div>
+        ) : error ? (
+          <AdminErrorState
+            message={error}
+            onRetry={fetchNotifications}
+            className="min-h-40 items-center justify-center"
+          />
         ) : notifications.length === 0 ? (
-          <div className="flex flex-col items-center justify-center px-4 text-center h-105">
-            <div className="mb-3 flex h-12! w-12! items-center justify-center rounded-full bg-zinc-100 text-zinc-500">
-              <Bell size={22} />
-            </div>
-
-            <p className="font-semibold text-zinc-900">Chưa có thông báo</p>
-
-            <p className="mt-1 text-sm! text-zinc-500">
-              Khi có hoạt động mới, thông báo sẽ hiển thị tại đây.
-            </p>
-          </div>
+          <AdminEmptyState
+            icon={Bell}
+            title={ADMIN_EMPTY_STATES.notifications.title}
+            description={ADMIN_EMPTY_STATES.notifications.description}
+            className="min-h-105 justify-center"
+          />
         ) : (
           <div className="space-y-2">
             {notifications.map((notification) => (

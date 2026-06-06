@@ -59,12 +59,12 @@ class MailService {
         token: string
     ) {
         const mailOptions = {
-            from: `"EventHub" <${process.env.MAIL_USER}>`,
+            from: `"Beetic" <${process.env.MAIL_USER}>`,
             to: email,
-            subject: "Xác thực tài khoản EventHub",
+            subject: "Xác thực tài khoản Beetic",
             html: `
                 <h1>Chào ${fullName},</h1>
-                <p>Cảm ơn bạn đã đăng ký tài khoản tại EventHub.</p>
+                <p>Cảm ơn bạn đã đăng ký tài khoản tại Beetic.</p>
                 <p>Vui lòng click vào link bên dưới để xác thực tài khoản của bạn:</p>
                 <a href="${process.env.FRONTEND_URL}/verify-email?token=${token}">Xác thực ngay</a>
             `,
@@ -84,12 +84,12 @@ class MailService {
         token: string
     ) {
         const mailOptions = {
-            from: `"EventHub" <${process.env.MAIL_USER}>`,
+            from: `"Beetic" <${process.env.MAIL_USER}>`,
             to: email,
-            subject: "Khôi phục mật khẩu EventHub",
+            subject: "Khôi phục mật khẩu Beetic",
             html: `
                 <h1>Chào ${fullName},</h1>
-                <p>Bạn đã yêu cầu khôi phục mật khẩu tại EventHub.</p>
+                <p>Bạn đã yêu cầu khôi phục mật khẩu tại Beetic.</p>
                 <p>Vui lòng click vào link bên dưới để đặt lại mật khẩu của bạn:</p>
                 <a href="${process.env.FRONTEND_URL}/reset-password?token=${token}">Đặt lại mật khẩu</a>
                 <p>Link này sẽ hết hạn sau 1 giờ.</p>
@@ -141,6 +141,12 @@ class MailService {
         };
 
         const attachments = tickets.map((ticket, index) => {
+            if (!ticket.qrImage?.startsWith("data:image/")) {
+                throw new Error(
+                    `Invalid QR image for seat ${ticket.seatLabel}`
+                );
+            }
+
             const base64Data = ticket.qrImage.replace(
                 /^data:image\/png;base64,/,
                 ""
@@ -183,16 +189,16 @@ class MailService {
             .join("");
 
         const mailOptions = {
-            from: `"EventHub" <${process.env.MAIL_USER}>`,
+            from: `"Beetic" <${process.env.MAIL_USER}>`,
             to: email,
-            subject: `Vé sự kiện EventHub - Đơn hàng ${order.orderCode}`,
+            subject: `Vé sự kiện Beetic - Đơn hàng ${order.orderCode}`,
             html: `
                 <div style="margin:0;padding:0;background:#f4f4f5;font-family:Arial,sans-serif;color:#18181b;">
                     <div style="max-width:680px;margin:0 auto;padding:32px 16px;">
                         <div style="background:#ffffff;border-radius:20px;padding:32px;border:1px solid #e4e4e7;">
                             <div style="margin-bottom:28px;">
                                 <div style="font-size:14px;color:#71717a;margin-bottom:8px;">
-                                    EventHub
+                                    Beetic
                                 </div>
                                 <h1 style="margin:0;font-size:28px;line-height:1.3;color:#09090b;">
                                     Vé của bạn đã sẵn sàng 🎟️
@@ -328,13 +334,13 @@ class MailService {
                             </div>
     
                             <p style="font-size:14px;line-height:1.6;color:#71717a;margin:28px 0 0;">
-                                Cảm ơn bạn đã sử dụng EventHub.<br/>
+                                Cảm ơn bạn đã sử dụng Beetic.<br/>
                                 Hẹn gặp bạn tại sự kiện!
                             </p>
                         </div>
     
                         <p style="text-align:center;font-size:12px;color:#a1a1aa;margin:20px 0 0;">
-                            © ${new Date().getFullYear()} EventHub. All rights reserved.
+                            © ${new Date().getFullYear()} Beetic. All rights reserved.
                         </p>
                     </div>
                 </div>
@@ -365,7 +371,7 @@ class MailService {
             : "sắp diễn ra";
 
         const mailOptions = {
-            from: `"EventHub" <${process.env.MAIL_USER}>`,
+            from: `"Beetic" <${process.env.MAIL_USER}>`,
             to: email,
             subject: `Nhắc nhở sự kiện: ${event.title}`,
             html: `
@@ -374,7 +380,7 @@ class MailService {
                     <div style="background:#ffffff;border-radius:20px;padding:32px;border:1px solid #e4e4e7;">
                         <div style="margin-bottom:28px;">
                             <div style="font-size:14px;color:#71717a;margin-bottom:8px;">
-                                EventHub
+                                Beetic
                             </div>
 
                             <h1 style="margin:0;font-size:28px;line-height:1.3;color:#09090b;">
@@ -387,7 +393,7 @@ class MailService {
                         </p>
 
                         <p style="font-size:15px;line-height:1.7;margin:0 0 24px;color:#3f3f46;">
-                            EventHub nhắc bạn rằng sự kiện <strong>${event.title}</strong>
+                            Beetic nhắc bạn rằng sự kiện <strong>${event.title}</strong>
                             mà bạn đã đặt vé sẽ sắp diễn ra.
                         </p>
 
@@ -418,13 +424,13 @@ class MailService {
                         </div>
 
                         <p style="font-size:14px;line-height:1.6;color:#71717a;margin:28px 0 0;">
-                            Cảm ơn bạn đã sử dụng EventHub.<br/>
+                            Cảm ơn bạn đã sử dụng Beetic.<br/>
                             Hẹn gặp bạn tại sự kiện!
                         </p>
                     </div>
 
                     <p style="text-align:center;font-size:12px;color:#a1a1aa;margin:20px 0 0;">
-                        © ${new Date().getFullYear()} EventHub. All rights reserved.
+                        © ${new Date().getFullYear()} Beetic. All rights reserved.
                     </p>
                 </div>
             </div>
@@ -450,16 +456,16 @@ class MailService {
         bankAccountHolder,
     }: SendRefundRequestReceivedEmailParams) {
         const mailOptions = {
-            from: `"EventHub" <${process.env.MAIL_USER}>`,
+            from: `"Beetic" <${process.env.MAIL_USER}>`,
             to: email,
-            subject: "EventHub đã nhận yêu cầu hoàn vé của bạn",
+            subject: "Beetic đã nhận yêu cầu hoàn vé của bạn",
             html: `
                 <div style="margin:0;padding:0;background:#f4f4f5;font-family:Arial,sans-serif;color:#18181b;">
                     <div style="max-width:640px;margin:0 auto;padding:32px 16px;">
                         <div style="background:#ffffff;border-radius:20px;padding:32px;border:1px solid #e4e4e7;">
                             <div style="margin-bottom:28px;">
                                 <div style="font-size:14px;color:#71717a;margin-bottom:8px;">
-                                    EventHub
+                                    Beetic
                                 </div>
     
                                 <h1 style="margin:0;font-size:28px;line-height:1.3;color:#09090b;">
@@ -472,7 +478,7 @@ class MailService {
                             </p>
     
                             <p style="font-size:15px;line-height:1.7;margin:0 0 24px;color:#3f3f46;">
-                                EventHub đã nhận được yêu cầu hoàn vé cho đơn hàng
+                                Beetic đã nhận được yêu cầu hoàn vé cho đơn hàng
                                 <strong>${orderCode}</strong>. Yêu cầu của bạn đang được chuyển đến quản trị viên để kiểm tra và xử lý.
                             </p>
     
@@ -512,13 +518,13 @@ class MailService {
                             </div>
     
                             <p style="font-size:14px;line-height:1.6;color:#71717a;margin:28px 0 0;">
-                                Cảm ơn bạn đã sử dụng EventHub.<br/>
-                                EventHub sẽ cố gắng xử lý yêu cầu của bạn sớm nhất có thể.
+                                Cảm ơn bạn đã sử dụng Beetic.<br/>
+                                Beetic sẽ cố gắng xử lý yêu cầu của bạn sớm nhất có thể.
                             </p>
                         </div>
     
                         <p style="text-align:center;font-size:12px;color:#a1a1aa;margin:20px 0 0;">
-                            © ${new Date().getFullYear()} EventHub. All rights reserved.
+                            © ${new Date().getFullYear()} Beetic. All rights reserved.
                         </p>
                     </div>
                 </div>
@@ -547,11 +553,11 @@ class MailService {
         const isCompleted = result === "COMPLETED";
 
         await this.transporter.sendMail({
-            from: `"EventHub" <${process.env.MAIL_USER}>`,
+            from: `"Beetic" <${process.env.MAIL_USER}>`,
             to: email,
             subject: isCompleted
-                ? "EventHub đã hoàn tiền vé cho bạn"
-                : "EventHub đã từ chối yêu cầu hoàn vé",
+                ? "Beetic đã hoàn tiền vé cho bạn"
+                : "Beetic đã từ chối yêu cầu hoàn vé",
             html: `
                 <div style="font-family:Arial,sans-serif;background:#f4f4f5;padding:24px;color:#18181b;">
                     <div style="max-width:640px;margin:0 auto;background:#ffffff;border-radius:16px;padding:28px;border:1px solid #e4e4e7;">
@@ -585,12 +591,12 @@ class MailService {
                         <p style="color:#71717a;font-size:14px;line-height:1.6;">
                             ${
                                 isCompleted
-                                    ? "Tiền hoàn sẽ được chuyển theo thông tin ngân hàng bạn đã cung cấp. Nếu bạn chưa nhận được tiền, vui lòng liên hệ bộ phận hỗ trợ EventHub."
-                                    : "Đơn hàng của bạn sẽ được giữ nguyên trạng thái vé hợp lệ. Nếu cần hỗ trợ thêm, vui lòng liên hệ EventHub."
+                                    ? "Tiền hoàn sẽ được chuyển theo thông tin ngân hàng bạn đã cung cấp. Nếu bạn chưa nhận được tiền, vui lòng liên hệ bộ phận hỗ trợ Beetic."
+                                    : "Đơn hàng của bạn sẽ được giữ nguyên trạng thái vé hợp lệ. Nếu cần hỗ trợ thêm, vui lòng liên hệ Beetic."
                             }
                         </p>
     
-                        <p>Cảm ơn bạn đã sử dụng EventHub.</p>
+                        <p>Cảm ơn bạn đã sử dụng Beetic.</p>
                     </div>
                 </div>
             `,

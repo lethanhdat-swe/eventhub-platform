@@ -28,7 +28,7 @@ const STATUS_FILTERS = [
     { value: 'all', label: 'Tất cả' },
     { value: CHAT_SESSION_STATUS.WAITING_ADMIN, label: 'Đang chờ' },
     { value: CHAT_SESSION_STATUS.ASSIGNED, label: 'Hỗ trợ viên' },
-    { value: CHAT_SESSION_STATUS.ACTIVE, label: 'AI' },
+    { value: CHAT_SESSION_STATUS.ACTIVE, label: 'Trợ lý AI' },
 ];
 
 function mapSessionForUI(session) {
@@ -379,9 +379,9 @@ function AdminAIChatPage() {
     );
 
     return (
-        <section className="h-[calc(100vh-120px)]  border bg-card">
-            <div className="flex h-full min-h-0">
-                <aside className="w-[340px] shrink-0 border-r bg-background/60">
+        <section className="h-[calc(100vh-120px)] border bg-card">
+            <div className="flex h-full min-h-0 flex-col md:flex-row">
+                <aside className="h-[42vh] w-full shrink-0 border-b bg-background/60 md:h-full md:w-80 md:border-b-0 md:border-r lg:w-[340px]">
                     <ChatSidebar
                         sessions={sessions}
                         searchText={searchText}

@@ -29,7 +29,7 @@ export function ThumbnailUploadField({
   onBusyChange,
   disabled = false,
   id: idProp,
-  label = 'Ảnh thumbnail',
+  label = 'Ảnh đại diện',
   className,
   emptyHint = 'JPEG, PNG hoặc WebP. Tối đa theo giới hạn server.',
 }) {
@@ -105,7 +105,7 @@ export function ThumbnailUploadField({
         >
           <ImagePlus className="size-8 opacity-60" aria-hidden />
           <span className="text-sm font-medium text-foreground">
-            {uploading ? 'Đang tải ảnh…' : 'Chọn ảnh thumbnail'}
+            {uploading ? 'Đang tải ảnh…' : 'Chọn ảnh đại diện'}
           </span>
           {emptyHint ? (
             <span className="max-w-[240px] px-4 text-center text-xs">

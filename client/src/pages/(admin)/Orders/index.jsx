@@ -3,11 +3,13 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { getErrorMessage } from '@/lib/http/apiError';
 import { orderService } from '@/lib/services/admin/orderService';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import AdminFilterDropdown from '@/pages/(admin)/components/AdminFilterDropdown';
 import AdminToolbar from '@/pages/(admin)/components/AdminToolbar';
 import {
   AdminBulkActions,
   AdminEmptyState,
+  AdminErrorState,
   AdminLoadingState,
   AdminPagination,
   ADMIN_EMPTY_STATES,
@@ -31,7 +33,7 @@ const DEFAULT_ORDER_SORT = {
 function Orders() {
   const [orders, setOrders] = useState([]);
   const [searchInput, setSearchInput] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const debouncedSearch = useDebouncedValue(searchInput.trim(), 300);
   const [statusFilter, setStatusFilter] = useState('all');
   const [page, setPage] = useState(1);
 
@@ -66,13 +68,6 @@ function Orders() {
     ],
     []
   );
-
-  useEffect(() => {
-    const t = setTimeout(() => {
-      setDebouncedSearch(searchInput.trim());
-    }, 300);
-    return () => clearTimeout(t);
-  }, [searchInput]);
 
   useEffect(() => {
     setPage(1);
@@ -195,21 +190,10 @@ function Orders() {
       />
 
       {error && orders.length > 0 ? (
-        <div
-          className="flex flex-col gap-2 px-3 py-2 border rounded-lg border-destructive/25 bg-destructive/5 sm:flex-row sm:items-center sm:justify-between"
-          role="alert"
-        >
-          <p className="text-sm text-destructive">{error}</p>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="h-8 shrink-0"
-            onClick={() => void loadOrders()}
-          >
-            Thử lại
-          </Button>
-        </div>
+        <AdminErrorState
+          message={error}
+          onRetry={() => void loadOrders()}
+        />
       ) : null}
 
       <AdminToolbar

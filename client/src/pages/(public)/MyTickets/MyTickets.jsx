@@ -1,11 +1,13 @@
-import { ArrowLeft, Ticket } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { images } from '@/assets';
+import PublicStatePanel from '@/components/PublicStatePanel/PublicStatePanel';
 import { getErrorMessage } from '@/lib/http/apiError';
 import { orderService } from '@/lib/services/admin/orderService';
 import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
+import { formatCurrencyIntl, formatDateRange } from '@/utils/formatters';
 import OrderFilter from '../Profile/components/ProfileOrders/components/TicketOrder/components/OrderFilter/OrderFilter';
 import OrderCard from '../Profile/components/ProfileOrders/components/TicketOrder/components/OrderCard/OrderCard';
 
@@ -14,28 +16,6 @@ const statusLabels = {
   PENDING: 'Đang xử lý',
   CANCELLED: 'Đã hủy',
 };
-
-const dateFormatter = new Intl.DateTimeFormat('vi-VN', {
-  day: '2-digit',
-  month: '2-digit',
-  year: 'numeric',
-});
-
-const priceFormatter = new Intl.NumberFormat('vi-VN', {
-  style: 'currency',
-  currency: 'VND',
-  maximumFractionDigits: 0,
-});
-
-function formatDateRange(startDate, endDate) {
-  if (!startDate) return 'Chưa cập nhật thời gian';
-
-  const start = dateFormatter.format(new Date(startDate));
-  if (!endDate) return start;
-
-  const end = dateFormatter.format(new Date(endDate));
-  return start === end ? start : `${start} - ${end}`;
-}
 
 function formatTicketTypes(ticketTypes = []) {
   if (!ticketTypes.length) return 'Chưa có hạng vé';
@@ -61,7 +41,7 @@ function mapOrderCard(order) {
     zone: formatTicketTypes(order.ticketTypes),
     status: statusLabels[order.status] ?? order.status,
     rawStatus: order.status,
-    amount: priceFormatter.format(order.finalAmount ?? order.totalAmount ?? 0),
+    amount: formatCurrencyIntl(order.finalAmount ?? order.totalAmount ?? 0),
     href: `/event-checkin/${order.id}`,
   };
 }
@@ -71,6 +51,7 @@ function MyTickets() {
   const [activeStatus, setActiveStatus] = useState('all');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [reloadToken, setReloadToken] = useState(0);
 
   useEffect(() => {
     let ignore = false;
@@ -105,7 +86,11 @@ function MyTickets() {
     return () => {
       ignore = true;
     };
-  }, []);
+  }, [reloadToken]);
+
+  const handleRetry = () => {
+    setReloadToken((token) => token + 1);
+  };
 
   const counts = useMemo(
     () =>
@@ -162,7 +147,7 @@ function MyTickets() {
         />
 
         {isLoading ? (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
             {Array.from({ length: 8 }).map((_, index) => (
               <div
                 key={index}
@@ -171,32 +156,25 @@ function MyTickets() {
             ))}
           </div>
         ) : error ? (
-          <div className="p-5 text-sm font-semibold text-red-300 border rounded-3xl border-red-500/20 bg-red-500/10">
-            {error}
-          </div>
+          <PublicStatePanel
+            variant="error"
+            description={error}
+            onRetry={handleRetry}
+          />
         ) : visibleOrders.length === 0 ? (
-          <div className="rounded-3xl border border-(--border-color) bg-(--card-surface-color) p-10 text-center">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-(--primary-color)/10 text-(--primary-color)">
-              <Ticket size={26} />
-            </div>
-
-            <h2 className="text-lg font-black text-(--text-primary)">
-              Chưa có vé nào
-            </h2>
-
-            <p className="mt-2 text-sm text-(--muted-text)">
-              Khi bạn đặt vé thành công, vé sẽ xuất hiện tại đây.
-            </p>
-
+          <PublicStatePanel
+            title="Chưa có vé nào"
+            description="Khi bạn đặt vé thành công, vé sẽ xuất hiện tại đây."
+          >
             <Link
               to="/events"
-              className="mt-6 inline-flex items-center justify-center rounded-full bg-(--primary-color) px-5 py-2.5 text-sm font-black text-white transition-transform active:scale-95"
+              className="mt-4 inline-flex items-center justify-center rounded-full bg-(--primary-color) px-5 py-2.5 text-sm font-black text-white transition-transform active:scale-95"
             >
               Khám phá sự kiện
             </Link>
-          </div>
+          </PublicStatePanel>
         ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
             {visibleOrders.map((order) => (
               <OrderCard key={order.id} order={order} />
             ))}

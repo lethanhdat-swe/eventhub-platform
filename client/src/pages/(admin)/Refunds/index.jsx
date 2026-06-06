@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import PageHeader from '@/pages/(admin)/components/PageHeader';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import RefundActionDialog from './components/RefundActionDialog/RefundActionDialog';
 import RefundDetailDialog from './components/RefundDetailDialog/RefundDetailDialog';
 import { getErrorMessage } from '@/lib/http/apiError';
@@ -18,7 +19,7 @@ const DEFAULT_REFUND_SORT = {
 
 function Refunds() {
   const [searchInput, setSearchInput] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const debouncedSearch = useDebouncedValue(searchInput.trim(), 300);
 
   const [statusFilter, setStatusFilter] = useState('all');
   const [page, setPage] = useState(1);
@@ -33,14 +34,6 @@ function Refunds() {
 
   const [actionDialog, setActionDialog] = useState(null);
   const [actionSubmitting, setActionSubmitting] = useState(false);
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setDebouncedSearch(searchInput.trim());
-    }, 300);
-
-    return () => clearTimeout(timeout);
-  }, [searchInput]);
 
   useEffect(() => {
     setPage(1);

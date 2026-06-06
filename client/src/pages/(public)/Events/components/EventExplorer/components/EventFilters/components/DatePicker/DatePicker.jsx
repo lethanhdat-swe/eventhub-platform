@@ -3,11 +3,11 @@ import { CalendarRange } from 'lucide-react';
 function DatePicker({ value, onChange }) {
   return (
     <div className="flex flex-col gap-2">
-      <label className="text-sm font-medium text-gray-300">Date</label>
+      <label className="text-sm font-medium text-gray-300">Ngày</label>
       <div className="flex flex-col gap-2">
         {[
-          { key: 'startDate', label: 'From' },
-          { key: 'endDate', label: 'To' },
+          { key: 'startDate', label: 'Từ' },
+          { key: 'endDate', label: 'Đến' },
         ].map(({ key, label }) => (
           <div key={key} className="flex items-center gap-3">
             <span className="w-8 text-xs text-gray-400 shrink-0">{label}</span>

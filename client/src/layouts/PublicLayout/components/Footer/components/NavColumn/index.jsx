@@ -14,7 +14,7 @@ function NavColumn() {
       { label: 'Chính sách bảo mật', path: '/privacy' },
       { label: 'Chính sách hoàn vé', path: '/refund' },
     ],
-    EventHub: [
+    Beetic: [
       { label: 'Về chúng tôi', path: '/about' },
       { label: 'Tuyển dụng', path: '/careers' },
       { label: 'Bài viết', path: '/blogs' },

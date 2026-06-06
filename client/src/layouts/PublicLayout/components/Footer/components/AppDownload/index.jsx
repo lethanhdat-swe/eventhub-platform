@@ -11,7 +11,7 @@ function AppDownload() {
       "
     >
       <h3 className="text-base font-black tracking-[-0.03em] text-(--text-primary) sm:text-lg">
-        Tải ứng dụng EventHub
+        Tải ứng dụng Beetic
       </h3>
       <p className="mt-2 text-sm font-medium leading-6 text-(--muted-text)">
         Đặt vé, lưu sự kiện và nhận thông báo mọi lúc mọi nơi.

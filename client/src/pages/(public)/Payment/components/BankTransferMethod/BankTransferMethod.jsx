@@ -1,8 +1,9 @@
 import { Banknote, Landmark } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { formatVndAmount } from '@/utils/formatters';
 
 function formatCurrency(value) {
-    return Number(value || 0).toLocaleString("vi-VN") + "đ";
+    return formatVndAmount(value, { suffix: 'đ' });
 }
 
 function BankTransferMethod({ paymentInfo }) {

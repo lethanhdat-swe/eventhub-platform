@@ -159,7 +159,7 @@ function EventTable({
                 <TableCell className="max-w-[180px] truncate px-2 py-1.5 text-muted-foreground">
                   {event.location ?? '—'}
                 </TableCell>
-                <TableCell className="px-2 py-1.5 text-muted-foreground">
+                <TableCell className="max-w-45 truncate px-2 py-1.5 text-muted-foreground">
                   {formatEventDateRange(event.startDate, event.endDate)}
                 </TableCell>
                 <TableCell className="px-2 py-1.5">

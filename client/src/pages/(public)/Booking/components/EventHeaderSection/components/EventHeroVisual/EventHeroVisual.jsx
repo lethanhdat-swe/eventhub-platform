@@ -8,7 +8,7 @@ function EventHeroVisual({ event }) {
     <div className="flex items-center justify-center w-full h-56 max-w-full mx-auto overflow-hidden rounded-xl md:h-72 lg:ml-auto lg:max-w-115">
       <img
         src={imageUrl}
-        alt={event?.title ?? 'Event'}
+        alt={event?.title ?? 'Sự kiện'}
         className="object-cover w-full h-full transition-transform duration-500 rounded-xl hover:scale-105"
       />
     </div>

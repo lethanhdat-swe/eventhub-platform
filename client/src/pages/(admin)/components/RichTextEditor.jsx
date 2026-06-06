@@ -14,8 +14,7 @@ import { ImagePlus } from 'lucide-react';
 import { uploadService } from '@/lib/services/upload/uploadService';
 import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
 
-const content =
-  '<h2 style="text-align: center;">Welcome to Mantine rich text editor</h2>';
+const content = '<p></p>';
 
 function UploadImageControl({ editor }) {
   const inputRef = useRef(null);
@@ -55,8 +54,8 @@ function UploadImageControl({ editor }) {
         type="button"
         disabled={uploading || !editor}
         onClick={() => inputRef.current?.click()}
-        title={uploading ? 'Uploading image...' : 'Upload image'}
-        aria-label="Upload image"
+        title={uploading ? 'Đang tải ảnh...' : 'Tải ảnh lên'}
+        aria-label="Tải ảnh lên"
       >
         <ImagePlus size={16} strokeWidth={1.8} />
       </RichTextEditor.Control>

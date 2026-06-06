@@ -2,13 +2,14 @@ import { useCallback, useEffect, useState } from 'react';
 import { blogService } from '@/lib/services/blog/blogService';
 import { getErrorMessage } from '@/lib/http/apiError';
 import { mapBlogRow } from '@/pages/(admin)/Blogs/data';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 
 const PAGE_SIZE = 10;
 
 export function useBlogs({ sortBy, sortOrder } = {}) {
   const [blogs, setBlogs] = useState([]);
   const [searchInput, setSearchInput] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const debouncedSearch = useDebouncedValue(searchInput.trim(), 300);
   const [page, setPage] = useState(1);
 
   const [meta, setMeta] = useState({
@@ -20,14 +21,6 @@ export function useBlogs({ sortBy, sortOrder } = {}) {
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(searchInput.trim());
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [searchInput]);
 
   useEffect(() => {
     setPage(1);

@@ -145,7 +145,7 @@ function CouponFormDialog({
                 onChange={(event) =>
                   setForm((prev) => ({ ...prev, code: event.target.value }))
                 }
-                placeholder="EVENTHUB10"
+                placeholder="BEETIC10"
                 className="uppercase h-9"
                 disabled={submitting}
                 aria-invalid={Boolean(codeError)}

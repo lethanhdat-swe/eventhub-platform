@@ -23,7 +23,7 @@ function mapEventSeat(item) {
     },
     ticketType: {
       id: item.ticketType?.id ?? item.ticketTypeId,
-      name: item.ticketType?.name ?? 'Ticket',
+      name: item.ticketType?.name ?? 'Vé',
       color: item.ticketType?.color ?? '#8b5cf6',
       price: item.ticketType?.price ?? 0,
     },
@@ -86,7 +86,7 @@ function Booking() {
   useEffect(() => {
     const fetchBookingData = async () => {
       if (!eventId) {
-        setError('Missing event information. Please choose an event first.');
+        setError('Thiếu thông tin sự kiện. Vui lòng chọn sự kiện trước.');
         return;
       }
 

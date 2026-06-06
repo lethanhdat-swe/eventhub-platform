@@ -17,7 +17,7 @@ import RefundStatusBadge from '../RefundStatusBadge/RefundStatusBadge';
 
 function DetailRow({ label, children }) {
     return (
-        <div className="grid grid-cols-[130px_1fr] gap-x-4 gap-y-1 text-sm">
+        <div className="grid grid-cols-1 gap-y-1 text-sm sm:grid-cols-[130px_1fr] sm:gap-x-4">
             <span className="text-muted-foreground">{label}</span>
             <div className="min-w-0 font-medium wrap-break-word">{children}</div>
         </div>
@@ -139,12 +139,12 @@ function RefundDetailDialog({
                 </div>
 
                 <DialogFooter
-                    className={`mx-0 mb-0 flex flex-row flex-nowrap items-center gap-3 border-t bg-muted/20 px-5 py-4 ${
-                        isPending ? 'justify-between' : 'justify-end'
+                    className={`mx-0 mb-0 flex flex-col-reverse gap-3 border-t bg-muted/20 px-5 py-4 sm:flex-row sm:flex-wrap sm:items-center ${
+                        isPending ? 'sm:justify-between' : 'sm:justify-end'
                     }`}
                 >
                     {isPending ? (
-                        <div className="flex items-center gap-2 shrink-0 flex-nowrap">
+                        <div className="flex shrink-0 flex-wrap items-center gap-2">
                             <Button
                                 type="button"
                                 className="h-9 gap-1.5"

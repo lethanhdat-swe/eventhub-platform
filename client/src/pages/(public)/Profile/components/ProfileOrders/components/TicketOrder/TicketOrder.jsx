@@ -4,6 +4,7 @@ import { images } from '@/assets';
 import { getErrorMessage } from '@/lib/http/apiError';
 import { orderService } from '@/lib/services/admin/orderService';
 import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
+import { formatCurrencyIntl, formatDateRange } from '@/utils/formatters';
 import OrderCard from './components/OrderCard/OrderCard';
 import OrderFilter from './components/OrderFilter/OrderFilter';
 import { Link } from 'react-router-dom';
@@ -16,28 +17,6 @@ const statusLabels = {
   REFUND_PENDING: 'Đang chờ hoàn tiền',
   REFUNDED: 'Đã hoàn tiền',
 };
-
-const dateFormatter = new Intl.DateTimeFormat('vi-VN', {
-  day: '2-digit',
-  month: '2-digit',
-  year: 'numeric',
-});
-
-const priceFormatter = new Intl.NumberFormat('vi-VN', {
-  style: 'currency',
-  currency: 'VND',
-  maximumFractionDigits: 0,
-});
-
-function formatDateRange(startDate, endDate) {
-  if (!startDate) return 'Chưa cập nhật thời gian';
-
-  const start = dateFormatter.format(new Date(startDate));
-  if (!endDate) return start;
-
-  const end = dateFormatter.format(new Date(endDate));
-  return start === end ? start : `${start} - ${end}`;
-}
 
 function formatTicketTypes(ticketTypes = []) {
   if (!ticketTypes.length) return 'Chưa có hạng vé';
@@ -63,7 +42,7 @@ function mapOrderCard(order) {
     zone: formatTicketTypes(order.ticketTypes),
     status: statusLabels[order.status] ?? order.status,
     rawStatus: order.status,
-    amount: priceFormatter.format(order.finalAmount ?? order.totalAmount ?? 0),
+    amount: formatCurrencyIntl(order.finalAmount ?? order.totalAmount ?? 0),
     href: `/event-checkin/${order.id}`,
   };
 }

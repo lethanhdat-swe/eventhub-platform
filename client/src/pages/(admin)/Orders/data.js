@@ -5,29 +5,10 @@ export const ORDER_STATUS_LABELS = {
     CANCELLED: 'Đã hủy',
 };
 
-const priceFormatter = new Intl.NumberFormat('vi-VN', {
-    style: 'currency',
-    currency: 'VND',
-    maximumFractionDigits: 0,
-});
-
-const dateFormatter = new Intl.DateTimeFormat('vi-VN', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-});
-
-export function formatPriceVnd(price) {
-    if (price == null) return '—';
-    return priceFormatter.format(price);
-}
-
-export function formatCreatedAt(date) {
-    if (!date) return '—';
-    return dateFormatter.format(new Date(date));
-}
+export {
+    formatCreatedAt,
+    formatPriceVnd,
+} from '@/utils/formatters';
 
 export const ORDER_PAYMENT_LABELS = {
     SEPAY: 'SePay',

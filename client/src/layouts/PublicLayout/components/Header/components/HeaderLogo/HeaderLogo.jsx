@@ -6,7 +6,7 @@ import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
 
 function HeaderLogo({ scrolled }) {
     const [siteSetting, setSiteSetting] = useState({
-        websiteName: 'EventHub',
+        websiteName: 'Beetic',
         logoUrl: '',
     });
     const { pathname } = useLocation();

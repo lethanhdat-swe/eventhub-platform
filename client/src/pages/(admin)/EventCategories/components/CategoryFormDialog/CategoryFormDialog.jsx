@@ -63,7 +63,10 @@ function CategoryFormDialog({
     }
     setNameError('');
 
-    const slug = form.slug.trim();
+    let slug = form.slug.trim();
+    if (isCreate && !slug) {
+      slug = slugifyFromName(name);
+    }
     if (slug.length < 2) {
       setSlugError('Slug phải có ít nhất 2 ký tự.');
       return;

@@ -1,3 +1,4 @@
+import { Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -22,6 +23,7 @@ import { USER_ROLE_OPTIONS } from '@/pages/(admin)/Users/data';
 
 function UserRoleDialog({ open, user, onOpenChange, onSave }) {
   const [role, setRole] = useState('USER');
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (open && user) {
@@ -31,11 +33,16 @@ function UserRoleDialog({ open, user, onOpenChange, onSave }) {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    if (submitting) return;
+
+    setSubmitting(true);
     try {
       await Promise.resolve(onSave(role));
       onOpenChange(false);
     } catch {
       /* lỗi do parent xử lý; giữ dialog mở */
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -67,6 +74,7 @@ function UserRoleDialog({ open, user, onOpenChange, onSave }) {
               <Select
                 value={role}
                 onValueChange={(value) => setRole(value ?? 'USER')}
+                disabled={submitting}
               >
                 <SelectTrigger id="user-role" className="h-9 w-full">
                   <SelectValue placeholder="Chọn vai trò" />
@@ -87,12 +95,20 @@ function UserRoleDialog({ open, user, onOpenChange, onSave }) {
               type="button"
               variant="outline"
               className="h-9 cursor-pointer"
+              disabled={submitting}
               onClick={() => onOpenChange(false)}
             >
               Hủy
             </Button>
-            <Button type="submit" className="h-9 cursor-pointer">
-              Lưu thay đổi
+            <Button type="submit" className="h-9 cursor-pointer" disabled={submitting}>
+              {submitting ? (
+                <>
+                  <Loader2 className="animate-spin" />
+                  Đang lưu…
+                </>
+              ) : (
+                'Lưu thay đổi'
+              )}
             </Button>
           </DialogFooter>
         </form>

@@ -21,7 +21,7 @@ export const siteSettingService = {
   },
 
   deleteSiteSetting: async () => {
-    const body = await axiosInstance.put(resourceBase);
+    const body = await axiosInstance.delete(resourceBase);
     return getApiData(body);
   },
 };

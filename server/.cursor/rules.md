@@ -1,4 +1,4 @@
-Project: EventHub - Event Ticket Booking System
+Project: Beetic - Event Ticket Booking System
 
 Architecture Rules:
 

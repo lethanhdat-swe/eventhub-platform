@@ -40,8 +40,8 @@ function AdminPagination({
           ? `Hiển thị ${start}–${end} / ${totalItems}`
           : 'Không có dữ liệu'}
       </p>
-      <Pagination className="justify-end sm:mx-0">
-        <PaginationContent>
+      <Pagination className="justify-end overflow-x-auto sm:mx-0">
+        <PaginationContent className="flex w-max min-w-full items-center gap-0.5 sm:justify-end">
           <PaginationItem>
             <PaginationPrevious
               href="#"

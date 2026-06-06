@@ -153,7 +153,7 @@ function BlogHero() {
                 size={16}
                 className="hidden text-white/60 sm:block"
               />
-              <span>Review, hướng dẫn & cảm hứng</span>
+              <span>Đánh giá, hướng dẫn & cảm hứng</span>
             </motion.div>
           </motion.div>
         </motion.div>

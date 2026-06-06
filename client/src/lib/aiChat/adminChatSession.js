@@ -61,7 +61,7 @@ export function getSessionStatusBadge(status) {
         case CHAT_SESSION_STATUS.ACTIVE:
         default:
             return {
-                label: 'AI',
+                label: 'Trợ lý AI',
                 className: 'border-primary/30 bg-primary/10 text-primary',
                 isWaiting: false,
             };

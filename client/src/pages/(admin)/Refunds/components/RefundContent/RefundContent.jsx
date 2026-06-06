@@ -3,6 +3,7 @@ import {
   AdminLoadingState,
   AdminPagination,
 } from '@/pages/(admin)/components/table';
+import { ADMIN_EMPTY_STATES } from '@/pages/(admin)/components/table/adminEmptyStates';
 import RefundTable from '../RefundTable/RefundTable';
 
 
@@ -31,16 +32,17 @@ function RefundContent({
   }
 
   if (isEmpty) {
+    const emptyState = ADMIN_EMPTY_STATES.refunds;
+
     return (
       <AdminEmptyState
         title={
           error
             ? 'Không tải được danh sách'
-            : 'Chưa có yêu cầu hoàn vé'
+            : emptyState.title
         }
         description={
-          error ||
-          'Các yêu cầu hoàn vé từ khách hàng sẽ được hiển thị tại đây.'
+          error || emptyState.description
         }
         actionLabel={
           error ? 'Thử lại' : undefined

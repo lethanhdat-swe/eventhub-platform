@@ -2,36 +2,65 @@ import HeroHome from './components/HeroHome/HeroHome';
 import Limit from './components/Limit/Limit';
 import TrendEvent from './components/TrendEvent/TrendEvent';
 import { eventService } from '@/lib/services/admin';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import CategoryBrowse from './components/CategoryBrowse/CategoryBrowse';
 import FeaturedEvents from './components/FeaturedEvents/FeaturedEvents';
 import HowItWorks from './components/HowItWorks/HowItWorks';
 import HomeCTA from './components/CTA/CTA';
+import { getErrorMessage } from '@/lib/http/apiError';
+import PublicStatePanel from '@/components/PublicStatePanel/PublicStatePanel';
 
 function Home() {
   const [trendingEvents, setTrendingEvents] = useState([]);
   const [events, setEvents] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [reloadToken, setReloadToken] = useState(0);
+
+  const refetchHomeEvents = useCallback(() => {
+    setReloadToken((token) => token + 1);
+  }, []);
 
   useEffect(() => {
+    let ignore = false;
+
     const fetchEvents = async () => {
+      setIsLoading(true);
+      setError(null);
+
       try {
-        const trendingData = await eventService.eventTrend();
+        const [trendingData, featuredData] = await Promise.all([
+          eventService.eventTrend(),
+          eventService.list({
+            page: 1,
+            limit: 6,
+            status: 'PUBLISHED',
+          }),
+        ]);
+
+        if (ignore) return;
+
         setTrendingEvents(trendingData || []);
-
-        const featuredData = await eventService.list({
-          page: 1,
-          limit: 6,
-          status: 'PUBLISHED',
-        });
-
         setEvents(featuredData.data || []);
-      } catch (error) {
-        console.log(error);
+      } catch (err) {
+        if (!ignore) {
+          setError(getErrorMessage(err) || 'Không thể tải sự kiện trang chủ');
+          setTrendingEvents([]);
+          setEvents([]);
+        }
+      } finally {
+        if (!ignore) {
+          setIsLoading(false);
+        }
       }
     };
 
-    fetchEvents();
-  }, []);
+    void fetchEvents();
+
+    return () => {
+      ignore = true;
+    };
+  }, [reloadToken]);
 
   return (
     <main className="relative mb-10 overflow-hidden bg-(--background-color)">
@@ -44,10 +73,20 @@ function Home() {
 
       <div className="relative z-10">
         <HeroHome />
-        <TrendEvent trendingEvents={trendingEvents} />
+        {error ? (
+          <div className="container py-6">
+            <PublicStatePanel
+              variant="error"
+              title="Không thể tải sự kiện"
+              description={error}
+              onRetry={refetchHomeEvents}
+            />
+          </div>
+        ) : null}
+        <TrendEvent trendingEvents={trendingEvents} loading={isLoading} />
         <Limit />
         <CategoryBrowse />
-        <FeaturedEvents events={events} />
+        <FeaturedEvents events={events} loading={isLoading} />
         <HowItWorks />
         <HomeCTA />
       </div>

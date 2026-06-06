@@ -60,10 +60,10 @@ const FAB_TRANSITION = {
 };
 
 const FAB_PROMPT_MESSAGES = [
-    'AI can help you book tickets',
-    'Need help with tickets or payment?',
-    'I can help with refunds',
-    'Chat with EventHub AI',
+    'Trợ lý AI có thể giúp bạn đặt vé',
+    'Cần hỗ trợ về vé hoặc thanh toán?',
+    'Tôi có thể hỗ trợ hoàn vé',
+    'Trò chuyện với Beetic AI',
 ];
 
 const FAB_BUBBLE_TRANSITION = {
@@ -180,7 +180,7 @@ function AIChatFab({ isOpen, onOpen }) {
 
             <motion.button
                 type="button"
-                aria-label="Mở EventHub AI chat"
+                aria-label="Mở trợ lý Beetic"
                 onClick={onOpen}
                 animate={{
                     scale: isOpen ? 0.5 : 1,
@@ -220,7 +220,7 @@ function ChatTypingIndicator() {
         <div className="flex justify-start">
             <div className="rounded-2xl rounded-bl-sm border border-(--border-color) bg-(--surface-color) px-3 py-2 text-sm text-(--muted-text)">
                 <span className="inline-flex items-center gap-2">
-                    EventHub AI đang trả lời
+                    Trợ lý Beetic đang trả lời
                     <span className="inline-flex gap-0.5">
                         <span className="h-1 w-1 animate-bounce rounded-full bg-(--muted-text) [animation-delay:0ms]" />
                         <span className="h-1 w-1 animate-bounce rounded-full bg-(--muted-text) [animation-delay:150ms]" />

@@ -21,33 +21,14 @@ export const REFUND_STATUS_STYLES = {
         'border-red-200 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300',
 };
 
+import { formatCurrencyIntl, formatDateTime as formatDateTimeBase } from '@/utils/formatters';
+
 export function formatCurrency(value) {
-    return new Intl.NumberFormat('vi-VN', {
-        style: 'currency',
-        currency: 'VND',
-        maximumFractionDigits: 0,
-    }).format(Number(value || 0));
+    return formatCurrencyIntl(value);
 }
 
 export function formatDateTime(value) {
-    if (!value) return '—';
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) return '—';
-
-    const time = new Intl.DateTimeFormat('vi-VN', {
-        hour: '2-digit',
-        minute: '2-digit',
-    }).format(date);
-
-    const day = new Intl.DateTimeFormat('vi-VN', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-    }).format(date);
-
-    return `${time} ${day}`;
+    return formatDateTimeBase(value, { layout: 'time-first' });
 }
 
 export function mapRefundRow(item) {

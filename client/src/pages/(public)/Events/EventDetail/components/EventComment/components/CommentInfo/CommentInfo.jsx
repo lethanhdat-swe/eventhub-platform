@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Star } from 'lucide-react';
 
 import { commentService } from '@/lib/services/comment';
+import { getErrorMessage } from '@/lib/http/apiError';
 import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
 
 import ReplyInput from './components/ReplyInput/ReplyInput';
@@ -17,6 +18,7 @@ function CommentInfo({
   const [replying, setReplying] = useState(false);
   const [replyText, setReplyText] = useState('');
   const [loading, setLoading] = useState(false);
+  const [replyError, setReplyError] = useState('');
   const [editingReplyId, setEditingReplyId] = useState(null);
   const [editReplyText, setEditReplyText] = useState('');
 
@@ -28,6 +30,7 @@ function CommentInfo({
     if (!trimmed || loading) return;
 
     setLoading(true);
+    setReplyError('');
 
     try {
       const newReply = await commentService.create(eventId, {
@@ -41,7 +44,7 @@ function CommentInfo({
       setReplyText('');
       setReplying(false);
     } catch (err) {
-      console.log(err);
+      setReplyError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -154,11 +157,19 @@ function CommentInfo({
             <div className="mt-3">
               <ReplyInput
                 value={replyText}
-                onChange={(event) => setReplyText(event.target.value)}
+                onChange={(event) => {
+                  setReplyText(event.target.value);
+                  setReplyError('');
+                }}
                 onSubmit={handleReply}
                 onKeyDown={handleReplyKeyDown}
                 loading={loading}
               />
+              {replyError ? (
+                <p className="mt-2 text-xs text-red-400" role="alert">
+                  {replyError}
+                </p>
+              ) : null}
             </div>
           )}
 

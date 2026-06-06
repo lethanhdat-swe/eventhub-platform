@@ -11,7 +11,7 @@ function BlogFilter({ categories, selectedCategory, onSelectCategory }) {
           overflow-x-auto
         "
       >
-        <div className="flex sm:grid sm:grid-cols-3 gap-1.5 sm:gap-2 min-w-max sm:min-w-0">
+        <div className="flex min-w-max gap-1.5 md:grid md:min-w-0 md:grid-cols-3 md:gap-2">
           {categories.map((category) => {
             const isActive = category.id === selectedCategory;
 

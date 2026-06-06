@@ -19,7 +19,7 @@ function OrderSummarySection({ event, ticketItems = [] }) {
           <div className="w-full overflow-hidden aspect-video rounded-2xl sm:aspect-5/4 md:aspect-4/3 lg:aspect-3/4">
             <img
               src={imageUrl}
-              alt={event?.title ?? 'Event'}
+              alt={event?.title ?? 'Sự kiện'}
               className="object-cover w-full h-full"
             />
           </div>

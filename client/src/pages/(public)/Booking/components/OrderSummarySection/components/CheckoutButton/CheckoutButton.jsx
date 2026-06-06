@@ -2,6 +2,7 @@ import { AlertCircle, ChevronRight } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { isEventEnded } from '@/utils/eventDate';
+import { validateCustomerInfo } from '@/utils/formValidation';
 
 function CheckoutButton({
   event,
@@ -12,33 +13,39 @@ function CheckoutButton({
   const [didTryCheckout, setDidTryCheckout] = useState(false);
   const ended = isEventEnded(event);
 
-  const missingFields = useMemo(() => {
-    const fields = [];
+  const validationErrors = useMemo(
+    () =>
+      validateCustomerInfo({
+        name: customerInfo?.name,
+        email: customerInfo?.email,
+        phone: customerInfo?.phone,
+      }),
+    [customerInfo]
+  );
 
+  const canCheckout =
+    !ended &&
+    selectedSeatIds.length > 0 &&
+    Object.keys(validationErrors).length === 0;
+
+  const errorMessage = useMemo(() => {
+    if (ended) {
+      return 'Sự kiện này đã kết thúc. Bạn không thể đặt vé mới.';
+    }
+
+    const parts = [];
     if (selectedSeatIds.length === 0) {
-      fields.push('chọn ít nhất 1 ghế');
+      parts.push('chọn ít nhất 1 ghế');
     }
+    Object.values(validationErrors).forEach((message) => parts.push(message));
 
-    if (!customerInfo?.name?.trim()) {
-      fields.push('họ và tên');
-    }
+    if (parts.length === 0) return '';
 
-    if (!customerInfo?.email?.trim()) {
-      fields.push('email');
-    }
-
-    if (!customerInfo?.phone?.trim()) {
-      fields.push('số điện thoại');
-    }
-
-    return fields;
-  }, [selectedSeatIds.length, customerInfo]);
-
-  const canCheckout = !ended && missingFields.length === 0;
-
-  const errorMessage = ended
-    ? 'Sự kiện này đã kết thúc. Bạn không thể đặt vé mới.'
-    : `Bạn cần ${missingFields.join(', ')} trước khi thanh toán.`;
+    const hasFullSentence = parts.some((part) => part.endsWith('.'));
+    return hasFullSentence
+      ? parts.join(' ')
+      : `Bạn cần ${parts.join(', ')} trước khi thanh toán.`;
+  }, [ended, selectedSeatIds.length, validationErrors]);
 
   return (
     <div className="mt-4 flex w-full flex-col gap-3 border-t border-(--text-primary)/10 pt-4">
@@ -81,7 +88,7 @@ function CheckoutButton({
               sm:w-auto sm:min-w-47.5
             "
           >
-            Checkout
+            Thanh toán
             <ChevronRight
               size={18}
               className="transition-transform duration-300 group-hover:translate-x-1"

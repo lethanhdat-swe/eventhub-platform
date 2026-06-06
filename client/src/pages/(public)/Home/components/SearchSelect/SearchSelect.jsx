@@ -7,9 +7,9 @@ function SearchSelect() {
   const navigate = useNavigate();
 
   const action = [
-    { icon: MapPin, label: 'Location', defaultValue: 'All Locations' },
-    { icon: Calendar, label: 'Date', defaultValue: 'Any Date' },
-    { icon: Tag, label: 'Category', defaultValue: 'All Categories' },
+    { icon: MapPin, label: 'Địa điểm', defaultValue: 'Tất cả địa điểm' },
+    { icon: Calendar, label: 'Ngày', defaultValue: 'Bất kỳ ngày nào' },
+    { icon: Tag, label: 'Danh mục', defaultValue: 'Tất cả danh mục' },
   ];
 
   const handleSearch = (e) => {
@@ -35,7 +35,7 @@ function SearchSelect() {
         <Search size={16} className="text-gray-500" />
         <input
           type="text"
-          placeholder="Search events, artists, or venues..."
+          placeholder="Tìm sự kiện, nghệ sĩ hoặc địa điểm..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           onKeyPress={handleKeyPress}
@@ -66,7 +66,7 @@ function SearchSelect() {
         type="submit"
         className="px-6 py-3 ml-2 text-sm font-semibold text-(--text-primary) transition-all rounded-xl hover:opacity-90 hover:scale-105 bg-(--primary-color)"
       >
-        Search
+        Tìm kiếm
       </button>
     </form>
   );

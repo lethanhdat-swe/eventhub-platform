@@ -122,10 +122,10 @@ function TicketDetailDialog({ open, onOpenChange, ticket, loading = false }) {
               label="Thời gian check-in"
               value={formatCheckedInAt(ticket.checkedInAt)}
             />
-            <DetailField id="ticket-order-id" label="Order ID" value={ticket.orderId} />
+            <DetailField id="ticket-order-id" label="Mã đơn hàng (ID)" value={ticket.orderId} />
             <DetailField
               id="ticket-event-seat-id"
-              label="Event seat ID"
+              label="Mã ghế sự kiện"
               value={ticket.eventSeatId}
             />
           </div>

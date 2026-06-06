@@ -58,7 +58,7 @@ function RevenueChartCard({
             Chưa có dữ liệu
           </p>
         ) : (
-          <ChartContainer config={chartConfig} className="aspect-video w-full">
+          <ChartContainer config={chartConfig} className="aspect-video w-full min-w-0 overflow-hidden">
             <AreaChart
               accessibilityLayer
               data={chartData}
@@ -73,7 +73,7 @@ function RevenueChartCard({
                 tickLine={false}
                 axisLine={false}
                 tickMargin={8}
-                minTickGap={24}
+                minTickGap={32}
               />
               <YAxis
                 width={44}

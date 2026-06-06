@@ -19,7 +19,7 @@ function PaymentActionSection({ canSubmit, isSubmitting, onSubmit, backTo }) {
                 className="rounded-xl px-4 sm:px-5 py-3 sm:py-4 flex items-center justify-center gap-3 bg-(--primary-color) text-white transition-all duration-200 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
             >
                 <p className="text-sm font-semibold sm:text-base">
-                    {isSubmitting ? "Đang tạo order..." : "Thanh toán ngay"}
+                    {isSubmitting ? "Đang tạo đơn hàng..." : "Thanh toán ngay"}
                 </p>
                 {isSubmitting ? (
                     <Loader2 size={18} className="animate-spin shrink-0" />

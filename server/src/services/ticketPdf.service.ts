@@ -1,8 +1,24 @@
 import PDFDocument from "pdfkit";
 import QRCode from "qrcode";
+import fs from "fs";
 import path from "path";
 
-const fontDir = path.resolve(process.cwd(), "src/assets/fonts");
+function resolveFontDir(): string {
+    const candidates = [
+        path.join(__dirname, "../assets/fonts"),
+        path.resolve(process.cwd(), "src/assets/fonts"),
+    ];
+
+    for (const dir of candidates) {
+        if (fs.existsSync(path.join(dir, "Roboto-Regular.ttf"))) {
+            return dir;
+        }
+    }
+
+    return path.resolve(process.cwd(), "src/assets/fonts");
+}
+
+const fontDir = resolveFontDir();
 const regularFontPath = path.join(fontDir, "Roboto-Regular.ttf");
 const boldFontPath = path.join(fontDir, "Roboto-Bold.ttf");
 
@@ -208,7 +224,7 @@ class TicketPdfService {
         doc.font("Bold")
             .fontSize(21)
             .fillColor("#FFFFFF")
-            .text("EventHub", this.pageX + 20, headerY + 17);
+            .text("Beetic", this.pageX + 20, headerY + 17);
 
         doc.font("Regular")
             .fontSize(9)
@@ -562,7 +578,7 @@ class TicketPdfService {
             "Vui lòng xuất trình mã QR khi check-in.",
             "Mỗi vé chỉ có giá trị cho một lượt check-in.",
             "Không chia sẻ mã QR công khai.",
-            "EventHub không chịu trách nhiệm nếu vé bị người khác sử dụng do bạn tự chia sẻ.",
+            "Beetic không chịu trách nhiệm nếu vé bị người khác sử dụng do bạn tự chia sẻ.",
             "Vui lòng đến trước giờ diễn ra sự kiện.",
         ];
 
@@ -611,8 +627,8 @@ class TicketPdfService {
                 size: "A4",
                 margin: 42,
                 info: {
-                    Title: `EventHub Ticket - ${order.orderCode || order.id}`,
-                    Author: "EventHub",
+                    Title: `Beetic Ticket - ${order.orderCode || order.id}`,
+                    Author: "Beetic",
                 },
             });
 
