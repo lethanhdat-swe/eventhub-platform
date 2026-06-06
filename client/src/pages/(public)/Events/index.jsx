@@ -5,7 +5,7 @@ import { eventService } from '@/lib/services/admin';
 import { getErrorMessage } from '@/lib/http/apiError';
 import PublicStatePanel from '@/components/PublicStatePanel/PublicStatePanel';
 
-const ITEMS_PER_PAGE = 3;
+const ITEMS_PER_PAGE = 9;
 
 const INITIAL_FILTERS = {
     search: '',
