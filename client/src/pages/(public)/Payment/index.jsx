@@ -12,7 +12,11 @@ import PaymentActionSection from './components/PaymentActionSection/PaymentActio
 import PaymentHero from './components/PaymentHero/PaymentHero';
 import PaymentMethodSection from './components/PaymentMethodSection/PaymentMethodSection';
 import { validateCustomerInfo } from '@/utils/formValidation';
-import { isEventEnded } from '@/utils/eventDate';
+import {
+    canBookEvent,
+    isEventEnded,
+    isEventOngoing,
+} from '@/utils/eventDate';
 
 const EMPTY_SELECTED_SEATS = [];
 
@@ -109,8 +113,10 @@ function Payment() {
         ? Math.max(subtotal - totalFromOrder, 0)
         : previewDiscountAmount;
     const isEnded = isEventEnded(event);
+    const isOngoing = isEventOngoing(event);
+    const canBook = canBookEvent(event);
     const canSubmit =
-        selectedSeatIds.length > 0 && !createdOrder && !isEnded;
+        selectedSeatIds.length > 0 && !createdOrder && canBook;
     const backTo = event?.id ? `/booking?eventId=${event.id}` : '/booking';
 
     const handleCouponCodeChange = (value) => {
@@ -161,6 +167,13 @@ function Payment() {
         if (isEnded) {
             setSubmitError(
                 'Sự kiện này đã kết thúc. Bạn không thể đặt vé mới.'
+            );
+            return;
+        }
+
+        if (isOngoing) {
+            setSubmitError(
+                'Sự kiện đang diễn ra. Bạn không thể đặt vé mới.'
             );
             return;
         }
@@ -233,6 +246,10 @@ function Payment() {
             {isEnded ? (
                 <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm font-medium text-amber-200/90">
                     Sự kiện này đã kết thúc. Bạn không thể đặt vé mới.
+                </div>
+            ) : isOngoing ? (
+                <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm font-medium text-amber-200/90">
+                    Sự kiện đang diễn ra. Bạn không thể đặt vé mới.
                 </div>
             ) : null}
             {selectedSeatIds.length === 0 ? (

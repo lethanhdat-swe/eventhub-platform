@@ -15,3 +15,22 @@ export function isEventEnded(event: EventDateFields | null | undefined): boolean
 
     return false;
 }
+
+export function isEventOngoing(
+    event: EventDateFields | null | undefined
+): boolean {
+    if (!event?.startDate) return false;
+
+    const now = new Date();
+    const start = new Date(event.startDate);
+
+    if (start > now) return false;
+
+    return !isEventEnded(event);
+}
+
+export function canBookEvent(
+    event: EventDateFields | null | undefined
+): boolean {
+    return !isEventEnded(event) && !isEventOngoing(event);
+}

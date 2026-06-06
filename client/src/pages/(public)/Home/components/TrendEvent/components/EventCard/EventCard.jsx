@@ -9,10 +9,11 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { resolvePublicAssetUrl } from '@/lib/url/resolvePublicAssetUrl';
-import { isEventEnded } from '@/utils/eventDate';
+import { isEventEnded, isEventOngoing } from '@/utils/eventDate';
 
 function EventCard({ event }) {
   const ended = isEventEnded(event);
+  const ongoing = !ended && isEventOngoing(event);
   const startDate = new Date(event.startDate);
 
   const day = startDate.getDate().toString().padStart(2, '0');
@@ -84,6 +85,10 @@ function EventCard({ event }) {
               <span className="rounded-full border border-rose-400/25 bg-rose-500/12 px-4 py-1.5 text-[11px] font-black uppercase tracking-[0.14em] text-rose-200 backdrop-blur-md">
                 Đã diễn ra
               </span>
+            ) : ongoing ? (
+              <span className="rounded-full border border-amber-400/30 bg-amber-500/15 px-4 py-1.5 text-[11px] font-black uppercase tracking-[0.14em] text-amber-200 backdrop-blur-md">
+                Đang diễn ra
+              </span>
             ) : null}
             {event.category?.name && (
               <span className="rounded-full bg-white/15 px-3.5 py-1.5 text-xs font-bold text-white backdrop-blur-md ring-1 ring-white/10">
@@ -114,6 +119,11 @@ function EventCard({ event }) {
             <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-rose-300/80">
               <CircleAlert size={13} className="shrink-0 text-rose-300/70" />
               Sự kiện đã kết thúc
+            </p>
+          ) : ongoing ? (
+            <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-amber-300/85">
+              <CircleAlert size={13} className="shrink-0 text-amber-300/75" />
+              Sự kiện đang diễn ra
             </p>
           ) : null}
 

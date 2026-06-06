@@ -1,10 +1,10 @@
-function EventTickets({ tickets = [], isEnded = false }) {
+function EventTickets({ tickets = [], canBook = true }) {
   if (!tickets.length) return null;
 
   return (
     <section
       className={`mt-4 rounded-2xl border border-(--border-color) bg-(--card-surface-color) p-4 shadow-xl shadow-black/10 backdrop-blur-xl ${
-        isEnded ? 'opacity-80' : ''
+        !canBook ? 'opacity-80' : ''
       }`}
     >
       <div className="mb-3">
@@ -16,7 +16,7 @@ function EventTickets({ tickets = [], isEnded = false }) {
           Loại vé hiện có
         </h2>
 
-        {isEnded ? (
+        {!canBook ? (
           <p className="mt-1 text-xs text-(--muted-text)">Chỉ xem tham khảo</p>
         ) : null}
       </div>
@@ -26,7 +26,7 @@ function EventTickets({ tickets = [], isEnded = false }) {
           <div
             key={ticket.id}
             className={`flex items-start justify-between gap-3 rounded-xl border border-(--border-color) bg-(--soft-surface-color) p-3 ${
-              isEnded ? 'opacity-70' : 'transition-colors hover:bg-(--card-hover-color)'
+              !canBook ? 'opacity-70' : 'transition-colors hover:bg-(--card-hover-color)'
             }`}
           >
             <div className="flex min-w-0 items-start gap-3">

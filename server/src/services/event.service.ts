@@ -150,10 +150,7 @@ class EventService {
         });
     }
 
-    private buildAdminListOrderBy(
-        sortBy?: string,
-        sortOrder?: "asc" | "desc"
-    ) {
+    private buildAdminListOrderBy(sortBy?: string, sortOrder?: "asc" | "desc") {
         if (!sortBy || !sortOrder) {
             return null;
         }

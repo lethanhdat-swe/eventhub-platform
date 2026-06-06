@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import eventService from "../services/event.service";
 import eventSeatService from "../services/event-seat.service";
+import { listEventSchema } from "../schema/event.schema";
 
 class EventController {
     create = async (req: Request, res: Response, next: NextFunction) => {
@@ -34,7 +35,8 @@ class EventController {
 
     list = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const result = await eventService.list(req.query as any);
+            const query = listEventSchema.shape.query.parse(req.query);
+            const result = await eventService.list(query);
 
             return res.success({
                 message: "Events fetched successfully.",

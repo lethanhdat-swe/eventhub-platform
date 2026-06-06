@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import { prisma } from "../utils/prisma";
 import { AppError } from "../utils/AppError";
-import { isEventEnded } from "../utils/eventDate";
+import { isEventEnded, isEventOngoing } from "../utils/eventDate";
 import { getPaginationMetadata } from "../utils/pagination";
 import {
     CouponStatus,
@@ -307,6 +307,10 @@ class OrderService {
 
             if (isEventEnded(eventRecord)) {
                 throw new AppError("This event has already ended.", 400);
+            }
+
+            if (isEventOngoing(eventRecord)) {
+                throw new AppError("This event is currently in progress.", 400);
             }
 
             const unavailableSeats = seats.filter(

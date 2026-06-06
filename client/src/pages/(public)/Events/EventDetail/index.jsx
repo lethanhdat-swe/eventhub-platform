@@ -13,7 +13,11 @@ import { commentService } from '@/lib/services/comment';
 import useEventSeatSocket from '@/hooks/useEventSeatSocket';
 import EventSeat from './components/EventSeat/EventSeat';
 import EventRelated from './components/EventRelated/EventRelated';
-import { isEventEnded } from '@/utils/eventDate';
+import {
+  canBookEvent,
+  isEventEnded,
+  isEventOngoing,
+} from '@/utils/eventDate';
 import { getErrorMessage } from '@/lib/http/apiError';
 import PublicLoadingState from '@/components/PublicLoadingState/PublicLoadingState';
 import PublicStatePanel from '@/components/PublicStatePanel/PublicStatePanel';
@@ -228,6 +232,8 @@ function EventDetail() {
   }
 
   const isEnded = isEventEnded(event);
+  const isOngoing = isEventOngoing(event);
+  const canBook = canBookEvent(event);
 
   return (
     <main className="min-h-screen overflow-hidden bg-(--background-color) pt-(--header-height) text-(--text-primary)">
@@ -239,10 +245,18 @@ function EventDetail() {
       <div className="container relative z-10 w-full pt-8 pb-16">
         <div className="grid grid-cols-12 gap-6 lg:items-start">
           <section className="order-1 col-span-12 space-y-5 lg:col-span-8">
-            <EventHero event={event} isEnded={isEnded} />
+            <EventHero
+              event={event}
+              isEnded={isEnded}
+              isOngoing={isOngoing}
+            />
             {isEnded ? (
               <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm font-medium text-amber-200/90">
                 Sự kiện này đã kết thúc. Bạn không thể đặt vé mới.
+              </div>
+            ) : isOngoing ? (
+              <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm font-medium text-amber-200/90">
+                Sự kiện đang diễn ra. Bạn không thể đặt vé mới.
               </div>
             ) : null}
             <EventInfoBar event={event} />
@@ -252,8 +266,12 @@ function EventDetail() {
           <aside className="order-2 col-span-12 lg:col-span-4">
             <div className="space-y-4 lg:sticky lg:top-24">
               <EventOrganizer event={event} />
-              <EventBooking eventId={event.id} isEnded={isEnded} />
-              <EventTickets tickets={tickets} isEnded={isEnded} />
+              <EventBooking
+                eventId={event.id}
+                isEnded={isEnded}
+                isOngoing={isOngoing}
+              />
+              <EventTickets tickets={tickets} canBook={canBook} />
               <EventInformation event={event} />
             </div>
           </aside>
@@ -263,7 +281,8 @@ function EventDetail() {
               eventSeats={eventSeats}
               isLoading={isSeatsLoading}
               error={seatsError}
-              isEnded={isEnded}
+              canBook={canBook}
+              isOngoing={isOngoing}
               onRetry={refetchSeats}
             />
 

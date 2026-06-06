@@ -1,7 +1,11 @@
 import { AlertCircle, ChevronRight } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { isEventEnded } from '@/utils/eventDate';
+import {
+  canBookEvent,
+  isEventEnded,
+  isEventOngoing,
+} from '@/utils/eventDate';
 import { validateCustomerInfo } from '@/utils/formValidation';
 
 function CheckoutButton({
@@ -12,6 +16,8 @@ function CheckoutButton({
 }) {
   const [didTryCheckout, setDidTryCheckout] = useState(false);
   const ended = isEventEnded(event);
+  const ongoing = isEventOngoing(event);
+  const canBook = canBookEvent(event);
 
   const validationErrors = useMemo(
     () =>
@@ -24,13 +30,17 @@ function CheckoutButton({
   );
 
   const canCheckout =
-    !ended &&
+    canBook &&
     selectedSeatIds.length > 0 &&
     Object.keys(validationErrors).length === 0;
 
   const errorMessage = useMemo(() => {
     if (ended) {
       return 'Sự kiện này đã kết thúc. Bạn không thể đặt vé mới.';
+    }
+
+    if (ongoing) {
+      return 'Sự kiện đang diễn ra. Bạn không thể đặt vé mới.';
     }
 
     const parts = [];
@@ -45,7 +55,7 @@ function CheckoutButton({
     return hasFullSentence
       ? parts.join(' ')
       : `Bạn cần ${parts.join(', ')} trước khi thanh toán.`;
-  }, [ended, selectedSeatIds.length, validationErrors]);
+  }, [ended, ongoing, selectedSeatIds.length, validationErrors]);
 
   return (
     <div className="mt-4 flex w-full flex-col gap-3 border-t border-(--text-primary)/10 pt-4">
@@ -60,13 +70,13 @@ function CheckoutButton({
           </p>
         </div>
 
-        {ended ? (
+        {!canBook ? (
           <button
             type="button"
             disabled
             className="inline-flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl bg-(--text-primary)/10 px-6 py-3.5 text-sm font-black uppercase tracking-wide text-(--muted-text) sm:w-auto sm:min-w-47.5"
           >
-            Không thể đặt vé
+            {ongoing ? 'Sự kiện đang diễn ra' : 'Không thể đặt vé'}
           </button>
         ) : (
           <Link

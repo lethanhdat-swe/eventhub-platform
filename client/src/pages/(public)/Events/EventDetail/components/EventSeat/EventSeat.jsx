@@ -26,11 +26,15 @@ function mapEventSeat(item) {
 const ENDED_SEAT_HELPER_TEXT =
   'Sơ đồ ghế chỉ dùng để tham khảo vì sự kiện đã kết thúc.';
 
+const ONGOING_SEAT_HELPER_TEXT =
+  'Sơ đồ ghế chỉ dùng để tham khảo vì sự kiện đang diễn ra.';
+
 function EventSeat({
   eventSeats = [],
   isLoading = false,
   error = null,
-  isEnded = false,
+  canBook = true,
+  isOngoing = false,
   onRetry,
 }) {
   const eventSeatItems = useMemo(
@@ -49,7 +53,7 @@ function EventSeat({
           </p>
 
           <h2 className="text-xl sm:text-2xl font-black tracking-tight text-(--text-primary)">
-            {isEnded ? 'Sơ đồ chỗ ngồi' : 'Chọn vị trí của bạn'}
+            {canBook ? 'Chọn vị trí của bạn' : 'Sơ đồ chỗ ngồi'}
           </h2>
         </div>
 
@@ -79,7 +83,13 @@ function EventSeat({
         <PublicSeatMap
           seats={eventSeatItems}
           mode="preview"
-          helperText={isEnded ? ENDED_SEAT_HELPER_TEXT : undefined}
+          helperText={
+            !canBook
+              ? isOngoing
+                ? ONGOING_SEAT_HELPER_TEXT
+                : ENDED_SEAT_HELPER_TEXT
+              : undefined
+          }
         />
       )}
     </section>

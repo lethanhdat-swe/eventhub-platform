@@ -10,3 +10,18 @@ export function isEventEnded(event) {
 
   return false;
 }
+
+export function isEventOngoing(event) {
+  if (!event?.startDate) return false;
+
+  const now = new Date();
+  const start = new Date(event.startDate);
+
+  if (start > now) return false;
+
+  return !isEventEnded(event);
+}
+
+export function canBookEvent(event) {
+  return !isEventEnded(event) && !isEventOngoing(event);
+}

@@ -11,7 +11,11 @@ import CustomerFormSection from './components/CustomerFormSection/CustomerFormSe
 import EventHeaderSection from './components/EventHeaderSection/EventHeaderSection';
 import EventSeat from './components/EventSeat/EventSeat';
 import OrderSummarySection from './components/OrderSummarySection/OrderSummarySection';
-import { isEventEnded } from '@/utils/eventDate';
+import {
+  canBookEvent,
+  isEventEnded,
+  isEventOngoing,
+} from '@/utils/eventDate';
 
 function mapEventSeat(item) {
   return {
@@ -121,9 +125,11 @@ function Booking() {
   );
 
   const isEnded = isEventEnded(event);
+  const isOngoing = isEventOngoing(event);
+  const canBook = canBookEvent(event);
 
   const handleToggleSeat = (seat) => {
-    if (isEnded) return;
+    if (!canBook) return;
 
     setSelectedSeatIds((currentIds) => {
       if (currentIds.includes(seat.id)) {
@@ -152,6 +158,10 @@ function Booking() {
         <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm font-medium text-amber-200/90">
           Sự kiện này đã kết thúc. Bạn không thể đặt vé mới.
         </div>
+      ) : isOngoing ? (
+        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm font-medium text-amber-200/90">
+          Sự kiện đang diễn ra. Bạn không thể đặt vé mới.
+        </div>
       ) : null}
 
       <EventHeaderSection event={event} isLoading={isLoading} />
@@ -160,7 +170,8 @@ function Booking() {
         selectedSeatIds={selectedSeatIds}
         selectedSeats={selectedSeats}
         isLoading={isLoading}
-        isEnded={isEnded}
+        canBook={canBook}
+        isOngoing={isOngoing}
         onToggleSeat={handleToggleSeat}
         onRemoveSeat={handleRemoveSeat}
         onClearSeats={() => setSelectedSeatIds([])}

@@ -29,7 +29,7 @@ function getStoredToken() {
   );
 }
 
-function EventHero({ event, isEnded = false }) {
+function EventHero({ event, isEnded = false, isOngoing = false }) {
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -208,6 +208,10 @@ function EventHero({ event, isEnded = false }) {
           {isEnded ? (
             <span className="rounded-full border border-white/20 bg-white/15 px-3 py-1.5 text-xs font-bold text-white/85 backdrop-blur-xl">
               Đã diễn ra
+            </span>
+          ) : isOngoing ? (
+            <span className="rounded-full border border-amber-400/30 bg-amber-500/20 px-3 py-1.5 text-xs font-bold text-amber-100 backdrop-blur-xl">
+              Đang diễn ra
             </span>
           ) : null}
 
