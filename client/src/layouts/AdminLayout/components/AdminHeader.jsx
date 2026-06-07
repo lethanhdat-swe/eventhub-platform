@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
     Bell,
     ChevronDown,
+    Home,
     Loader2,
     LogOut,
     Menu,
@@ -110,6 +111,13 @@ function AdminHeader({ onMenuToggle }) {
                         }
                     />
                     <DropdownMenuContent align="end" className="w-52">
+                        <DropdownMenuItem
+                            className="cursor-pointer"
+                            onClick={() => navigate('/')}
+                        >
+                            <Home className="size-4" />
+                            Về trang chủ
+                        </DropdownMenuItem>
                         <DropdownMenuItem
                             className="cursor-pointer"
                             onClick={() => navigate('/profile')}

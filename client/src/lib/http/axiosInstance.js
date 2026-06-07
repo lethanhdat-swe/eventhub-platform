@@ -61,7 +61,7 @@ async function refreshSessionOnce() {
       }
       const res = await postRefreshToken(token);
       const payload = getApiData(res.data);
-      useAuthStore.getState().setSessionTokens({
+      await useAuthStore.getState().setSessionTokens({
         accessToken: payload.accessToken,
         refreshToken: payload.refreshToken,
       });

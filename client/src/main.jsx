@@ -9,13 +9,16 @@ import '@/styles/_variables.css';
 import '@mantine/core/styles.css';
 import '@mantine/tiptap/styles.css';
 import ScrollToTop from './components/ScrollToTop/ScrollToTop';
+import AuthBootstrap from '@/components/AuthBootstrap/AuthBootstrap';
 
 createRoot(document.getElementById('root')).render(
   // <StrictMode>
   <BrowserRouter>
     <MantineProvider>
-      <App />
-      <ScrollToTop />
+      <AuthBootstrap>
+        <App />
+        <ScrollToTop />
+      </AuthBootstrap>
     </MantineProvider>
   </BrowserRouter>
   // </StrictMode>

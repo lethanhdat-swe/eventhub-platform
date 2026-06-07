@@ -481,10 +481,8 @@ class AuthService {
         // Filter out sensitive information
         const {
             password,
-            role,
             provider,
             providerId,
-            isEmailVerified,
             lastLoginAt,
             ...userWithoutPassword
         } = user;

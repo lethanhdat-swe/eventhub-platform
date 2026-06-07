@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 
 import { authStorage } from '@/lib/auth/authStorage';
+import { fetchSessionUser } from '@/lib/auth/sessionSync';
 
 /**
  * @param {{ accessToken?: string|null, refreshToken?: string|null, user?: object|null }} response
@@ -18,24 +19,62 @@ function applyAuthResponse(set, response) {
   });
 }
 
-export const useAuthStore = create((set) => ({
+export const useAuthStore = create((set, get) => ({
   user: null,
   accessToken: null,
   refreshToken: null,
   isAuthenticated: false,
   isHydrated: false,
 
-  hydrateAuth() {
+  async syncSessionFromServer() {
     const accessToken = authStorage.getAccessToken();
-    const refreshToken = authStorage.getRefreshToken();
-    const user = authStorage.getUser();
+
+    if (!accessToken) {
+      get().clearAuth();
+      return null;
+    }
+
+    const user = await fetchSessionUser();
+
+    authStorage.setUser(user);
     set({
       user,
       accessToken,
-      refreshToken,
-      isAuthenticated: Boolean(accessToken),
+      refreshToken: authStorage.getRefreshToken(),
+      isAuthenticated: true,
       isHydrated: true,
     });
+
+    return user;
+  },
+
+  async bootstrapAuth() {
+    const accessToken = authStorage.getAccessToken();
+    const refreshToken = authStorage.getRefreshToken();
+
+    if (!accessToken) {
+      set({
+        user: null,
+        accessToken: null,
+        refreshToken: null,
+        isAuthenticated: false,
+        isHydrated: true,
+      });
+      return;
+    }
+
+    set({
+      accessToken,
+      refreshToken,
+      isAuthenticated: true,
+      isHydrated: false,
+    });
+
+    try {
+      await get().syncSessionFromServer();
+    } catch {
+      get().clearAuth();
+    }
   },
 
   /** @param {{ accessToken: string, refreshToken: string, user: object }} authResponse */
@@ -56,21 +95,30 @@ export const useAuthStore = create((set) => ({
   },
 
   /** @param {{ accessToken: string, refreshToken: string }} tokens */
-  setSessionTokens(tokens) {
+  async setSessionTokens(tokens) {
     authStorage.setAccessToken(tokens.accessToken);
     authStorage.setRefreshToken(tokens.refreshToken);
     set({
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
       isAuthenticated: Boolean(tokens.accessToken),
-      isHydrated: true,
+      isHydrated: false,
     });
+
+    try {
+      await get().syncSessionFromServer();
+    } catch {
+      get().clearAuth();
+    }
   },
 
-  setUser(user) {
-    authStorage.setUser(user);
-    set({ user });
+  /** Cập nhật profile — không cho client ghi đè role. */
+  setUser(userPatch) {
+    const { role: _ignoredRole, ...safePatch } = userPatch ?? {};
+    const currentUser = get().user;
+    const nextUser = { ...currentUser, ...safePatch };
+
+    authStorage.setUser(nextUser);
+    set({ user: nextUser });
   },
 }));
-
-useAuthStore.getState().hydrateAuth();

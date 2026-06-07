@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Info, Loader2, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -147,6 +148,25 @@ function RefundRequestDialog({
         }
     }, [open, order]);
 
+    useEffect(() => {
+        if (!open) return undefined;
+
+        function handleKeyDown(event) {
+            if (event.key === 'Escape' && !submitting) {
+                onOpenChange?.(false);
+            }
+        }
+
+        document.addEventListener('keydown', handleKeyDown);
+        const previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+            document.body.style.overflow = previousOverflow;
+        };
+    }, [open, submitting, onOpenChange]);
+
     const totalAmount = Number(order?.totalAmount || order?.total_amount || 0);
 
     const expectedRefundAmount = useMemo(() => {
@@ -237,21 +257,33 @@ function RefundRequestDialog({
         }
     }
 
-    return (
-        <div className="fixed inset-0 z-[10050] flex items-center justify-center px-4 py-6">
+    function handleClose() {
+        if (submitting) return;
+        onOpenChange?.(false);
+    }
+
+    return createPortal(
+        <div className="pointer-events-auto fixed inset-0 z-[10050] flex items-center justify-center px-4 py-6">
             <button
                 type="button"
                 aria-label="Đóng"
                 className="absolute inset-0 bg-black/60"
-                onClick={() => {
-                    if (!submitting) onOpenChange(false);
-                }}
+                onClick={handleClose}
             />
 
-            <div className="relative z-10 flex max-h-[88vh] w-full max-w-225 flex-col overflow-hidden rounded-2xl border border-(--border-color) bg-(--surface-color) shadow-2xl">
+            <div
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="refund-request-dialog-title"
+                className="relative z-10 flex max-h-[88vh] w-full max-w-225 flex-col overflow-hidden rounded-2xl border border-(--border-color) bg-(--surface-color) shadow-2xl"
+                onClick={(event) => event.stopPropagation()}
+            >
                 <div className="flex items-start justify-between gap-4 border-b border-(--border-color) px-5 py-4">
                     <div>
-                        <h3 className="text-xl font-semibold text-(--text-primary)">
+                        <h3
+                            id="refund-request-dialog-title"
+                            className="text-xl font-semibold text-(--text-primary)"
+                        >
                             Yêu cầu hoàn vé
                         </h3>
                         <p className="mt-1.5 text-sm leading-5 text-(--muted-text)">
@@ -263,7 +295,7 @@ function RefundRequestDialog({
                     <button
                         type="button"
                         disabled={submitting}
-                        onClick={() => onOpenChange(false)}
+                        onClick={handleClose}
                         className="flex size-9 shrink-0 items-center justify-center rounded-full text-(--muted-text) transition hover:bg-(--soft-surface-color) hover:text-(--text-primary) disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         <X className="size-5" />
@@ -424,7 +456,7 @@ function RefundRequestDialog({
                         <button
                             type="button"
                             disabled={submitting}
-                            onClick={() => onOpenChange(false)}
+                            onClick={handleClose}
                             className="inline-flex h-10 items-center justify-center rounded-xl border border-(--border-color) bg-transparent px-5 text-sm font-medium text-(--text-primary) transition hover:bg-(--soft-surface-color) disabled:cursor-not-allowed disabled:opacity-50"
                         >
                             Hủy
@@ -443,7 +475,8 @@ function RefundRequestDialog({
                     </div>
                 </form>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }
 
