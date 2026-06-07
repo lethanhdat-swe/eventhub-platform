@@ -105,7 +105,7 @@ function EventItem({ event }) {
                     <span className="text-xl font-black leading-none">
                         {day}
                     </span>
-                    <span className="mt-1 text-[10px] font-bold uppercase tracking-widest text-white/70">
+                    <span className="mt-1 text-[10px] text-center font-bold uppercase tracking-widest text-white/70">
                         {month}
                     </span>
                 </div>
